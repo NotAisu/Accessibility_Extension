@@ -1,0 +1,79 @@
+{
+  "name": "accessibility-extension",
+  "displayName": "Accessibility Extension",
+  "description": "WCAG 2.2 linting and quick fixes for frontend developers.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+ "activationEvents": [
+    "onLanguage:html",
+    "onLanguage:vue",
+    "onLanguage:svelte",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescriptreact"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "accessibility-extension.fixWithAI",
+        "title": "Fix with Local AI"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "accessibilityReminders",
+          "name": "Accessibility Reminders"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Accessibility Extension",
+      "properties": {
+        "accessibility.fixVerbosity": {
+          "type": "string",
+          "default": "minimal",
+          "enum": [
+            "minimal",
+            "detailed"
+          ],
+          "description": "Controls the level of detail in the AI-generated fixes."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.3.9",
+    "eslint": "^8.57.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.4.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@types/jsdom": "^21.1.7",
+    "axe-core": "^4.8.4",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "jsdom": "^26.1.0"
+  }
+}
