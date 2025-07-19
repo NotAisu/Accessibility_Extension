@@ -23,8 +23,32 @@
       {
         "command": "accessibility-extension.fixWithAI",
         "title": "Fix with Local AI"
+      },
+      {
+        "command": "accessibility-extension.codeTutorAnnotate",
+        "title": "Accessibility Tutor: Ein/ausschalten",
+        "icon": "$(comment)"
+      },
+      {
+        "command": "accessibility-extension.codeTutorClear",
+        "title": "Accessibility Tutor: Annotationen löschen",
+        "icon": "$(clear-all)"
       }
     ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "accessibility-extension.codeTutorAnnotate",
+          "group": "navigation",
+          "when": "editorTextFocus"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "accessibility-extension.codeTutorClear"
+        }
+      ]
+    },
     "views": {
       "explorer": [
         {

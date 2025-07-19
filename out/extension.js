@@ -39,11 +39,23 @@ const vscode = __importStar(require("vscode"));
 const jsdom_1 = require("jsdom");
 const axe = __importStar(require("axe-core"));
 const llm_service_1 = require("./llm/llm-service");
+const code_tutor_service_1 = require("./code-tutor/code-tutor-service");
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
 let llmService;
+let codeTutorService;
 function activate(context) {
     llmService = new llm_service_1.LLMService();
+    codeTutorService = new code_tutor_service_1.CodeTutorService();
+    // Accessibility-bezogene Befehle
     context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.fixWithAI', fixWithAI));
+    // Code Tutor Befehle
+    context.subscriptions.push(vscode.commands.registerTextEditorCommand('accessibility-extension.codeTutorAnnotate', async (textEditor) => {
+        await codeTutorService.toggleAnnotations(textEditor);
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.codeTutorClear', () => {
+        codeTutorService.clearAnnotations();
+        vscode.window.showInformationMessage('Code Tutor Annotationen wurden gelöscht.');
+    }));
     context.subscriptions.push(vscode.languages.registerCodeActionsProvider(['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'], new AccessibilityActionProvider(), { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }));
     const runDiagnostics = (doc) => {
         if (['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'].includes(doc.languageId)) {
@@ -153,5 +165,8 @@ HTML code: ${code}`;
 }
 function deactivate() {
     diagnosticCollection.clear();
+    if (codeTutorService) {
+        codeTutorService.clearAnnotations();
+    }
 }
 //# sourceMappingURL=extension.js.map

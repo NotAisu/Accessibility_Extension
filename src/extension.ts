@@ -2,15 +2,33 @@ import * as vscode from 'vscode';
 import { JSDOM } from 'jsdom';
 import * as axe from 'axe-core';
 import { LLMService } from './llm/llm-service';
+import { CodeTutorService } from './code-tutor/code-tutor-service';
 
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
 let llmService: LLMService;
+let codeTutorService: CodeTutorService;
 
 export function activate(context: vscode.ExtensionContext) {
     llmService = new LLMService();
+    codeTutorService = new CodeTutorService();
     
+    // Accessibility-bezogene Befehle
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.fixWithAI', fixWithAI)
+    );
+
+    // Code Tutor Befehle
+    context.subscriptions.push(
+        vscode.commands.registerTextEditorCommand('accessibility-extension.codeTutorAnnotate', async (textEditor: vscode.TextEditor) => {
+            await codeTutorService.toggleAnnotations(textEditor);
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('accessibility-extension.codeTutorClear', () => {
+            codeTutorService.clearAnnotations();
+            vscode.window.showInformationMessage('Code Tutor Annotationen wurden gelöscht.');
+        })
     );
 
     context.subscriptions.push(
@@ -156,4 +174,7 @@ HTML code: ${code}`;
 
 export function deactivate() {
     diagnosticCollection.clear();
+    if (codeTutorService) {
+        codeTutorService.clearAnnotations();
+    }
 }
