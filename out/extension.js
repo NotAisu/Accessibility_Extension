@@ -40,14 +40,41 @@ const jsdom_1 = require("jsdom");
 const axe = __importStar(require("axe-core"));
 const llm_service_1 = require("./llm/llm-service");
 const code_tutor_service_1 = require("./code-tutor/code-tutor-service");
+const llm_settings_provider_1 = require("./views/llm-settings-provider");
+const ai_semantic_analyzer_1 = require("./ai/ai-semantic-analyzer");
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
 let llmService;
 let codeTutorService;
+let aiSemanticAnalyzer;
 function activate(context) {
-    llmService = new llm_service_1.LLMService();
+    // Services mit SecretStorage initialisieren
+    llmService = new llm_service_1.LLMService(context.secrets);
     codeTutorService = new code_tutor_service_1.CodeTutorService();
+    aiSemanticAnalyzer = new ai_semantic_analyzer_1.AISemanticAnalyzer(llmService);
+    // Register LLM Settings webview provider
+    const llmSettingsProvider = new llm_settings_provider_1.LLMSettingsProvider(context.extensionUri, llmService);
+    llmSettingsProvider.setAIAnalyzer(aiSemanticAnalyzer);
+    context.subscriptions.push(vscode.window.registerWebviewViewProvider(llm_settings_provider_1.LLMSettingsProvider.viewType, llmSettingsProvider));
     // Accessibility-bezogene Befehle
     context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.fixWithAI', fixWithAI));
+    // Test Connection Command
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.testConnection', async () => {
+        try {
+            const isConnected = await llmService.testConnection();
+            const message = isConnected ?
+                'AI provider connection successful!' :
+                'AI provider connection failed. Please check your settings.';
+            if (isConnected) {
+                vscode.window.showInformationMessage(message);
+            }
+            else {
+                vscode.window.showErrorMessage(message);
+            }
+        }
+        catch (error) {
+            vscode.window.showErrorMessage(`Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }));
     // Code Tutor Befehle
     context.subscriptions.push(vscode.commands.registerTextEditorCommand('accessibility-extension.codeTutorAnnotate', async (textEditor) => {
         await codeTutorService.toggleAnnotations(textEditor);
@@ -57,14 +84,29 @@ function activate(context) {
         vscode.window.showInformationMessage('Code Tutor Annotationen wurden gelöscht.');
     }));
     context.subscriptions.push(vscode.languages.registerCodeActionsProvider(['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'], new AccessibilityActionProvider(), { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }));
-    const runDiagnostics = (doc) => {
-        if (['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'].includes(doc.languageId)) {
-            updateDiagnostics(doc);
-        }
-    };
     context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(runDiagnostics));
     vscode.window.visibleTextEditors.forEach(editor => runDiagnostics(editor.document));
+}
+/**
+ * Führt Diagnostics für ein Dokument aus (axe-core + AI)
+ */
+async function runDiagnostics(document) {
+    // Nur für unterstützte Dateitypen
+    const supportedLanguages = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
+    if (!supportedLanguages.includes(document.languageId)) {
+        return;
+    }
+    try {
+        // 1. Axe-core Diagnostics ausführen (sofortiges Feedback)
+        await updateDiagnostics(document);
+        // 2. AI Semantic Analysis (nur wenn aktiviert)
+        const axeDiagnostics = Array.from(diagnosticCollection.get(document.uri) || []);
+        await aiSemanticAnalyzer.analyzeVisibleCode(document, axeDiagnostics);
+    }
+    catch (error) {
+        console.error('Error running diagnostics:', error);
+    }
 }
 async function updateDiagnostics(document) {
     const text = document.getText();
@@ -112,15 +154,35 @@ async function updateDiagnostics(document) {
 }
 class AccessibilityActionProvider {
     provideCodeActions(document, range, context) {
-        return context.diagnostics
-            .filter(diagnostic => typeof diagnostic.code === 'string')
-            .map(diagnostic => this.createCommandAction(diagnostic));
+        // Filter für alle Accessibility-Diagnostics (axe-core und AI)
+        const accessibilityDiagnostics = context.diagnostics.filter(diagnostic => {
+            // axe-core Diagnostics haben string code
+            if (typeof diagnostic.code === 'string') {
+                return true;
+            }
+            // AI-Diagnostics haben JSON code mit isAIGenerated flag
+            try {
+                if (typeof diagnostic.code === 'string') {
+                    const codeData = JSON.parse(diagnostic.code);
+                    return codeData.isAIGenerated === true;
+                }
+            }
+            catch (error) {
+                // Ignore parsing errors
+            }
+            return false;
+        });
+        if (accessibilityDiagnostics.length === 0) {
+            return [];
+        }
+        // Eine einheitliche "Fix with AI" Aktion für alle Accessibility-Probleme
+        return accessibilityDiagnostics.map(diagnostic => this.createCommandAction(diagnostic));
     }
     createCommandAction(diagnostic) {
-        const action = new vscode.CodeAction('Fix with Local AI', vscode.CodeActionKind.QuickFix);
+        const action = new vscode.CodeAction('Fix with AI', vscode.CodeActionKind.QuickFix);
         action.command = {
             command: 'accessibility-extension.fixWithAI',
-            title: 'Generate fix with Local AI',
+            title: 'Generate fix with AI',
             arguments: [diagnostic]
         };
         action.diagnostics = [diagnostic];
@@ -133,33 +195,65 @@ async function fixWithAI(diagnostic) {
     if (!editor)
         return;
     const code = editor.document.getText(diagnostic.range);
-    const { help } = JSON.parse(diagnostic.code);
+    // Unterscheiden zwischen axe-core und AI-Diagnostics
+    let help;
+    let isAIGenerated = false;
+    try {
+        if (typeof diagnostic.code === 'string') {
+            const codeData = JSON.parse(diagnostic.code);
+            if (codeData.isAIGenerated === true) {
+                // AI-Generated Diagnostic
+                help = codeData.recommendation || diagnostic.message;
+                isAIGenerated = true;
+            }
+            else {
+                // axe-core Diagnostic
+                help = codeData.help || diagnostic.message;
+            }
+        }
+        else {
+            help = diagnostic.message;
+        }
+    }
+    catch (error) {
+        help = diagnostic.message;
+    }
     await vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
-        title: "Asking local AI for a fix...",
+        title: isAIGenerated ? "AI Semantic Fix wird angewendet..." : "Asking AI for a fix...",
         cancellable: false
     }, async () => {
         try {
             const config = vscode.workspace.getConfiguration('accessibility');
             const verbosity = config.get('fixVerbosity', 'minimal');
-            let prompt = `Fix this HTML to be WCAG compliant:
-Rule violated: ${help}
-HTML code: ${code}`;
-            if (verbosity === 'minimal') {
-                prompt += '\n\nReturn only the fixed HTML code.';
+            let prompt;
+            if (isAIGenerated) {
+                // Prompt für AI-generierte semantische Probleme
+                prompt = `Fix this HTML/CSS code according to WCAG semantic requirements:
+Semantic Issue: ${help}
+Code: ${code}`;
             }
             else {
-                prompt += '\n\nReturn the fixed HTML code, then explain the changes.';
+                // Prompt für axe-core Probleme
+                prompt = `Fix this HTML to be WCAG compliant:
+Rule violated: ${help}
+HTML code: ${code}`;
+            }
+            if (verbosity === 'minimal') {
+                prompt += '\n\nReturn only the fixed code.';
+            }
+            else {
+                prompt += '\n\nReturn the fixed code, then explain the changes.';
             }
             const suggestion = await llmService.getAccessibilityFix(prompt);
             const edit = new vscode.WorkspaceEdit();
             edit.replace(editor.document.uri, diagnostic.range, suggestion);
             await vscode.workspace.applyEdit(edit);
-            vscode.window.showInformationMessage('Fix applied by Local AI!');
+            vscode.window.showInformationMessage('Fix applied by AI!');
         }
         catch (error) {
             console.error(error);
-            vscode.window.showErrorMessage(`Failed to get suggestion from local AI: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            vscode.window.showErrorMessage(`Failed to get suggestion from AI: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     });
 }
@@ -167,6 +261,9 @@ function deactivate() {
     diagnosticCollection.clear();
     if (codeTutorService) {
         codeTutorService.clearAnnotations();
+    }
+    if (aiSemanticAnalyzer) {
+        aiSemanticAnalyzer.dispose();
     }
 }
 //# sourceMappingURL=extension.js.map

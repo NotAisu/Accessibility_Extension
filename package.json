@@ -25,6 +25,14 @@
         "title": "Fix with Local AI"
       },
       {
+        "command": "accessibility-extension.fixWithAISemantic",
+        "title": "Fix with AI (Semantic)"
+      },
+      {
+        "command": "accessibility-extension.testConnection",
+        "title": "Test AI Connection"
+      },
+      {
         "command": "accessibility-extension.codeTutorAnnotate",
         "title": "Accessibility Tutor: Ein/ausschalten",
         "icon": "$(comment)"
@@ -50,10 +58,27 @@
       ]
     },
     "views": {
+      "aiAccessibility": [
+        {
+          "id": "aiAccessibilitySettings",
+          "name": "AI Accessibility",
+          "icon": "$(brain)",
+          "type": "webview"
+        }
+      ],
       "explorer": [
         {
           "id": "accessibilityReminders",
           "name": "Accessibility Reminders"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "aiAccessibility",
+          "title": "AI Accessibility",
+          "icon": "$(brain)"
         }
       ]
     },
@@ -68,6 +93,65 @@
             "detailed"
           ],
           "description": "Controls the level of detail in the AI-generated fixes."
+        },
+        "accessibility.aiProvider": {
+          "type": "string",
+          "default": "local",
+          "enum": [
+            "local",
+            "github-copilot",
+            "custom-api"
+          ],
+          "description": "AI provider for accessibility fixes"
+        },
+        "accessibility.aiAnalyzer.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable AI semantic analyzer for WCAG violations"
+        },
+        "accessibility.localLLM.endpoint": {
+          "type": "string",
+          "default": "http://127.0.0.1:1234",
+          "description": "Local LLM server endpoint (LM Studio, Ollama, etc.)"
+        },
+        "accessibility.localLLM.model": {
+          "type": "string",
+          "default": "mistralai/devstral-small-2507",
+          "description": "Local LLM model identifier"
+        },
+        "accessibility.githubCopilot.model": {
+          "type": "string",
+          "default": "gpt-4o",
+          "enum": [
+            "gpt-4o",
+            "gpt-4.1",
+            "gpt-4o-mini",
+            "claude-3.5-sonnet",
+            "claude-3.7-haiku",
+            "claude-4.0",
+            "gemini-2.0-flash",
+            "gemini-2.5-pro",
+            "o3-mini",
+            "o4-mini",
+            "o1-preview",
+            "o1-mini"
+          ],
+          "description": "GitHub Copilot model selection"
+        },
+        "accessibility.customAPI.endpoint": {
+          "type": "string",
+          "default": "https://api.openai.com/v1/chat/completions",
+          "description": "Custom API endpoint"
+        },
+        "accessibility.customAPI.model": {
+          "type": "string",
+          "default": "gpt-4o-mini",
+          "description": "Model name for custom API"
+        },
+        "accessibility.customAPI.headers": {
+          "type": "object",
+          "default": {},
+          "description": "Custom headers for API requests"
         }
       }
     }

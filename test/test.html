@@ -7,11 +7,34 @@
 </head>
 <body>
     <main>
-        <!-- This image is missing an alt attribute, which is a WCAG violation. -->
+        <!-- This image is missing an alt attribute, which is a WCAG violation that axe-core WILL find -->
         <img src="test.jpg">
 
-        <!-- This button is missing a name, which is a WCAG violation. -->
+        <!-- This button is missing a name, which is a WCAG violation that axe-core WILL find -->
         <button></button>
+
+        <!-- These are semantic issues that axe-core CANNOT detect but AI can: -->
+        
+        <!-- Using div instead of semantic button -->
+<button type="button" onclick="submit()">Submit Form</button>
+        
+        <!-- Broken heading hierarchy -->
+        <h1>Main Title</h1>
+        <h3>Subtitle (should be h2)</h3>
+        
+        <!-- Unclear button label -->
+<button>Submit Form</button>
+        
+        <!-- Bad tabindex order -->
+        <input type="text" id="input1" tabindex="5">
+<label for="input1">Enter text:</label>
+        <input type="text" tabindex="1">
+        
+        <!-- Useless aria-label -->
+        <img src="logo.jpg" alt="Company logo" aria-label="image">
+        
+        <!-- Empty interactive element -->
+        <a href="#"></a>
     </main>
 </body>
 </html>
