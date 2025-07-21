@@ -33,24 +33,20 @@
         "title": "Test AI Connection"
       },
       {
-        "command": "accessibility-extension.codeTutorAnnotate",
-        "title": "Accessibility Tutor: Ein/ausschalten",
-        "icon": "$(comment)"
-      },
-      {
         "command": "accessibility-extension.codeTutorClear",
         "title": "Accessibility Tutor: Annotationen löschen",
         "icon": "$(clear-all)"
+      },
+      {
+        "command": "accessibility-extension.openDashboard",
+        "title": "Open Accessibility Dashboard"
+      },
+      {
+        "command": "accessibility-extension.openSettings",
+        "title": "Open AI Settings"
       }
     ],
     "menus": {
-      "editor/title": [
-        {
-          "command": "accessibility-extension.codeTutorAnnotate",
-          "group": "navigation",
-          "when": "editorTextFocus"
-        }
-      ],
       "commandPalette": [
         {
           "command": "accessibility-extension.codeTutorClear"
@@ -61,15 +57,24 @@
       "aiAccessibility": [
         {
           "id": "aiAccessibilitySettings",
-          "name": "AI Accessibility",
-          "icon": "$(brain)",
-          "type": "webview"
+          "name": "AI Settings",
+          "icon": "$(settings-gear)",
+          "type": "webview",
+          "when": "true"
+        },
+        {
+          "id": "accessibilityMetricsDashboard", 
+          "name": "Metrics Dashboard",
+          "icon": "$(graph)",
+          "type": "webview",
+          "when": "true"
         }
       ],
       "explorer": [
         {
           "id": "accessibilityReminders",
-          "name": "Accessibility Reminders"
+          "name": "Accessibility Reminders",
+          "icon": "$(checklist)"
         }
       ]
     },
@@ -78,7 +83,7 @@
         {
           "id": "aiAccessibility",
           "title": "AI Accessibility",
-          "icon": "$(brain)"
+          "icon": "$(mortar-board)"
         }
       ]
     },

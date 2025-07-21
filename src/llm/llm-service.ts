@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { MetricsService} from '../metrics/metrics-service';
 
 export interface LLMProvider {
     name: string;
@@ -11,10 +12,15 @@ export interface LLMProvider {
 export class LLMService {
     private providers: Map<string, LLMProvider> = new Map();
     private secretStorage: vscode.SecretStorage;
+    private metricsService?: MetricsService;
     
     constructor(secretStorage: vscode.SecretStorage) {
         this.secretStorage = secretStorage;
         this.initializeProviders();
+    }
+
+    public setMetricsService(metricsService: MetricsService): void {
+        this.metricsService = metricsService;
     }
     
     private initializeProviders(): void {
@@ -35,16 +41,50 @@ export class LLMService {
         return provider;
     }
     
-    public async getAccessibilityFix(prompt: string): Promise<string> {
+    public async getAccessibilityFix(prompt: string): Promise<{ result: string; quickFixId: string }> {
+        const startTime = Date.now();
         const provider = await this.getCurrentProvider();
         
         if (!(await provider.isConfigured())) {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
-        
-        return provider.getAccessibilityFix(prompt);
+
+        try {
+            const result = await provider.getAccessibilityFix(prompt);
+            const responseTime = Date.now() - startTime;
+            
+            // Record metrics if service is available
+            let quickFixId = '';
+            if (this.metricsService) {
+                quickFixId = this.metricsService.recordQuickFixAttempt();
+            }
+            
+            return { result, quickFixId };
+        } catch (error) {
+            // Record failed attempt
+            if (this.metricsService) {
+                // Just record attempt, no complex tracking needed
+            }
+            throw error;
+        }
     }
-    
+
+    // Separate method for AI analysis that doesn't count as QuickFix attempt
+    public async getAIAnalysis(prompt: string): Promise<string> {
+        const provider = await this.getCurrentProvider();
+        
+        if (!(await provider.isConfigured())) {
+            throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
+        }
+
+        try {
+            const result = await provider.getAccessibilityFix(prompt);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     public async testConnection(): Promise<boolean> {
         try {
             const provider = await this.getCurrentProvider();

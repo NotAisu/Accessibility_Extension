@@ -41,6 +41,9 @@ class LLMService {
         this.secretStorage = secretStorage;
         this.initializeProviders();
     }
+    setMetricsService(metricsService) {
+        this.metricsService = metricsService;
+    }
     initializeProviders() {
         this.providers.set('local', new LocalLLMProvider());
         this.providers.set('github-copilot', new GitHubCopilotProvider());
@@ -56,11 +59,42 @@ class LLMService {
         return provider;
     }
     async getAccessibilityFix(prompt) {
+        const startTime = Date.now();
         const provider = await this.getCurrentProvider();
         if (!(await provider.isConfigured())) {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
-        return provider.getAccessibilityFix(prompt);
+        try {
+            const result = await provider.getAccessibilityFix(prompt);
+            const responseTime = Date.now() - startTime;
+            // Record metrics if service is available
+            let quickFixId = '';
+            if (this.metricsService) {
+                quickFixId = this.metricsService.recordQuickFixAttempt();
+            }
+            return { result, quickFixId };
+        }
+        catch (error) {
+            // Record failed attempt
+            if (this.metricsService) {
+                // Just record attempt, no complex tracking needed
+            }
+            throw error;
+        }
+    }
+    // Separate method for AI analysis that doesn't count as QuickFix attempt
+    async getAIAnalysis(prompt) {
+        const provider = await this.getCurrentProvider();
+        if (!(await provider.isConfigured())) {
+            throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
+        }
+        try {
+            const result = await provider.getAccessibilityFix(prompt);
+            return result;
+        }
+        catch (error) {
+            throw error;
+        }
     }
     async testConnection() {
         try {

@@ -46,6 +46,9 @@ class LLMSettingsProvider {
     setAIAnalyzer(aiAnalyzer) {
         this.aiAnalyzer = aiAnalyzer;
     }
+    setCodeTutorService(codeTutorService) {
+        this.codeTutorService = codeTutorService;
+    }
     resolveWebviewView(webviewView, context, _token) {
         this._view = webviewView;
         webviewView.webview.options = {
@@ -64,6 +67,9 @@ class LLMSettingsProvider {
                     break;
                 case 'analyzerToggled':
                     await this.handleAnalyzerToggle(data.enabled);
+                    break;
+                case 'codeTutorToggled':
+                    await this.handleCodeTutorToggle(data.enabled);
                     break;
                 case 'getInitialState':
                     await this.sendInitialState();
@@ -194,6 +200,32 @@ class LLMSettingsProvider {
             vscode.window.showErrorMessage('Fehler beim Umschalten des AI Analyzers');
         }
     }
+    async handleCodeTutorToggle(enabled) {
+        try {
+            if (this.codeTutorService) {
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                    if (enabled) {
+                        await this.codeTutorService.toggleAnnotations(editor);
+                        vscode.window.showInformationMessage('Code Tutor aktiviert');
+                    }
+                    else {
+                        this.codeTutorService.clearAnnotations();
+                        vscode.window.showInformationMessage('Code Tutor deaktiviert');
+                    }
+                }
+                else {
+                    vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+                }
+            }
+            else {
+                vscode.window.showErrorMessage('Code Tutor Service nicht verfügbar');
+            }
+        }
+        catch (error) {
+            vscode.window.showErrorMessage('Fehler beim Umschalten des Code Tutors');
+        }
+    }
     async sendInitialState() {
         const config = vscode.workspace.getConfiguration('accessibility');
         const currentProvider = config.get('aiProvider', 'local');
@@ -211,6 +243,7 @@ class LLMSettingsProvider {
             type: 'initialState',
             provider: currentProvider,
             analyzerEnabled: analyzerEnabled,
+            codeTutorEnabled: false, // Code Tutor ist standardmäßig deaktiviert
             config: {
                 local: {
                     endpoint: localEndpoint,
@@ -381,7 +414,7 @@ class LLMSettingsProvider {
                     font-size: 12px;
                 }
                 
-                .analyzer-section {
+                .analyzer-section, .code-tutor-section {
                     margin-top: 16px;
                     padding: 12px;
                     background: var(--vscode-editor-background);
@@ -389,12 +422,12 @@ class LLMSettingsProvider {
                     border-radius: 4px;
                 }
                 
-                .analyzer-toggle {
+                .analyzer-toggle, .code-tutor-toggle {
                     display: flex;
                     align-items: center;
                 }
                 
-                .analyzer-toggle input[type="checkbox"] {
+                .analyzer-toggle input[type="checkbox"], .code-tutor-toggle input[type="checkbox"] {
                     margin-right: 8px;
                 }
                 
@@ -513,6 +546,15 @@ class LLMSettingsProvider {
                 <div class="description">Findet semantische WCAG-Probleme, die axe-core übersieht</div>
             </div>
             
+            <div class="code-tutor-section">
+                <h3>Code Tutor</h3>
+                <div class="code-tutor-toggle">
+                    <input type="checkbox" id="code-tutor-enabled">
+                    <label for="code-tutor-enabled">Code Tutor Annotationen aktivieren</label>
+                </div>
+                <div class="description">Zeigt Accessibility-Tipps direkt im Code an</div>
+            </div>
+            
             <script>
                 const vscode = acquireVsCodeApi();
                 
@@ -533,6 +575,22 @@ class LLMSettingsProvider {
                 document.getElementById('analyzer-enabled').addEventListener('change', function() {
                     vscode.postMessage({
                         type: 'analyzerToggled',
+                        enabled: this.checked
+                    });
+                });
+                
+                // Code Tutor toggle
+                document.getElementById('code-tutor-enabled').addEventListener('change', function() {
+                    vscode.postMessage({
+                        type: 'codeTutorToggled',
+                        enabled: this.checked
+                    });
+                });
+                
+                // Code Tutor toggle
+                document.getElementById('code-tutor-enabled').addEventListener('change', function() {
+                    vscode.postMessage({
+                        type: 'codeTutorToggled',
                         enabled: this.checked
                     });
                 });
@@ -624,6 +682,9 @@ class LLMSettingsProvider {
                             
                             // Set analyzer state
                             document.getElementById('analyzer-enabled').checked = message.analyzerEnabled;
+                            
+                            // Set code tutor state
+                            document.getElementById('code-tutor-enabled').checked = message.codeTutorEnabled || false;
                             
                             // Set config values
                             if (message.config) {

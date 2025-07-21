@@ -5,27 +5,72 @@ import { LLMService } from './llm/llm-service';
 import { CodeTutorService } from './code-tutor/code-tutor-service';
 import { LLMSettingsProvider } from './views/llm-settings-provider';
 import { AISemanticAnalyzer } from './ai/ai-semantic-analyzer';
+import { MetricsService } from './metrics/metrics-service';
+import { MetricsDashboardProvider } from './views/metrics-dashboard-provider';
+import { FeedbackService } from './feedback/feedback-service';
 
 
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
 let llmService: LLMService;
 let codeTutorService: CodeTutorService;
 let aiSemanticAnalyzer: AISemanticAnalyzer;
+let metricsService: MetricsService;
+let feedbackService: FeedbackService;
 
 
 export function activate(context: vscode.ExtensionContext) {
+    console.log('🚀 Activating Accessibility Extension...');
+    
     // Services mit SecretStorage initialisieren
     llmService = new LLMService(context.secrets);
     codeTutorService = new CodeTutorService();
+    metricsService = MetricsService.getInstance(context);
+    feedbackService = FeedbackService.getInstance(metricsService);
+    
+    // Set metrics service in LLM service
+    llmService.setMetricsService(metricsService);
     
     aiSemanticAnalyzer = new AISemanticAnalyzer(llmService);
+    aiSemanticAnalyzer.setMetricsService(metricsService);
+
+    console.log('📊 Services initialized successfully');
 
     
     // Register LLM Settings webview provider
     const llmSettingsProvider = new LLMSettingsProvider(context.extensionUri, llmService);
     llmSettingsProvider.setAIAnalyzer(aiSemanticAnalyzer);
+    llmSettingsProvider.setCodeTutorService(codeTutorService);
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(LLMSettingsProvider.viewType, llmSettingsProvider)
+    );
+    console.log(`Registered LLM Settings Provider with viewType: ${LLMSettingsProvider.viewType}`);
+
+    // Register Metrics Dashboard webview provider
+    const metricsDashboardProvider = new MetricsDashboardProvider(context.extensionUri, metricsService);
+    context.subscriptions.push(
+        vscode.window.registerWebviewViewProvider(MetricsDashboardProvider.viewType, metricsDashboardProvider)
+    );
+    console.log(`Registered Metrics Dashboard Provider with viewType: ${MetricsDashboardProvider.viewType}`);
+
+    // Set DiagnosticCollections for the dashboard provider so it can refresh violations after clearing data
+    metricsDashboardProvider.setDiagnosticCollections(
+        diagnosticCollection,
+        aiSemanticAnalyzer.getDiagnosticCollection()
+    );
+
+    console.log('Accessibility Extension: All WebView Providers registered successfully');
+
+    // Register feedback command
+    context.subscriptions.push(
+        feedbackService.createFeedbackCommand()
+    );
+
+    // Register feedback hover provider
+    context.subscriptions.push(
+        vscode.languages.registerHoverProvider(
+            ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'],
+            feedbackService.createFeedbackHoverProvider()
+        )
     );
     
     // Accessibility-bezogene Befehle
@@ -52,6 +97,19 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
+    // Debug Commands for Testing
+    context.subscriptions.push(
+        vscode.commands.registerCommand('accessibility-extension.openDashboard', async () => {
+            await vscode.commands.executeCommand('accessibilityMetricsDashboard.focus');
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('accessibility-extension.openSettings', async () => {
+            await vscode.commands.executeCommand('aiAccessibilitySettings.focus');
+        })
+    );
+
     // Code Tutor Befehle
     context.subscriptions.push(
         vscode.commands.registerTextEditorCommand('accessibility-extension.codeTutorAnnotate', async (textEditor: vscode.TextEditor) => {
@@ -66,6 +124,47 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
+    // Metrics and Feedback Commands
+    context.subscriptions.push(
+        vscode.commands.registerCommand('accessibility-extension.showMetrics', () => {
+            vscode.commands.executeCommand('workbench.view.extension.accessibility-metrics');
+        })
+    );
+
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('accessibility-extension.clearMetrics', async () => {
+            const result = await vscode.window.showWarningMessage(
+                'Are you sure you want to clear all metrics data?',
+                'Clear Data',
+                'Cancel'
+            );
+
+            if (result === 'Clear Data') {
+                // Verwende clearDataAndRefresh um aktuelle Violations beizubehalten
+                metricsService.clearDataAndRefresh(
+                    diagnosticCollection,
+                    aiSemanticAnalyzer.getDiagnosticCollection()
+                );
+                vscode.window.showInformationMessage('Metrics data cleared successfully.');
+            }
+        })
+    );
+
+
+    
+    context.subscriptions.push(
+        vscode.commands.registerCommand('accessibility-extension.showFeedbackStats', () => {
+            const stats = metricsService.getDashboardData();
+            
+            vscode.window.showInformationMessage(
+                `📊 Metrics Stats - Detection Accuracy: ${stats.detectionAccuracy.toFixed(1)}%, ` +
+                `Quick Fix Success Rate: ${stats.quickFixSuccessRate.toFixed(1)}%, ` +
+                `Total Current Violations: ${stats.totalCurrentViolations}`
+            );
+        })
+    );
+
     context.subscriptions.push(
         vscode.languages.registerCodeActionsProvider(
             ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'],
@@ -77,6 +176,13 @@ export function activate(context: vscode.ExtensionContext) {
   
     context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(runDiagnostics));
+    context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((document) => {
+        // Clean up diagnostics for closed document
+        diagnosticCollection.delete(document.uri);
+        aiSemanticAnalyzer.getDiagnosticCollection().delete(document.uri);
+        // Update global metrics after cleanup
+        updateGlobalViolationMetrics();
+    }));
 
     vscode.window.visibleTextEditors.forEach(editor => runDiagnostics(editor.document));
 }
@@ -99,9 +205,25 @@ async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
         const axeDiagnostics = Array.from(diagnosticCollection.get(document.uri) || []);
         await aiSemanticAnalyzer.analyzeVisibleCode(document, axeDiagnostics);
         
+        // 3. Zentrale Metrics-Update für alle Diagnostics
+        updateGlobalViolationMetrics();
+        
     } catch (error) {
         console.error('Error running diagnostics:', error);
     }
+}
+
+/**
+ * Updates die globalen Violation Metrics basierend auf allen aktuellen Diagnostics
+ */
+function updateGlobalViolationMetrics(): void {
+    if (!metricsService) return;
+
+    // Sammle alle Violations aus den DiagnosticCollections
+    metricsService.updateCurrentViolationsFromDiagnostics(
+        diagnosticCollection,
+        aiSemanticAnalyzer.getDiagnosticCollection()
+    );
 }
 
 async function updateDiagnostics(document: vscode.TextDocument) {
@@ -162,6 +284,7 @@ async function updateDiagnostics(document: vscode.TextDocument) {
     } catch (error) {
         console.error('Error in accessibility analysis:', error);
         vscode.window.showErrorMessage('An error occurred during accessibility analysis.');
+        diagnosticCollection.set(document.uri, []);
     }
 }
 
@@ -213,6 +336,9 @@ async function fixWithAI(diagnostic: vscode.Diagnostic) {
     if (!editor) return;
 
     const code = editor.document.getText(diagnostic.range);
+    
+    // Variable für quickFixId außerhalb des try-catch definieren
+    let quickFixId = '';
     
     // Unterscheiden zwischen axe-core und AI-Diagnostics
     let help: string;
@@ -266,16 +392,38 @@ HTML code: ${code}`;
                 prompt += '\n\nReturn the fixed code, then explain the changes.';
             }
             
-            const suggestion = await llmService.getAccessibilityFix(prompt);
+            const response = await llmService.getAccessibilityFix(prompt);
+            const suggestion = response.result;
+            quickFixId = response.quickFixId;
             
             const edit = new vscode.WorkspaceEdit();
             edit.replace(editor.document.uri, diagnostic.range, suggestion);
             await vscode.workspace.applyEdit(edit);
 
-            vscode.window.showInformationMessage('Fix applied by AI!');
+            vscode.window.showInformationMessage('✅ Fix applied by AI!');
+            
+            // Extract rule ID from diagnostic for feedback
+            let ruleId = 'unknown';
+            try {
+                if (typeof diagnostic.code === 'string') {
+                    const codeData = JSON.parse(diagnostic.code);
+                    ruleId = codeData.ruleId || ruleId;
+                }
+            } catch (error) {
+                // Use default ruleId
+            }
+            
+            // Show feedback request after a delay
+            setTimeout(() => {
+                feedbackService.showQuickFixFeedback(quickFixId, ruleId);
+            }, 1500);
+            
         } catch (error) {
-            console.error(error);
+            console.error('QuickFix failed:', error);
             vscode.window.showErrorMessage(`Failed to get suggestion from AI: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            
+            // Record failed attempt in metrics
+            metricsService.recordQuickFixFeedback(quickFixId, 'negative');
         }
     });
 }
@@ -287,5 +435,8 @@ export function deactivate() {
     }
     if (aiSemanticAnalyzer) {
         aiSemanticAnalyzer.dispose();
+    }
+    if (metricsService) {
+        metricsService.dispose();
     }
 }

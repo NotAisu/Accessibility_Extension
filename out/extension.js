@@ -42,19 +42,44 @@ const llm_service_1 = require("./llm/llm-service");
 const code_tutor_service_1 = require("./code-tutor/code-tutor-service");
 const llm_settings_provider_1 = require("./views/llm-settings-provider");
 const ai_semantic_analyzer_1 = require("./ai/ai-semantic-analyzer");
+const metrics_service_1 = require("./metrics/metrics-service");
+const metrics_dashboard_provider_1 = require("./views/metrics-dashboard-provider");
+const feedback_service_1 = require("./feedback/feedback-service");
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
 let llmService;
 let codeTutorService;
 let aiSemanticAnalyzer;
+let metricsService;
+let feedbackService;
 function activate(context) {
+    console.log('🚀 Activating Accessibility Extension...');
     // Services mit SecretStorage initialisieren
     llmService = new llm_service_1.LLMService(context.secrets);
     codeTutorService = new code_tutor_service_1.CodeTutorService();
+    metricsService = metrics_service_1.MetricsService.getInstance(context);
+    feedbackService = feedback_service_1.FeedbackService.getInstance(metricsService);
+    // Set metrics service in LLM service
+    llmService.setMetricsService(metricsService);
     aiSemanticAnalyzer = new ai_semantic_analyzer_1.AISemanticAnalyzer(llmService);
+    aiSemanticAnalyzer.setMetricsService(metricsService);
+    console.log('📊 Services initialized successfully');
     // Register LLM Settings webview provider
     const llmSettingsProvider = new llm_settings_provider_1.LLMSettingsProvider(context.extensionUri, llmService);
     llmSettingsProvider.setAIAnalyzer(aiSemanticAnalyzer);
+    llmSettingsProvider.setCodeTutorService(codeTutorService);
     context.subscriptions.push(vscode.window.registerWebviewViewProvider(llm_settings_provider_1.LLMSettingsProvider.viewType, llmSettingsProvider));
+    console.log(`Registered LLM Settings Provider with viewType: ${llm_settings_provider_1.LLMSettingsProvider.viewType}`);
+    // Register Metrics Dashboard webview provider
+    const metricsDashboardProvider = new metrics_dashboard_provider_1.MetricsDashboardProvider(context.extensionUri, metricsService);
+    context.subscriptions.push(vscode.window.registerWebviewViewProvider(metrics_dashboard_provider_1.MetricsDashboardProvider.viewType, metricsDashboardProvider));
+    console.log(`Registered Metrics Dashboard Provider with viewType: ${metrics_dashboard_provider_1.MetricsDashboardProvider.viewType}`);
+    // Set DiagnosticCollections for the dashboard provider so it can refresh violations after clearing data
+    metricsDashboardProvider.setDiagnosticCollections(diagnosticCollection, aiSemanticAnalyzer.getDiagnosticCollection());
+    console.log('Accessibility Extension: All WebView Providers registered successfully');
+    // Register feedback command
+    context.subscriptions.push(feedbackService.createFeedbackCommand());
+    // Register feedback hover provider
+    context.subscriptions.push(vscode.languages.registerHoverProvider(['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'], feedbackService.createFeedbackHoverProvider()));
     // Accessibility-bezogene Befehle
     context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.fixWithAI', fixWithAI));
     // Test Connection Command
@@ -75,6 +100,13 @@ function activate(context) {
             vscode.window.showErrorMessage(`Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }));
+    // Debug Commands for Testing
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.openDashboard', async () => {
+        await vscode.commands.executeCommand('accessibilityMetricsDashboard.focus');
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.openSettings', async () => {
+        await vscode.commands.executeCommand('aiAccessibilitySettings.focus');
+    }));
     // Code Tutor Befehle
     context.subscriptions.push(vscode.commands.registerTextEditorCommand('accessibility-extension.codeTutorAnnotate', async (textEditor) => {
         await codeTutorService.toggleAnnotations(textEditor);
@@ -83,9 +115,34 @@ function activate(context) {
         codeTutorService.clearAnnotations();
         vscode.window.showInformationMessage('Code Tutor Annotationen wurden gelöscht.');
     }));
+    // Metrics and Feedback Commands
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.showMetrics', () => {
+        vscode.commands.executeCommand('workbench.view.extension.accessibility-metrics');
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.clearMetrics', async () => {
+        const result = await vscode.window.showWarningMessage('Are you sure you want to clear all metrics data?', 'Clear Data', 'Cancel');
+        if (result === 'Clear Data') {
+            // Verwende clearDataAndRefresh um aktuelle Violations beizubehalten
+            metricsService.clearDataAndRefresh(diagnosticCollection, aiSemanticAnalyzer.getDiagnosticCollection());
+            vscode.window.showInformationMessage('Metrics data cleared successfully.');
+        }
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.showFeedbackStats', () => {
+        const stats = metricsService.getDashboardData();
+        vscode.window.showInformationMessage(`📊 Metrics Stats - Detection Accuracy: ${stats.detectionAccuracy.toFixed(1)}%, ` +
+            `Quick Fix Success Rate: ${stats.quickFixSuccessRate.toFixed(1)}%, ` +
+            `Total Current Violations: ${stats.totalCurrentViolations}`);
+    }));
     context.subscriptions.push(vscode.languages.registerCodeActionsProvider(['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'], new AccessibilityActionProvider(), { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }));
     context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(runDiagnostics));
+    context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((document) => {
+        // Clean up diagnostics for closed document
+        diagnosticCollection.delete(document.uri);
+        aiSemanticAnalyzer.getDiagnosticCollection().delete(document.uri);
+        // Update global metrics after cleanup
+        updateGlobalViolationMetrics();
+    }));
     vscode.window.visibleTextEditors.forEach(editor => runDiagnostics(editor.document));
 }
 /**
@@ -103,10 +160,21 @@ async function runDiagnostics(document) {
         // 2. AI Semantic Analysis (nur wenn aktiviert)
         const axeDiagnostics = Array.from(diagnosticCollection.get(document.uri) || []);
         await aiSemanticAnalyzer.analyzeVisibleCode(document, axeDiagnostics);
+        // 3. Zentrale Metrics-Update für alle Diagnostics
+        updateGlobalViolationMetrics();
     }
     catch (error) {
         console.error('Error running diagnostics:', error);
     }
+}
+/**
+ * Updates die globalen Violation Metrics basierend auf allen aktuellen Diagnostics
+ */
+function updateGlobalViolationMetrics() {
+    if (!metricsService)
+        return;
+    // Sammle alle Violations aus den DiagnosticCollections
+    metricsService.updateCurrentViolationsFromDiagnostics(diagnosticCollection, aiSemanticAnalyzer.getDiagnosticCollection());
 }
 async function updateDiagnostics(document) {
     const text = document.getText();
@@ -150,6 +218,7 @@ async function updateDiagnostics(document) {
     catch (error) {
         console.error('Error in accessibility analysis:', error);
         vscode.window.showErrorMessage('An error occurred during accessibility analysis.');
+        diagnosticCollection.set(document.uri, []);
     }
 }
 class AccessibilityActionProvider {
@@ -195,6 +264,8 @@ async function fixWithAI(diagnostic) {
     if (!editor)
         return;
     const code = editor.document.getText(diagnostic.range);
+    // Variable für quickFixId außerhalb des try-catch definieren
+    let quickFixId = '';
     // Unterscheiden zwischen axe-core und AI-Diagnostics
     let help;
     let isAIGenerated = false;
@@ -245,15 +316,34 @@ HTML code: ${code}`;
             else {
                 prompt += '\n\nReturn the fixed code, then explain the changes.';
             }
-            const suggestion = await llmService.getAccessibilityFix(prompt);
+            const response = await llmService.getAccessibilityFix(prompt);
+            const suggestion = response.result;
+            quickFixId = response.quickFixId;
             const edit = new vscode.WorkspaceEdit();
             edit.replace(editor.document.uri, diagnostic.range, suggestion);
             await vscode.workspace.applyEdit(edit);
-            vscode.window.showInformationMessage('Fix applied by AI!');
+            vscode.window.showInformationMessage('✅ Fix applied by AI!');
+            // Extract rule ID from diagnostic for feedback
+            let ruleId = 'unknown';
+            try {
+                if (typeof diagnostic.code === 'string') {
+                    const codeData = JSON.parse(diagnostic.code);
+                    ruleId = codeData.ruleId || ruleId;
+                }
+            }
+            catch (error) {
+                // Use default ruleId
+            }
+            // Show feedback request after a delay
+            setTimeout(() => {
+                feedbackService.showQuickFixFeedback(quickFixId, ruleId);
+            }, 1500);
         }
         catch (error) {
-            console.error(error);
+            console.error('QuickFix failed:', error);
             vscode.window.showErrorMessage(`Failed to get suggestion from AI: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            // Record failed attempt in metrics
+            metricsService.recordQuickFixFeedback(quickFixId, 'negative');
         }
     });
 }
@@ -264,6 +354,9 @@ function deactivate() {
     }
     if (aiSemanticAnalyzer) {
         aiSemanticAnalyzer.dispose();
+    }
+    if (metricsService) {
+        metricsService.dispose();
     }
 }
 //# sourceMappingURL=extension.js.map

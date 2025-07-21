@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AISemanticAnalyzer = void 0;
 const vscode = __importStar(require("vscode"));
 /**
- * AI Semantic Analyzer mit gelber Farbkodierung für WCAG-Semantik-Verstöße
+ * AI Semantic Analyzer mit blauer Farbkodierung für WCAG-Semantik-Verstöße
  */
 class AISemanticAnalyzer {
     constructor(llmService) {
@@ -44,6 +44,9 @@ class AISemanticAnalyzer {
         this.isEnabled = false;
         this.llmService = llmService;
         this.loadSettings();
+    }
+    setMetricsService(metricsService) {
+        this.metricsService = metricsService;
     }
     loadSettings() {
         const config = vscode.workspace.getConfiguration('accessibility');
@@ -58,18 +61,28 @@ class AISemanticAnalyzer {
         return this.isEnabled;
     }
     /**
-     * Hauptanalyse-Methode ohne Debouncing
+     * Hauptanalyse-Methode
      */
     async analyzeVisibleCode(document, existingAxeDiagnostics) {
         if (!this.isEnabled) {
             this.aiDiagnosticCollection.set(document.uri, []);
             return;
         }
+        // Start Performance-Timer
+        const analysisId = this.metricsService?.startAIAnalysis();
         try {
             await this.performAnalysis(document, existingAxeDiagnostics);
+            // End Performance-Timer bei Erfolg
+            if (analysisId && this.metricsService) {
+                this.metricsService.endAIAnalysis(analysisId);
+            }
         }
         catch (error) {
             console.error('AI Semantic Analysis failed:', error);
+            // End Performance-Timer auch bei Fehler
+            if (analysisId && this.metricsService) {
+                this.metricsService.endAIAnalysis(analysisId);
+            }
         }
     }
     /**
@@ -77,7 +90,7 @@ class AISemanticAnalyzer {
      */
     async performAnalysis(document, existingAxeDiagnostics) {
         try {
-            // Sichtbaren Code holen (analog zu CodeTutorService)
+            // Sichtbaren Code holen
             const visibleCode = this.getVisibleCodeWithLineNumbers(document);
             if (!visibleCode.trim()) {
                 this.aiDiagnosticCollection.set(document.uri, []);
@@ -87,7 +100,7 @@ class AISemanticAnalyzer {
             const aiFindings = await this.performAIAnalysis(visibleCode, document);
             // Axe-core Duplikate filtern
             const filteredFindings = this.filterAxeProblems(aiFindings, existingAxeDiagnostics);
-            // Gelbe AI-Diagnostics erstellen
+            // Blaue AI-Diagnostics erstellen (inkl. Metrics-Update)
             const aiDiagnostics = this.createAIDiagnostics(filteredFindings, document);
             // Diagnostics setzen
             this.aiDiagnosticCollection.set(document.uri, aiDiagnostics);
@@ -136,8 +149,9 @@ class AISemanticAnalyzer {
     async performAIAnalysis(codeWithLineNumbers, document) {
         const prompt = this.createSemanticAnalysisPrompt(codeWithLineNumbers);
         try {
-            const aiResponse = await this.llmService.getAccessibilityFix(prompt);
-            return this.parseAIResponse(aiResponse, document);
+            const aiResponse = await this.llmService.getAIAnalysis(prompt);
+            const violations = this.parseAIResponse(aiResponse, document);
+            return violations;
         }
         catch (error) {
             console.error('AI analysis request failed:', error);
@@ -225,19 +239,19 @@ ${codeWithLineNumbers}`;
      * Erstellt blaue AI-Diagnostics für gefundene semantische Probleme
      */
     createAIDiagnostics(findings, document) {
-        return findings.map(finding => {
-            const diagnostic = new vscode.Diagnostic(finding.range, `[AI Semantic] ${finding.message}`, vscode.DiagnosticSeverity.Information // Blaue wellenförmige Unterstreichung
-            );
+        const diagnostics = findings.map(finding => {
+            const diagnostic = new vscode.Diagnostic(finding.range, `[AI Semantic] ${finding.message}`, vscode.DiagnosticSeverity.Information);
             diagnostic.code = JSON.stringify({
                 ruleId: finding.ruleId,
                 isAIGenerated: true,
                 element: finding.element,
-                recommendation: finding.message
+                recommendation: finding.message,
+                violationId: `ai_violation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
             });
             diagnostic.source = 'AI Accessibility Analyzer';
-            diagnostic.tags = [vscode.DiagnosticTag.Unnecessary]; // Zusätzliche visuelle Kennzeichnung
             return diagnostic;
         });
+        return diagnostics;
     }
     /**
      * Cleanup-Methode
@@ -250,6 +264,12 @@ ${codeWithLineNumbers}`;
      */
     getAIDiagnostics(uri) {
         return this.aiDiagnosticCollection.get(uri) || [];
+    }
+    /**
+     * Gibt die DiagnosticCollection zurück für Metrics
+     */
+    getDiagnosticCollection() {
+        return this.aiDiagnosticCollection;
     }
     /**
      * Clearer alle AI-Diagnostics

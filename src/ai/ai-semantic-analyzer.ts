@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { LLMService } from '../llm/llm-service';
+import { MetricsService } from '../metrics/metrics-service';
 
 interface WCAGViolation {
     element: string;
@@ -18,16 +19,21 @@ interface AIAnalysisResult {
 }
 
 /**
- * AI Semantic Analyzer mit gelber Farbkodierung für WCAG-Semantik-Verstöße
+ * AI Semantic Analyzer mit blauer Farbkodierung für WCAG-Semantik-Verstöße
  */
 export class AISemanticAnalyzer {
     private aiDiagnosticCollection = vscode.languages.createDiagnosticCollection('ai-accessibility');
     private llmService: LLMService;
+    private metricsService?: MetricsService;
     private isEnabled: boolean = false;
 
     constructor(llmService: LLMService) {
         this.llmService = llmService;
         this.loadSettings();
+    }
+
+    public setMetricsService(metricsService: MetricsService): void {
+        this.metricsService = metricsService;
     }
 
     private loadSettings(): void {
@@ -46,7 +52,7 @@ export class AISemanticAnalyzer {
     }
 
     /**
-     * Hauptanalyse-Methode ohne Debouncing
+     * Hauptanalyse-Methode
      */
     public async analyzeVisibleCode(
         document: vscode.TextDocument, 
@@ -57,10 +63,23 @@ export class AISemanticAnalyzer {
             return;
         }
 
+        // Start Performance-Timer
+        const analysisId = this.metricsService?.startAIAnalysis();
+
         try {
             await this.performAnalysis(document, existingAxeDiagnostics);
+            
+            // End Performance-Timer bei Erfolg
+            if (analysisId && this.metricsService) {
+                this.metricsService.endAIAnalysis(analysisId);
+            }
         } catch (error) {
             console.error('AI Semantic Analysis failed:', error);
+            
+            // End Performance-Timer auch bei Fehler
+            if (analysisId && this.metricsService) {
+                this.metricsService.endAIAnalysis(analysisId);
+            }
         }
     }
 
@@ -72,7 +91,7 @@ export class AISemanticAnalyzer {
         existingAxeDiagnostics: vscode.Diagnostic[]
     ): Promise<void> {
         try {
-            // Sichtbaren Code holen (analog zu CodeTutorService)
+            // Sichtbaren Code holen
             const visibleCode = this.getVisibleCodeWithLineNumbers(document);
             
             if (!visibleCode.trim()) {
@@ -86,7 +105,7 @@ export class AISemanticAnalyzer {
             // Axe-core Duplikate filtern
             const filteredFindings = this.filterAxeProblems(aiFindings, existingAxeDiagnostics);
             
-            // Gelbe AI-Diagnostics erstellen
+            // Blaue AI-Diagnostics erstellen (inkl. Metrics-Update)
             const aiDiagnostics = this.createAIDiagnostics(filteredFindings, document);
             
             // Diagnostics setzen
@@ -147,8 +166,10 @@ export class AISemanticAnalyzer {
         const prompt = this.createSemanticAnalysisPrompt(codeWithLineNumbers);
         
         try {
-            const aiResponse = await this.llmService.getAccessibilityFix(prompt);
-            return this.parseAIResponse(aiResponse, document);
+            const aiResponse = await this.llmService.getAIAnalysis(prompt);
+            const violations = this.parseAIResponse(aiResponse, document);
+            
+            return violations;
         } catch (error) {
             console.error('AI analysis request failed:', error);
             return [];
@@ -255,25 +276,27 @@ ${codeWithLineNumbers}`;
         findings: WCAGViolation[], 
         document: vscode.TextDocument
     ): vscode.Diagnostic[] {
-        return findings.map(finding => {
+        const diagnostics = findings.map(finding => {
             const diagnostic = new vscode.Diagnostic(
                 finding.range,
                 `[AI Semantic] ${finding.message}`,
-                vscode.DiagnosticSeverity.Information // Blaue wellenförmige Unterstreichung
+                vscode.DiagnosticSeverity.Information 
             );
             
             diagnostic.code = JSON.stringify({ 
                 ruleId: finding.ruleId, 
                 isAIGenerated: true,
                 element: finding.element,
-                recommendation: finding.message
+                recommendation: finding.message,
+                violationId: `ai_violation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
             });
             
             diagnostic.source = 'AI Accessibility Analyzer';
-            diagnostic.tags = [vscode.DiagnosticTag.Unnecessary]; // Zusätzliche visuelle Kennzeichnung
             
             return diagnostic;
         });
+
+        return diagnostics;
     }
 
     /**
@@ -288,6 +311,13 @@ ${codeWithLineNumbers}`;
      */
     public getAIDiagnostics(uri: vscode.Uri): readonly vscode.Diagnostic[] {
         return this.aiDiagnosticCollection.get(uri) || [];
+    }
+
+    /**
+     * Gibt die DiagnosticCollection zurück für Metrics
+     */
+    public getDiagnosticCollection(): vscode.DiagnosticCollection {
+        return this.aiDiagnosticCollection;
     }
 
     /**
