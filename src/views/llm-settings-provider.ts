@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { LLMService } from '../llm/llm-service';
 import { AISemanticAnalyzer } from '../ai/ai-semantic-analyzer';
+import { CodeTutorService } from '../code-tutor/code-tutor-service';
 
 /**
  * WebView Provider für AI Accessibility Settings
@@ -11,6 +12,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
     private llmService: LLMService;
     private aiAnalyzer?: AISemanticAnalyzer;
+    private codeTutorService?: CodeTutorService;
 
     constructor(
         private readonly _extensionUri: vscode.Uri,
@@ -21,6 +23,10 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
 
     public setAIAnalyzer(aiAnalyzer: AISemanticAnalyzer): void {
         this.aiAnalyzer = aiAnalyzer;
+    }
+
+    public setCodeTutorService(codeTutorService: CodeTutorService): void {
+        this.codeTutorService = codeTutorService;
     }
 
     public resolveWebviewView(
@@ -48,6 +54,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'analyzerToggled':
                     await this.handleAnalyzerToggle(data.enabled);
+                    break;
+                case 'codeTutorToggled':
+                    await this.handleCodeTutorToggle(data.enabled);
                     break;
                 case 'getInitialState':
                     await this.sendInitialState();
@@ -190,6 +199,29 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
         }
     }
 
+    private async handleCodeTutorToggle(enabled: boolean): Promise<void> {
+        try {
+            if (this.codeTutorService) {
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                    if (enabled) {
+                        await this.codeTutorService.toggleAnnotations(editor);
+                        vscode.window.showInformationMessage('Code Tutor aktiviert');
+                    } else {
+                        this.codeTutorService.clearAnnotations();
+                        vscode.window.showInformationMessage('Code Tutor deaktiviert');
+                    }
+                } else {
+                    vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+                }
+            } else {
+                vscode.window.showErrorMessage('Code Tutor Service nicht verfügbar');
+            }
+        } catch (error) {
+            vscode.window.showErrorMessage('Fehler beim Umschalten des Code Tutors');
+        }
+    }
+
     private async sendInitialState(): Promise<void> {
         const config = vscode.workspace.getConfiguration('accessibility');
         const currentProvider = config.get<string>('aiProvider', 'local');
@@ -210,6 +242,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             type: 'initialState',
             provider: currentProvider,
             analyzerEnabled: analyzerEnabled,
+            codeTutorEnabled: false, // Code Tutor ist standardmäßig deaktiviert
             config: {
                 local: {
                     endpoint: localEndpoint,
@@ -384,7 +417,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     font-size: 12px;
                 }
                 
-                .analyzer-section {
+                .analyzer-section, .code-tutor-section {
                     margin-top: 16px;
                     padding: 12px;
                     background: var(--vscode-editor-background);
@@ -392,12 +425,12 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     border-radius: 4px;
                 }
                 
-                .analyzer-toggle {
+                .analyzer-toggle, .code-tutor-toggle {
                     display: flex;
                     align-items: center;
                 }
                 
-                .analyzer-toggle input[type="checkbox"] {
+                .analyzer-toggle input[type="checkbox"], .code-tutor-toggle input[type="checkbox"] {
                     margin-right: 8px;
                 }
                 
@@ -516,6 +549,15 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 <div class="description">Findet semantische WCAG-Probleme, die axe-core übersieht</div>
             </div>
             
+            <div class="code-tutor-section">
+                <h3>Code Tutor</h3>
+                <div class="code-tutor-toggle">
+                    <input type="checkbox" id="code-tutor-enabled">
+                    <label for="code-tutor-enabled">Code Tutor Annotationen aktivieren</label>
+                </div>
+                <div class="description">Zeigt Accessibility-Tipps direkt im Code an</div>
+            </div>
+            
             <script>
                 const vscode = acquireVsCodeApi();
                 
@@ -536,6 +578,22 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 document.getElementById('analyzer-enabled').addEventListener('change', function() {
                     vscode.postMessage({
                         type: 'analyzerToggled',
+                        enabled: this.checked
+                    });
+                });
+                
+                // Code Tutor toggle
+                document.getElementById('code-tutor-enabled').addEventListener('change', function() {
+                    vscode.postMessage({
+                        type: 'codeTutorToggled',
+                        enabled: this.checked
+                    });
+                });
+                
+                // Code Tutor toggle
+                document.getElementById('code-tutor-enabled').addEventListener('change', function() {
+                    vscode.postMessage({
+                        type: 'codeTutorToggled',
                         enabled: this.checked
                     });
                 });
@@ -627,6 +685,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                             
                             // Set analyzer state
                             document.getElementById('analyzer-enabled').checked = message.analyzerEnabled;
+                            
+                            // Set code tutor state
+                            document.getElementById('code-tutor-enabled').checked = message.codeTutorEnabled || false;
                             
                             // Set config values
                             if (message.config) {
