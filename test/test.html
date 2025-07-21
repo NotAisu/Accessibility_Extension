@@ -16,10 +16,11 @@
         <!-- These are semantic issues that axe-core CANNOT detect but AI can: -->
         
         <!-- Using div instead of semantic button -->
-<button type="button" onclick="submit()">Submit Form</button>
-        
+<div role="button" onclick="submit()">Submit Form</div>
+
         <!-- Broken heading hierarchy -->
-        <h1>Main Title</h1>
+<h1>Main Title</h1>
+<h2>Subheading</h2>
         <h3>Subtitle (should be h2)</h3>
         
         <!-- Unclear button label -->
@@ -31,7 +32,7 @@
         <input type="text" tabindex="1">
         
         <!-- Useless aria-label -->
-        <img src="logo.jpg" alt="Company logo" aria-label="image">
+<img src="logo.jpg" alt="Company logo" aria-label="Company logo">
         
         <!-- Empty interactive element -->
         <a href="#"></a>
