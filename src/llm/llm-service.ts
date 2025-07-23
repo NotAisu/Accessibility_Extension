@@ -42,34 +42,27 @@ export class LLMService {
     }
     
     public async getAccessibilityFix(prompt: string): Promise<{ result: string; quickFixId: string }> {
-        const startTime = Date.now();
         const provider = await this.getCurrentProvider();
         
         if (!(await provider.isConfigured())) {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
 
+        // Record attempt and get tracking ID
+        let quickFixId = '';
+        if (this.metricsService) {
+            quickFixId = this.metricsService.recordQuickFixAttempt();
+        }
+
         try {
             const result = await provider.getAccessibilityFix(prompt);
-            const responseTime = Date.now() - startTime;
-            
-            // Record metrics if service is available
-            let quickFixId = '';
-            if (this.metricsService) {
-                quickFixId = this.metricsService.recordQuickFixAttempt();
-            }
-            
             return { result, quickFixId };
         } catch (error) {
-            // Record failed attempt
-            if (this.metricsService) {
-                // Just record attempt, no complex tracking needed
-            }
             throw error;
         }
     }
 
-    // Separate method for AI analysis that doesn't count as QuickFix attempt
+    // Separate method for AI analysis 
     public async getAIAnalysis(prompt: string): Promise<string> {
         const provider = await this.getCurrentProvider();
         
@@ -157,7 +150,7 @@ class LocalLLMProvider implements LLMProvider {
                     messages: [
                         {
                             role: "system",
-                            content: "You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
+                            content: "You are an accessibility expert. Fix HTML code to be WCAG 2.2 AA compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
                         },
                         {
                             role: "user",
@@ -271,7 +264,7 @@ class LocalLLMProvider implements LLMProvider {
             }
         }
         
-        // Saubere Fallback-Lösung
+       
         return text.trim();
     }
 }
@@ -430,16 +423,13 @@ class GitHubCopilotProvider implements LLMProvider {
             const targetModels = [
                 'gpt-4o',
                 'gpt-4.1', 
-                'gpt-4o-mini',
                 'claude-3.5-sonnet',
-                'claude-3.7-haiku', 
+                'claude-3.7', 
                 'claude-4.0',
                 'gemini-2.0-flash',
                 'gemini-2.5-pro',
                 'o3-mini',
-                'o4-mini',
-                'o1-preview',
-                'o1-mini'
+                'o4-mini'
             ];
             
             // Nur verfügbare Modelle zurückgeben, fallback auf alle verfügbaren
@@ -455,13 +445,10 @@ class GitHubCopilotProvider implements LLMProvider {
             // Fallback: Standard-Modelle zurückgeben
             return [
                 'gpt-4o', 
-                'gpt-4o-mini', 
                 'claude-3.5-sonnet',
-                'claude-3.7-haiku',
+                'claude-3.7',
                 'gemini-2.0-flash',
                 'o3-mini',
-                'o1-preview',
-                'o1-mini'
             ];
         }
     }
