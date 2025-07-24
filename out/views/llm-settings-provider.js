@@ -243,7 +243,7 @@ class LLMSettingsProvider {
             type: 'initialState',
             provider: currentProvider,
             analyzerEnabled: analyzerEnabled,
-            codeTutorEnabled: false, // Code Tutor ist standardmäßig deaktiviert
+            codeTutorEnabled: false,
             config: {
                 local: {
                     endpoint: localEndpoint,
@@ -484,22 +484,22 @@ class LLMSettingsProvider {
                 <div class="config-group" id="github-copilot-config">
                     <div class="config-item">
                         <label for="copilot-model">Model:</label>
-                        <select id="copilot-model" onchange="saveModel()">
-                            <option value="gpt-4o">GPT-4o</option>
-                            <option value="gpt-4.1">GPT-4.1</option>
-                            <option value="gpt-4o-mini">GPT-4o Mini</option>
-                            <option value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-                            <option value="claude-3.7-haiku">Claude 3.7 Haiku</option>
-                            <option value="claude-4.0">Claude 4.0</option>
-                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                            <option value="o3-mini">O3 Mini</option>
-                            <option value="o4-mini">O4 Mini</option>
-                            <option value="o1-preview">O1 Preview</option>
-                            <option value="o1-mini">O1 Mini</option>
-                        </select>
-                    </div>
-                    <div class="description">Erfordert GitHub Copilot Extension und aktive Lizenz</div>
+                               <select id="copilot-model" onchange="saveModel()">
+            <!-- Standard Models -->
+            <option value="gpt-4.1">GPT-4.1</option>
+            <option value="gpt-4o">GPT-4o</option>
+            <!-- Premium Models -->
+            <option value="claude-3.5-sonnet">Claude Sonnet 3.5</option>
+            <option value="claude-3.7-sonnet">Claude Sonnet 3.7</option>
+            <option value="claude-3.7-sonnet-thinking">Claude Sonnet 3.7 Thinking</option>
+            <option value="claude-4-sonnet">Claude Sonnet 4</option>
+            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+            <option value="gemini-2.5-pro">Gemini 2.5 Pro (Preview)</option>
+            <option value="o3-mini">o3-mini</option>
+            <option value="o4-mini">o4-mini (Preview)</option>
+        </select>
+    </div>
+    <div class="description">Verfügbare Modelle basierend auf Ihrem GitHub Copilot Plan</div>
                 </div>
                 
                 <div class="provider-option">

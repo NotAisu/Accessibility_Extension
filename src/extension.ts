@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { JSDOM } from 'jsdom';
+import * as axe from 'axe-core';
 import { LLMService } from './llm/llm-service';
 import { CodeTutorService } from './code-tutor/code-tutor-service';
 import { LLMSettingsProvider } from './views/llm-settings-provider';
@@ -6,18 +8,14 @@ import { AISemanticAnalyzer } from './ai/ai-semantic-analyzer';
 import { MetricsService } from './metrics/metrics-service';
 import { MetricsDashboardProvider } from './views/metrics-dashboard-provider';
 import { FeedbackService } from './feedback/feedback-service';
-import { UnifiedLinterService } from './linters/unified-linter-service';
-import { LinterViolation } from './linters/linter-types';
 
 
-const linterDiagnosticCollection = vscode.languages.createDiagnosticCollection('linter-accessibility');
-const aiDiagnosticCollection = vscode.languages.createDiagnosticCollection('ai-accessibility');
+const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
 let llmService: LLMService;
 let codeTutorService: CodeTutorService;
 let aiSemanticAnalyzer: AISemanticAnalyzer;
 let metricsService: MetricsService;
 let feedbackService: FeedbackService;
-let unifiedLinterService: UnifiedLinterService;
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -28,7 +26,6 @@ export function activate(context: vscode.ExtensionContext) {
     codeTutorService = new CodeTutorService();
     metricsService = MetricsService.getInstance(context);
     feedbackService = FeedbackService.getInstance(metricsService);
-    unifiedLinterService = new UnifiedLinterService();
     
     // Set metrics service in LLM service
     llmService.setMetricsService(metricsService);
@@ -57,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Set DiagnosticCollections for the dashboard provider so it can refresh violations after clearing data
     metricsDashboardProvider.setDiagnosticCollections(
-        linterDiagnosticCollection,
+        diagnosticCollection,
         aiSemanticAnalyzer.getDiagnosticCollection()
     );
 
@@ -146,7 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (result === 'Clear Data') {
                 // Verwende clearDataAndRefresh um aktuelle Violations beizubehalten
                 metricsService.clearDataAndRefresh(
-                    linterDiagnosticCollection,
+                    diagnosticCollection,
                     aiSemanticAnalyzer.getDiagnosticCollection()
                 );
                 vscode.window.showInformationMessage('Metrics data cleared successfully.');
@@ -181,7 +178,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((document) => {
         // Clean up diagnostics for closed document
-        linterDiagnosticCollection.delete(document.uri);
+        diagnosticCollection.delete(document.uri);
         aiSemanticAnalyzer.getDiagnosticCollection().delete(document.uri);
         // Update global metrics after cleanup
         updateGlobalViolationMetrics();
@@ -191,16 +188,22 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * Führt Diagnostics für ein Dokument aus (Unified Linter + AI)
+ * Führt Diagnostics für ein Dokument aus (axe-core + AI)
  */
 async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
+    // Nur für unterstützte Dateitypen
+    const supportedLanguages = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
+    if (!supportedLanguages.includes(document.languageId)) {
+        return;
+    }
+
     try {
-        // 1. Unified Linter Diagnostics ausführen (sofortiges Feedback)
-        await updateLinterDiagnostics(document);
+        // 1. Axe-core Diagnostics ausführen (sofortiges Feedback)
+        await updateDiagnostics(document);
         
         // 2. AI Semantic Analysis (nur wenn aktiviert)
-        const linterDiagnostics = Array.from(linterDiagnosticCollection.get(document.uri) || []);
-        await aiSemanticAnalyzer.analyzeVisibleCode(document, linterDiagnostics);
+        const axeDiagnostics = Array.from(diagnosticCollection.get(document.uri) || []);
+        await aiSemanticAnalyzer.analyzeVisibleCode(document, axeDiagnostics);
         
         // 3. Zentrale Metrics-Update für alle Diagnostics
         updateGlobalViolationMetrics();
@@ -218,83 +221,123 @@ function updateGlobalViolationMetrics(): void {
 
     // Sammle alle Violations aus den DiagnosticCollections
     metricsService.updateCurrentViolationsFromDiagnostics(
-        linterDiagnosticCollection,
+        diagnosticCollection,
         aiSemanticAnalyzer.getDiagnosticCollection()
     );
 }
 
-async function updateLinterDiagnostics(document: vscode.TextDocument) {
+async function updateDiagnostics(document: vscode.TextDocument) {
+    const text = document.getText();
+    if (!text) {
+        diagnosticCollection.set(document.uri, []);
+        return;
+    }
+
+    const { window } = new JSDOM(text);
+
+    
+    if (!window.HTMLCanvasElement.prototype.getContext) {
+        window.HTMLCanvasElement.prototype.getContext = function() {
+            return null; 
+        };
+    }
+
     try {
-        const violations = await unifiedLinterService.lintDocument(document);
-        
-        const diagnostics = violations.map(violation => {
-            const diagnostic = new vscode.Diagnostic(
-                violation.range,
-                violation.message,
-                violation.severity
-            );
-            
-            diagnostic.code = JSON.stringify({
-                ruleId: violation.ruleId,
-                source: violation.source,
-                framework: violation.framework,
-                element: violation.element
-            });
-            
-            diagnostic.source = `${violation.source} Linter`;
-            
-            return diagnostic;
+        const results = await axe.run(window.document.documentElement, {
+            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] },
+            resultTypes: ['violations'],
+            rules: {
+                'color-contrast': { enabled: false },
+                'color-contrast-enhanced': { enabled: false }
+            }
         });
-        
-        linterDiagnosticCollection.set(document.uri, diagnostics);
-        
+
+        const diagnostics: vscode.Diagnostic[] = [];
+        for (const violation of results.violations) {
+            for (const node of violation.nodes) {
+                let range: vscode.Range | undefined;
+
+                if (node.target.length === 1 && node.target[0] === 'html') {
+                    const htmlTagRegex = /<html[^>]*>/i;
+                    const match = text.match(htmlTagRegex);
+                    if (match && typeof match.index === 'number') {
+                        range = new vscode.Range(
+                            document.positionAt(match.index),
+                            document.positionAt(match.index + match[0].length)
+                        );
+                    }
+                } else {
+                    const problematicHtml = node.html;
+                    const index = text.indexOf(problematicHtml);
+
+                    if (index !== -1) {
+                        range = new vscode.Range(
+                            document.positionAt(index),
+                            document.positionAt(index + problematicHtml.length)
+                        );
+                    }
+                }
+
+                if (range) {
+                    const diagnostic = new vscode.Diagnostic(
+                        range,
+                        `${violation.help} (Regel: ${violation.id})`,
+                        vscode.DiagnosticSeverity.Warning
+                    );
+                    diagnostic.code = JSON.stringify({ ruleId: violation.id, help: violation.help });
+                    diagnostics.push(diagnostic);
+                }
+            }
+        }
+
+        diagnosticCollection.set(document.uri, diagnostics);
+
     } catch (error) {
-        console.error('Linter diagnostics failed:', error);
-        linterDiagnosticCollection.set(document.uri, []);
+        console.error('Error in accessibility analysis:', error);
+        
+        
+        if (error instanceof Error && error.message.includes('HTMLCanvasElement.prototype.getContext')) {
+            console.warn('Canvas context not available in JSDOM - color contrast checks disabled');
+        } else {
+            vscode.window.showErrorMessage('An error occurred during accessibility analysis.');
+        }
+        
+        diagnosticCollection.set(document.uri, []);
     }
 }
 
 class AccessibilityActionProvider implements vscode.CodeActionProvider {
     provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext): vscode.CodeAction[] {
-        // Filter für alle Accessibility-Diagnostics (Linter und AI)
-        const linterDiagnostics = context.diagnostics.filter(diagnostic => {
-            return diagnostic.source?.includes('Linter') || 
-                   (typeof diagnostic.code === 'string' && !this.isAIGenerated(diagnostic));
-        });
-        
-        const aiDiagnostics = context.diagnostics.filter(diagnostic => {
-            return this.isAIGenerated(diagnostic);
-        });
-
-        const actions: vscode.CodeAction[] = [];
-
-        // Create actions for linter diagnostics
-        linterDiagnostics.forEach(diagnostic => {
-            actions.push(this.createCommandAction(diagnostic, 'Fix with AI'));
-        });
-
-        // Create actions for AI diagnostics
-        aiDiagnostics.forEach(diagnostic => {
-            actions.push(this.createCommandAction(diagnostic, 'Fix AI Semantic Issue'));
-        });
-
-        return actions;
-    }
-
-    private isAIGenerated(diagnostic: vscode.Diagnostic): boolean {
-        try {
+        // Filter für alle Accessibility-Diagnostics (axe-core und AI)
+        const accessibilityDiagnostics = context.diagnostics.filter(diagnostic => {
+            // axe-core Diagnostics haben string code
             if (typeof diagnostic.code === 'string') {
-                const codeData = JSON.parse(diagnostic.code);
-                return codeData.isAIGenerated === true;
+                return true;
             }
-        } catch (error) {
-            // Ignore parsing errors
+            
+            // AI-Diagnostics haben JSON code mit isAIGenerated flag
+            try {
+                if (typeof diagnostic.code === 'string') {
+                    const codeData = JSON.parse(diagnostic.code);
+                    return codeData.isAIGenerated === true;
+                }
+            } catch (error) {
+                // Ignore parsing errors
+            }
+            
+            return false;
+        });
+
+        if (accessibilityDiagnostics.length === 0) {
+            return [];
         }
-        return false;
+
+        // Eine einheitliche "Fix with AI" Aktion für alle Accessibility-Probleme
+        return accessibilityDiagnostics.map(diagnostic => this.createCommandAction(diagnostic));
     }
 
-    private createCommandAction(diagnostic: vscode.Diagnostic, title: string): vscode.CodeAction {
-        const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
+    private createCommandAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
+        const action = new vscode.CodeAction('Fix with AI', vscode.CodeActionKind.QuickFix);
         action.command = {
             command: 'accessibility-extension.fixWithAI',
             title: 'Generate fix with AI',
@@ -404,7 +447,7 @@ HTML code: ${code}`;
 }
 
 export function deactivate() {
-    linterDiagnosticCollection.clear();
+    diagnosticCollection.clear();
     if (codeTutorService) {
         codeTutorService.clearAnnotations();
     }

@@ -162,7 +162,7 @@ class AISemanticAnalyzer {
      * Erstellt AI-Prompt für semantische WCAG-Analyse
      */
     createSemanticAnalysisPrompt(codeWithLineNumbers) {
-        return `Analysiere den folgenden HTML/JSX Code auf SEMANTISCHE und KONTEXTUELLE WCAG-Verstöße, die automatisierte Tools wie axe-core NICHT finden können.
+        return `Analysiere den folgenden HTML/JSX Code auf SEMANTISCHE und KONTEXTUELLE WCAG-Verstöße WCAG 2.2 AA, die automatisierte Tools wie axe-core NICHT finden können.
 
 FOKUS NUR AUF:
 - Semantisches HTML: <div role="button"> statt <button>

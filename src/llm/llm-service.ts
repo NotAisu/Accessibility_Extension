@@ -421,11 +421,12 @@ class GitHubCopilotProvider implements LLMProvider {
             
             // Erweiterte Modellliste mit gefilterten verfügbaren Modellen
             const targetModels = [
-                'gpt-4o',
-                'gpt-4.1', 
+                'gpt-4.1',
+                'gpt-4o', 
                 'claude-3.5-sonnet',
-                'claude-3.7', 
-                'claude-4.0',
+                'claude-3.7-sonnet',
+                'claude-3.7-sonnet-thinking',
+                'claude-4-sonnet',
                 'gemini-2.0-flash',
                 'gemini-2.5-pro',
                 'o3-mini',
@@ -444,9 +445,10 @@ class GitHubCopilotProvider implements LLMProvider {
         } catch (error) {
             // Fallback: Standard-Modelle zurückgeben
             return [
-                'gpt-4o', 
+                'gpt-4o',
+                'gpt-4.1', 
                 'claude-3.5-sonnet',
-                'claude-3.7',
+                'claude-3.7-sonnet',
                 'gemini-2.0-flash',
                 'o3-mini',
             ];
@@ -466,7 +468,7 @@ class GitHubCopilotProvider implements LLMProvider {
                 { vendor: 'copilot', family: selectedModel },
                 { vendor: 'copilot', id: selectedModel },
                 { vendor: 'copilot', family: selectedModel.replace('-', '') },
-                { vendor: 'copilot' } // Fallback: alle verfügbaren Modelle
+                { vendor: 'copilot' } 
             ];
             
             for (const selector of selectors) {
@@ -474,7 +476,7 @@ class GitHubCopilotProvider implements LLMProvider {
                     models = await vscode.lm.selectChatModels(selector);
                     if (models.length > 0) break;
                 } catch (error) {
-                    // Weiter zum nächsten Selektor
+                   
                     continue;
                 }
             }

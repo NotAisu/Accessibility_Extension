@@ -59,30 +59,24 @@ class LLMService {
         return provider;
     }
     async getAccessibilityFix(prompt) {
-        const startTime = Date.now();
         const provider = await this.getCurrentProvider();
         if (!(await provider.isConfigured())) {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
+        // Record attempt and get tracking ID
+        let quickFixId = '';
+        if (this.metricsService) {
+            quickFixId = this.metricsService.recordQuickFixAttempt();
+        }
         try {
             const result = await provider.getAccessibilityFix(prompt);
-            const responseTime = Date.now() - startTime;
-            // Record metrics if service is available
-            let quickFixId = '';
-            if (this.metricsService) {
-                quickFixId = this.metricsService.recordQuickFixAttempt();
-            }
             return { result, quickFixId };
         }
         catch (error) {
-            // Record failed attempt
-            if (this.metricsService) {
-                // Just record attempt, no complex tracking needed
-            }
             throw error;
         }
     }
-    // Separate method for AI analysis that doesn't count as QuickFix attempt
+    // Separate method for AI analysis 
     async getAIAnalysis(prompt) {
         const provider = await this.getCurrentProvider();
         if (!(await provider.isConfigured())) {
@@ -164,7 +158,7 @@ class LocalLLMProvider {
                     messages: [
                         {
                             role: "system",
-                            content: "You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
+                            content: "You are an accessibility expert. Fix HTML code to be WCAG 2.2 AA compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
                         },
                         {
                             role: "user",
@@ -263,7 +257,6 @@ class LocalLLMProvider {
                 return text.trim();
             }
         }
-        // Saubere Fallback-Lösung
         return text.trim();
     }
 }
@@ -399,18 +392,16 @@ class GitHubCopilotProvider {
             const availableModels = models.map(model => model.family || model.id || 'unknown');
             // Erweiterte Modellliste mit gefilterten verfügbaren Modellen
             const targetModels = [
-                'gpt-4o',
                 'gpt-4.1',
-                'gpt-4o-mini',
+                'gpt-4o',
                 'claude-3.5-sonnet',
-                'claude-3.7-haiku',
-                'claude-4.0',
+                'claude-3.7-sonnet',
+                'claude-3.7-sonnet-thinking',
+                'claude-4-sonnet',
                 'gemini-2.0-flash',
                 'gemini-2.5-pro',
                 'o3-mini',
-                'o4-mini',
-                'o1-preview',
-                'o1-mini'
+                'o4-mini'
             ];
             // Nur verfügbare Modelle zurückgeben, fallback auf alle verfügbaren
             const intersection = targetModels.filter(model => availableModels.some(available => available.toLowerCase().includes(model.toLowerCase()) ||
@@ -421,13 +412,10 @@ class GitHubCopilotProvider {
             // Fallback: Standard-Modelle zurückgeben
             return [
                 'gpt-4o',
-                'gpt-4o-mini',
                 'claude-3.5-sonnet',
-                'claude-3.7-haiku',
+                'claude-3.7',
                 'gemini-2.0-flash',
                 'o3-mini',
-                'o1-preview',
-                'o1-mini'
             ];
         }
     }

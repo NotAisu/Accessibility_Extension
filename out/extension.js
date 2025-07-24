@@ -183,10 +183,19 @@ async function updateDiagnostics(document) {
         return;
     }
     const { window } = new jsdom_1.JSDOM(text);
+    if (!window.HTMLCanvasElement.prototype.getContext) {
+        window.HTMLCanvasElement.prototype.getContext = function () {
+            return null;
+        };
+    }
     try {
         const results = await axe.run(window.document.documentElement, {
             runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] },
-            resultTypes: ['violations']
+            resultTypes: ['violations'],
+            rules: {
+                'color-contrast': { enabled: false },
+                'color-contrast-enhanced': { enabled: false }
+            }
         });
         const diagnostics = [];
         for (const violation of results.violations) {
@@ -217,7 +226,12 @@ async function updateDiagnostics(document) {
     }
     catch (error) {
         console.error('Error in accessibility analysis:', error);
-        vscode.window.showErrorMessage('An error occurred during accessibility analysis.');
+        if (error instanceof Error && error.message.includes('HTMLCanvasElement.prototype.getContext')) {
+            console.warn('Canvas context not available in JSDOM - color contrast checks disabled');
+        }
+        else {
+            vscode.window.showErrorMessage('An error occurred during accessibility analysis.');
+        }
         diagnosticCollection.set(document.uri, []);
     }
 }
@@ -324,7 +338,7 @@ HTML code: ${code}`;
             await vscode.workspace.applyEdit(edit);
             vscode.window.showInformationMessage('✅ Fix applied by AI!');
             // Extract rule ID from diagnostic for feedback
-            let ruleId = 'unknown';
+            let ruleId = '';
             try {
                 if (typeof diagnostic.code === 'string') {
                     const codeData = JSON.parse(diagnostic.code);
@@ -332,7 +346,7 @@ HTML code: ${code}`;
                 }
             }
             catch (error) {
-                // Use default ruleId
+                console.log(error);
             }
             // Show feedback request after a delay
             setTimeout(() => {
