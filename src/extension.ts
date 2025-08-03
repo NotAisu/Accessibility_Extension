@@ -394,14 +394,14 @@ async function fixWithAI(diagnostic: vscode.Diagnostic) {
             
             if (isAIGenerated) {
                 // Prompt für AI-generierte semantische Probleme
-                prompt = `Fix this HTML/CSS code according to WCAG semantic requirements:
+                prompt = `Fix this Frontend code according to WCAG semantic requirements:
 Semantic Issue: ${help}
 Code: ${code}`;
             } else {
                 // Prompt für axe-core Probleme
-                prompt = `Fix this HTML to be WCAG compliant:
+                prompt = `Fix this Frontend code to be WCAG compliant:
 Rule violated: ${help}
-HTML code: ${code}`;
+Code: ${code}`;
             }
             
             if (verbosity === 'minimal') {

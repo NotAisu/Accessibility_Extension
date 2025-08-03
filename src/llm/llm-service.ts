@@ -150,7 +150,7 @@ class LocalLLMProvider implements LLMProvider {
                     messages: [
                         {
                             role: "system",
-                            content: "You are an accessibility expert. Fix HTML code to be WCAG 2.2 AA compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
+                            content: "You are an accessibility expert. Fix Frontend code to be WCAG 2.2 AA compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
                         },
                         {
                             role: "user",
@@ -336,7 +336,7 @@ class CustomAPIProvider implements LLMProvider {
                     messages: [
                         {
                             role: "system",
-                            content: "You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text."
+                            content: "You are an accessibility expert. Fix Frontend code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text."
                         },
                         {
                             role: "user",
