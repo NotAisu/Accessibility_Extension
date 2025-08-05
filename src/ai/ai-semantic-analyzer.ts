@@ -26,10 +26,16 @@ export class AISemanticAnalyzer {
     private llmService: LLMService;
     private metricsService?: MetricsService;
     private isEnabled: boolean = false;
+    private analysisScope: 'visible' | 'document' = 'visible';
+    private getDiagnosticsCallback?: (uri: vscode.Uri) => vscode.Diagnostic[];
 
     constructor(llmService: LLMService) {
         this.llmService = llmService;
         this.loadSettings();
+    }
+
+    public setDiagnosticsCallback(callback: (uri: vscode.Uri) => vscode.Diagnostic[]): void {
+        this.getDiagnosticsCallback = callback;
     }
 
     public setMetricsService(metricsService: MetricsService): void {
@@ -39,6 +45,7 @@ export class AISemanticAnalyzer {
     private loadSettings(): void {
         const config = vscode.workspace.getConfiguration('accessibility');
         this.isEnabled = config.get<boolean>('aiAnalyzer.enabled', false);
+        this.analysisScope = config.get<'visible' | 'document'>('aiAnalyzer.scope', 'visible');
     }
 
     public setEnabled(enabled: boolean): void {
@@ -47,14 +54,63 @@ export class AISemanticAnalyzer {
         config.update('aiAnalyzer.enabled', enabled, vscode.ConfigurationTarget.Global);
     }
 
+    public setAnalysisScope(scope: 'visible' | 'document'): void {
+        this.analysisScope = scope;
+        const config = vscode.workspace.getConfiguration('accessibility');
+        config.update('aiAnalyzer.scope', scope, vscode.ConfigurationTarget.Global);
+    }
+
+    public getAnalysisScope(): 'visible' | 'document' {
+        return this.analysisScope;
+    }
+
     public isAnalyzerEnabled(): boolean {
         return this.isEnabled;
     }
 
     /**
-     * Hauptanalyse-Methode
+     * Manuelle Analyse-Methode (wird von Button getriggert)
      */
-    public async analyzeVisibleCode(
+    public async startAnalysis(
+        document?: vscode.TextDocument,
+        existingAxeDiagnostics?: vscode.Diagnostic[]
+    ): Promise<void> {
+        if (!this.isEnabled) {
+            vscode.window.showWarningMessage('AI Semantic Analyzer ist nicht aktiviert');
+            return;
+        }
+
+        // Aktuelles Dokument verwenden wenn nicht übergeben
+        if (!document) {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+                return;
+            }
+            document = editor.document;
+        }
+
+        // Unterstützte Dateitypen prüfen
+        const supportedLanguages = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
+        if (!supportedLanguages.includes(document.languageId)) {
+            vscode.window.showWarningMessage(`Dateityp ${document.languageId} wird nicht unterstützt`);
+            return;
+        }
+
+        // Bestehende axe-core Diagnostics holen wenn nicht übergeben
+        if (!existingAxeDiagnostics) {
+            existingAxeDiagnostics = this.getDiagnosticsCallback ? 
+                this.getDiagnosticsCallback(document.uri) : 
+                [];
+        }
+
+        await this.analyzeVisibleCode(document, existingAxeDiagnostics);
+    }
+
+    /**
+     * Hauptanalyse-Methode (jetzt privat, wird von startAnalysis aufgerufen)
+     */
+    private async analyzeVisibleCode(
         document: vscode.TextDocument, 
         existingAxeDiagnostics: vscode.Diagnostic[]
     ): Promise<void> {
@@ -92,15 +148,15 @@ export class AISemanticAnalyzer {
     ): Promise<void> {
         try {
             // Sichtbaren Code holen
-            const visibleCode = this.getVisibleCodeWithLineNumbers(document);
+            const codeWithLineNumbers = this.getCodeWithLineNumbers(document);
             
-            if (!visibleCode.trim()) {
+            if (!codeWithLineNumbers.trim()) {
                 this.aiDiagnosticCollection.set(document.uri, []);
                 return;
             }
 
             // AI-Analyse durchführen
-            const aiFindings = await this.performAIAnalysis(visibleCode, document);
+            const aiFindings = await this.performAIAnalysis(codeWithLineNumbers, document);
             
             // Axe-core Duplikate filtern
             const filteredFindings = this.filterAxeProblems(aiFindings, existingAxeDiagnostics);
@@ -119,7 +175,17 @@ export class AISemanticAnalyzer {
     }
 
     /**
-     * Holt sichtbaren Code mit Zeilennummern (analog zu CodeTutorService)
+     * Holt Code basierend auf Analysis-Scope (visible vs. document)
+     */
+    private getCodeWithLineNumbers(document: vscode.TextDocument): string {
+        if (this.analysisScope === 'document') {
+            return this.getAllCodeWithLineNumbers(document);
+        } else {
+            return this.getVisibleCodeWithLineNumbers(document);
+        }
+    }
+    /**
+     * Holt sichtbaren Code mit Zeilennummern
      */
     private getVisibleCodeWithLineNumbers(document: vscode.TextDocument): string {
         const editor = vscode.window.activeTextEditor;

@@ -62,11 +62,17 @@ function activate(context) {
     llmService.setMetricsService(metricsService);
     aiSemanticAnalyzer = new ai_semantic_analyzer_1.AISemanticAnalyzer(llmService);
     aiSemanticAnalyzer.setMetricsService(metricsService);
+    // Set up callback for AI analyzer to access axe-core diagnostics
+    aiSemanticAnalyzer.setDiagnosticsCallback((uri) => {
+        return Array.from(diagnosticCollection.get(uri) || []);
+    });
     console.log('📊 Services initialized successfully');
     // Register LLM Settings webview provider
     const llmSettingsProvider = new llm_settings_provider_1.LLMSettingsProvider(context.extensionUri, llmService);
     llmSettingsProvider.setAIAnalyzer(aiSemanticAnalyzer);
     llmSettingsProvider.setCodeTutorService(codeTutorService);
+    llmSettingsProvider.setMetricsService(metricsService);
+    llmSettingsProvider.setDiagnosticCollections(diagnosticCollection, aiSemanticAnalyzer.getDiagnosticCollection());
     context.subscriptions.push(vscode.window.registerWebviewViewProvider(llm_settings_provider_1.LLMSettingsProvider.viewType, llmSettingsProvider));
     console.log(`Registered LLM Settings Provider with viewType: ${llm_settings_provider_1.LLMSettingsProvider.viewType}`);
     // Register Metrics Dashboard webview provider
@@ -82,6 +88,17 @@ function activate(context) {
     context.subscriptions.push(vscode.languages.registerHoverProvider(['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'], feedbackService.createFeedbackHoverProvider()));
     // Accessibility-bezogene Befehle
     context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.fixWithAI', fixWithAI));
+    // AI Analysis Command (wird vom WebView Button getriggert)
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.startAIAnalysis', async () => {
+        try {
+            await aiSemanticAnalyzer.startAnalysis();
+            // Metrics nach AI-Analyse aktualisieren
+            updateGlobalViolationMetrics();
+        }
+        catch (error) {
+            console.error('AI Analysis command failed:', error);
+        }
+    }));
     // Test Connection Command
     context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.testConnection', async () => {
         try {
@@ -146,7 +163,7 @@ function activate(context) {
     vscode.window.visibleTextEditors.forEach(editor => runDiagnostics(editor.document));
 }
 /**
- * Führt Diagnostics für ein Dokument aus (axe-core + AI)
+ * Führt Diagnostics für ein Dokument aus (nur axe-core, AI ist jetzt manuell)
  */
 async function runDiagnostics(document) {
     // Nur für unterstützte Dateitypen
@@ -157,10 +174,7 @@ async function runDiagnostics(document) {
     try {
         // 1. Axe-core Diagnostics ausführen (sofortiges Feedback)
         await updateDiagnostics(document);
-        // 2. AI Semantic Analysis (nur wenn aktiviert)
-        const axeDiagnostics = Array.from(diagnosticCollection.get(document.uri) || []);
-        await aiSemanticAnalyzer.analyzeVisibleCode(document, axeDiagnostics);
-        // 3. Zentrale Metrics-Update für alle Diagnostics
+        // 2. Zentrale Metrics-Update für alle Diagnostics
         updateGlobalViolationMetrics();
     }
     catch (error) {
@@ -314,15 +328,15 @@ async function fixWithAI(diagnostic) {
             let prompt;
             if (isAIGenerated) {
                 // Prompt für AI-generierte semantische Probleme
-                prompt = `Fix this HTML/CSS code according to WCAG semantic requirements:
+                prompt = `Fix this Frontend code according to WCAG semantic requirements:
 Semantic Issue: ${help}
 Code: ${code}`;
             }
             else {
                 // Prompt für axe-core Probleme
-                prompt = `Fix this HTML to be WCAG compliant:
+                prompt = `Fix this Frontend code to be WCAG compliant:
 Rule violated: ${help}
-HTML code: ${code}`;
+Code: ${code}`;
             }
             if (verbosity === 'minimal') {
                 prompt += '\n\nReturn only the fixed code.';

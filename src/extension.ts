@@ -32,6 +32,11 @@ export function activate(context: vscode.ExtensionContext) {
     
     aiSemanticAnalyzer = new AISemanticAnalyzer(llmService);
     aiSemanticAnalyzer.setMetricsService(metricsService);
+    
+    // Set up callback for AI analyzer to access axe-core diagnostics
+    aiSemanticAnalyzer.setDiagnosticsCallback((uri: vscode.Uri) => {
+        return Array.from(diagnosticCollection.get(uri) || []);
+    });
 
     console.log('📊 Services initialized successfully');
 
@@ -40,6 +45,11 @@ export function activate(context: vscode.ExtensionContext) {
     const llmSettingsProvider = new LLMSettingsProvider(context.extensionUri, llmService);
     llmSettingsProvider.setAIAnalyzer(aiSemanticAnalyzer);
     llmSettingsProvider.setCodeTutorService(codeTutorService);
+    llmSettingsProvider.setMetricsService(metricsService);
+    llmSettingsProvider.setDiagnosticCollections(
+        diagnosticCollection,
+        aiSemanticAnalyzer.getDiagnosticCollection()
+    );
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(LLMSettingsProvider.viewType, llmSettingsProvider)
     );
@@ -76,6 +86,19 @@ export function activate(context: vscode.ExtensionContext) {
     // Accessibility-bezogene Befehle
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.fixWithAI', fixWithAI)
+    );
+
+    // AI Analysis Command (wird vom WebView Button getriggert)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('accessibility-extension.startAIAnalysis', async () => {
+            try {
+                await aiSemanticAnalyzer.startAnalysis();
+                // Metrics nach AI-Analyse aktualisieren
+                updateGlobalViolationMetrics();
+            } catch (error) {
+                console.error('AI Analysis command failed:', error);
+            }
+        })
     );
 
     // Test Connection Command
@@ -188,7 +211,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 /**
- * Führt Diagnostics für ein Dokument aus (axe-core + AI)
+ * Führt Diagnostics für ein Dokument aus (nur axe-core, AI ist jetzt manuell)
  */
 async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
     // Nur für unterstützte Dateitypen
@@ -201,11 +224,7 @@ async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
         // 1. Axe-core Diagnostics ausführen (sofortiges Feedback)
         await updateDiagnostics(document);
         
-        // 2. AI Semantic Analysis (nur wenn aktiviert)
-        const axeDiagnostics = Array.from(diagnosticCollection.get(document.uri) || []);
-        await aiSemanticAnalyzer.analyzeVisibleCode(document, axeDiagnostics);
-        
-        // 3. Zentrale Metrics-Update für alle Diagnostics
+        // 2. Zentrale Metrics-Update für alle Diagnostics
         updateGlobalViolationMetrics();
         
     } catch (error) {

@@ -158,7 +158,7 @@ class LocalLLMProvider {
                     messages: [
                         {
                             role: "system",
-                            content: "You are an accessibility expert. Fix HTML code to be WCAG 2.2 AA compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
+                            content: "You are an accessibility expert. Fix Frontend code to be WCAG 2.2 AA compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
                         },
                         {
                             role: "user",
@@ -320,7 +320,7 @@ class CustomAPIProvider {
                     messages: [
                         {
                             role: "system",
-                            content: "You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text."
+                            content: "You are an accessibility expert. Fix Frontend code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text."
                         },
                         {
                             role: "user",
@@ -412,8 +412,9 @@ class GitHubCopilotProvider {
             // Fallback: Standard-Modelle zurückgeben
             return [
                 'gpt-4o',
+                'gpt-4.1',
                 'claude-3.5-sonnet',
-                'claude-3.7',
+                'claude-3.7-sonnet',
                 'gemini-2.0-flash',
                 'o3-mini',
             ];
@@ -430,7 +431,7 @@ class GitHubCopilotProvider {
                 { vendor: 'copilot', family: selectedModel },
                 { vendor: 'copilot', id: selectedModel },
                 { vendor: 'copilot', family: selectedModel.replace('-', '') },
-                { vendor: 'copilot' } // Fallback: alle verfügbaren Modelle
+                { vendor: 'copilot' }
             ];
             for (const selector of selectors) {
                 try {
@@ -439,7 +440,6 @@ class GitHubCopilotProvider {
                         break;
                 }
                 catch (error) {
-                    // Weiter zum nächsten Selektor
                     continue;
                 }
             }

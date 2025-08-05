@@ -42,8 +42,12 @@ class AISemanticAnalyzer {
     constructor(llmService) {
         this.aiDiagnosticCollection = vscode.languages.createDiagnosticCollection('ai-accessibility');
         this.isEnabled = false;
+        this.analysisScope = 'visible';
         this.llmService = llmService;
         this.loadSettings();
+    }
+    setDiagnosticsCallback(callback) {
+        this.getDiagnosticsCallback = callback;
     }
     setMetricsService(metricsService) {
         this.metricsService = metricsService;
@@ -51,17 +55,57 @@ class AISemanticAnalyzer {
     loadSettings() {
         const config = vscode.workspace.getConfiguration('accessibility');
         this.isEnabled = config.get('aiAnalyzer.enabled', false);
+        this.analysisScope = config.get('aiAnalyzer.scope', 'visible');
     }
     setEnabled(enabled) {
         this.isEnabled = enabled;
         const config = vscode.workspace.getConfiguration('accessibility');
         config.update('aiAnalyzer.enabled', enabled, vscode.ConfigurationTarget.Global);
     }
+    setAnalysisScope(scope) {
+        this.analysisScope = scope;
+        const config = vscode.workspace.getConfiguration('accessibility');
+        config.update('aiAnalyzer.scope', scope, vscode.ConfigurationTarget.Global);
+    }
+    getAnalysisScope() {
+        return this.analysisScope;
+    }
     isAnalyzerEnabled() {
         return this.isEnabled;
     }
     /**
-     * Hauptanalyse-Methode
+     * Manuelle Analyse-Methode (wird von Button getriggert)
+     */
+    async startAnalysis(document, existingAxeDiagnostics) {
+        if (!this.isEnabled) {
+            vscode.window.showWarningMessage('AI Semantic Analyzer ist nicht aktiviert');
+            return;
+        }
+        // Aktuelles Dokument verwenden wenn nicht übergeben
+        if (!document) {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+                return;
+            }
+            document = editor.document;
+        }
+        // Unterstützte Dateitypen prüfen
+        const supportedLanguages = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
+        if (!supportedLanguages.includes(document.languageId)) {
+            vscode.window.showWarningMessage(`Dateityp ${document.languageId} wird nicht unterstützt`);
+            return;
+        }
+        // Bestehende axe-core Diagnostics holen wenn nicht übergeben
+        if (!existingAxeDiagnostics) {
+            existingAxeDiagnostics = this.getDiagnosticsCallback ?
+                this.getDiagnosticsCallback(document.uri) :
+                [];
+        }
+        await this.analyzeVisibleCode(document, existingAxeDiagnostics);
+    }
+    /**
+     * Hauptanalyse-Methode (jetzt privat, wird von startAnalysis aufgerufen)
      */
     async analyzeVisibleCode(document, existingAxeDiagnostics) {
         if (!this.isEnabled) {
@@ -91,13 +135,13 @@ class AISemanticAnalyzer {
     async performAnalysis(document, existingAxeDiagnostics) {
         try {
             // Sichtbaren Code holen
-            const visibleCode = this.getVisibleCodeWithLineNumbers(document);
-            if (!visibleCode.trim()) {
+            const codeWithLineNumbers = this.getCodeWithLineNumbers(document);
+            if (!codeWithLineNumbers.trim()) {
                 this.aiDiagnosticCollection.set(document.uri, []);
                 return;
             }
             // AI-Analyse durchführen
-            const aiFindings = await this.performAIAnalysis(visibleCode, document);
+            const aiFindings = await this.performAIAnalysis(codeWithLineNumbers, document);
             // Axe-core Duplikate filtern
             const filteredFindings = this.filterAxeProblems(aiFindings, existingAxeDiagnostics);
             // Blaue AI-Diagnostics erstellen (inkl. Metrics-Update)
@@ -112,7 +156,18 @@ class AISemanticAnalyzer {
         }
     }
     /**
-     * Holt sichtbaren Code mit Zeilennummern (analog zu CodeTutorService)
+     * Holt Code basierend auf Analysis-Scope (visible vs. document)
+     */
+    getCodeWithLineNumbers(document) {
+        if (this.analysisScope === 'document') {
+            return this.getAllCodeWithLineNumbers(document);
+        }
+        else {
+            return this.getVisibleCodeWithLineNumbers(document);
+        }
+    }
+    /**
+     * Holt sichtbaren Code mit Zeilennummern
      */
     getVisibleCodeWithLineNumbers(document) {
         const editor = vscode.window.activeTextEditor;

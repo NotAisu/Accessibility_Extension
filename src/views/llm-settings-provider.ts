@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { LLMService } from '../llm/llm-service';
 import { AISemanticAnalyzer } from '../ai/ai-semantic-analyzer';
 import { CodeTutorService } from '../code-tutor/code-tutor-service';
+import { MetricsService } from '../metrics/metrics-service';
 
 /**
  * WebView Provider für AI Accessibility Settings
@@ -13,6 +14,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
     private llmService: LLMService;
     private aiAnalyzer?: AISemanticAnalyzer;
     private codeTutorService?: CodeTutorService;
+    private metricsService?: MetricsService;
+    private axeDiagnosticCollection?: vscode.DiagnosticCollection;
+    private aiDiagnosticCollection?: vscode.DiagnosticCollection;
 
     constructor(
         private readonly _extensionUri: vscode.Uri,
@@ -27,6 +31,18 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
 
     public setCodeTutorService(codeTutorService: CodeTutorService): void {
         this.codeTutorService = codeTutorService;
+    }
+
+    public setMetricsService(metricsService: MetricsService): void {
+        this.metricsService = metricsService;
+    }
+
+    public setDiagnosticCollections(
+        axeDiagnosticCollection: vscode.DiagnosticCollection,
+        aiDiagnosticCollection: vscode.DiagnosticCollection
+    ): void {
+        this.axeDiagnosticCollection = axeDiagnosticCollection;
+        this.aiDiagnosticCollection = aiDiagnosticCollection;
     }
 
     public resolveWebviewView(
@@ -54,6 +70,12 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'analyzerToggled':
                     await this.handleAnalyzerToggle(data.enabled);
+                    break;
+                case 'analysisScopeChanged':
+                    await this.handleAnalysisScopeChange(data.scope);
+                    break;
+                case 'startAnalysis':
+                    await this.handleStartAnalysis();
                     break;
                 case 'codeTutorToggled':
                     await this.handleCodeTutorToggle(data.enabled);
@@ -199,6 +221,88 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
         }
     }
 
+    private async handleAnalysisScopeChange(scope: 'visible' | 'document'): Promise<void> {
+        try {
+            if (this.aiAnalyzer) {
+                this.aiAnalyzer.setAnalysisScope(scope);
+                
+                const message = scope === 'visible' ? 
+                    'Analysis Scope: Nur sichtbarer Code' : 
+                    'Analysis Scope: Komplettes Dokument';
+                
+                // Status Bar Item für schnelle Benachrichtigung
+                const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+                statusBarItem.text = `$(gear) ${message}`;
+                statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
+                statusBarItem.show();
+                
+                // Automatisch nach 1.5 Sekunden ausblenden
+                setTimeout(() => {
+                    statusBarItem.dispose();
+                }, 1500);
+            }
+        } catch (error) {
+            vscode.window.showErrorMessage('Fehler beim Ändern des Analysis Scope');
+        }
+    }
+
+    private async handleStartAnalysis(): Promise<void> {
+        try {
+            if (!this.aiAnalyzer) {
+                vscode.window.showErrorMessage('AI Analyzer nicht verfügbar');
+                return;
+            }
+
+            if (!this.aiAnalyzer.isAnalyzerEnabled()) {
+                vscode.window.showWarningMessage('AI Semantic Analyzer ist nicht aktiviert');
+                return;
+            }
+
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+                return;
+            }
+
+            // Progress anzeigen
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: "AI Semantic Analysis läuft...",
+                cancellable: false
+            }, async () => {
+                await this.aiAnalyzer!.startAnalysis();
+            });
+
+            // Metrics Dashboard nach AI-Analyse aktualisieren
+            this.updateMetricsAfterAnalysis();
+
+            vscode.window.showInformationMessage('AI Semantic Analysis abgeschlossen');
+        } catch (error) {
+            vscode.window.showErrorMessage(`AI Analysis fehlgeschlagen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+        }
+    }
+
+    /**
+     * Aktualisiert die Metrics nach einer AI-Analyse
+     */
+    private updateMetricsAfterAnalysis(): void {
+        if (!this.metricsService || !this.axeDiagnosticCollection || !this.aiDiagnosticCollection) {
+            console.log('📊 Metrics update skipped - missing references');
+            return;
+        }
+
+        try {
+            // Aktualisiere globale Violation Metrics basierend auf allen aktuellen Diagnostics
+            this.metricsService.updateCurrentViolationsFromDiagnostics(
+                this.axeDiagnosticCollection,
+                this.aiDiagnosticCollection
+            );
+            console.log('📊 Metrics updated after AI analysis');
+        } catch (error) {
+            console.error('Failed to update metrics after AI analysis:', error);
+        }
+    }
+
     private async handleCodeTutorToggle(enabled: boolean): Promise<void> {
         try {
             if (this.codeTutorService) {
@@ -226,6 +330,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
         const config = vscode.workspace.getConfiguration('accessibility');
         const currentProvider = config.get<string>('aiProvider', 'local');
         const analyzerEnabled = config.get<boolean>('aiAnalyzer.enabled', false);
+        const analysisScope = config.get<'visible' | 'document'>('aiAnalyzer.scope', 'visible');
         
         // Provider-spezifische Konfigurationen
         const localEndpoint = config.get<string>('localLLM.endpoint', 'http://127.0.0.1:1234');
@@ -242,6 +347,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             type: 'initialState',
             provider: currentProvider,
             analyzerEnabled: analyzerEnabled,
+            analysisScope: analysisScope,
             codeTutorEnabled: false, 
             config: {
                 local: {
@@ -299,10 +405,21 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     background: var(--vscode-editor-background);
                     padding: 16px;
                     margin: 0;
+                    /* Responsive base styles */
+                    box-sizing: border-box;
+                    min-width: 0;
+                    word-wrap: break-word;
+                    line-height: 1.4;
+                }
+                
+                * {
+                    box-sizing: border-box;
                 }
                 
                 .section {
                     margin-bottom: 24px;
+                    /* Responsive spacing */
+                    min-width: 0;
                 }
                 
                 h3 {
@@ -310,6 +427,8 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     color: var(--vscode-editor-foreground);
                     font-size: 14px;
                     font-weight: 600;
+                    /* Responsive headings */
+                    word-wrap: break-word;
                 }
                 
                 .provider-option {
@@ -318,6 +437,12 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     border: 1px solid var(--vscode-widget-border);
                     border-radius: 4px;
                     cursor: pointer;
+                    /* Responsive provider options */
+                    min-width: 0;
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 8px;
                 }
                 
                 .provider-option:hover {
@@ -325,7 +450,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 }
                 
                 .provider-option input[type="radio"] {
-                    margin-right: 8px;
+                    flex-shrink: 0;
                 }
                 
                 .provider-option label {
@@ -333,6 +458,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     display: flex;
                     align-items: center;
                     font-weight: 500;
+                    /* Allow label text to wrap */
+                    word-wrap: break-word;
+                    min-width: 0;
                 }
                 
                 .config-group {
@@ -342,6 +470,8 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     background: var(--vscode-editor-background);
                     border: 1px solid var(--vscode-widget-border);
                     border-radius: 4px;
+                    /* Responsive config groups */
+                    min-width: 0;
                 }
                 
                 .config-group.active {
@@ -350,6 +480,8 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 
                 .config-item {
                     margin-bottom: 12px;
+                    /* Responsive config items */
+                    min-width: 0;
                 }
                 
                 .config-item label {
@@ -357,6 +489,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     margin-bottom: 4px;
                     font-size: 12px;
                     color: var(--vscode-descriptionForeground);
+                    word-wrap: break-word;
                 }
                 
                 .config-item input,
@@ -371,6 +504,8 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     box-sizing: border-box;
                     min-height: 28px;
                     text-align: left;
+                    /* Responsive inputs */
+                    min-width: 0;
                 }
                 
                 .save-button {
@@ -382,6 +517,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     cursor: pointer;
                     font-size: 12px;
                     margin-top: 4px;
+                    /* Responsive buttons */
+                    min-width: 60px;
+                    word-wrap: break-word;
                 }
                 
                 .save-button:hover {
@@ -394,17 +532,22 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     background: var(--vscode-editor-background);
                     border: 1px solid var(--vscode-widget-border);
                     border-radius: 4px;
+                    /* Responsive status section */
+                    min-width: 0;
                 }
                 
                 .status {
                     display: flex;
                     align-items: center;
                     margin-bottom: 8px;
+                    /* Allow wrapping on small screens */
+                    flex-wrap: wrap;
+                    gap: 8px;
                 }
                 
                 .status-icon {
-                    margin-right: 8px;
                     font-size: 14px;
+                    flex-shrink: 0;
                 }
                 
                 .test-button {
@@ -415,6 +558,8 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     border-radius: 2px;
                     cursor: pointer;
                     font-size: 12px;
+                    /* Responsive test button */
+                    min-width: 80px;
                 }
                 
                 .analyzer-section, .code-tutor-section {
@@ -423,15 +568,95 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     background: var(--vscode-editor-background);
                     border: 1px solid var(--vscode-widget-border);
                     border-radius: 4px;
+                    /* Responsive sections */
+                    min-width: 0;
                 }
                 
                 .analyzer-toggle, .code-tutor-toggle {
                     display: flex;
                     align-items: center;
+                    margin-bottom: 12px;
+                    /* Allow wrapping if needed */
+                    flex-wrap: wrap;
+                    gap: 8px;
                 }
                 
-                .analyzer-toggle input[type="checkbox"], .code-tutor-toggle input[type="checkbox"] {
+                .analyzer-scope {
+                    margin: 12px 0;
+                    /* Responsive scope section */
+                    min-width: 0;
+                }
+                
+                .analyzer-scope > label {
+                    display: block;
+                    margin-bottom: 8px;
+                    font-size: 12px;
+                    color: var(--vscode-descriptionForeground);
+                    font-weight: 600;
+                }
+                
+                .scope-options {
+                    display: flex;
+                    gap: 12px;
+                    margin-top: 8px;
+                    /* Responsive scope options - stack on small screens */
+                    flex-wrap: wrap;
+                }
+                
+                .scope-option {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    /* Prevent breaking on small screens */
+                    flex-shrink: 0;
+                    min-width: 0;
+                }
+                
+                .scope-option input[type="radio"] {
+                    flex-shrink: 0;
+                }
+                
+                .scope-option label {
+                    font-size: 12px;
+                    cursor: pointer;
+                    white-space: nowrap;
+                    /* Allow text to wrap if absolutely necessary */
+                    word-wrap: break-word;
+                }
+                
+                .analysis-button {
+                    background: var(--vscode-button-background);
+                    color: var(--vscode-button-foreground);
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 2px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    margin-top: 8px;
+                    width: 100%;
+                    /* Responsive analysis button */
+                    min-height: 32px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                }
+                
+                .analysis-button:hover:not(:disabled) {
+                    background: var(--vscode-button-hoverBackground);
+                }
+                
+                .analysis-button:disabled {
+                    background: var(--vscode-button-secondaryBackground);
+                    color: var(--vscode-button-secondaryForeground);
+                    cursor: not-allowed;
+                    opacity: 0.6;
+                }
+                
+                .analyzer-toggle input[type="checkbox"], 
+                .code-tutor-toggle input[type="checkbox"] {
                     margin-right: 8px;
+                    flex-shrink: 0;
                 }
                 
                 .connected { color: #4caf50; }
@@ -444,6 +669,10 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     color: var(--vscode-descriptionForeground);
                     margin-top: 4px;
                     margin-left: 20px;
+                    line-height: 1.3;
+                    /* Responsive description */
+                    word-wrap: break-word;
+                    hyphens: auto;
                 }
                 
                 .security-notice {
@@ -453,6 +682,82 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     border-radius: 3px;
                     font-size: 11px;
                     margin-top: 4px;
+                    line-height: 1.3;
+                    /* Responsive security notice */
+                    word-wrap: break-word;
+                }
+                
+                /* Media queries for smaller screens */
+                @media (max-width: 300px) {
+                    body {
+                        padding: 12px;
+                        font-size: 12px;
+                    }
+                    
+                    .config-group,
+                    .analyzer-section,
+                    .code-tutor-section,
+                    .status-section {
+                        padding: 8px;
+                        margin-left: 10px;
+                    }
+                    
+                    .scope-options {
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+                    
+                    .scope-option label {
+                        white-space: normal;
+                    }
+                    
+                    .description {
+                        margin-left: 16px;
+                        font-size: 10px;
+                    }
+                    
+                    h3 {
+                        font-size: 13px;
+                    }
+                    
+                    .provider-option {
+                        padding: 6px;
+                    }
+                }
+                
+                /* Media queries for very narrow panels */
+                @media (max-width: 250px) {
+                    body {
+                        padding: 8px;
+                    }
+                    
+                    .config-group {
+                        margin-left: 5px;
+                    }
+                    
+                    .provider-option {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 4px;
+                        padding: 4px;
+                    }
+                    
+                    .status {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 4px;
+                    }
+                    
+                    .analyzer-toggle,
+                    .code-tutor-toggle {
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 4px;
+                    }
+                    
+                    .section {
+                        margin-bottom: 16px;
+                    }
                 }
             </style>
         </head>
@@ -547,6 +852,24 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     <label for="analyzer-enabled">AI Semantic Analyzer aktivieren</label>
                 </div>
                 <div class="description">Findet semantische WCAG-Probleme, die axe-core übersieht</div>
+                
+                <div class="analyzer-scope">
+                    <label>Analysis Scope:</label>
+                    <div class="scope-options">
+                        <div class="scope-option">
+                            <input type="radio" id="scope-visible" name="analysisScope" value="visible">
+                            <label for="scope-visible">Nur sichtbarer Code</label>
+                        </div>
+                        <div class="scope-option">
+                            <input type="radio" id="scope-document" name="analysisScope" value="document">
+                            <label for="scope-document">Komplettes Dokument</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="analysis-button" id="start-analysis" disabled>
+                    🔍 Analyse starten
+                </button>
             </div>
             
             <div class="code-tutor-section">
@@ -576,10 +899,36 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 
                 // Analyzer toggle
                 document.getElementById('analyzer-enabled').addEventListener('change', function() {
+                    const enabled = this.checked;
                     vscode.postMessage({
                         type: 'analyzerToggled',
-                        enabled: this.checked
+                        enabled: enabled
                     });
+                    
+                    // Start Analysis Button aktivieren/deaktivieren
+                    const startButton = document.getElementById('start-analysis');
+                    startButton.disabled = !enabled;
+                });
+                
+                // Analysis Scope ändern
+                document.querySelectorAll('input[name="analysisScope"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.checked) {
+                            vscode.postMessage({
+                                type: 'analysisScopeChanged',
+                                scope: this.value
+                            });
+                        }
+                    });
+                });
+                
+                // Start Analysis Button
+                document.getElementById('start-analysis').addEventListener('click', function() {
+                    if (!this.disabled) {
+                        vscode.postMessage({
+                            type: 'startAnalysis'
+                        });
+                    }
                 });
                 
                 // Code Tutor toggle
@@ -685,6 +1034,16 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                             
                             // Set analyzer state
                             document.getElementById('analyzer-enabled').checked = message.analyzerEnabled;
+                            
+                            // Set analysis scope
+                            const scopeRadio = document.querySelector(\`input[name="analysisScope"][value="\${message.analysisScope || 'visible'}"]\`);
+                            if (scopeRadio) {
+                                scopeRadio.checked = true;
+                            }
+                            
+                            // Enable/disable start analysis button
+                            const startButton = document.getElementById('start-analysis');
+                            startButton.disabled = !message.analyzerEnabled;
                             
                             // Set code tutor state
                             document.getElementById('code-tutor-enabled').checked = message.codeTutorEnabled || false;

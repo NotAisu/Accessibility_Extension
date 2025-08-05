@@ -44,6 +44,10 @@
       {
         "command": "accessibility-extension.openSettings",
         "title": "Open AI Settings"
+      },
+      {
+        "command": "accessibility-extension.startAIAnalysis",
+        "title": "Start AI Semantic Analysis"
       }
     ],
     "menus": {
@@ -113,6 +117,15 @@
           "type": "boolean",
           "default": false,
           "description": "Enable AI semantic analyzer for WCAG violations"
+        },
+        "accessibility.aiAnalyzer.scope": {
+          "type": "string",
+          "default": "visible",
+          "enum": [
+            "visible",
+            "document"
+          ],
+          "description": "Analysis scope: visible code only or complete document"
         },
         "accessibility.localLLM.endpoint": {
           "type": "string",
