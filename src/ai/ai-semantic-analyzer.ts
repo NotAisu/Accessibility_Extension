@@ -246,24 +246,63 @@ export class AISemanticAnalyzer {
      * Erstellt AI-Prompt für semantische WCAG-Analyse
      */
     private createSemanticAnalysisPrompt(codeWithLineNumbers: string): string {
-        return `Analysiere den folgenden HTML/JSX Code auf SEMANTISCHE und KONTEXTUELLE WCAG-Verstöße WCAG 2.2 AA, die automatisierte Tools wie axe-core NICHT finden können.
+        return `Analysiere den folgenden Frontend Code auf alle WCAG 2.2 AA Verstöße, die in Frontend-Code geschrieben werden können.
 
-FOKUS NUR AUF:
-- Semantisches HTML: <div role="button"> statt <button>
-- Unlogische Heading-Hierarchie: <h1> dann <h3> ohne <h2>
-- Unverständliche Labels: <button>Submit</button> ohne Kontext
-- Leere interaktive Elemente: <button></button>, <a href="#"></a>
-- Tab-Reihenfolge-Probleme: tabindex ohne logische Struktur
-- Sinnlose ARIA-Attribute: <img aria-label="image">
-- Fokus-Management-Probleme bei dynamischen Inhalten
+    ANALYSIERE ALLE BEREICHE:
 
-IGNORIERE standard-HTML-Validierung (fehlende alt-Attribute, etc.) - das macht axe-core bereits.
+    1. SEMANTIK & STRUKTUR:
+    - Falsche HTML-Semantik: <div role="button"> statt <button>
+    - Unlogische Heading-Hierarchie: <h1> dann <h3> ohne <h2>
+    - Fehlende Landmarks: <div> statt <main>, <nav>, <section>
+    - Bedeutungslose generische Container ohne semantischen Wert
 
-Für jedes gefundene semantische Problem gib ein JSON-Objekt zurück:
-{"line": 5, "element": "<div role=\\"button\\">", "issue": "Non-semantic interactive element", "recommendation": "Replace with <button> element for better semantics", "ruleId": "semantic-button"}
+    2. BARRIEREFREIHEIT & LABELS:
+    - Unverständliche/unspezifische Labels: "Submit", "Click here", "Read more"
+    - Fehlende Labels für Formular-Elemente
+    - Leere interaktive Elemente: <button></button>, <a href="#"></a>
+    - Unzureichende Button-/Link-Beschreibungen ohne Kontext
 
-Code:
-${codeWithLineNumbers}`;
+    3. NAVIGATION & FOKUS:
+    - Problematische Tab-Reihenfolge: tabindex ohne logische Struktur
+    - Skip-Links fehlen oder sind falsch implementiert
+    - Fokus-Fallen oder unzugängliche Bereiche
+    - Keyboard-Navigation wird durch CSS/JS blockiert
+
+    4. ARIA & ZUGÄNGLICHKEIT:
+    - Falsche/redundante ARIA-Attribute: <img aria-label="image">
+    - aria-hidden auf interaktiven Elementen
+    - Fehlende oder falsche aria-describedby/aria-labelledby Verknüpfungen
+    - Live-Regions fehlen bei dynamischen Inhalten
+
+    5. VISUELLES DESIGN IM CODE:
+    - Farbe als einziger Informationsträger im CSS
+    - Unzureichende Kontrastverhältnisse in CSS-Variablen
+    - Text wird durch CSS unsichtbar gemacht (color: transparent, etc.)
+    - Responsive Design ignoriert Accessibility-Breakpoints
+
+    6. INTERAKTION & TIMING:
+    - Zeitbasierte Inhalte ohne Pausier-/Stop-Funktionen
+    - Auto-Playing Media ohne Kontrollen
+    - Timeout-Mechanismen ohne Warnung oder Verlängerung
+    - Bewegte Inhalte ohne Reduktions-Option
+
+    7. FORMULARE:
+    - Fehlende Fieldsets/Legends bei zusammengehörigen Feldern
+    - Error-Messages nicht mit Feldern verknüpft
+    - Pflichtfelder nicht deutlich markiert
+    - Validierung nur visuell, nicht für Screen Reader
+
+    8. DYNAMISCHE INHALTE:
+    - Modal-Dialoge ohne Fokus-Management
+    - AJAX-Updates ohne Screen Reader Benachrichtigung
+    - Progressive Enhancement vernachlässigt
+    - Client-side Routing ohne Accessibility-Features
+
+    Für jedes gefundene Problem gib ein JSON-Objekt zurück:
+    {"line": [Zeilennummer], "element": "[HTML-Element]", "issue": "[Kurze Problembeschreibung]", "recommendation": "[Konkrete Lösung]", "ruleId": "[WCAG-Regel-ID]"}
+
+    Code:
+    ${codeWithLineNumbers}`;
     }
 
     /**
