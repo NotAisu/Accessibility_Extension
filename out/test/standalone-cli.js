@@ -8,10 +8,6 @@ function parseArgs() {
     for (let i = 0; i < args.length; i++) {
         const arg = args[i];
         switch (arg) {
-            case '--format':
-            case '-f':
-                result.format = args[++i];
-                break;
             case '--help':
             case '-h':
                 result.help = true;
@@ -36,7 +32,6 @@ Arguments:
   filename              Test specific file (optional)
 
 Options:
-  -f, --format FORMAT   Output format: table, json, both (default: table)
   -h, --help           Show this help message
 
 Examples:
@@ -61,8 +56,7 @@ async function main() {
     }
     try {
         const config = {
-            testFiles: args.filename ? [args.filename] : undefined,
-            outputFormat: args.format || 'table'
+            testFiles: args.filename ? [args.filename] : undefined
         };
         await (0, standalone_test_suite_1.runAccessibilityTests)(config);
         console.log('\n✅ Test suite completed successfully');

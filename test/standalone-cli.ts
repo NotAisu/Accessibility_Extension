@@ -4,7 +4,6 @@ import { runAccessibilityTests } from './standalone-test-suite';
 
 interface CLIArgs {
     filename?: string;
-    format?: 'table' | 'json' | 'both';
     help?: boolean;
 }
 
@@ -16,10 +15,6 @@ function parseArgs(): CLIArgs {
         const arg = args[i];
         
         switch (arg) {
-            case '--format':
-            case '-f':
-                result.format = args[++i] as 'table' | 'json' | 'both';
-                break;
             case '--help':
             case '-h':
                 result.help = true;
@@ -46,7 +41,6 @@ Arguments:
   filename              Test specific file (optional)
 
 Options:
-  -f, --format FORMAT   Output format: table, json, both (default: table)
   -h, --help           Show this help message
 
 Examples:
@@ -74,8 +68,7 @@ async function main(): Promise<void> {
 
     try {
         const config = {
-            testFiles: args.filename ? [args.filename] : undefined,
-            outputFormat: args.format || 'table'
+            testFiles: args.filename ? [args.filename] : undefined
         };
 
         await runAccessibilityTests(config);

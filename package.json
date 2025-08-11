@@ -180,8 +180,6 @@
     "lint": "eslint src test --ext ts", 
     "test": "npm run pretest && node out/test/standalone-cli.js",
     "test:standalone": "npm run pretest && node out/test/standalone-cli.js",
-    "test:json": "npm run pretest && node out/test/standalone-cli.js --format json",
-    "test:both": "npm run pretest && node out/test/standalone-cli.js --format both",
     "test:help": "node out/test/standalone-cli.js --help",
     "test:mocha": "vscode-test",
     "test:direct": "node out/test/cli.js"
