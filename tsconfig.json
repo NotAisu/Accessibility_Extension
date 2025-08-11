@@ -8,13 +8,22 @@
       "DOM"
     ],
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "jsx": "react"
   },
+  "include": [
+    "src/**/*",
+    "test/**/*"
+  ],
   "exclude": [
     "node_modules",
-    ".vscode-test"
+    ".vscode-test",
+    "test/fixtures/*.tsx",
+    "test/fixtures/*.jsx",
+    "test/fixtures/*.vue",
+    "test/fixtures/*.svelte"
   ]
 }
