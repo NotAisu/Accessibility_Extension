@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AISemanticAnalyzer = void 0;
 const vscode = __importStar(require("vscode"));
+const { getPromptStrategy, getDefaultStrategy } = require('./prompt-strategies');
 /**
  * AI Semantic Analyzer mit blauer Farbkodierung für WCAG-Semantik-Verstöße
  */
@@ -43,6 +44,7 @@ class AISemanticAnalyzer {
         this.aiDiagnosticCollection = vscode.languages.createDiagnosticCollection('ai-accessibility');
         this.isEnabled = false;
         this.analysisScope = 'visible';
+        this.promptStrategy = 'one-shot';
         this.llmService = llmService;
         this.loadSettings();
     }
@@ -56,6 +58,7 @@ class AISemanticAnalyzer {
         const config = vscode.workspace.getConfiguration('accessibility');
         this.isEnabled = config.get('aiAnalyzer.enabled', false);
         this.analysisScope = config.get('aiAnalyzer.scope', 'visible');
+        this.promptStrategy = config.get('aiAnalyzer.promptStrategy', 'one-shot');
     }
     setEnabled(enabled) {
         this.isEnabled = enabled;
@@ -66,6 +69,14 @@ class AISemanticAnalyzer {
         this.analysisScope = scope;
         const config = vscode.workspace.getConfiguration('accessibility');
         config.update('aiAnalyzer.scope', scope, vscode.ConfigurationTarget.Global);
+    }
+    setPromptStrategy(strategy) {
+        this.promptStrategy = strategy;
+        const config = vscode.workspace.getConfiguration('accessibility');
+        config.update('aiAnalyzer.promptStrategy', strategy, vscode.ConfigurationTarget.Global);
+    }
+    getPromptStrategy() {
+        return this.promptStrategy;
     }
     getAnalysisScope() {
         return this.analysisScope;
@@ -202,78 +213,27 @@ class AISemanticAnalyzer {
      * Führt AI-Analyse durch und gibt semantische WCAG-Verstöße zurück
      */
     async performAIAnalysis(codeWithLineNumbers, document) {
-        const prompt = this.createSemanticAnalysisPrompt(codeWithLineNumbers);
         try {
+            const strategy = getPromptStrategy(this.promptStrategy);
+            const prompt = strategy.generatePrompt(codeWithLineNumbers);
             const aiResponse = await this.llmService.getAIAnalysis(prompt);
             const violations = this.parseAIResponse(aiResponse, document);
             return violations;
         }
         catch (error) {
             console.error('AI analysis request failed:', error);
-            return [];
+            // Fallback to default strategy if current strategy fails
+            try {
+                const defaultStrategy = getDefaultStrategy();
+                const prompt = defaultStrategy.generatePrompt(codeWithLineNumbers);
+                const aiResponse = await this.llmService.getAIAnalysis(prompt);
+                return this.parseAIResponse(aiResponse, document);
+            }
+            catch (fallbackError) {
+                console.error('Fallback AI analysis also failed:', fallbackError);
+                return [];
+            }
         }
-    }
-    /**
-     * Erstellt AI-Prompt für semantische WCAG-Analyse
-     */
-    createSemanticAnalysisPrompt(codeWithLineNumbers) {
-        return `Analysiere den folgenden Frontend Code auf alle WCAG 2.2 AA Verstöße, die in Frontend-Code geschrieben werden können.
-
-    ANALYSIERE ALLE BEREICHE:
-
-    1. SEMANTIK & STRUKTUR:
-    - Falsche HTML-Semantik: <div role="button"> statt <button>
-    - Unlogische Heading-Hierarchie: <h1> dann <h3> ohne <h2>
-    - Fehlende Landmarks: <div> statt <main>, <nav>, <section>
-    - Bedeutungslose generische Container ohne semantischen Wert
-
-    2. BARRIEREFREIHEIT & LABELS:
-    - Unverständliche/unspezifische Labels: "Submit", "Click here", "Read more"
-    - Fehlende Labels für Formular-Elemente
-    - Leere interaktive Elemente: <button></button>, <a href="#"></a>
-    - Unzureichende Button-/Link-Beschreibungen ohne Kontext
-
-    3. NAVIGATION & FOKUS:
-    - Problematische Tab-Reihenfolge: tabindex ohne logische Struktur
-    - Skip-Links fehlen oder sind falsch implementiert
-    - Fokus-Fallen oder unzugängliche Bereiche
-    - Keyboard-Navigation wird durch CSS/JS blockiert
-
-    4. ARIA & ZUGÄNGLICHKEIT:
-    - Falsche/redundante ARIA-Attribute: <img aria-label="image">
-    - aria-hidden auf interaktiven Elementen
-    - Fehlende oder falsche aria-describedby/aria-labelledby Verknüpfungen
-    - Live-Regions fehlen bei dynamischen Inhalten
-
-    5. VISUELLES DESIGN IM CODE:
-    - Farbe als einziger Informationsträger im CSS
-    - Unzureichende Kontrastverhältnisse in CSS-Variablen
-    - Text wird durch CSS unsichtbar gemacht (color: transparent, etc.)
-    - Responsive Design ignoriert Accessibility-Breakpoints
-
-    6. INTERAKTION & TIMING:
-    - Zeitbasierte Inhalte ohne Pausier-/Stop-Funktionen
-    - Auto-Playing Media ohne Kontrollen
-    - Timeout-Mechanismen ohne Warnung oder Verlängerung
-    - Bewegte Inhalte ohne Reduktions-Option
-
-    7. FORMULARE:
-    - Fehlende Fieldsets/Legends bei zusammengehörigen Feldern
-    - Error-Messages nicht mit Feldern verknüpft
-    - Pflichtfelder nicht deutlich markiert
-    - Validierung nur visuell, nicht für Screen Reader
-
-    8. DYNAMISCHE INHALTE:
-    - Modal-Dialoge ohne Fokus-Management
-    - AJAX-Updates ohne Screen Reader Benachrichtigung
-    - Progressive Enhancement vernachlässigt
-    - Client-side Routing ohne Accessibility-Features
-
-    Für jedes gefundene Problem gib ein JSON-Objekt zurück:
-    {"line": [Zeilennummer], "element": "[HTML-Element]", "issue": "[Kurze Problembeschreibung]", "recommendation": "[Konkrete Lösung]", "ruleId": "[WCAG-Regel-ID]"}
-
-    Code:
-    ${codeWithLineNumbers}`;
     }
     /**
      * Parst AI-Response zu WCAGViolation Array

@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMSettingsProvider = void 0;
 const vscode = __importStar(require("vscode"));
+const { PROMPT_STRATEGIES } = require('../ai/prompt-strategies');
 /**
  * WebView Provider für AI Accessibility Settings
  */
@@ -77,6 +78,9 @@ class LLMSettingsProvider {
                     break;
                 case 'analysisScopeChanged':
                     await this.handleAnalysisScopeChange(data.scope);
+                    break;
+                case 'promptStrategyChanged':
+                    await this.handlePromptStrategyChange(data.strategy);
                     break;
                 case 'startAnalysis':
                     await this.handleStartAnalysis();
@@ -235,6 +239,29 @@ class LLMSettingsProvider {
             vscode.window.showErrorMessage('Fehler beim Ändern des Analysis Scope');
         }
     }
+    async handlePromptStrategyChange(strategy) {
+        try {
+            if (this.aiAnalyzer) {
+                this.aiAnalyzer.setPromptStrategy(strategy);
+                const strategyObj = PROMPT_STRATEGIES.find((s) => s.name === strategy);
+                const message = strategyObj ?
+                    `Prompt Strategy: ${strategyObj.displayName}` :
+                    `Prompt Strategy: ${strategy}`;
+                // Status Bar Item für schnelle Benachrichtigung
+                const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+                statusBarItem.text = `$(brain) ${message}`;
+                statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
+                statusBarItem.show();
+                // Automatisch nach 1.5 Sekunden ausblenden
+                setTimeout(() => {
+                    statusBarItem.dispose();
+                }, 1500);
+            }
+        }
+        catch (error) {
+            vscode.window.showErrorMessage('Fehler beim Ändern der Prompt Strategy');
+        }
+    }
     async handleStartAnalysis() {
         try {
             if (!this.aiAnalyzer) {
@@ -314,6 +341,7 @@ class LLMSettingsProvider {
         const currentProvider = config.get('aiProvider', 'local');
         const analyzerEnabled = config.get('aiAnalyzer.enabled', false);
         const analysisScope = config.get('aiAnalyzer.scope', 'visible');
+        const promptStrategy = config.get('aiAnalyzer.promptStrategy', 'one-shot');
         // Provider-spezifische Konfigurationen
         const localEndpoint = config.get('localLLM.endpoint', 'http://127.0.0.1:1234');
         const localModel = config.get('localLLM.model', 'mistralai/devstral-small-2507');
@@ -328,6 +356,7 @@ class LLMSettingsProvider {
             provider: currentProvider,
             analyzerEnabled: analyzerEnabled,
             analysisScope: analysisScope,
+            promptStrategy: promptStrategy,
             codeTutorEnabled: false,
             config: {
                 local: {
@@ -559,11 +588,10 @@ class LLMSettingsProvider {
                 
                 .analyzer-scope {
                     margin: 12px 0;
-                    /* Responsive scope section */
                     min-width: 0;
                 }
                 
-                .analyzer-scope > label {
+                .toggle-section-label {
                     display: block;
                     margin-bottom: 8px;
                     font-size: 12px;
@@ -571,25 +599,94 @@ class LLMSettingsProvider {
                     font-weight: 600;
                 }
                 
-                .scope-options {
-                    display: flex;
-                    gap: 12px;
-                    margin-top: 8px;
-                    /* Responsive scope options - stack on small screens */
-                    flex-wrap: wrap;
+                /* Toggle Switch Styles */
+                .toggle-switch {
+                    position: relative;
+                    display: inline-block;
+                    margin: 4px 0;
                 }
                 
-                .scope-option {
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                    /* Prevent breaking on small screens */
-                    flex-shrink: 0;
-                    min-width: 0;
+                .scope-info {
+                    font-size: 11px;
+                    color: var(--vscode-descriptionForeground);
+                    margin-bottom: 6px;
+                    font-weight: 500;
                 }
                 
-                .scope-option input[type="radio"] {
-                    flex-shrink: 0;
+                .toggle-input {
+                    opacity: 0;
+                    width: 0;
+                    height: 0;
+                }
+                
+                .toggle-label {
+                    display: block;
+                    width: 44px;
+                    height: 22px;
+                    background-color: var(--vscode-button-secondaryBackground);
+                    border-radius: 11px;
+                    position: relative;
+                    cursor: pointer;
+                    transition: background-color 0.3s ease;
+                    border: 1px solid var(--vscode-button-border);
+                }
+                
+                .toggle-label:before {
+                    content: '';
+                    position: absolute;
+                    top: 2px;
+                    left: 2px;
+                    width: 16px;
+                    height: 16px;
+                    background-color: var(--vscode-button-foreground);
+                    border-radius: 50%;
+                    transition: transform 0.3s ease;
+                }
+                
+                .toggle-input:checked + .toggle-label {
+                    background-color: var(--vscode-button-background);
+                }
+                
+                .toggle-input:checked + .toggle-label:before {
+                    transform: translateX(22px);
+                }
+                
+                /* Prompt Strategy Styles */
+                .prompt-strategy {
+                    margin: 16px 0;
+                }
+                
+                .prompt-strategy label {
+                    display: block;
+                    margin-bottom: 8px;
+                    font-size: 12px;
+                    color: var(--vscode-descriptionForeground);
+                    font-weight: 600;
+                }
+                
+                .strategy-dropdown {
+                    width: 100%;
+                    padding: 8px;
+                    background-color: var(--vscode-input-background);
+                    color: var(--vscode-input-foreground);
+                    border: 1px solid var(--vscode-input-border);
+                    border-radius: 3px;
+                    font-size: 13px;
+                    outline: none;
+                    cursor: pointer;
+                }
+                
+                .strategy-dropdown:focus {
+                    border-color: var(--vscode-focusBorder);
+                    box-shadow: 0 0 0 1px var(--vscode-focusBorder);
+                }
+                
+                .strategy-description {
+                    margin-top: 6px;
+                    font-size: 11px;
+                    color: var(--vscode-descriptionForeground);
+                    font-style: italic;
+                    line-height: 1.3;
                 }
                 
                 .scope-option label {
@@ -830,16 +927,24 @@ class LLMSettingsProvider {
                 <div class="description">Findet semantische WCAG-Probleme, die axe-core übersieht</div>
                 
                 <div class="analyzer-scope">
-                    <label>Analysis Scope:</label>
-                    <div class="scope-options">
-                        <div class="scope-option">
-                            <input type="radio" id="scope-visible" name="analysisScope" value="visible">
-                            <label for="scope-visible">Nur sichtbarer Code</label>
-                        </div>
-                        <div class="scope-option">
-                            <input type="radio" id="scope-document" name="analysisScope" value="document">
-                            <label for="scope-document">Komplettes Dokument</label>
-                        </div>
+                    <label class="toggle-section-label">Analysis Scope:</label>
+                    <div class="scope-info">Sichtbarer Code</div>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="scope-toggle" class="toggle-input">
+                        <label for="scope-toggle" class="toggle-label"></label>
+                    </div>
+                </div>
+                
+                <div class="prompt-strategy">
+                    <label for="prompt-strategy-select">Prompt Strategy:</label>
+                    <select id="prompt-strategy-select" class="strategy-dropdown">
+                        <option value="one-shot">One-Shot - Quick direct analysis</option>
+                        <option value="few-shot">Few-Shot - Pattern-based analysis</option>
+                        <option value="chain-of-thought">Chain of Thought - Step-by-step reasoning</option>
+                        <option value="role-based">Role-Based - Multi-perspective analysis</option>
+                    </select>
+                    <div class="strategy-description" id="strategy-description">
+                        Direct instruction with single example for quick analysis
                     </div>
                 </div>
                 
@@ -886,17 +991,44 @@ class LLMSettingsProvider {
                     startButton.disabled = !enabled;
                 });
                 
-                // Analysis Scope ändern
-                document.querySelectorAll('input[name="analysisScope"]').forEach(radio => {
-                    radio.addEventListener('change', function() {
-                        if (this.checked) {
-                            vscode.postMessage({
-                                type: 'analysisScopeChanged',
-                                scope: this.value
-                            });
-                        }
+                // Analysis Scope toggle switch
+                document.getElementById('scope-toggle').addEventListener('change', function() {
+                    const scope = this.checked ? 'document' : 'visible';
+                    const scopeInfo = document.querySelector('.scope-info');
+                    if (scopeInfo) {
+                        scopeInfo.textContent = this.checked ? 'Gesamtes Dokument' : 'Sichtbarer Code';
+                    }
+                    vscode.postMessage({
+                        type: 'analysisScopeChanged',
+                        scope: scope
                     });
                 });
+                
+                // Prompt Strategy dropdown
+                document.getElementById('prompt-strategy-select').addEventListener('change', function() {
+                    const strategy = this.value;
+                    vscode.postMessage({
+                        type: 'promptStrategyChanged',
+                        strategy: strategy
+                    });
+                    
+                    // Update strategy description
+                    updateStrategyDescription(strategy);
+                });
+                
+                function updateStrategyDescription(strategy) {
+                    const descriptions = {
+                        'one-shot': 'Direct instruction with single example for quick analysis',
+                        'few-shot': 'Multiple examples for better pattern recognition',
+                        'chain-of-thought': 'Step-by-step reasoning for thorough analysis',
+                        'role-based': 'Analysis from multiple user perspectives and assistive technologies'
+                    };
+                    
+                    const descElement = document.getElementById('strategy-description');
+                    if (descElement) {
+                        descElement.textContent = descriptions[strategy] || 'Unknown strategy';
+                    }
+                }
                 
                 // Start Analysis Button
                 document.getElementById('start-analysis').addEventListener('click', function() {
@@ -1011,10 +1143,21 @@ class LLMSettingsProvider {
                             // Set analyzer state
                             document.getElementById('analyzer-enabled').checked = message.analyzerEnabled;
                             
-                            // Set analysis scope
-                            const scopeRadio = document.querySelector(\`input[name="analysisScope"][value="\${message.analysisScope || 'visible'}"]\`);
-                            if (scopeRadio) {
-                                scopeRadio.checked = true;
+                            // Set analysis scope toggle
+                            const scopeToggle = document.getElementById('scope-toggle');
+                            const scopeInfo = document.querySelector('.scope-info');
+                            if (scopeToggle) {
+                                scopeToggle.checked = (message.analysisScope === 'document');
+                                if (scopeInfo) {
+                                    scopeInfo.textContent = (message.analysisScope === 'document') ? 'Gesamtes Dokument' : 'Sichtbarer Code';
+                                }
+                            }
+                            
+                            // Set prompt strategy
+                            const strategySelect = document.getElementById('prompt-strategy-select');
+                            if (strategySelect && message.promptStrategy) {
+                                strategySelect.value = message.promptStrategy;
+                                updateStrategyDescription(message.promptStrategy);
                             }
                             
                             // Enable/disable start analysis button

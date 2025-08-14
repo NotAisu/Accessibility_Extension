@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accessibility Test</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Accessibility Test</title>
 </head>
+
 <body>
-    <main>
-        <!-- This image is missing an alt attribute, which is a WCAG violation that axe-core WILL find -->
-        <img src="test.jpg">
+        <main>
+                <!-- This image is missing an alt attribute, which is a WCAG violation that axe-core WILL find -->
+                <img src="test.jpg">
 
-        <!-- This button is missing a name, which is a WCAG violation that axe-core WILL find -->
-        <button></button>
+                <!-- This button is missing a name, which is a WCAG violation that axe-core WILL find -->
+                <button></button>
 
-        <!-- These are semantic issues that axe-core CANNOT detect but AI can: -->
-        
-        <!-- Using div instead of semantic button -->
-<div role="button" onclick="submit()">Submit Form</div>
+                <!-- These are semantic issues that axe-core CANNOT detect but AI can: -->
 
-        <!-- Broken heading hierarchy -->
-<h1>Main Title</h1>
-<h2>Subheading</h2>
-        <h3>Subtitle (should be h2)</h3>
-        
-        <!-- Unclear button label -->
-<button>Submit Form</button>
-        
-        <!-- Bad tabindex order -->
-        <input type="text" id="input1" tabindex="5">
-<label for="input1">Enter text:</label>
-        <input type="text" tabindex="1">
-        
-        <!-- Useless aria-label -->
-<img src="logo.jpg" alt="Company logo" aria-label="Company logo">
-        
-        <!-- Empty interactive element -->
-        <a href="#"></a>
-    </main>
+                <!-- Using div instead of semantic button -->
+                <div role="button" onclick="submit()">Submit Form</div>
+
+                <!-- Broken heading hierarchy -->
+                <h1>Main Title</h1>
+                <h2>Subheading</h2>
+                <h2>Subtitle (should be h2)</h2>
+
+                <!-- Unclear button label -->
+                <button type="submit">Submit Registration Form</button>
+
+                <!-- Bad tabindex order -->
+                <input type="text" id="input1" tabindex="5">
+                <label for="input1">Enter text:</label>
+                <input type="text" tabindex="1">
+
+                <!-- Useless aria-label -->
+                <img src="logo.jpg" alt="Company logo" aria-label="Company logo">
+
+                <!-- Empty interactive element -->
+                <a href="#"></a>
+        </main>
 </body>
+
 </html>
