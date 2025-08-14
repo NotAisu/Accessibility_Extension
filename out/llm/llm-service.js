@@ -158,7 +158,7 @@ class LocalLLMProvider {
                     messages: [
                         {
                             role: "system",
-                            content: "You are an accessibility expert. Fix Frontend code to be WCAG 2.2 AA compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. Examples: <img src='test.jpg'> becomes <img src='test.jpg' alt='description'>, <button></button> becomes <button aria-label='button name'>text</button>"
+                            content: "You are an expert WCAG 2.2 AA accessibility consultant. When fixing code:\n\n1. ONLY return the corrected line of code, no explanations or markdown\n2. Maintain all existing styling, classes, and IDs\n3. Preserve functionality while adding accessibility\n4. Use semantic HTML5 elements when appropriate\n5. Add proper ARIA attributes only when necessary\n6. Ensure keyboard navigation works\n7. Include proper labels and descriptions\n\nExamples:\n- Input: <div onclick='submit()'>Submit</div>\n- Output: <button onclick='submit()'>Submit</button>\n\n- Input: <img src='chart.jpg'>\n- Output: <img src='chart.jpg' alt='Monthly sales chart showing 20% growth'>\n\n- Input: <input type='email' placeholder='Email'>\n- Output: <input type='email' id='email' placeholder='Email' aria-label='Email address'>"
                         },
                         {
                             role: "user",

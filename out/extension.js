@@ -326,23 +326,51 @@ async function fixWithAI(diagnostic) {
             const config = vscode.workspace.getConfiguration('accessibility');
             const verbosity = config.get('fixVerbosity', 'minimal');
             let prompt;
+            // Erweiterten Kontext um das Problem herum holen
+            const extendedRange = new vscode.Range(Math.max(0, diagnostic.range.start.line - 2), 0, Math.min(editor.document.lineCount - 1, diagnostic.range.end.line + 2), editor.document.lineAt(Math.min(editor.document.lineCount - 1, diagnostic.range.end.line + 2)).text.length);
+            const contextCode = editor.document.getText(extendedRange);
             if (isAIGenerated) {
-                // Prompt für AI-generierte semantische Probleme
-                prompt = `Fix this Frontend code according to WCAG semantic requirements:
-Semantic Issue: ${help}
-Code: ${code}`;
+                // Verbesserter Prompt für AI-generierte semantische Probleme
+                prompt = `You are an accessibility expert. Fix the WCAG semantic violation in this Frontend code.
+
+CONTEXT:
+${contextCode}
+
+PROBLEM:
+- Line ${diagnostic.range.start.line + 1}: ${help}
+- Affected code: ${code}
+
+REQUIREMENTS:
+1. Fix ONLY the problematic code on line ${diagnostic.range.start.line + 1}
+2. Maintain the same functionality and styling
+3. Follow WCAG 2.2 AA semantic requirements
+4. Use proper HTML5 semantic elements
+5. Ensure keyboard accessibility
+
+Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, nothing else.`;
             }
             else {
-                // Prompt für axe-core Probleme
-                prompt = `Fix this Frontend code to be WCAG compliant:
-Rule violated: ${help}
-Code: ${code}`;
+                // Verbesserter Prompt für axe-core Probleme
+                prompt = `You are an accessibility expert. Fix the WCAG violation in this Frontend code.
+
+CONTEXT:
+${contextCode}
+
+VIOLATION:
+- Rule: ${help}
+- Line ${diagnostic.range.start.line + 1}: ${code}
+
+REQUIREMENTS:
+1. Fix ONLY the code on line ${diagnostic.range.start.line + 1}
+2. Maintain existing functionality and appearance
+3. Follow WCAG 2.2 AA guidelines
+4. Add necessary accessibility attributes
+5. Ensure screen reader compatibility
+
+Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, nothing else.`;
             }
-            if (verbosity === 'minimal') {
-                prompt += '\n\nReturn only the fixed code.';
-            }
-            else {
-                prompt += '\n\nReturn the fixed code, then explain the changes.';
+            if (verbosity !== 'minimal') {
+                prompt += '\n\nAfter the code, add a brief explanation of the fix.';
             }
             const response = await llmService.getAccessibilityFix(prompt);
             const suggestion = response.result;
