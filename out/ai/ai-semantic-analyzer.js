@@ -89,7 +89,7 @@ class AISemanticAnalyzer {
      */
     async startAnalysis(document, existingAxeDiagnostics) {
         if (!this.isEnabled) {
-            vscode.window.showWarningMessage('AI Semantic Analyzer ist nicht aktiviert');
+            vscode.window.showWarningMessage('AI Semantic Analyzer is not enabled');
             return;
         }
         // Aktuelles Dokument verwenden wenn nicht übergeben
@@ -240,35 +240,85 @@ class AISemanticAnalyzer {
      */
     parseAIResponse(aiResponse, document) {
         const violations = [];
-        // JSON-Objekte aus Response extrahieren
-        const jsonRegex = /\{[^}]*"line"[^}]*\}/g;
-        const matches = aiResponse.match(jsonRegex);
-        if (!matches) {
+        if (!aiResponse || !aiResponse.trim()) {
             return violations;
         }
-        for (const match of matches) {
-            try {
-                const parsed = JSON.parse(match);
-                if (parsed.line && parsed.line > 0 && parsed.line <= document.lineCount) {
-                    const lineIndex = parsed.line - 1;
-                    const lineText = document.lineAt(lineIndex).text;
-                    // Range für die komplette Zeile erstellen
-                    const range = new vscode.Range(new vscode.Position(lineIndex, 0), new vscode.Position(lineIndex, lineText.length));
-                    violations.push({
-                        element: parsed.element || lineText.trim(),
-                        message: `${parsed.issue}: ${parsed.recommendation}`,
-                        range: range,
-                        ruleId: parsed.ruleId || 'ai-semantic',
-                        severity: 'warning'
-                    });
+        // 1. Extract content inside code fences first (```, ```json) if present
+        const fenceRegex = /```(?:json)?\n([\s\S]*?)```/gi;
+        const fencedBlocks = [];
+        let fenceMatch;
+        while ((fenceMatch = fenceRegex.exec(aiResponse)) !== null) {
+            if (fenceMatch[1])
+                fencedBlocks.push(fenceMatch[1]);
+        }
+        const candidateText = fencedBlocks.length > 0 ? fencedBlocks.join('\n') : aiResponse;
+        // 2. Try to parse as a full JSON array first
+        try {
+            const maybeArray = JSON.parse(candidateText);
+            if (Array.isArray(maybeArray)) {
+                for (const obj of maybeArray) {
+                    this.pushIfValidViolation(obj, document, violations);
+                }
+                return violations;
+            }
+        }
+        catch { /* ignore */ }
+        // 3. Split by newlines and attempt JSON.parse line by line (tolerant JSON lines)
+        const lines = candidateText.split(/\r?\n/);
+        let buffer = '';
+        for (const rawLine of lines) {
+            const line = rawLine.trim();
+            if (!line)
+                continue;
+            buffer += (buffer ? ' ' : '') + line;
+            // Heuristic: attempt parse when line ends with } or ]
+            if (/([}\]])[, ]?$/.test(line)) {
+                try {
+                    const parsed = JSON.parse(buffer);
+                    if (Array.isArray(parsed)) {
+                        for (const obj of parsed) {
+                            this.pushIfValidViolation(obj, document, violations);
+                        }
+                    }
+                    else {
+                        this.pushIfValidViolation(parsed, document, violations);
+                    }
+                    buffer = '';
+                }
+                catch {
+                    // keep accumulating
                 }
             }
-            catch (error) {
-                // Ignore malformed JSON
-                continue;
+        }
+        // 4. Fallback regex object extraction (last resort)
+        if (violations.length === 0) {
+            const objectRegex = /\{[^}]*"line"[^}]*\}/g;
+            const matches = candidateText.match(objectRegex) || [];
+            for (const match of matches) {
+                try {
+                    const parsed = JSON.parse(match);
+                    this.pushIfValidViolation(parsed, document, violations);
+                }
+                catch { /* ignore */ }
             }
         }
         return violations;
+    }
+    pushIfValidViolation(parsed, document, violations) {
+        if (!parsed || typeof parsed.line !== 'number')
+            return;
+        if (parsed.line <= 0 || parsed.line > document.lineCount)
+            return;
+        const lineIndex = parsed.line - 1;
+        const lineText = document.lineAt(lineIndex).text;
+        const range = new vscode.Range(new vscode.Position(lineIndex, 0), new vscode.Position(lineIndex, lineText.length));
+        violations.push({
+            element: parsed.element || lineText.trim(),
+            message: `${parsed.issue}: ${parsed.recommendation}`,
+            range,
+            ruleId: parsed.ruleId || 'ai-semantic',
+            severity: 'warning'
+        });
     }
     /**
      * Verhindert Duplikate zwischen AI-Findings und axe-core Diagnostics

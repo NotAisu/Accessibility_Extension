@@ -317,14 +317,14 @@ async function fixWithAI(diagnostic) {
     catch (error) {
         help = diagnostic.message;
     }
+    // Capture document version before requesting fix
+    const originalVersion = editor.document.version;
     await vscode.window.withProgress({
         location: vscode.ProgressLocation.Notification,
-        title: isAIGenerated ? "AI Semantic Fix wird angewendet..." : "Asking AI for a fix...",
+        title: isAIGenerated ? "Applying AI semantic fix..." : "Asking AI for an accessibility fix...",
         cancellable: false
     }, async () => {
         try {
-            const config = vscode.workspace.getConfiguration('accessibility');
-            const verbosity = config.get('fixVerbosity', 'minimal');
             let prompt;
             // Erweiterten Kontext um das Problem herum holen
             const extendedRange = new vscode.Range(Math.max(0, diagnostic.range.start.line - 2), 0, Math.min(editor.document.lineCount - 1, diagnostic.range.end.line + 2), editor.document.lineAt(Math.min(editor.document.lineCount - 1, diagnostic.range.end.line + 2)).text.length);
@@ -369,16 +369,43 @@ REQUIREMENTS:
 
 Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, nothing else.`;
             }
-            if (verbosity !== 'minimal') {
-                prompt += '\n\nAfter the code, add a brief explanation of the fix.';
-            }
             const response = await llmService.getAccessibilityFix(prompt);
-            const suggestion = response.result;
+            let suggestion = response.result.trim();
             quickFixId = response.quickFixId;
+            // Detect fenced code blocks and extract core content
+            const fenced = suggestion.match(/```[a-zA-Z]*\n([\s\S]*?)```/);
+            if (fenced && fenced[1]) {
+                suggestion = fenced[1].trim();
+            }
+            // Multi-line support: if suggestion has multiple lines and original range is single line,
+            // expand replacement to whole line (or lines) heuristically.
+            const originalLineText = editor.document.lineAt(diagnostic.range.start.line).text;
+            const isSingleLineRange = diagnostic.range.start.line === diagnostic.range.end.line;
+            let targetRange = diagnostic.range;
+            if (isSingleLineRange) {
+                const suggestionLineCount = suggestion.split(/\r?\n/).length;
+                if (suggestionLineCount > 1) {
+                    // Expand to full original line only; keep rest of document stable.
+                    targetRange = new vscode.Range(new vscode.Position(diagnostic.range.start.line, 0), new vscode.Position(diagnostic.range.start.line, originalLineText.length));
+                }
+            }
+            // Safety: ensure document unchanged at target line before applying
+            if (editor.document.version !== originalVersion) {
+                const currentLineNow = editor.document.lineAt(diagnostic.range.start.line).text;
+                if (currentLineNow !== originalLineText) {
+                    vscode.window.showWarningMessage('Document changed since diagnostic was generated. Aborting fix to prevent conflicts.');
+                    return;
+                }
+            }
             const edit = new vscode.WorkspaceEdit();
-            edit.replace(editor.document.uri, diagnostic.range, suggestion);
-            await vscode.workspace.applyEdit(edit);
-            vscode.window.showInformationMessage('✅ Fix applied by AI!');
+            edit.replace(editor.document.uri, targetRange, suggestion);
+            const applied = await vscode.workspace.applyEdit(edit);
+            if (applied) {
+                vscode.window.showInformationMessage('✅ AI fix applied.');
+            }
+            else {
+                vscode.window.showErrorMessage('Failed to apply AI fix edit.');
+            }
             // Extract rule ID from diagnostic for feedback
             let ruleId = '';
             try {

@@ -116,7 +116,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             
             vscode.window.showInformationMessage(`AI Provider geändert zu: ${provider}`);
         } catch (error) {
-            vscode.window.showErrorMessage('Fehler beim Ändern des AI Providers');
+            vscode.window.showErrorMessage('Failed to change AI provider');
         }
     }
 
@@ -125,10 +125,10 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             const config = vscode.workspace.getConfiguration('accessibility');
             await config.update('localLLM.endpoint', endpoint, vscode.ConfigurationTarget.Global);
             
-            vscode.window.showInformationMessage('Local LLM Endpoint gespeichert');
+            vscode.window.showInformationMessage('Local LLM endpoint saved');
             await this.updateConnectionStatus();
         } catch (error) {
-            vscode.window.showErrorMessage('Fehler beim Speichern des Endpoints');
+            vscode.window.showErrorMessage('Failed to save endpoint');
         }
     }
 
@@ -145,9 +145,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 await config.update('customAPI.model', model, vscode.ConfigurationTarget.Global);
             }
             
-            vscode.window.showInformationMessage('Modell gespeichert');
+            vscode.window.showInformationMessage('Model saved');
         } catch (error) {
-            vscode.window.showErrorMessage('Fehler beim Speichern des Modells');
+            vscode.window.showErrorMessage('Failed to save model');
         }
     }
 
@@ -157,10 +157,10 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             const secretStorage = this.llmService.getSecretStorage();
             await secretStorage.store('accessibility.customAPI.apiKey', apiKey);
             
-            vscode.window.showInformationMessage('API Key sicher gespeichert');
+            vscode.window.showInformationMessage('API key stored securely');
             await this.updateConnectionStatus();
         } catch (error) {
-            vscode.window.showErrorMessage('Fehler beim Speichern des API Keys');
+            vscode.window.showErrorMessage('Failed to save API key');
         }
     }
 
@@ -190,8 +190,8 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             this.sendMessage({ type: 'connectionStatus', status });
             
             const message = isConnected ? 
-                'AI Provider Verbindung erfolgreich!' : 
-                'AI Provider Verbindung fehlgeschlagen. Bitte Einstellungen prüfen.';
+                'AI provider connection successful!' : 
+                'AI provider connection failed. Please check settings.';
             
             if (isConnected) {
                 vscode.window.showInformationMessage(message);
@@ -200,7 +200,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             }
         } catch (error) {
             this.sendMessage({ type: 'connectionStatus', status: 'error' });
-            vscode.window.showErrorMessage(`Verbindungstest fehlgeschlagen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+            vscode.window.showErrorMessage(`Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -210,8 +210,8 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 this.aiAnalyzer.setEnabled(enabled);
                 
                 const message = enabled ? 
-                    'AI Semantic Analyzer aktiviert' : 
-                    'AI Semantic Analyzer deaktiviert';
+                    'AI Semantic Analyzer enabled' : 
+                    'AI Semantic Analyzer disabled';
                 
                 vscode.window.showInformationMessage(message);
                 
@@ -221,7 +221,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 }
             }
         } catch (error) {
-            vscode.window.showErrorMessage('Fehler beim Umschalten des AI Analyzers');
+            vscode.window.showErrorMessage('Failed to toggle AI Analyzer');
         }
     }
 
@@ -231,8 +231,8 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 this.aiAnalyzer.setAnalysisScope(scope);
                 
                 const message = scope === 'visible' ? 
-                    'Analysis Scope: Nur sichtbarer Code' : 
-                    'Analysis Scope: Komplettes Dokument';
+                    'Analysis Scope: Visible code only' : 
+                    'Analysis Scope: Entire document';
                 
                 // Status Bar Item für schnelle Benachrichtigung
                 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
@@ -246,7 +246,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 }, 1500);
             }
         } catch (error) {
-            vscode.window.showErrorMessage('Fehler beim Ändern des Analysis Scope');
+            vscode.window.showErrorMessage('Failed to change analysis scope');
         }
     }
 
@@ -272,32 +272,32 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 }, 1500);
             }
         } catch (error) {
-            vscode.window.showErrorMessage('Fehler beim Ändern der Prompt Strategy');
+            vscode.window.showErrorMessage('Failed to change prompt strategy');
         }
     }
 
     private async handleStartAnalysis(): Promise<void> {
         try {
             if (!this.aiAnalyzer) {
-                vscode.window.showErrorMessage('AI Analyzer nicht verfügbar');
+                vscode.window.showErrorMessage('AI Analyzer not available');
                 return;
             }
 
             if (!this.aiAnalyzer.isAnalyzerEnabled()) {
-                vscode.window.showWarningMessage('AI Semantic Analyzer ist nicht aktiviert');
+                vscode.window.showWarningMessage('AI Semantic Analyzer is not enabled');
                 return;
             }
 
             const editor = vscode.window.activeTextEditor;
             if (!editor) {
-                vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+                vscode.window.showWarningMessage('No active editor found');
                 return;
             }
 
             // Progress anzeigen
             await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
-                title: "AI Semantic Analysis läuft...",
+                title: "AI Semantic Analysis running...",
                 cancellable: false
             }, async () => {
                 await this.aiAnalyzer!.startAnalysis();
@@ -306,9 +306,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             // Metrics Dashboard nach AI-Analyse aktualisieren
             this.updateMetricsAfterAnalysis();
 
-            vscode.window.showInformationMessage('AI Semantic Analysis abgeschlossen');
+            vscode.window.showInformationMessage('AI Semantic Analysis completed');
         } catch (error) {
-            vscode.window.showErrorMessage(`AI Analysis fehlgeschlagen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+            vscode.window.showErrorMessage(`AI analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
@@ -340,19 +340,19 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 if (editor) {
                     if (enabled) {
                         await this.codeTutorService.toggleAnnotations(editor);
-                        vscode.window.showInformationMessage('Code Tutor aktiviert');
+                        vscode.window.showInformationMessage('Code Tutor enabled');
                     } else {
                         this.codeTutorService.clearAnnotations();
-                        vscode.window.showInformationMessage('Code Tutor deaktiviert');
+                        vscode.window.showInformationMessage('Code Tutor disabled');
                     }
                 } else {
-                    vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+                    vscode.window.showWarningMessage('No active editor found');
                 }
             } else {
-                vscode.window.showErrorMessage('Code Tutor Service nicht verfügbar');
+                vscode.window.showErrorMessage('Code Tutor service not available');
             }
         } catch (error) {
-            vscode.window.showErrorMessage('Fehler beim Umschalten des Code Tutors');
+            vscode.window.showErrorMessage('Failed to toggle Code Tutor');
         }
     }
 
@@ -881,7 +881,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                         <input type="text" id="local-model" placeholder="mistralai/devstral-small-2507">
                         <button class="save-button" onclick="saveModel()">Save</button>
                     </div>
-                    <div class="description">LM Studio, Ollama, oder andere OpenAI-kompatible Servers</div>
+                    <div class="description">LM Studio, Ollama, or other OpenAI-compatible servers</div>
                 </div>
                 
                 <div class="provider-option">
@@ -907,7 +907,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             <option value="o4-mini">o4-mini (Preview)</option>
         </select>
     </div>
-    <div class="description">Verfügbare Modelle basierend auf Ihrem GitHub Copilot Plan</div>
+    <div class="description">Available models based on your GitHub Copilot plan</div>
                 </div>
                 
                 <div class="provider-option">
@@ -930,7 +930,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                         <label for="custom-apikey">API Key:</label>
                         <input type="password" id="custom-apikey" placeholder="sk-...">
                         <button class="save-button" onclick="saveApiKey()">Save</button>
-                        <div class="security-notice" id="apikey-status">🔒 API Key wird sicher in VS Code SecretStorage gespeichert</div>
+                        <div class="security-notice" id="apikey-status">🔒 API key is stored securely in VS Code SecretStorage</div>
                     </div>
                     <div class="description">OpenAI, Anthropic, Cohere und andere APIs</div>
                 </div>
@@ -949,13 +949,13 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 <h3>AI Semantic Analyzer</h3>
                 <div class="analyzer-toggle">
                     <input type="checkbox" id="analyzer-enabled">
-                    <label for="analyzer-enabled">AI Semantic Analyzer aktivieren</label>
+                    <label for="analyzer-enabled">Enable AI Semantic Analyzer</label>
                 </div>
-                <div class="description">Findet semantische WCAG-Probleme, die axe-core übersieht</div>
+                <div class="description">Finds semantic WCAG issues that axe-core misses</div>
                 
                 <div class="analyzer-scope">
                     <label class="toggle-section-label">Analysis Scope:</label>
-                    <div class="scope-info">Sichtbarer Code</div>
+                    <div class="scope-info">Visible code</div>
                     <div class="toggle-switch">
                         <input type="checkbox" id="scope-toggle" class="toggle-input">
                         <label for="scope-toggle" class="toggle-label"></label>
@@ -976,7 +976,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 </div>
                 
                 <button class="analysis-button" id="start-analysis" disabled>
-                    🔍 Analyse starten
+                    🔍 Start analysis
                 </button>
             </div>
             
@@ -984,9 +984,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 <h3>Code Tutor</h3>
                 <div class="code-tutor-toggle">
                     <input type="checkbox" id="code-tutor-enabled">
-                    <label for="code-tutor-enabled">Code Tutor Annotationen aktivieren</label>
+                    <label for="code-tutor-enabled">Enable Code Tutor annotations</label>
                 </div>
-                <div class="description">Zeigt Accessibility-Tipps direkt im Code an</div>
+                <div class="description">Shows accessibility tips directly in the code</div>
             </div>
             
             <script>
@@ -1023,7 +1023,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     const scope = this.checked ? 'document' : 'visible';
                     const scopeInfo = document.querySelector('.scope-info');
                     if (scopeInfo) {
-                        scopeInfo.textContent = this.checked ? 'Gesamtes Dokument' : 'Sichtbarer Code';
+                        scopeInfo.textContent = this.checked ? 'Entire document' : 'Visible code';
                     }
                     vscode.postMessage({
                         type: 'analysisScopeChanged',
@@ -1066,15 +1066,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     }
                 });
                 
-                // Code Tutor toggle
-                document.getElementById('code-tutor-enabled').addEventListener('change', function() {
-                    vscode.postMessage({
-                        type: 'codeTutorToggled',
-                        enabled: this.checked
-                    });
-                });
-                
-                // Code Tutor toggle
+                // Code Tutor toggle (single listener)
                 document.getElementById('code-tutor-enabled').addEventListener('change', function() {
                     vscode.postMessage({
                         type: 'codeTutorToggled',
@@ -1176,7 +1168,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                             if (scopeToggle) {
                                 scopeToggle.checked = (message.analysisScope === 'document');
                                 if (scopeInfo) {
-                                    scopeInfo.textContent = (message.analysisScope === 'document') ? 'Gesamtes Dokument' : 'Sichtbarer Code';
+                                    scopeInfo.textContent = (message.analysisScope === 'document') ? 'Entire document' : 'Visible code';
                                 }
                             }
                             
@@ -1216,10 +1208,10 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                                     
                                     const apiKeyStatus = document.getElementById('apikey-status');
                                     if (config.customAPI.hasApiKey) {
-                                        apiKeyStatus.textContent = '🔒 API Key gespeichert';
+                                        apiKeyStatus.textContent = '🔒 API key stored';
                                         apiKeyStatus.style.color = '#4caf50';
                                     } else {
-                                        apiKeyStatus.textContent = '🔒 API Key wird sicher in VS Code SecretStorage gespeichert';
+                                        apiKeyStatus.textContent = '🔒 API key is stored securely in VS Code SecretStorage';
                                         apiKeyStatus.style.color = '';
                                     }
                                 }
@@ -1243,22 +1235,22 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     switch (status) {
                         case 'connected':
                             statusIcon.textContent = '🟢';
-                            statusText.textContent = 'Verbunden';
+                            statusText.textContent = 'Connected';
                             statusText.className = 'connected';
                             break;
                         case 'disconnected':
                             statusIcon.textContent = '🔴';
-                            statusText.textContent = 'Nicht verbunden';
+                            statusText.textContent = 'Disconnected';
                             statusText.className = 'disconnected';
                             break;
                         case 'testing':
                             statusIcon.textContent = '🟡';
-                            statusText.textContent = 'Teste Verbindung...';
+                            statusText.textContent = 'Testing connection...';
                             statusText.className = 'testing';
                             break;
                         case 'error':
                             statusIcon.textContent = '🔴';
-                            statusText.textContent = 'Verbindungsfehler';
+                            statusText.textContent = 'Connection error';
                             statusText.className = 'error';
                             break;
                     }

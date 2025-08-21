@@ -15,7 +15,7 @@ class OneShotStrategy implements PromptStrategy {
     public readonly description = 'Direct instruction with single example for quick analysis';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for WCAG 2.2 AA violations that can be detected in frontend code.
+        return `Analyze the following frontend code for WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) that can be detected in frontend code.
 
 EXAMPLE:
 For code like: <div role="button">Click me</div>
@@ -89,7 +89,7 @@ class FewShotStrategy implements PromptStrategy {
     public readonly description = 'Multiple examples for better pattern recognition';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for WCAG 2.2 AA violations. Learn from these examples:
+        return `Analyze the following frontend code for WCAG 2.2 AA violations https://www.w3.org/TR/WCAG22/. Learn from these examples:
 
 EXAMPLE 1 - Semantic Issues:
 Code: <div role="button" onclick="submit()">Submit</div>
@@ -154,7 +154,7 @@ class ChainOfThoughtStrategy implements PromptStrategy {
     public readonly description = 'Step-by-step reasoning for thorough analysis';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for WCAG 2.2 AA violations using step-by-step reasoning.
+        return `Analyze the following frontend code for WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) using step-by-step reasoning.
 
 REASONING PROCESS:
 1. First, read through the code to understand its structure and purpose
@@ -226,7 +226,7 @@ class RoleBasedStrategy implements PromptStrategy {
     public readonly description = 'Analysis from multiple user perspectives and assistive technologies';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for WCAG 2.2 AA violations from multiple user perspectives and assistive technology viewpoints.
+        return `Analyze the following frontend code for WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) from multiple user perspectives and assistive technology viewpoints.
 
 ROLE-BASED ANALYSIS FRAMEWORK:
 

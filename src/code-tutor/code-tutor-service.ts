@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
 
 /**
- * Der Code Tutor Service nutzt die VS Code Language Model API (GitHub Copilot),
- * um Code-Annotationen zu erstellen, die Entwicklern helfen, besseren Code zu schreiben.
+ * The Code Tutor Service uses the VS Code Language Model API (GitHub Copilot)
+ * to create inline code annotations that help developers write more accessible code.
  */
 export class CodeTutorService {
     private readonly decorationTypes: vscode.TextEditorDecorationType[] = [];
@@ -10,66 +10,66 @@ export class CodeTutorService {
 
         public async toggleAnnotations(textEditor: vscode.TextEditor): Promise<void> {
         if (this.isActive) {
-            // Annotationen sind AN → ausschalten
+            // Annotations are ON → turn off
             this.clearAnnotations();
             this.isActive = false;
-            vscode.window.showInformationMessage('Accessibility Tutor: Annotationen ausgeschaltet');
+            vscode.window.showInformationMessage('Accessibility Tutor: annotations disabled');
         } else {
-            // Annotationen sind AUS → einschalten
+            // Annotations are OFF → turn on
             await this.annotateCode(textEditor);
             this.isActive = true;
-            vscode.window.showInformationMessage('Accessibility Tutor: Annotationen eingeschaltet');
+            vscode.window.showInformationMessage('Accessibility Tutor: annotations enabled');
         }
     }
 
     /**
-     * Hauptmethode, die Code-Annotationen für den aktuellen Editor erstellt
+     * Main method that creates code annotations for the current editor.
      */
     public async annotateCode(textEditor: vscode.TextEditor): Promise<void> {
         try {
-            // Schritt 1: Sichtbaren Code mit Zeilennummern holen
+            // Step 1: Get visible code with line numbers
             const codeWithLineNumbers = this.getVisibleCodeWithLineNumbers(textEditor);
             
             if (!codeWithLineNumbers.trim()) {
-                vscode.window.showInformationMessage('Kein Code im sichtbaren Bereich gefunden.');
+                vscode.window.showInformationMessage('No code found in the visible range.');
                 return;
             }
 
-            // Schritt 2: GitHub Copilot Model auswählen
+            // Step 2: Select GitHub Copilot model
             const [model] = await vscode.lm.selectChatModels({
                 vendor: 'copilot',
                 family: 'gpt-4o'
             });
 
             if (!model) {
-                vscode.window.showErrorMessage('GitHub Copilot ist nicht verfügbar. Bitte stelle sicher, dass du angemeldet bist.');
+                vscode.window.showErrorMessage('GitHub Copilot not available. Please ensure you are signed in.');
                 return;
             }
 
-            // Schritt 3: Chat-Nachrichten vorbereiten
+            // Step 3: Prepare chat messages
             const messages = [
                 vscode.LanguageModelChatMessage.User(this.getAnnotationPrompt()),
                 vscode.LanguageModelChatMessage.User(codeWithLineNumbers)
             ];
 
-            // Schritt 4: Request an das Model senden
+            // Step 4: Send request to model
             const chatResponse = await model.sendRequest(
                 messages,
                 {},
                 new vscode.CancellationTokenSource().token
             );
 
-            // Schritt 5: Response verarbeiten und Decorations anzeigen
+            // Step 5: Process response and display decorations
             await this.parseChatResponse(chatResponse, textEditor);
 
         } catch (error) {
-            console.error('Fehler beim Erstellen von Code-Annotationen:', error);
-            vscode.window.showErrorMessage(`Fehler beim Code Tutor: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
+            console.error('Error creating code annotations:', error);
+            vscode.window.showErrorMessage(`Code Tutor error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 
     /**
-     * Entfernt alle bestehenden Code-Annotationen
+     * Removes all existing code annotations.
      */
     public clearAnnotations(): void {
         for (const decorationType of this.decorationTypes) {
@@ -79,17 +79,16 @@ export class CodeTutorService {
     }
 
     /**
-     * Holt den sichtbaren Code mit Zeilennummern aus dem Editor
+     * Gets the visible code with line numbers from the editor.
      */
     private getVisibleCodeWithLineNumbers(textEditor: vscode.TextEditor): string {
-        // Position der ersten und letzten sichtbaren Zeile holen
+    // Determine first and last visible lines
         let currentLine = textEditor.visibleRanges[0].start.line;
         const endLine = textEditor.visibleRanges[0].end.line;
 
         let code = '';
 
-        // Text von jeder Zeile holen und mit Zeilennummer versehen
-        // Die Zeilennummer ist 0-basiert, daher +1 für 1-basierte Nummerierung
+    // Collect text from each line and prefix with 1-based line number
         while (currentLine < endLine) {
             code += `${currentLine + 1}: ${textEditor.document.lineAt(currentLine).text} \n`;
             currentLine++;
@@ -99,21 +98,20 @@ export class CodeTutorService {
     }
 
     /**
-     * Definiert den Prompt für das Language Model
+     * Defines the prompt for the language model.
      */
     private getAnnotationPrompt(): string {
-        return `Du bist ein Accessibility Tutor, spezialisiert auf die Prüfung von Quellcode hinsichtlich Barrierefreiheit nach den WCAG-Standards. Deine Aufgabe ist es, den vom Nutzer bereitgestellten Code zu analysieren und Zeilen zu identifizieren, die gegen WCAG-Richtlinien verstoßen oder verbessert werden können, insbesondere solche Probleme, die von automatisierten Tools wie axe-core nicht erkannt werden (z.B. semantische HTML-Strukturen, sinnvolle ARIA-Nutzung, Tastaturbedienbarkeit, visuelle Hinweise, Fokusmanagement, verständliche Labels, etc.).
+    return `You are an accessibility tutor focused on reviewing source code for accessibility issues according to WCAG 2.2 AA standards. Analyze the provided code and identify line numbers that contain issues or could be improved for accessibility, especially semantic issues not detected by automated tools (semantic HTML structure, meaningful ARIA usage, keyboard accessibility, focus management, descriptive labels, etc.).
 
-      Für jede gefundene Zeile gib einen kurzen, konstruktiven Lösungsvorschlag, wie der Code barrierefreier und konformer zu den WCAG-Standards gestaltet werden kann. Sei freundlich und unterstützend in deinen Formulierungen.
+For each line you flag, provide a short, constructive suggestion describing how to improve the code. Be concise, helpful, and specific.
 
-      Formatiere jeden Vorschlag als ein einzelnes JSON-Objekt. Es ist nicht notwendig, deine Antwort in dreifache Backticks zu setzen. Beispiel:
-
-      { "line": 5, "suggestion": "Füge ein aria-label hinzu, um die Funktion dieses Buttons für Screenreader zu beschreiben." }
-      { "line": 17, "suggestion": "Verwende ein <nav>-Element statt eines <div>, um die Navigation semantisch korrekt zu markieren." }`;
+Return each suggestion as a standalone JSON object (JSON lines). Do not wrap in triple backticks. Example:
+{ "line": 5, "suggestion": "Add an aria-label to describe the purpose of this button for screen readers." }
+{ "line": 17, "suggestion": "Use a <nav> element instead of <div> to semantically identify navigation." }`;
     }
 
     /**
-     * Verarbeitet die Chat-Response und erstellt Decorations
+     * Processes the chat response and creates decorations.
      */
     private async parseChatResponse(
         chatResponse: vscode.LanguageModelChatResponse,
@@ -124,12 +122,12 @@ export class CodeTutorService {
         for await (const fragment of chatResponse.text) {
             accumulatedResponse += fragment;
 
-            // Wenn das Fragment eine } enthält, versuchen wir die ganze Zeile zu parsen
+            // When the fragment contains a closing brace, try to parse accumulated JSON
             if (fragment.includes('}')) {
                 try {
                     const annotation = JSON.parse(accumulatedResponse);
                     this.applyDecoration(textEditor, annotation.line, annotation.suggestion);
-                    // Accumulator für die nächste Zeile zurücksetzen
+                    // Reset accumulator for next object
                     accumulatedResponse = '';
                 } catch (e) {
                     // Nichts tun - warten auf vollständige JSON
@@ -139,7 +137,7 @@ export class CodeTutorService {
     }
 
     /**
-     * Wendet eine Decoration (Annotation) auf eine bestimmte Zeile an
+     * Applies a decoration (annotation) to a specific line.
      */
     private applyDecoration(editor: vscode.TextEditor, line: number, suggestion: string): void {
         const decorationType = vscode.window.createTextEditorDecorationType({
@@ -162,7 +160,7 @@ export class CodeTutorService {
 
         const decoration = { 
             range: range, 
-            hoverMessage: new vscode.MarkdownString(`💡 **Accessibility Verbesserungsvorschlag:**\n\n${suggestion}`) 
+            hoverMessage: new vscode.MarkdownString(`💡 **Accessibility suggestion:**\n\n${suggestion}`) 
         };
 
         editor.setDecorations(decorationType, [decoration]);

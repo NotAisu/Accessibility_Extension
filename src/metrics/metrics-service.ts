@@ -27,6 +27,10 @@ export interface SimpleMetrics {
     lastQuickFixTimeMs: number;
     avgAIAnalysisTimeMs: number;
     avgQuickFixTimeMs: number;
+    aiAnalysisCount: number;
+    aiAnalysisTotalTimeMs: number;
+    quickFixCount: number;
+    quickFixTotalTimeMs: number;
     
     
     sessionStart: number;
@@ -73,6 +77,10 @@ export class MetricsService {
             lastQuickFixTimeMs: 0,
             avgAIAnalysisTimeMs: 0,
             avgQuickFixTimeMs: 0,
+            aiAnalysisCount: 0,
+            aiAnalysisTotalTimeMs: 0,
+            quickFixCount: 0,
+            quickFixTotalTimeMs: 0,
             sessionStart: Date.now(),
             lastUpdated: Date.now()
         };
@@ -166,7 +174,9 @@ export class MetricsService {
         if (startTime) {
             const duration = performance.now() - startTime;
             this.metrics.lastQuickFixTimeMs = duration;
-            this.updateAvgQuickFixTime(duration);
+            this.metrics.quickFixCount++;
+            this.metrics.quickFixTotalTimeMs += duration;
+            this.updateAvgQuickFixTime();
             this.quickFixStartTimes.delete(fixId);
         }
         
@@ -190,7 +200,9 @@ export class MetricsService {
         if (startTime) {
             const duration = performance.now() - startTime;
             this.metrics.lastAIAnalysisTimeMs = duration;
-            this.updateAvgAIAnalysisTime(duration);
+            this.metrics.aiAnalysisCount++;
+            this.metrics.aiAnalysisTotalTimeMs += duration;
+            this.updateAvgAIAnalysisTime();
             this.analysisStartTimes.delete(analysisId);
             this.saveAndNotify();
         }
@@ -211,19 +223,15 @@ export class MetricsService {
         this.metrics.quickFixSuccessRate = total > 0 ? (this.metrics.quickFixesGoodFeedback / total) * 100 : 0;
     }
 
-    private updateAvgAIAnalysisTime(newTime: number): void {
-        if (this.metrics.avgAIAnalysisTimeMs === 0) {
-            this.metrics.avgAIAnalysisTimeMs = newTime;
-        } else {
-            this.metrics.avgAIAnalysisTimeMs = (this.metrics.avgAIAnalysisTimeMs + newTime) / 2;
+    private updateAvgAIAnalysisTime(): void {
+        if (this.metrics.aiAnalysisCount > 0) {
+            this.metrics.avgAIAnalysisTimeMs = this.metrics.aiAnalysisTotalTimeMs / this.metrics.aiAnalysisCount;
         }
     }
 
-    private updateAvgQuickFixTime(newTime: number): void {
-        if (this.metrics.avgQuickFixTimeMs === 0) {
-            this.metrics.avgQuickFixTimeMs = newTime;
-        } else {
-            this.metrics.avgQuickFixTimeMs = (this.metrics.avgQuickFixTimeMs + newTime) / 2;
+    private updateAvgQuickFixTime(): void {
+        if (this.metrics.quickFixCount > 0) {
+            this.metrics.avgQuickFixTimeMs = this.metrics.quickFixTotalTimeMs / this.metrics.quickFixCount;
         }
     }
 

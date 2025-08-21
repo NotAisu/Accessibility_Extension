@@ -94,15 +94,6 @@
     "configuration": {
       "title": "Accessibility Extension",
       "properties": {
-        "accessibility.fixVerbosity": {
-          "type": "string",
-          "default": "minimal",
-          "enum": [
-            "minimal",
-            "detailed"
-          ],
-          "description": "Controls the level of detail in the AI-generated fixes."
-        },
         "accessibility.aiProvider": {
           "type": "string",
           "default": "local",
