@@ -73,6 +73,12 @@ class LLMService {
             return { result, quickFixId };
         }
         catch (error) {
+            console.error(`LLM Provider ${provider.name} failed:`, error);
+            // Try fallback strategies
+            const fallbackResult = await this.tryFallbackStrategies(prompt, provider.name);
+            if (fallbackResult) {
+                return { result: fallbackResult, quickFixId };
+            }
             throw error;
         }
     }
@@ -87,8 +93,58 @@ class LLMService {
             return result;
         }
         catch (error) {
+            console.error(`AI Analysis failed with ${provider.name}:`, error);
+            // Try fallback for analysis
+            const fallbackResult = await this.tryFallbackStrategies(prompt, provider.name);
+            if (fallbackResult) {
+                return fallbackResult;
+            }
             throw error;
         }
+    }
+    /**
+     * Tries fallback strategies when primary provider fails
+     */
+    async tryFallbackStrategies(prompt, failedProvider) {
+        const availableProviders = this.getAvailableProviders().filter(p => p !== failedProvider);
+        for (const providerName of availableProviders) {
+            try {
+                console.log(`Trying fallback provider: ${providerName}`);
+                const fallbackProvider = this.providers.get(providerName);
+                if (fallbackProvider && await fallbackProvider.isConfigured()) {
+                    const result = await fallbackProvider.getAccessibilityFix(prompt);
+                    console.log(`Fallback successful with ${providerName}`);
+                    return result;
+                }
+            }
+            catch (fallbackError) {
+                console.warn(`Fallback provider ${providerName} also failed:`, fallbackError);
+                continue;
+            }
+        }
+        // If all providers fail, try basic rule-based fallback
+        return this.generateBasicFallback(prompt);
+    }
+    /**
+     * Generates a basic rule-based fix when all LLM providers fail
+     */
+    generateBasicFallback(prompt) {
+        const basicRules = {
+            'missing alt': 'Add alt attribute: alt="Descriptive text"',
+            'missing label': 'Add label: <label for="id">Label text</label>',
+            'div role="button"': 'Use semantic button: <button>Button text</button>',
+            'color contrast': 'Increase color contrast to meet WCAG AA standards',
+            'heading hierarchy': 'Use proper heading hierarchy (h1→h2→h3)',
+            'missing aria-label': 'Add aria-label="Descriptive text"'
+        };
+        const lowerPrompt = prompt.toLowerCase();
+        for (const [pattern, fix] of Object.entries(basicRules)) {
+            if (lowerPrompt.includes(pattern)) {
+                console.log(`Using basic rule-based fallback for: ${pattern}`);
+                return fix;
+            }
+        }
+        return null;
     }
     async testConnection() {
         try {

@@ -51,6 +51,12 @@ let codeTutorService;
 let aiSemanticAnalyzer;
 let metricsService;
 let feedbackService;
+// Memory leak prevention: Track active documents and cleanup timer
+let cleanupTimer;
+const CLEANUP_INTERVAL_MS = 30000; // 30 seconds
+// Race condition prevention: Debounced metrics updates
+let metricsUpdateTimer;
+const METRICS_UPDATE_DELAY_MS = 300;
 function activate(context) {
     console.log('🚀 Activating Accessibility Extension...');
     // Services mit SecretStorage initialisieren
@@ -161,6 +167,45 @@ function activate(context) {
         updateGlobalViolationMetrics();
     }));
     vscode.window.visibleTextEditors.forEach(editor => runDiagnostics(editor.document));
+    // Start memory cleanup timer
+    startDiagnosticCleanup();
+}
+/**
+ * Periodically cleans up diagnostics for closed/inactive documents
+ */
+function startDiagnosticCleanup() {
+    cleanupTimer = setInterval(() => {
+        cleanupInactiveDiagnostics();
+    }, CLEANUP_INTERVAL_MS);
+}
+/**
+ * Removes diagnostics for documents that are no longer open
+ */
+function cleanupInactiveDiagnostics() {
+    const activeDocuments = new Set(vscode.workspace.textDocuments.map(doc => doc.uri.toString()));
+    // Clean up main diagnostic collection
+    const staleUris = [];
+    diagnosticCollection.forEach((uri, diagnostics) => {
+        if (!activeDocuments.has(uri.toString())) {
+            staleUris.push(uri);
+        }
+    });
+    // Clean up AI diagnostic collection
+    const aiCollection = aiSemanticAnalyzer.getDiagnosticCollection();
+    aiCollection.forEach((uri, diagnostics) => {
+        if (!activeDocuments.has(uri.toString())) {
+            staleUris.push(uri);
+        }
+    });
+    // Remove stale diagnostics
+    staleUris.forEach(uri => {
+        diagnosticCollection.delete(uri);
+        aiCollection.delete(uri);
+    });
+    if (staleUris.length > 0) {
+        console.log(`🧹 Cleaned up ${staleUris.length} stale diagnostic entries`);
+        debouncedMetricsUpdate();
+    }
 }
 /**
  * Führt Diagnostics für ein Dokument aus (nur axe-core, AI ist jetzt manuell)
@@ -183,12 +228,28 @@ async function runDiagnostics(document) {
 }
 /**
  * Updates die globalen Violation Metrics basierend auf allen aktuellen Diagnostics
+ * Debounced to prevent race conditions
  */
 function updateGlobalViolationMetrics() {
-    if (!metricsService)
-        return;
-    // Sammle alle Violations aus den DiagnosticCollections
-    metricsService.updateCurrentViolationsFromDiagnostics(diagnosticCollection, aiSemanticAnalyzer.getDiagnosticCollection());
+    debouncedMetricsUpdate();
+}
+/**
+ * Debounced metrics update to prevent race conditions
+ */
+function debouncedMetricsUpdate() {
+    if (metricsUpdateTimer) {
+        clearTimeout(metricsUpdateTimer);
+    }
+    metricsUpdateTimer = setTimeout(() => {
+        if (!metricsService)
+            return;
+        try {
+            metricsService.updateCurrentViolationsFromDiagnostics(diagnosticCollection, aiSemanticAnalyzer.getDiagnosticCollection());
+        }
+        catch (error) {
+            console.error('Failed to update metrics:', error);
+        }
+    }, METRICS_UPDATE_DELAY_MS);
 }
 async function updateDiagnostics(document) {
     const text = document.getText();
@@ -431,7 +492,18 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
     });
 }
 function deactivate() {
+    // Clear timers to prevent memory leaks
+    if (cleanupTimer) {
+        clearInterval(cleanupTimer);
+        cleanupTimer = undefined;
+    }
+    if (metricsUpdateTimer) {
+        clearTimeout(metricsUpdateTimer);
+        metricsUpdateTimer = undefined;
+    }
+    // Clear diagnostics
     diagnosticCollection.clear();
+    // Dispose services
     if (codeTutorService) {
         codeTutorService.clearAnnotations();
     }

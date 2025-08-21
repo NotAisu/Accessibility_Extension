@@ -218,7 +218,7 @@ const WCAGViolationsTest: React.FC = () => {
                 
                 <img src="/icon.png" alt="Icon" aria-label="Icon" />
                 
-                <div role="button" aria-pressed="maybe" as any>
+                <div role="button" aria-pressed="mixed">
                     Invalid ARIA value
                 </div>
 

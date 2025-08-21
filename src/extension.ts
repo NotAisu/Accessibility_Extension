@@ -17,6 +17,14 @@ let aiSemanticAnalyzer: AISemanticAnalyzer;
 let metricsService: MetricsService;
 let feedbackService: FeedbackService;
 
+// Memory leak prevention: Track active documents and cleanup timer
+let cleanupTimer: NodeJS.Timeout | undefined;
+const CLEANUP_INTERVAL_MS = 30000; // 30 seconds
+
+// Race condition prevention: Debounced metrics updates
+let metricsUpdateTimer: NodeJS.Timeout | undefined;
+const METRICS_UPDATE_DELAY_MS = 300;
+
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('🚀 Activating Accessibility Extension...');
@@ -208,6 +216,54 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 
     vscode.window.visibleTextEditors.forEach(editor => runDiagnostics(editor.document));
+
+    // Start memory cleanup timer
+    startDiagnosticCleanup();
+}
+
+/**
+ * Periodically cleans up diagnostics for closed/inactive documents
+ */
+function startDiagnosticCleanup(): void {
+    cleanupTimer = setInterval(() => {
+        cleanupInactiveDiagnostics();
+    }, CLEANUP_INTERVAL_MS);
+}
+
+/**
+ * Removes diagnostics for documents that are no longer open
+ */
+function cleanupInactiveDiagnostics(): void {
+    const activeDocuments = new Set(
+        vscode.workspace.textDocuments.map(doc => doc.uri.toString())
+    );
+
+    // Clean up main diagnostic collection
+    const staleUris: vscode.Uri[] = [];
+    diagnosticCollection.forEach((uri, diagnostics) => {
+        if (!activeDocuments.has(uri.toString())) {
+            staleUris.push(uri);
+        }
+    });
+
+    // Clean up AI diagnostic collection
+    const aiCollection = aiSemanticAnalyzer.getDiagnosticCollection();
+    aiCollection.forEach((uri, diagnostics) => {
+        if (!activeDocuments.has(uri.toString())) {
+            staleUris.push(uri);
+        }
+    });
+
+    // Remove stale diagnostics
+    staleUris.forEach(uri => {
+        diagnosticCollection.delete(uri);
+        aiCollection.delete(uri);
+    });
+
+    if (staleUris.length > 0) {
+        console.log(`🧹 Cleaned up ${staleUris.length} stale diagnostic entries`);
+        debouncedMetricsUpdate();
+    }
 }
 
 /**
@@ -234,15 +290,32 @@ async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
 
 /**
  * Updates die globalen Violation Metrics basierend auf allen aktuellen Diagnostics
+ * Debounced to prevent race conditions
  */
 function updateGlobalViolationMetrics(): void {
-    if (!metricsService) return;
+    debouncedMetricsUpdate();
+}
 
-    // Sammle alle Violations aus den DiagnosticCollections
-    metricsService.updateCurrentViolationsFromDiagnostics(
-        diagnosticCollection,
-        aiSemanticAnalyzer.getDiagnosticCollection()
-    );
+/**
+ * Debounced metrics update to prevent race conditions
+ */
+function debouncedMetricsUpdate(): void {
+    if (metricsUpdateTimer) {
+        clearTimeout(metricsUpdateTimer);
+    }
+    
+    metricsUpdateTimer = setTimeout(() => {
+        if (!metricsService) return;
+        
+        try {
+            metricsService.updateCurrentViolationsFromDiagnostics(
+                diagnosticCollection,
+                aiSemanticAnalyzer.getDiagnosticCollection()
+            );
+        } catch (error) {
+            console.error('Failed to update metrics:', error);
+        }
+    }, METRICS_UPDATE_DELAY_MS);
 }
 
 async function updateDiagnostics(document: vscode.TextDocument) {
@@ -532,7 +605,20 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
 }
 
 export function deactivate() {
+    // Clear timers to prevent memory leaks
+    if (cleanupTimer) {
+        clearInterval(cleanupTimer);
+        cleanupTimer = undefined;
+    }
+    if (metricsUpdateTimer) {
+        clearTimeout(metricsUpdateTimer);
+        metricsUpdateTimer = undefined;
+    }
+
+    // Clear diagnostics
     diagnosticCollection.clear();
+    
+    // Dispose services
     if (codeTutorService) {
         codeTutorService.clearAnnotations();
     }
