@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
 import { LLMService } from '../llm/llm-service';
 import { MetricsService } from '../metrics/metrics-service';
-import { PromptStrategy } from './prompt-strategies';
-const { getPromptStrategy, getDefaultStrategy } = require('./prompt-strategies');
+import { PromptStrategy, getPromptStrategy, getDefaultStrategy } from './prompt-strategies';
 
 interface WCAGViolation {
     element: string;

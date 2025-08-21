@@ -1,5 +1,42 @@
 import * as vscode from 'vscode';
-import { MetricsService} from '../metrics/metrics-service';
+import { MetricsService } from '../metrics/metrics-service';
+
+// Type interfaces for LLM responses
+interface LLMMessage {
+    content?: string;
+    role?: string;
+}
+
+interface LLMChoice {
+    message?: LLMMessage;
+    text?: string;
+    content?: string;
+    delta?: { content?: string };
+}
+
+interface LLMResponse {
+    choices?: LLMChoice[];
+    message?: LLMMessage;
+    text?: string;
+    content?: string;
+    answer?: string;
+    response?: string;
+    result?: string;
+    output?: string;
+    completion?: string;
+    generated_text?: string;
+    [key: string]: unknown; // Index signature for dynamic properties
+}
+
+interface ChatMessage {
+    role: 'system' | 'user' | 'assistant';
+    content: string;
+}
+
+interface WebviewMessage {
+    type: string;
+    [key: string]: unknown;
+}
 
 export interface LLMProvider {
     name: string;
@@ -187,7 +224,7 @@ class LocalLLMProvider implements LLMProvider {
         }
     }
     
-    private extractTextFromResponse(data: any): string | undefined {
+    private extractTextFromResponse(data: LLMResponse | string): string | undefined {
         if (typeof data === 'string') {
             return data;
         }
@@ -197,13 +234,14 @@ class LocalLLMProvider implements LLMProvider {
         }
         
         // Gängige API-Felder prüfen
-        const possibleFields = [
+        const possibleFields: (keyof LLMResponse)[] = [
             'text', 'content', 'answer', 'response', 'result', 'output', 'completion', 'generated_text'
         ];
         
         for (const field of possibleFields) {
-            if (data[field] && typeof data[field] === 'string') {
-                return data[field];
+            const value = data[field];
+            if (value && typeof value === 'string') {
+                return value;
             }
         }
         

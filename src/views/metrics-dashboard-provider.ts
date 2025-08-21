@@ -109,7 +109,7 @@ export class MetricsDashboardProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private sendMessage(message: any): void {
+    private sendMessage(message: Record<string, unknown>): void {
         if (this._view) {
             this._view.webview.postMessage(message);
         }

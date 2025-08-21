@@ -3,7 +3,63 @@ import { LLMService } from '../llm/llm-service';
 import { AISemanticAnalyzer } from '../ai/ai-semantic-analyzer';
 import { CodeTutorService } from '../code-tutor/code-tutor-service';
 import { MetricsService } from '../metrics/metrics-service';
-const { PROMPT_STRATEGIES } = require('../ai/prompt-strategies');
+import { PROMPT_STRATEGIES } from '../ai/prompt-strategies';
+
+// WebView Message Types
+interface BaseWebviewMessage {
+    type: string;
+}
+
+interface ProviderChangedMessage extends BaseWebviewMessage {
+    type: 'providerChanged';
+    provider: string;
+}
+
+interface AnalyzerToggleMessage extends BaseWebviewMessage {
+    type: 'analyzerToggled';
+    enabled: boolean;
+}
+
+interface AnalysisScopeMessage extends BaseWebviewMessage {
+    type: 'analysisScopeChanged';
+    scope: 'visible' | 'document';
+}
+
+interface PromptStrategyMessage extends BaseWebviewMessage {
+    type: 'promptStrategyChanged';
+    strategy: string;
+}
+
+interface CodeTutorToggleMessage extends BaseWebviewMessage {
+    type: 'codeTutorToggled';
+    enabled: boolean;
+}
+
+interface SaveEndpointMessage extends BaseWebviewMessage {
+    type: 'saveEndpoint';
+    endpoint: string;
+}
+
+interface SaveModelMessage extends BaseWebviewMessage {
+    type: 'saveModel';
+    model: string;
+}
+
+interface SaveApiKeyMessage extends BaseWebviewMessage {
+    type: 'saveApiKey';
+    apiKey: string;
+}
+
+type WebviewMessage = 
+    | BaseWebviewMessage
+    | ProviderChangedMessage
+    | AnalyzerToggleMessage
+    | AnalysisScopeMessage
+    | PromptStrategyMessage
+    | CodeTutorToggleMessage
+    | SaveEndpointMessage
+    | SaveModelMessage
+    | SaveApiKeyMessage;
 
 /**
  * WebView Provider für AI Accessibility Settings
@@ -61,40 +117,40 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
         // Message Handler für WebView Kommunikation
-        webviewView.webview.onDidReceiveMessage(async (data) => {
+        webviewView.webview.onDidReceiveMessage(async (data: WebviewMessage) => {
             switch (data.type) {
                 case 'providerChanged':
-                    await this.handleProviderChange(data.provider);
+                    await this.handleProviderChange((data as ProviderChangedMessage).provider);
                     break;
                 case 'testConnection':
                     await this.handleConnectionTest();
                     break;
                 case 'analyzerToggled':
-                    await this.handleAnalyzerToggle(data.enabled);
+                    await this.handleAnalyzerToggle((data as AnalyzerToggleMessage).enabled);
                     break;
                 case 'analysisScopeChanged':
-                    await this.handleAnalysisScopeChange(data.scope);
+                    await this.handleAnalysisScopeChange((data as AnalysisScopeMessage).scope);
                     break;
                 case 'promptStrategyChanged':
-                    await this.handlePromptStrategyChange(data.strategy);
+                    await this.handlePromptStrategyChange((data as PromptStrategyMessage).strategy);
                     break;
                 case 'startAnalysis':
                     await this.handleStartAnalysis();
                     break;
                 case 'codeTutorToggled':
-                    await this.handleCodeTutorToggle(data.enabled);
+                    await this.handleCodeTutorToggle((data as CodeTutorToggleMessage).enabled);
                     break;
                 case 'getInitialState':
                     await this.sendInitialState();
                     break;
                 case 'saveEndpoint':
-                    await this.handleEndpointSave(data.endpoint);
+                    await this.handleEndpointSave((data as SaveEndpointMessage).endpoint);
                     break;
                 case 'saveModel':
-                    await this.handleModelSave(data.model);
+                    await this.handleModelSave((data as SaveModelMessage).model);
                     break;
                 case 'saveApiKey':
-                    await this.handleApiKeySave(data.apiKey);
+                    await this.handleApiKeySave((data as SaveApiKeyMessage).apiKey);
                     break;
                 case 'getAvailableModels':
                     await this.handleGetAvailableModels();
@@ -255,7 +311,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             if (this.aiAnalyzer) {
                 this.aiAnalyzer.setPromptStrategy(strategy);
                 
-                const strategyObj = PROMPT_STRATEGIES.find((s: any) => s.name === strategy);
+                const strategyObj = PROMPT_STRATEGIES.find(s => s.name === strategy);
                 const message = strategyObj ? 
                     `Prompt Strategy: ${strategyObj.displayName}` : 
                     `Prompt Strategy: ${strategy}`;
@@ -416,7 +472,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    private sendMessage(message: any): void {
+    private sendMessage(message: Record<string, unknown>): void {
         if (this._view) {
             this._view.webview.postMessage(message);
         }

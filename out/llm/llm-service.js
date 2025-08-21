@@ -202,8 +202,9 @@ class LocalLLMProvider {
             'text', 'content', 'answer', 'response', 'result', 'output', 'completion', 'generated_text'
         ];
         for (const field of possibleFields) {
-            if (data[field] && typeof data[field] === 'string') {
-                return data[field];
+            const value = data[field];
+            if (value && typeof value === 'string') {
+                return value;
             }
         }
         // Verschachtelte Strukturen prüfen

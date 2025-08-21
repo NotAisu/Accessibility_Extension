@@ -35,7 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AISemanticAnalyzer = void 0;
 const vscode = __importStar(require("vscode"));
-const { getPromptStrategy, getDefaultStrategy } = require('./prompt-strategies');
+const prompt_strategies_1 = require("./prompt-strategies");
 /**
  * AI Semantic Analyzer mit blauer Farbkodierung für WCAG-Semantik-Verstöße
  */
@@ -214,7 +214,7 @@ class AISemanticAnalyzer {
      */
     async performAIAnalysis(codeWithLineNumbers, document) {
         try {
-            const strategy = getPromptStrategy(this.promptStrategy);
+            const strategy = (0, prompt_strategies_1.getPromptStrategy)(this.promptStrategy);
             const prompt = strategy.generatePrompt(codeWithLineNumbers);
             const aiResponse = await this.llmService.getAIAnalysis(prompt);
             const violations = this.parseAIResponse(aiResponse, document);
@@ -224,7 +224,7 @@ class AISemanticAnalyzer {
             console.error('AI analysis request failed:', error);
             // Fallback to default strategy if current strategy fails
             try {
-                const defaultStrategy = getDefaultStrategy();
+                const defaultStrategy = (0, prompt_strategies_1.getDefaultStrategy)();
                 const prompt = defaultStrategy.generatePrompt(codeWithLineNumbers);
                 const aiResponse = await this.llmService.getAIAnalysis(prompt);
                 return this.parseAIResponse(aiResponse, document);

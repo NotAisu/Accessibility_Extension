@@ -35,7 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMSettingsProvider = void 0;
 const vscode = __importStar(require("vscode"));
-const { PROMPT_STRATEGIES } = require('../ai/prompt-strategies');
+const prompt_strategies_1 = require("../ai/prompt-strategies");
 /**
  * WebView Provider für AI Accessibility Settings
  */
@@ -243,7 +243,7 @@ class LLMSettingsProvider {
         try {
             if (this.aiAnalyzer) {
                 this.aiAnalyzer.setPromptStrategy(strategy);
-                const strategyObj = PROMPT_STRATEGIES.find((s) => s.name === strategy);
+                const strategyObj = prompt_strategies_1.PROMPT_STRATEGIES.find(s => s.name === strategy);
                 const message = strategyObj ?
                     `Prompt Strategy: ${strategyObj.displayName}` :
                     `Prompt Strategy: ${strategy}`;

@@ -10,6 +10,13 @@ export interface FeedbackOptions {
     showCustomInput?: boolean;
 }
 
+interface FeedbackCommandArgs {
+    quickFixId?: string;
+    violationId?: string;
+    feedback: 'positive' | 'negative';
+    ruleId: string;
+}
+
 export class FeedbackService {
     private static instance: FeedbackService;
     private metricsService: MetricsService;
@@ -179,7 +186,7 @@ export class FeedbackService {
      * Creates a feedback command for use in code actions and hovers
      */
     public createFeedbackCommand(): vscode.Disposable {
-        return vscode.commands.registerCommand('accessibility-extension.giveFeedback', async (args: any) => {
+        return vscode.commands.registerCommand('accessibility-extension.giveFeedback', async (args: FeedbackCommandArgs) => {
             try {
                 const { quickFixId, violationId, feedback, ruleId } = args;
                 
