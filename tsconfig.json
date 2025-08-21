@@ -8,14 +8,15 @@
       "DOM"
     ],
     "sourceMap": true,
-    "rootDir": "src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "jsx": "react"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*.ts"
   ],
   "exclude": [
     "node_modules",
