@@ -38,6 +38,9 @@ const vscode = __importStar(require("vscode"));
 class LLMService {
     constructor(secretStorage) {
         this.providers = new Map();
+        // Sehr einfacher In-Memory Cache (Prompt -> Result)
+        this.cache = new Map();
+        this.CACHE_TTL_MS = 1000 * 60 * 2; // 2 Minuten sinnvoll ohne Overengineering
         this.secretStorage = secretStorage;
         this.initializeProviders();
     }
@@ -63,6 +66,16 @@ class LLMService {
         if (!(await provider.isConfigured())) {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
+        // Cache Check (nur wenn Prompt nicht leer)
+        const cacheKey = 'fix:' + prompt;
+        const cached = this.getFromCache(cacheKey);
+        if (cached) {
+            // Trotzdem QuickFix Attempt für Konsistenz der Metriken registrieren
+            let quickFixId = '';
+            if (this.metricsService)
+                quickFixId = this.metricsService.recordQuickFixAttempt();
+            return { result: cached, quickFixId };
+        }
         // Record attempt and get tracking ID
         let quickFixId = '';
         if (this.metricsService) {
@@ -70,6 +83,7 @@ class LLMService {
         }
         try {
             const result = await provider.getAccessibilityFix(prompt);
+            this.storeInCache(cacheKey, result);
             return { result, quickFixId };
         }
         catch (error) {
@@ -77,6 +91,7 @@ class LLMService {
             // Try fallback strategies
             const fallbackResult = await this.tryFallbackStrategies(prompt, provider.name);
             if (fallbackResult) {
+                this.storeInCache(cacheKey, fallbackResult);
                 return { result: fallbackResult, quickFixId };
             }
             throw error;
@@ -88,8 +103,14 @@ class LLMService {
         if (!(await provider.isConfigured())) {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
+        const cacheKey = 'analysis:' + prompt;
+        const cached = this.getFromCache(cacheKey);
+        if (cached) {
+            return cached;
+        }
         try {
             const result = await provider.getAccessibilityFix(prompt);
+            this.storeInCache(cacheKey, result);
             return result;
         }
         catch (error) {
@@ -97,9 +118,29 @@ class LLMService {
             // Try fallback for analysis
             const fallbackResult = await this.tryFallbackStrategies(prompt, provider.name);
             if (fallbackResult) {
+                this.storeInCache(cacheKey, fallbackResult);
                 return fallbackResult;
             }
             throw error;
+        }
+    }
+    // --- Einfache Cache Helfer ---
+    getFromCache(key) {
+        const entry = this.cache.get(key);
+        if (!entry)
+            return undefined;
+        if (Date.now() - entry.ts > this.CACHE_TTL_MS) {
+            this.cache.delete(key);
+            return undefined;
+        }
+        return entry.value;
+    }
+    storeInCache(key, value) {
+        this.cache.set(key, { value, ts: Date.now() });
+        // Kleines LRU-Pruning (hart begrenzt auf 50 Einträge)
+        if (this.cache.size > 50) {
+            const oldestKey = [...this.cache.entries()].sort((a, b) => a[1].ts - b[1].ts)[0][0];
+            this.cache.delete(oldestKey);
         }
     }
     /**
@@ -358,17 +399,27 @@ class CustomAPIProvider {
         const config = vscode.workspace.getConfiguration('accessibility');
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
         const endpoint = config.get('customAPI.endpoint', '');
-        const model = config.get('customAPI.model', 'gpt-4o-mini');
+        const model = config.get('customAPI.model', 'qwen/qwen3-coder:free');
         const customHeaders = config.get('customAPI.headers', {});
         if (!apiKey) {
             throw new Error('API key not configured. Please set it in the AI Accessibility settings.');
         }
         try {
+            // Basis-Header
             const headers = {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
                 ...customHeaders
             };
+            // Falls OpenRouter genutzt wird und empfohlene Referer Header fehlen, minimal hinzufügen (nicht überschreiben)
+            if (endpoint.includes('openrouter.ai')) {
+                if (!('HTTP-Referer' in headers)) {
+                    headers['HTTP-Referer'] = 'https://github.com/NotAisu/Accessibility_Extension';
+                }
+                if (!('X-Title' in headers)) {
+                    headers['X-Title'] = 'Accessibility Extension';
+                }
+            }
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers,

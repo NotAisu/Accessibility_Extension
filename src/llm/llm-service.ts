@@ -50,6 +50,9 @@ export class LLMService {
     private providers: Map<string, LLMProvider> = new Map();
     private secretStorage: vscode.SecretStorage;
     private metricsService?: MetricsService;
+    // Sehr einfacher In-Memory Cache (Prompt -> Result)
+    private cache: Map<string, { value: string; ts: number }> = new Map();
+    private readonly CACHE_TTL_MS = 1000 * 60 * 2; // 2 Minuten sinnvoll ohne Overengineering
     
     constructor(secretStorage: vscode.SecretStorage) {
         this.secretStorage = secretStorage;
@@ -85,6 +88,16 @@ export class LLMService {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
 
+        // Cache Check (nur wenn Prompt nicht leer)
+        const cacheKey = 'fix:' + prompt;
+        const cached = this.getFromCache(cacheKey);
+        if (cached) {
+            // Trotzdem QuickFix Attempt für Konsistenz der Metriken registrieren
+            let quickFixId = '';
+            if (this.metricsService) quickFixId = this.metricsService.recordQuickFixAttempt();
+            return { result: cached, quickFixId };
+        }
+
         // Record attempt and get tracking ID
         let quickFixId = '';
         if (this.metricsService) {
@@ -93,6 +106,7 @@ export class LLMService {
 
         try {
             const result = await provider.getAccessibilityFix(prompt);
+            this.storeInCache(cacheKey, result);
             return { result, quickFixId };
         } catch (error) {
             console.error(`LLM Provider ${provider.name} failed:`, error);
@@ -100,6 +114,7 @@ export class LLMService {
             // Try fallback strategies
             const fallbackResult = await this.tryFallbackStrategies(prompt, provider.name);
             if (fallbackResult) {
+                this.storeInCache(cacheKey, fallbackResult);
                 return { result: fallbackResult, quickFixId };
             }
             
@@ -115,8 +130,15 @@ export class LLMService {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
 
+        const cacheKey = 'analysis:' + prompt;
+        const cached = this.getFromCache(cacheKey);
+        if (cached) {
+            return cached;
+        }
+
         try {
             const result = await provider.getAccessibilityFix(prompt);
+            this.storeInCache(cacheKey, result);
             return result;
         } catch (error) {
             console.error(`AI Analysis failed with ${provider.name}:`, error);
@@ -124,10 +146,31 @@ export class LLMService {
             // Try fallback for analysis
             const fallbackResult = await this.tryFallbackStrategies(prompt, provider.name);
             if (fallbackResult) {
+                this.storeInCache(cacheKey, fallbackResult);
                 return fallbackResult;
             }
             
             throw error;
+        }
+    }
+
+    // --- Einfache Cache Helfer ---
+    private getFromCache(key: string): string | undefined {
+        const entry = this.cache.get(key);
+        if (!entry) return undefined;
+        if (Date.now() - entry.ts > this.CACHE_TTL_MS) {
+            this.cache.delete(key);
+            return undefined;
+        }
+        return entry.value;
+    }
+
+    private storeInCache(key: string, value: string): void {
+        this.cache.set(key, { value, ts: Date.now() });
+        // Kleines LRU-Pruning (hart begrenzt auf 50 Einträge)
+        if (this.cache.size > 50) {
+            const oldestKey = [...this.cache.entries()].sort((a,b)=>a[1].ts - b[1].ts)[0][0];
+            this.cache.delete(oldestKey);
         }
     }
 

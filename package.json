@@ -17,7 +17,7 @@
     "onLanguage:javascriptreact",
     "onLanguage:typescriptreact"
   ],
-  "main": "./out/extension.js",
+  "main": "./out/src/extension.js",
   "contributes": {
     "commands": [
       {
@@ -118,6 +118,11 @@
           ],
           "description": "Analysis scope: visible code only or complete document"
         },
+      "accessibility.aiAnalyzer.recentFixSuppressionTTL": {
+        "type": "number",
+        "default": 300000,
+        "description": "TTL in ms for suppressing re-reporting of recently AI-fixed lines (set 0 to disable)"
+      },
         "accessibility.localLLM.endpoint": {
           "type": "string",
           "default": "http://127.0.0.1:1234",

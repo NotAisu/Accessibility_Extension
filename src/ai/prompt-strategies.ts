@@ -15,7 +15,8 @@ class OneShotStrategy implements PromptStrategy {
     public readonly description = 'Direct instruction with single example for quick analysis';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) that can be detected in frontend code.
+    return `Analyze the following frontend code for ACTUAL WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/). Report ONLY genuine issues that map to real success criteria or normative rules. Skip stylistic or already compliant lines.
+        If a line already conforms to WCAG 2.2 AA, DO NOT report it.
 
 EXAMPLE:
 For code like: <div role="button">Click me</div>
@@ -71,8 +72,18 @@ ANALYZE ALL AREAS:
 - Progressive enhancement neglected
 - Client-side routing without accessibility features
 
-For each problem found, return a JSON object:
-{"line": [line_number], "element": "[HTML_element]", "issue": "[brief_problem_description]", "recommendation": "[concrete_solution]", "ruleId": "[WCAG_rule_ID]"}
+STRICT OUTPUT RULES:
+1. Only include a line if it demonstrably violates WCAG 2.2 AA.
+2. Use real rule IDs (e.g. "1.3.1", "2.4.4", "4.1.2"). Do NOT invent IDs.
+3. Each physical line at most once. No duplicates.
+4. If a line is already compliant, DO NOT return it.
+5. Ignore purely visual formatting, indentation, class naming, or inline style cosmetics unless they directly break WCAG.
+6. Do NOT repeat the same issue wording for similar lines unless each is a distinct violation.
+7. Output ONLY JSON objects, one per violation, no prose outside JSON.
+8. Keys required: line, element, issue, recommendation, ruleId.
+
+Return one JSON object per line that violates WCAG:
+{"line": <line_number>, "element": "<HTML_or_selector>", "issue": "<succinct_problem>", "recommendation": "<specific_fix>", "ruleId": "<WCAG_2.2_AA_ID>"}
 
 Code:
 ${codeWithLineNumbers}`;
@@ -89,7 +100,7 @@ class FewShotStrategy implements PromptStrategy {
     public readonly description = 'Multiple examples for better pattern recognition';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for WCAG 2.2 AA violations https://www.w3.org/TR/WCAG22/. Learn from these examples:
+        return `Analyze the following frontend code for REAL WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/). If a line already conforms to WCAG 2.2 AA, DO NOT report it. Learn strictly from these examples (only genuine violations with valid success criterion IDs):
 
 EXAMPLE 1 - Semantic Issues:
 Code: <div role="button" onclick="submit()">Submit</div>
@@ -110,6 +121,16 @@ Response: {"line": 1, "element": "<a href=\"/page\">", "issue": "Link without ac
 EXAMPLE 5 - Color-only Information:
 Code: .error { color: red; }
 Response: {"line": 1, "element": ".error", "issue": "Information conveyed by color only", "recommendation": "Add text or icon indicators in addition to color", "ruleId": "1.4.1"}
+
+STRICT RULES:
+1. Only real WCAG 2.2 AA failures (no stylistic or subjective preferences)
+2. Each physical source line at most once; skip compliant lines entirely
+3. Use authentic success criterion IDs (e.g. 1.3.1, 2.4.4, 4.1.2) – NEVER invent IDs
+4. Ignore color contrast unless a hardcoded color obviously fails contrast (otherwise skip)
+5. Ignore pure formatting / class naming / indentation differences
+6. Recommendation MUST be a concrete minimal fix (semantic replacement, attribute addition, structural correction)
+7. Output ONLY JSON objects (no prose) with keys: line, element, issue, recommendation, ruleId
+8. Do not duplicate the same issue wording across multiple lines unless each is a separate instance
 
 Now analyze the following code using the same pattern. Look for:
 
@@ -154,7 +175,7 @@ class ChainOfThoughtStrategy implements PromptStrategy {
     public readonly description = 'Step-by-step reasoning for thorough analysis';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) using step-by-step reasoning.
+        return `Analyze the following frontend code for REAL WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) using step-by-step reasoning. If a line already conforms, skip it entirely.
 
 REASONING PROCESS:
 1. First, read through the code to understand its structure and purpose
@@ -208,8 +229,17 @@ STEP 6: VISUAL AND TEMPORAL CONSIDERATIONS
 - Check for sufficient contrast in CSS
 - Identify any timing or motion accessibility issues
 
-For each violation found through this analysis, provide a JSON object with your reasoning:
-{"line": [line_number], "element": "[HTML_element]", "issue": "[detailed_problem_with_reasoning]", "recommendation": "[step_by_step_solution]", "ruleId": "[WCAG_rule_ID]"}
+STRICT OUTPUT RULES:
+1. Only authentic WCAG 2.2 AA failures (no subjective style or best-practice-only items)
+2. One JSON object per violating line, never more than one per line
+3. Use valid success criterion IDs (e.g. 1.3.1, 2.4.4, 4.1.2) – NEVER invent
+4. Skip color contrast unless explicit hardcoded values clearly fail
+5. Recommendation must be minimal and directly actionable
+6. Output ONLY JSON objects (no prose) with keys: line, element, issue, recommendation, ruleId
+7. If zero violations, output nothing
+
+For each violation provide:
+{"line": <line_number>, "element": "<HTML_element>", "issue": "<concise_reasoning>", "recommendation": "<precise_fix>", "ruleId": "<WCAG_rule_ID>"}
 
 Code to analyze:
 ${codeWithLineNumbers}`;
@@ -226,7 +256,7 @@ class RoleBasedStrategy implements PromptStrategy {
     public readonly description = 'Analysis from multiple user perspectives and assistive technologies';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) from multiple user perspectives and assistive technology viewpoints.
+        return `Analyze the following frontend code for REAL WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) from multiple user perspectives. If a line is compliant, do NOT report it.
 
 ROLE-BASED ANALYSIS FRAMEWORK:
 
@@ -307,8 +337,18 @@ FOR ASSISTIVE TECHNOLOGY:
 - Ensure proper state communication
 - Look for custom control accessibility
 
-For each accessibility barrier found from any perspective, provide:
-{"line": [line_number], "element": "[HTML_element]", "issue": "[barrier_description_with_affected_user_groups]", "recommendation": "[solution_addressing_multiple_perspectives]", "ruleId": "[WCAG_rule_ID]"}
+STRICT OUTPUT RULES:
+1. Only genuine WCAG 2.2 AA failures (no speculative UX critiques)
+2. One JSON object per failing line maximum
+3. Valid success criterion IDs only (e.g. 1.3.1, 2.4.4, 4.1.2)
+4. Recommendation must directly address accessibility barrier
+5. Do NOT output explanatory prose, ONLY JSON objects
+6. Keys required: line, element, issue, recommendation, ruleId
+7. Skip color contrast unless explicit hardcoded color implies failure
+8. If none -> output nothing
+
+For each accessibility barrier:
+{"line": <line_number>, "element": "<HTML_element>", "issue": "<concise_barrier>", "recommendation": "<direct_fix>", "ruleId": "<WCAG_rule_ID>"}
 
 Code to analyze:
 ${codeWithLineNumbers}`;

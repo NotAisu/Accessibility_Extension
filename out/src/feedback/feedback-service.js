@@ -37,6 +37,7 @@ exports.FeedbackService = void 0;
 const vscode = __importStar(require("vscode"));
 class FeedbackService {
     constructor(metricsService) {
+        this.givenFeedbackForDiagnostics = new Set(); // instanceId based now
         this.metricsService = metricsService;
     }
     static getInstance(metricsService) {
@@ -44,6 +45,9 @@ class FeedbackService {
             FeedbackService.instance = new FeedbackService(metricsService);
         }
         return FeedbackService.instance;
+    }
+    setAIDiagnosticCollection(collection) {
+        this.aiDiagnosticCollection = collection;
     }
     /**
      * Shows a feedback dialog for quick fix operations
@@ -172,7 +176,8 @@ class FeedbackService {
      * Creates a feedback command for use in code actions and hovers
      */
     createFeedbackCommand() {
-        return vscode.commands.registerCommand('accessibility-extension.giveFeedback', async (args) => {
+        const disposables = [];
+        disposables.push(vscode.commands.registerCommand('accessibility-extension.giveFeedback', async (args) => {
             try {
                 const { quickFixId, violationId, feedback, ruleId } = args;
                 if (quickFixId && feedback) {
@@ -180,20 +185,48 @@ class FeedbackService {
                     this.showThankYouMessage();
                 }
                 else if (violationId && feedback) {
+                    // feedback param includes instanceId encoded? We expect args.violationId to still be violationId; need instanceId separately in command args in future if required.
+                    const key = args.violationId + ':' + args.instanceId;
+                    if (this.givenFeedbackForDiagnostics.has(key)) {
+                        vscode.window.setStatusBarMessage('Feedback wurde bereits abgegeben.', 2500);
+                        return;
+                    }
                     const isCorrect = feedback === 'positive';
                     this.metricsService.recordViolationFeedback(isCorrect);
+                    this.givenFeedbackForDiagnostics.add(key);
                     this.showThankYouMessage();
+                    // Flag in Diagnostic setzen
+                    this.markFeedbackGiven(violationId);
+                    if (!isCorrect) {
+                        // False Positive -> entsprechende Diagnostic entfernen
+                        this.removeAIDiagnosticByViolationId(violationId);
+                    }
                 }
             }
             catch (error) {
                 console.error('Error processing feedback command:', error);
             }
-        });
+        }));
+        // Dismiss command
+        disposables.push(vscode.commands.registerCommand('accessibility-extension.dismissAIDiagnostic', async (rawArgs) => {
+            try {
+                const { violationId } = rawArgs || {};
+                if (violationId) {
+                    this.removeAIDiagnosticByViolationId(violationId);
+                    vscode.window.setStatusBarMessage('AI diagnostic dismissed.', 2500);
+                }
+            }
+            catch (error) {
+                console.error('Error dismissing AI diagnostic:', error);
+            }
+        }));
+        return { dispose: () => disposables.forEach(d => d.dispose()) };
     }
     /**
      * Creates a hover provider that shows feedback options for diagnostics
      */
     createFeedbackHoverProvider() {
+        const self = this;
         return {
             provideHover(document, position) {
                 // Get diagnostics at current position
@@ -213,20 +246,43 @@ class FeedbackService {
                         markdown.appendMarkdown(`**AI Accessibility Detection**\n\n`);
                         markdown.appendMarkdown(`${relevantDiagnostic.message}\n\n`);
                         // Add feedback buttons for AI violations
-                        const violationId = `violation_${Date.now()}_${position.line}`;
+                        // Versuche persistente violationId aus diagnostic.code zu lesen; fallback generieren
+                        let violationId;
+                        try {
+                            violationId = codeData.violationId;
+                        }
+                        catch { }
+                        if (!violationId) {
+                            violationId = `violation_${position.line}_${relevantDiagnostic.range.start.character}`;
+                        }
+                        const instanceId = codeData.instanceId || violationId;
+                        const key = violationId + ':' + instanceId;
+                        const alreadyGiven = self.givenFeedbackForDiagnostics.has(key);
                         const correctUri = vscode.Uri.parse(`command:accessibility-extension.giveFeedback?${encodeURIComponent(JSON.stringify({
                             violationId,
+                            instanceId,
                             feedback: 'positive',
                             ruleId: codeData.ruleId
                         }))}`);
                         const incorrectUri = vscode.Uri.parse(`command:accessibility-extension.giveFeedback?${encodeURIComponent(JSON.stringify({
                             violationId,
+                            instanceId,
                             feedback: 'negative',
                             ruleId: codeData.ruleId
                         }))}`);
-                        markdown.appendMarkdown(`---\n**Is this detection correct?** `);
-                        markdown.appendMarkdown(`[✅ Yes](${correctUri} "This violation is correct") | `);
-                        markdown.appendMarkdown(`[❌ No](${incorrectUri} "This is a false positive")`);
+                        const dismissUri = vscode.Uri.parse(`command:accessibility-extension.dismissAIDiagnostic?${encodeURIComponent(JSON.stringify({
+                            violationId,
+                            instanceId
+                        }))}`);
+                        if (alreadyGiven) {
+                            markdown.appendMarkdown(`---\n_Feedback bereits gegeben._`);
+                        }
+                        else {
+                            markdown.appendMarkdown(`---\n**Is this detection correct?** `);
+                            markdown.appendMarkdown(`[✅ Yes](${correctUri} "This violation is correct") | `);
+                            markdown.appendMarkdown(`[❌ No](${incorrectUri} "This is a false positive") | `);
+                            markdown.appendMarkdown(`[🗑️ Dismiss](${dismissUri} "Remove this underline only")`);
+                        }
                         return new vscode.Hover(markdown);
                     }
                 }
@@ -236,6 +292,48 @@ class FeedbackService {
                 return null;
             }
         };
+    }
+    removeAIDiagnosticByViolationId(violationId) {
+        if (!this.aiDiagnosticCollection)
+            return;
+        this.aiDiagnosticCollection.forEach((uri, diagnostics) => {
+            const remaining = diagnostics.filter(diag => {
+                try {
+                    if (typeof diag.code === 'string') {
+                        const data = JSON.parse(diag.code);
+                        return data.violationId !== violationId;
+                    }
+                }
+                catch { }
+                return true;
+            });
+            if (remaining.length !== diagnostics.length) {
+                this.aiDiagnosticCollection.set(uri, remaining);
+            }
+        });
+    }
+    markFeedbackGiven(violationId) {
+        if (!this.aiDiagnosticCollection)
+            return;
+        this.aiDiagnosticCollection.forEach((uri, diagnostics) => {
+            let changed = false;
+            diagnostics.forEach(diag => {
+                if (typeof diag.code === 'string') {
+                    try {
+                        const data = JSON.parse(diag.code);
+                        if (data.violationId === violationId && !data.feedbackGiven) {
+                            data.feedbackGiven = true;
+                            diag.code = JSON.stringify(data);
+                            changed = true;
+                        }
+                    }
+                    catch { }
+                }
+            });
+            if (changed) {
+                this.aiDiagnosticCollection.set(uri, diagnostics);
+            }
+        });
     }
 }
 exports.FeedbackService = FeedbackService;

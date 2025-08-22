@@ -16,6 +16,7 @@ let codeTutorService: CodeTutorService;
 let aiSemanticAnalyzer: AISemanticAnalyzer;
 let metricsService: MetricsService;
 let feedbackService: FeedbackService;
+let aiStatusBarItem: vscode.StatusBarItem;
 
 // Memory leak prevention: Track active documents and cleanup timer
 let cleanupTimer: NodeJS.Timeout | undefined;
@@ -34,12 +35,15 @@ export function activate(context: vscode.ExtensionContext) {
     codeTutorService = new CodeTutorService();
     metricsService = MetricsService.getInstance(context);
     feedbackService = FeedbackService.getInstance(metricsService);
-    
     // Set metrics service in LLM service
     llmService.setMetricsService(metricsService);
     
     aiSemanticAnalyzer = new AISemanticAnalyzer(llmService);
     aiSemanticAnalyzer.setMetricsService(metricsService);
+    // Jetzt wo der Analyzer existiert, AI DiagnosticCollection an FeedbackService durchreichen
+    if (typeof (feedbackService as any).setAIDiagnosticCollection === 'function') {
+        feedbackService.setAIDiagnosticCollection(aiSemanticAnalyzer.getDiagnosticCollection());
+    }
     
     // Set up callback for AI analyzer to access axe-core diagnostics
     aiSemanticAnalyzer.setDiagnosticsCallback((uri: vscode.Uri) => {
@@ -103,6 +107,7 @@ export function activate(context: vscode.ExtensionContext) {
                 await aiSemanticAnalyzer.startAnalysis();
                 // Metrics nach AI-Analyse aktualisieren
                 updateGlobalViolationMetrics();
+                updateAIStatusBar();
             } catch (error) {
                 console.error('AI Analysis command failed:', error);
             }
@@ -219,6 +224,21 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Start memory cleanup timer
     startDiagnosticCleanup();
+
+    // StatusBar Item
+    aiStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    aiStatusBarItem.text = 'AI: inactive';
+    aiStatusBarItem.command = 'accessibility-extension.startAIAnalysis';
+    aiStatusBarItem.tooltip = 'Run AI Accessibility Analysis';
+    aiStatusBarItem.show();
+    context.subscriptions.push(aiStatusBarItem);
+
+    // Command: Clear Recent Fix Memory
+    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.clearRecentAIMemory', () => {
+        aiSemanticAnalyzer.clearRecentFixMemory();
+        vscode.window.showInformationMessage('AI recent fix memory cleared.');
+        updateAIStatusBar();
+    }));
 }
 
 /**
@@ -294,6 +314,12 @@ async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
  */
 function updateGlobalViolationMetrics(): void {
     debouncedMetricsUpdate();
+}
+
+function updateAIStatusBar(): void {
+    if (!aiSemanticAnalyzer || !aiStatusBarItem) return;
+    const counts = aiSemanticAnalyzer.getLastCounts();
+    aiStatusBarItem.text = `AI: ${counts.reported} findings (${counts.suppressed} suppressed)`;
 }
 
 /**
@@ -574,6 +600,41 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
             const applied = await vscode.workspace.applyEdit(edit);
             if (applied) {
                 vscode.window.showInformationMessage('✅ AI fix applied.');
+                // Nach erfolgreichem Fix nur AI-Diagnostic entfernen (axe-core bleibt bestehen und wird
+                // beim nächsten regulären Lauf neu bewertet). Zusätzlich die fixte Zeile merken, um sofortige
+                // Re-Deklaration des gleichen AI-Verstoßes zu vermeiden.
+                try {
+                    if (typeof diagnostic.code === 'string') {
+                        const codeData = JSON.parse(diagnostic.code);
+                        // Range (kann mehrere Zeilen umfassen) registrieren
+                        aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
+                        if (codeData.isAIGenerated && codeData.violationId) {
+                            aiSemanticAnalyzer.removeAIDiagnostic(codeData.violationId);
+                            // Mark feedbackGiven true in remaining diagnostics with same violationId (defensiv)
+                            try {
+                                const aiDiags = aiSemanticAnalyzer.getDiagnosticCollection().get(editor.document.uri) || [];
+                                const updated = aiDiags.map(d => {
+                                    if (typeof d.code === 'string') {
+                                        try {
+                                            const data = JSON.parse(d.code);
+                                            if (data.violationId === codeData.violationId) {
+                                                data.feedbackGiven = true;
+                                                d.code = JSON.stringify(data);
+                                            }
+                                        } catch {}
+                                    }
+                                    return d;
+                                });
+                                aiSemanticAnalyzer.getDiagnosticCollection().set(editor.document.uri, updated);
+                            } catch {}
+                        }
+                    } else {
+                        aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
+                    }
+                } catch {
+                    aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
+                }
+                updateAIStatusBar();
             } else {
                 vscode.window.showErrorMessage('Failed to apply AI fix edit.');
             }

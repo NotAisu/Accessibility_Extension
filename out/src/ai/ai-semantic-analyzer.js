@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AISemanticAnalyzer = void 0;
 const vscode = __importStar(require("vscode"));
 const prompt_strategies_1 = require("./prompt-strategies");
+const ai_response_parser_1 = require("./ai-response-parser");
 /**
  * AI Semantic Analyzer mit blauer Farbkodierung für WCAG-Semantik-Verstöße
  */
@@ -45,6 +46,13 @@ class AISemanticAnalyzer {
         this.isEnabled = false;
         this.analysisScope = 'visible';
         this.promptStrategy = 'one-shot';
+        // Merkt sich kürzlich per "Fix with AI" (oder AI QuickFix auf axe) behobene Zeilen, damit diese
+        // bei unmittelbar folgenden Analysen nicht erneut als Verstöße auftauchen, solange sich die Zeile
+        // inhaltlich nicht verändert hat. (URI -> (Line -> { textSnapshot, ts }))
+        this.recentlyFixed = new Map();
+        this.RECENTLY_FIXED_TTL_MS = 1000 * 60 * 5; // Default 5 Min (override by setting)
+        this.lastSuppressedCount = 0;
+        this.lastReportedCount = 0;
         this.llmService = llmService;
         this.loadSettings();
     }
@@ -59,6 +67,8 @@ class AISemanticAnalyzer {
         this.isEnabled = config.get('aiAnalyzer.enabled', false);
         this.analysisScope = config.get('aiAnalyzer.scope', 'visible');
         this.promptStrategy = config.get('aiAnalyzer.promptStrategy', 'one-shot');
+        const ttl = config.get('aiAnalyzer.recentFixSuppressionTTL', 300000);
+        this.RECENTLY_FIXED_TTL_MS = Math.max(0, ttl);
     }
     setEnabled(enabled) {
         this.isEnabled = enabled;
@@ -155,8 +165,11 @@ class AISemanticAnalyzer {
             const aiFindings = await this.performAIAnalysis(codeWithLineNumbers, document);
             // Axe-core Duplikate filtern
             const filteredFindings = this.filterAxeProblems(aiFindings, existingAxeDiagnostics);
+            // Kürzlich behobene Zeilen ausfiltern (nur wenn unverändert)
+            const stableFindings = this.filterRecentlyFixedProblems(filteredFindings, document);
+            this.lastReportedCount = stableFindings.length;
             // Blaue AI-Diagnostics erstellen (inkl. Metrics-Update)
-            const aiDiagnostics = this.createAIDiagnostics(filteredFindings, document);
+            const aiDiagnostics = this.createAIDiagnostics(stableFindings, document);
             // Diagnostics setzen
             this.aiDiagnosticCollection.set(document.uri, aiDiagnostics);
         }
@@ -165,6 +178,83 @@ class AISemanticAnalyzer {
             // Fehler nicht anzeigen, um UX nicht zu beeinträchtigen
             this.aiDiagnosticCollection.set(document.uri, []);
         }
+    }
+    /**
+     * Markiert eine Zeile als kürzlich behoben. Wird nach erfolgreichem Fix aufgerufen.
+     */
+    recordFixedLine(document, line) {
+        this.recordFixedRange(document, new vscode.Range(line, 0, line, 0));
+    }
+    /**
+     * Markiert alle Zeilen einer Range als gefixt (z.B. bei Mehrzeilen-Ersatz durch AI)
+     */
+    recordFixedRange(document, range) {
+        const start = Math.max(0, Math.min(range.start.line, document.lineCount - 1));
+        const end = Math.max(0, Math.min(range.end.line, document.lineCount - 1));
+        const uriKey = document.uri.toString();
+        let map = this.recentlyFixed.get(uriKey);
+        if (!map) {
+            map = new Map();
+            this.recentlyFixed.set(uriKey, map);
+        }
+        for (let line = start; line <= end; line++) {
+            const lineText = document.lineAt(line).text;
+            map.set(line, { text: lineText, ts: Date.now() });
+        }
+        this.cleanupRecentlyFixed();
+    }
+    /** Entfernt abgelaufene Einträge aus recentlyFixed */
+    cleanupRecentlyFixed() {
+        const now = Date.now();
+        for (const [uri, lineMap] of this.recentlyFixed.entries()) {
+            for (const [line, meta] of lineMap.entries()) {
+                if (now - meta.ts > this.RECENTLY_FIXED_TTL_MS) {
+                    lineMap.delete(line);
+                }
+            }
+            if (lineMap.size === 0) {
+                this.recentlyFixed.delete(uri);
+            }
+        }
+    }
+    /**
+     * Filtert Findings heraus, deren Zeilen unmittelbar zuvor gefixt wurden
+     * und deren Inhalt unverändert geblieben ist.
+     */
+    filterRecentlyFixedProblems(findings, document) {
+        if (findings.length === 0)
+            return findings;
+        this.cleanupRecentlyFixed();
+        const uriKey = document.uri.toString();
+        const lineMap = this.recentlyFixed.get(uriKey);
+        if (!lineMap || this.RECENTLY_FIXED_TTL_MS === 0)
+            return findings;
+        const result = [];
+        let suppressed = 0;
+        for (const f of findings) {
+            const entry = lineMap.get(f.range.start.line);
+            if (!entry) {
+                result.push(f);
+                continue;
+            }
+            const currentText = document.lineAt(f.range.start.line).text;
+            if (currentText === entry.text) {
+                suppressed++;
+                continue; // suppress
+            }
+            result.push(f);
+        }
+        this.lastSuppressedCount = suppressed;
+        return result;
+    }
+    /** Liefert zuletzt unterdrückte & gemeldete Counts (für StatusBar) */
+    getLastCounts() {
+        return { reported: this.lastReportedCount, suppressed: this.lastSuppressedCount };
+    }
+    /** Löscht den Memory für kürzlich gefixte Zeilen */
+    clearRecentFixMemory() {
+        this.recentlyFixed.clear();
+        this.lastSuppressedCount = 0;
     }
     /**
      * Holt Code basierend auf Analysis-Scope (visible vs. document)
@@ -239,68 +329,16 @@ class AISemanticAnalyzer {
      * Parst AI-Response zu WCAGViolation Array
      */
     parseAIResponse(aiResponse, document) {
+        const parsed = (0, ai_response_parser_1.parseAIAnalysis)(aiResponse);
         const violations = [];
-        if (!aiResponse || !aiResponse.trim()) {
-            return violations;
-        }
-        // 1. Extract content inside code fences first (```, ```json) if present
-        const fenceRegex = /```(?:json)?\n([\s\S]*?)```/gi;
-        const fencedBlocks = [];
-        let fenceMatch;
-        while ((fenceMatch = fenceRegex.exec(aiResponse)) !== null) {
-            if (fenceMatch[1])
-                fencedBlocks.push(fenceMatch[1]);
-        }
-        const candidateText = fencedBlocks.length > 0 ? fencedBlocks.join('\n') : aiResponse;
-        // 2. Try to parse as a full JSON array first
-        try {
-            const maybeArray = JSON.parse(candidateText);
-            if (Array.isArray(maybeArray)) {
-                for (const obj of maybeArray) {
-                    this.pushIfValidViolation(obj, document, violations);
-                }
-                return violations;
-            }
-        }
-        catch { /* ignore */ }
-        // 3. Split by newlines and attempt JSON.parse line by line (tolerant JSON lines)
-        const lines = candidateText.split(/\r?\n/);
-        let buffer = '';
-        for (const rawLine of lines) {
-            const line = rawLine.trim();
-            if (!line)
-                continue;
-            buffer += (buffer ? ' ' : '') + line;
-            // Heuristic: attempt parse when line ends with } or ]
-            if (/([}\]])[, ]?$/.test(line)) {
-                try {
-                    const parsed = JSON.parse(buffer);
-                    if (Array.isArray(parsed)) {
-                        for (const obj of parsed) {
-                            this.pushIfValidViolation(obj, document, violations);
-                        }
-                    }
-                    else {
-                        this.pushIfValidViolation(parsed, document, violations);
-                    }
-                    buffer = '';
-                }
-                catch {
-                    // keep accumulating
-                }
-            }
-        }
-        // 4. Fallback regex object extraction (last resort)
-        if (violations.length === 0) {
-            const objectRegex = /\{[^}]*"line"[^}]*\}/g;
-            const matches = candidateText.match(objectRegex) || [];
-            for (const match of matches) {
-                try {
-                    const parsed = JSON.parse(match);
-                    this.pushIfValidViolation(parsed, document, violations);
-                }
-                catch { /* ignore */ }
-            }
+        for (const p of parsed) {
+            this.pushIfValidViolation({
+                line: p.line,
+                element: p.element || '',
+                issue: p.issue || '',
+                recommendation: p.recommendation || '',
+                ruleId: p.ruleId || 'ai-semantic'
+            }, document, violations);
         }
         return violations;
     }
@@ -344,18 +382,40 @@ class AISemanticAnalyzer {
      */
     createAIDiagnostics(findings, document) {
         const diagnostics = findings.map(finding => {
+            const violationId = `ai_violation_${document.uri.toString()}_${finding.range.start.line}_${finding.range.start.character}`;
+            const instanceId = `${violationId}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
             const diagnostic = new vscode.Diagnostic(finding.range, `[AI Semantic] ${finding.message}`, vscode.DiagnosticSeverity.Information);
             diagnostic.code = JSON.stringify({
                 ruleId: finding.ruleId,
                 isAIGenerated: true,
                 element: finding.element,
                 recommendation: finding.message,
-                violationId: `ai_violation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                violationId,
+                instanceId,
+                feedbackGiven: false
             });
             diagnostic.source = 'AI Accessibility Analyzer';
             return diagnostic;
         });
         return diagnostics;
+    }
+    /** Entfernt eine einzelne AI-Diagnostic anhand violationId */
+    removeAIDiagnostic(violationId) {
+        this.aiDiagnosticCollection.forEach((uri, diagnostics) => {
+            const filtered = diagnostics.filter(d => {
+                try {
+                    if (typeof d.code === 'string') {
+                        const data = JSON.parse(d.code);
+                        return data.violationId !== violationId;
+                    }
+                }
+                catch { }
+                return true;
+            });
+            if (filtered.length !== diagnostics.length) {
+                this.aiDiagnosticCollection.set(uri, filtered);
+            }
+        });
     }
     /**
      * Cleanup-Methode
