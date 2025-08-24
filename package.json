@@ -152,13 +152,13 @@
         },
         "accessibility.customAPI.endpoint": {
           "type": "string",
-          "default": "https://api.openai.com/v1/chat/completions",
-          "description": "Custom API endpoint"
+          "default": "https://openrouter.ai/api/v1/chat/completions",
+          "description": "(Read-only) OpenRouter endpoint – wird intern genutzt"
         },
         "accessibility.customAPI.model": {
           "type": "string",
-          "default": "gpt-4o-mini",
-          "description": "Model name for custom API"
+          "default": "qwen/qwen3-coder:free",
+          "description": "OpenRouter Modell-ID (z.B. qwen/qwen3-coder:free)"
         },
         "accessibility.customAPI.headers": {
           "type": "object",

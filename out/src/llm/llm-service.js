@@ -361,70 +361,63 @@ class LocalLLMProvider {
 class CustomAPIProvider {
     constructor(secretStorage) {
         this.secretStorage = secretStorage;
-        this.name = 'Custom API';
+        // Umbenannt für UI Anzeige
+        this.name = 'OpenRouter';
     }
     async isConfigured() {
-        const config = vscode.workspace.getConfiguration('accessibility');
-        const endpoint = config.get('customAPI.endpoint', '');
+        // Für OpenRouter reicht der API Key; Endpoint ist fest
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-        return !!endpoint && !!apiKey;
+        return !!apiKey;
     }
     async testConnection() {
         try {
             const config = vscode.workspace.getConfiguration('accessibility');
-            const endpoint = config.get('customAPI.endpoint', '');
             const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-            if (!apiKey || !endpoint) {
+            const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+            if (!apiKey)
                 return false;
-            }
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    // Empfohlene zusätzliche Header für OpenRouter Ranking / Policy
+                    'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
+                    'X-Title': 'Accessibility Extension'
                 },
                 body: JSON.stringify({
-                    model: config.get('customAPI.model', 'gpt-4o-mini'),
-                    messages: [{ role: 'user', content: 'test' }],
+                    model: config.get('customAPI.model', 'qwen/qwen3-coder:free'),
+                    messages: [{ role: 'user', content: 'ping' }],
                     max_tokens: 5
                 })
             });
             return response.ok;
         }
-        catch (error) {
+        catch {
             return false;
         }
     }
     async getAccessibilityFix(prompt) {
         const config = vscode.workspace.getConfiguration('accessibility');
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-        const endpoint = config.get('customAPI.endpoint', '');
+        // Fester Endpoint für OpenRouter
+        const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
         const model = config.get('customAPI.model', 'qwen/qwen3-coder:free');
-        const customHeaders = config.get('customAPI.headers', {});
         if (!apiKey) {
             throw new Error('API key not configured. Please set it in the AI Accessibility settings.');
         }
         try {
-            // Basis-Header
             const headers = {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
-                ...customHeaders
+                'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
+                'X-Title': 'Accessibility Extension'
             };
-            // Falls OpenRouter genutzt wird und empfohlene Referer Header fehlen, minimal hinzufügen (nicht überschreiben)
-            if (endpoint.includes('openrouter.ai')) {
-                if (!('HTTP-Referer' in headers)) {
-                    headers['HTTP-Referer'] = 'https://github.com/NotAisu/Accessibility_Extension';
-                }
-                if (!('X-Title' in headers)) {
-                    headers['X-Title'] = 'Accessibility Extension';
-                }
-            }
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({
-                    model: model,
+                    model,
                     messages: [
                         {
                             role: "system",
@@ -440,17 +433,17 @@ class CustomAPIProvider {
                 })
             });
             if (!response.ok) {
-                throw new Error(`Custom API responded with ${response.status}: ${await response.text()}`);
+                throw new Error(`OpenRouter responded with ${response.status}: ${await response.text()}`);
             }
             const data = await response.json();
             const content = data.choices?.[0]?.message?.content;
             if (!content) {
-                throw new Error('No content found in Custom API response');
+                throw new Error('No content found in OpenRouter response');
             }
             return this.extractCodeFromText(content);
         }
         catch (error) {
-            throw new Error(`Custom API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error(`OpenRouter request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
     async setApiKey(apiKey) {

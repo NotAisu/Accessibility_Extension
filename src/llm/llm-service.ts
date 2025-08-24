@@ -417,52 +417,50 @@ class LocalLLMProvider implements LLMProvider {
 }
 
 class CustomAPIProvider implements LLMProvider {
-    name = 'Custom API';
+    // Umbenannt für UI Anzeige
+    name = 'OpenRouter';
     
     constructor(private secretStorage: vscode.SecretStorage) {}
     
     async isConfigured(): Promise<boolean> {
-        const config = vscode.workspace.getConfiguration('accessibility');
-        const endpoint = config.get<string>('customAPI.endpoint', '');
+        // Für OpenRouter reicht der API Key; Endpoint ist fest
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-        return !!endpoint && !!apiKey;
+        return !!apiKey;
     }
     
     async testConnection(): Promise<boolean> {
         try {
             const config = vscode.workspace.getConfiguration('accessibility');
-            const endpoint = config.get<string>('customAPI.endpoint', '');
             const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-            
-            if (!apiKey || !endpoint) {
-                return false;
-            }
-
+            const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+            if (!apiKey) return false;
             const response = await fetch(endpoint, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    // Empfohlene zusätzliche Header für OpenRouter Ranking / Policy
+                    'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
+                    'X-Title': 'Accessibility Extension'
                 },
-                body: JSON.stringify({ 
-                    model: config.get<string>('customAPI.model', 'gpt-4o-mini'),
-                    messages: [{ role: 'user', content: 'test' }],
+                body: JSON.stringify({
+                    model: config.get<string>('customAPI.model', 'qwen/qwen3-coder:free'),
+                    messages: [{ role: 'user', content: 'ping' }],
                     max_tokens: 5
                 })
             });
-            
             return response.ok;
-        } catch (error) {
+        } catch {
             return false;
         }
     }
 
     async getAccessibilityFix(prompt: string): Promise<string> {
         const config = vscode.workspace.getConfiguration('accessibility');
-        const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-        const endpoint = config.get<string>('customAPI.endpoint', '');
-        const model = config.get<string>('customAPI.model', 'gpt-4o-mini');
-        const customHeaders = config.get<object>('customAPI.headers', {});
+    const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
+    // Fester Endpoint für OpenRouter
+    const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
+    const model = config.get<string>('customAPI.model', 'qwen/qwen3-coder:free');
         
         if (!apiKey) {
             throw new Error('API key not configured. Please set it in the AI Accessibility settings.');
@@ -472,14 +470,15 @@ class CustomAPIProvider implements LLMProvider {
             const headers = {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json',
-                ...customHeaders
-            };
+                'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
+                'X-Title': 'Accessibility Extension'
+            } as Record<string,string>;
 
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({ 
-                    model: model,
+                    model,
                     messages: [
                         {
                             role: "system",
@@ -496,19 +495,19 @@ class CustomAPIProvider implements LLMProvider {
             });
 
             if (!response.ok) {
-                throw new Error(`Custom API responded with ${response.status}: ${await response.text()}`);
+                throw new Error(`OpenRouter responded with ${response.status}: ${await response.text()}`);
             }
             
             const data = await response.json();
             const content = data.choices?.[0]?.message?.content;
             
             if (!content) {
-                throw new Error('No content found in Custom API response');
+                throw new Error('No content found in OpenRouter response');
             }
             
             return this.extractCodeFromText(content);
         } catch (error) {
-            throw new Error(`Custom API request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error(`OpenRouter request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
 

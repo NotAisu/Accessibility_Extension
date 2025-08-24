@@ -346,9 +346,8 @@ class LLMSettingsProvider {
         const localEndpoint = config.get('localLLM.endpoint', 'http://127.0.0.1:1234');
         const localModel = config.get('localLLM.model', 'mistralai/devstral-small-2507');
         const githubModel = config.get('githubCopilot.model', 'gpt-4o');
-        // OpenRouter als neue sinnvolle Standardeinstellung (OpenAI-kompatible Chat Completions API)
-        const customEndpoint = config.get('customAPI.endpoint', 'https://openrouter.ai/api/v1/chat/completions');
-        const customModel = config.get('customAPI.model', 'qwen/qwen3-coder:free');
+        const customEndpoint = config.get('customAPI.endpoint', 'https://api.openai.com/v1/chat/completions');
+        const customModel = config.get('customAPI.model', 'gpt-4o-mini');
         // API Key aus SecretStorage holen
         const secretStorage = this.llmService.getSecretStorage();
         const hasApiKey = !!(await secretStorage.get('accessibility.customAPI.apiKey'));
@@ -886,28 +885,27 @@ class LLMSettingsProvider {
                 
                 <div class="provider-option">
                     <input type="radio" id="custom" name="provider" value="custom-api">
-                    <label for="custom">Custom API / OpenRouter</label>
+                    <label for="custom">Custom API</label>
                 </div>
                 
                 <div class="config-group" id="custom-api-config">
                     <div class="config-item">
                         <label for="custom-endpoint">API Endpoint:</label>
-                        <input type="text" id="custom-endpoint" placeholder="https://openrouter.ai/api/v1/chat/completions">
+                        <input type="text" id="custom-endpoint" placeholder="https://api.openai.com/v1/chat/completions">
                         <button class="save-button" onclick="saveEndpoint()">Save</button>
                     </div>
                     <div class="config-item">
-                        <label for="custom-model">Model (z.B. OpenRouter):</label>
-                        <input type="text" id="custom-model" placeholder="qwen/qwen3-coder:free">
+                        <label for="custom-model">Model:</label>
+                        <input type="text" id="custom-model" placeholder="gpt-4o-mini">
                         <button class="save-button" onclick="saveModel()">Save</button>
                     </div>
                     <div class="config-item">
-                        <label for="custom-apikey">API Key (OpenRouter oder anderer Anbieter):</label>
-                        <input type="password" id="custom-apikey" placeholder="or-xxxxxxxxxxxxxxxx">
+                        <label for="custom-apikey">API Key:</label>
+                        <input type="password" id="custom-apikey" placeholder="sk-...">
                         <button class="save-button" onclick="saveApiKey()">Save</button>
                         <div class="security-notice" id="apikey-status">🔒 API key is stored securely in VS Code SecretStorage</div>
                     </div>
-                    <div class="description">Unterstützt OpenRouter & alle OpenAI-kompatiblen Provider. Für OpenRouter: Account erstellen, Key kopieren, Endpoint & Modell eintragen.</div>
-                    <div class="description">Empfohlene Modelle: <code>qwen/qwen3-coder:free</code>, <code>anthropic/claude-3.5-sonnet</code>, <code>google/gemini-2.0-flash</code>. Referer & X-Title werden automatisch gesetzt (anpassbar via settings.json).</div>
+                    <div class="description">OpenAI, Anthropic, Cohere und andere APIs</div>
                 </div>
             </div>
             
