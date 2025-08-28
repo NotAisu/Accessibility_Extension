@@ -128,7 +128,15 @@ OPENROUTER_API_KEY=sk-or-v1-...
 OPENROUTER_DEFAULT_MODEL=qwen/qwen-2.5-coder-32b-instruct:free
 AI_MODELS=qwen/qwen-2.5-coder-32b-instruct:free,meta-llama/llama-3.2-3b-instruct:free
 AI_RUNS=3
+# Structured Outputs aktivieren/deaktivieren (1=an, 0=aus)
+AI_STRUCTURED=1
+# Prompt Caching (cache_control) aktivieren (1=an) – nur sinnvoll bei großen statischen Blöcken
+AI_CACHE=0
 ```
+
+Hinweise:
+- Setze AI_STRUCTURED=0 falls ein Modell 400 Bad Request liefert (nicht unterstützt).
+- Bei häufig identischen großen Codeblöcken kann AI_CACHE=1 Kosten reduzieren (Provider mit automatischem Caching profitieren weniger von cache_control Breakpoints).
 
 ## 🔬 Methodik (Kurzfassung für Bachelorarbeit)
 

@@ -8,8 +8,6 @@ import { parseAIAnalysis, AIParsedViolation } from '../src/ai/ai-response-parser
 
 dotenv.config();
 
-dotenv.config();
-
 interface TestResult {
     file: string;
     mode: 'axe' | 'ai' | 'combined';
@@ -19,7 +17,6 @@ interface TestResult {
     run?: number;      // Lauf (für Mehrfachläufe)
     found: number;
     expected: number;
-    rate: string;      // Prozentual (XX%)
     timeMs: number;
     tokens: number;
     details: string[]; // Textuelle Details
@@ -34,32 +31,101 @@ interface TestResult {
 interface ExpectedViolation {
     line: number;
     ruleId: string;
-    element: string;
 }
 
 class OpenRouterAPI {
-    private key = process.env.OPENROUTER_API_KEY!;
+    private key = (process.env.OPENROUTER_API_KEY || '').trim();
+    private useStructured = (process.env.AI_STRUCTURED || '1') !== '0';
+    private useCaching = (process.env.AI_CACHE || '0') === '1';
+    private structuredUnsupported = new Set<string>(); // Modelle bei denen response_format fehlschlug
     public async analyze(prompt: string, model: string): Promise<{ content: string; tokens: number }> {
         if (!this.key) {
+            console.warn('[AI] OPENROUTER_API_KEY fehlt – AI Test übersprungen.');
             return { content: '[]', tokens: 0 };
         }
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${this.key}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+        try {
+            // Prompt Aufteilung: großer statischer Code-Block (cache_control) + Instruktion
+            const [staticPart, instructionPart] = this.splitPrompt(prompt);
+            const messages: any[] = [
+                {
+                    role: 'user',
+                    content: this.useCaching ? [
+                        { type: 'text', text: staticPart, cache_control: { type: 'ephemeral' } },
+                        { type: 'text', text: instructionPart }
+                    ] : staticPart
+                }
+            ];
+
+            const body: any = {
                 model,
-                messages: [{ role: 'user', content: prompt }],
+                messages,
                 temperature: 0,
-            }),
-        });
-        const data = await response.json();
-        return {
-            content: data.choices[0]?.message?.content || '',
-            tokens: data.usage?.total_tokens || 0,
-        };
+            };
+            if (this.useStructured && !this.structuredUnsupported.has(model)) {
+                body.response_format = {
+                    type: 'json_schema',
+                    json_schema: {
+                        name: 'wcag_violations',
+                        strict: true,
+                        schema: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    line: { type: 'integer', description: 'Line number in source (1-based)' },
+                                    element: { type: 'string', description: 'HTML tag or component name' },
+                                    issue: { type: 'string', description: 'Short description of the accessibility issue' },
+                                    recommendation: { type: 'string', description: 'Suggested fix' },
+                                    ruleId: { type: 'string', description: 'WCAG success criterion or rule identifier' }
+                                },
+                                required: ['line','ruleId'],
+                                additionalProperties: false
+                            }
+                        }
+                    }
+                };
+            }
+
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.key}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
+                    'X-Title': 'Accessibility Extension Test Suite'
+                },
+                body: JSON.stringify(body),
+            });
+            if (!response.ok) {
+                // Falls Modell structured outputs nicht unterstützt → einmalig deaktivieren und Fallback ohne response_format
+                if (this.useStructured && response.status === 400 && !this.structuredUnsupported.has(model)) {
+                    this.structuredUnsupported.add(model);
+                    console.warn(`[AI] Structured outputs nicht unterstützt für Modell ${model} – Fallback.`);
+                    return this.analyze(prompt, model);
+                }
+                const text = await response.text();
+                console.error(`[AI] OpenRouter HTTP ${response.status}: ${text}`);
+                return { content: '[]', tokens: 0 };
+            }
+            const data = await response.json();
+            let content = data.choices?.[0]?.message?.content;
+            if (content && typeof content !== 'string') {
+                // Structured Output liefert Objekt → in String serialisieren
+                content = JSON.stringify(content);
+            }
+            return { content: content || '[]', tokens: data.usage?.total_tokens || 0 };
+        } catch (e) {
+            console.error('[AI] Request Fehler:', e);
+            return { content: '[]', tokens: 0 };
+        }
+    }
+
+    private splitPrompt(full: string): [string,string] {
+        const marker = 'Antworte NUR als JSON';
+        const idx = full.indexOf(marker);
+        if (idx === -1) return [full, ''];
+        return [full.slice(0, idx).trim(), full.slice(idx).trim()];
     }
 }
 
@@ -76,6 +142,7 @@ export class TestSuite {
         .split(',')
         .map(m => m.trim())
         .filter(Boolean);
+   
 
     private getRuns(): number {
         const r = parseInt(process.env.AI_RUNS || '1', 10);
@@ -85,28 +152,22 @@ export class TestSuite {
     async runAxe(): Promise<TestResult[]> {
         console.log('🔍 Running Axe-Core Tests...\n');
         const results: TestResult[] = [];
-        
         for (const file of this.TEST_FILES) {
-            const expected = this.loadExpected(file).length;
             const start = Date.now();
             const content = this.loadFile(file);
             const violations = await this.realAxeTest(content, file);
-            
             const result: TestResult = {
                 file,
                 mode: 'axe',
                 found: violations.length,
-                expected,
-                rate: `${Math.round((violations.length / expected) * 100)}%`,
+                expected: 0, // Ground Truth nicht für Axe
                 timeMs: Date.now() - start,
                 tokens: 0,
-                details: violations.map(v => `${v.id}: ${v.description}`)
+                details: violations.map(v => `axeId=${v.id} impact=${v.impact} desc=${v.description}`)
             };
-            
             results.push(result);
-            console.log(`✓ ${file}: ${result.found}/${result.expected} (${result.rate}) - ${result.timeMs}ms`);
+            console.log(`✓ ${file} [axe] Found=${result.found} t=${result.timeMs}ms`);
         }
-        
         await this.saveCSV(results, 'axe');
         return results;
     }
@@ -122,22 +183,26 @@ export class TestSuite {
                 for (const file of this.TEST_FILES) {
                     const expectedList = this.loadExpected(file);
                     const expectedKeys = new Set(expectedList.map(v => `${v.line}|${v.ruleId}`));
-                    for (const strategy of PROMPT_STRATEGIES) {
+                    const runStrategy = async (strategyName: string) => {
                         const start = Date.now();
                         const content = this.loadFile(file);
-                        const ai = await this.aiTest(content, strategy.name, model);
-                        const predictedKeys = new Set(ai.violations.map(v => `${v.line}|${v.ruleId || ''}`));
+                        const ai = await this.aiTest(content, strategyName, model);
+                        // Nur valide (line + ruleId) berücksichtigen – leere ruleIds verfälschen sonst Metriken
+                        const predictedKeys = new Set(
+                            ai.violations
+                                .filter(v => v.ruleId && v.ruleId.trim() && typeof v.line === 'number' && v.line > 0)
+                                .map(v => `${v.line}|${v.ruleId!.trim()}`)
+                        );
                         const metrics = this.calcMetricsKeys(expectedKeys, predictedKeys);
                         const result: TestResult = {
                             file,
                             mode: 'ai',
-                            strategy: strategy.name,
+                            strategy: strategyName,
                             run,
                             provider: 'OpenRouter',
                             model,
                             found: predictedKeys.size,
                             expected: expectedKeys.size,
-                            rate: `${Math.round((predictedKeys.size / Math.max(1, expectedKeys.size)) * 100)}%`,
                             timeMs: Date.now() - start,
                             tokens: ai.tokens,
                             details: ai.violations.map(v => `line=${v.line} rule=${v.ruleId} elem=${v.element} issue=${v.issue}`),
@@ -149,7 +214,10 @@ export class TestSuite {
                             fn: metrics.fn
                         };
                         results.push(result);
-                        console.log(`✓ ${file} (${strategy.name}) [${model}] P=${metrics.precision.toFixed(2)} R=${metrics.recall.toFixed(2)} F1=${metrics.f1.toFixed(2)} TP=${metrics.tp} FP=${metrics.fp} FN=${metrics.fn} Found=${result.found}/${result.expected} (${result.rate}) t=${result.timeMs}ms tok=${result.tokens}`);
+                        console.log(`✓ ${file} (${strategyName}) [${model}] P=${metrics.precision.toFixed(2)} R=${metrics.recall.toFixed(2)} F1=${metrics.f1.toFixed(2)} TP=${metrics.tp} FP=${metrics.fp} FN=${metrics.fn} Found=${result.found}/${result.expected} t=${result.timeMs}ms tok=${result.tokens}`);
+                    };
+                    for (const strategy of PROMPT_STRATEGIES) {
+                        await runStrategy(strategy.name); // strikt nacheinander
                     }
                 }
             }
@@ -163,6 +231,8 @@ export class TestSuite {
         console.log('\n🚀 Running Combined Tests...\n');
         const results: TestResult[] = [];
         const runs = this.getRuns();
+        // Cache Axe Violations pro (run,model,file) damit nicht jede Strategie erneut scannt
+        const axeCache = new Map<string, any[]>();
         for (let run = 1; run <= runs; run++) {
             if (runs > 1) console.log(`Run ${run}/${runs}`);
             for (const model of this.MODELS) {
@@ -170,39 +240,69 @@ export class TestSuite {
                 for (const file of this.TEST_FILES) {
                     const expectedList = this.loadExpected(file);
                     const expectedKeys = new Set(expectedList.map(v => `${v.line}|${v.ruleId}`));
-                    for (const strategy of PROMPT_STRATEGIES) {
+                    const runStrategy = async (strategyName: string) => {
                         const start = Date.now();
                         const content = this.loadFile(file);
-                        const [axeViolations, aiResult] = await Promise.all([
-                            this.realAxeTest(content, file),
-                            this.aiTest(content, strategy.name, model)
-                        ]);
-                        // Combined: axe rule IDs (no line mapping) + AI (line+rule)
-                        const predictedKeys = new Set<string>();
-                        aiResult.violations.forEach(v => predictedKeys.add(`${v.line}|${v.ruleId || ''}`));
-                        const metrics = this.calcMetricsKeys(expectedKeys, predictedKeys);
+                        // AI Ergebnisse (für Ground Truth Metriken)
+                        const aiResult = await this.aiTest(content, strategyName, model);
+                        const aiKeys = new Set<string>(
+                            aiResult.violations
+                                .filter(v => v.ruleId && v.ruleId.trim() && typeof v.line === 'number' && v.line > 0)
+                                .map(v => `${v.line}|${v.ruleId!.trim()}`)
+                        );
+                        // Axe Ergebnisse (nur zum Vergleich, keine Ground Truth Nutzung) – aus Cache
+                        const axeKey = `${run}|${model}|${file}`;
+                        let axeViolations = axeCache.get(axeKey);
+                        if (!axeViolations) {
+                            axeViolations = await this.realAxeTest(content, file);
+                            axeCache.set(axeKey, axeViolations);
+                        }
+                        const duplicates = this.computeDuplicates(aiResult.violations, axeViolations);
+                        
+                        // ECHTE UNION: AI ∪ Axe Line-Mapping
+                        const axeLineKeys = this.mapAxeLineKeys(content, axeViolations);
+                        const combinedKeys = new Set<string>([...aiKeys, ...axeLineKeys]);
+                        
+                        // Metriken für AI-only und Combined
+                        const aiMetrics = this.calcMetricsKeys(expectedKeys, aiKeys);
+                        const combinedMetrics = this.calcMetricsKeys(expectedKeys, combinedKeys);
+                        const deltaRecall = combinedMetrics.recall - aiMetrics.recall;
+                        const axeAddedTP = [...combinedKeys].filter(k => !aiKeys.has(k) && expectedKeys.has(k)).length;
+                        
+                        const details: string[] = [
+                            `duplicates=${duplicates.length}`,
+                            `aiRecall=${aiMetrics.recall.toFixed(3)}`,
+                            `combinedRecall=${combinedMetrics.recall.toFixed(3)}`,
+                            `deltaRecall=${deltaRecall.toFixed(3)}`,
+                            `axeAddedTP=${axeAddedTP}`,
+                            ...duplicates.map(d => `DUPLICATE rule=${d}`),
+                            ...aiResult.violations.map(v => `AI line=${v.line} rule=${v.ruleId} issue=${v.issue}`),
+                            ...axeViolations.map(v => `AXE rule=${v.id}`)
+                        ];
                         const result: TestResult = {
                             file,
                             mode: 'combined',
-                            strategy: strategy.name,
+                            strategy: strategyName,
                             run,
                             provider: 'OpenRouter',
                             model,
-                            found: predictedKeys.size,
+                            found: combinedKeys.size,  // UNION statt nur AI
                             expected: expectedKeys.size,
-                            rate: `${Math.round((predictedKeys.size / Math.max(1, expectedKeys.size)) * 100)}%`,
                             timeMs: Date.now() - start,
                             tokens: aiResult.tokens,
-                            details: aiResult.violations.map(v => `line=${v.line} rule=${v.ruleId} elem=${v.element} issue=${v.issue}`),
-                            precision: metrics.precision,
-                            recall: metrics.recall,
-                            f1: metrics.f1,
-                            tp: metrics.tp,
-                            fp: metrics.fp,
-                            fn: metrics.fn
+                            details,
+                            precision: combinedMetrics.precision,
+                            recall: combinedMetrics.recall,
+                            f1: combinedMetrics.f1,
+                            tp: combinedMetrics.tp,
+                            fp: combinedMetrics.fp,
+                            fn: combinedMetrics.fn
                         };
                         results.push(result);
-                        console.log(`✓ ${file} (${strategy.name}) [combined ${model}] P=${metrics.precision.toFixed(2)} R=${metrics.recall.toFixed(2)} F1=${metrics.f1.toFixed(2)} TP=${metrics.tp} FP=${metrics.fp} FN=${metrics.fn} Found=${result.found}/${result.expected} (${result.rate}) t=${result.timeMs}ms tok=${result.tokens}`);
+                        console.log(`✓ ${file} (${strategyName}) [combined ${model}] dup=${duplicates.length} ΔR=${deltaRecall.toFixed(3)} P=${combinedMetrics.precision.toFixed(2)} R=${combinedMetrics.recall.toFixed(2)} F1=${combinedMetrics.f1.toFixed(2)} Found=${result.found}/${result.expected} t=${result.timeMs}ms tok=${result.tokens}`);
+                    };
+                    for (const strategy of PROMPT_STRATEGIES) {
+                        await runStrategy(strategy.name);
                     }
                 }
             }
@@ -221,7 +321,20 @@ export class TestSuite {
         const expectedPath = path.resolve(__dirname, '..', '..', 'test', 'expected', `${filename}.json`);
         try {
             const raw = fs.readFileSync(expectedPath, 'utf-8');
-            return JSON.parse(raw) as ExpectedViolation[];
+            const parsed = JSON.parse(raw) as any[];
+            const valid: ExpectedViolation[] = [];
+            let invalidCount = 0;
+            for (const entry of parsed) {
+                if (entry && typeof entry.line === 'number' && entry.line > 0 && typeof entry.ruleId === 'string' && entry.ruleId.trim()) {
+                    valid.push({ line: entry.line, ruleId: entry.ruleId});
+                } else {
+                    invalidCount++;
+                }
+            }
+            if (invalidCount > 0) {
+                console.warn(`[GT] ${filename}: ${invalidCount} ungültige Ground-Truth Einträge ignoriert (fehlende line/ruleId).`);
+            }
+            return valid;
         } catch {
             return [];
         }
@@ -248,10 +361,6 @@ export class TestSuite {
             const results = await axe.run(window.document.documentElement, {
                 runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
                 resultTypes: ['violations'],
-                rules: {
-                    'color-contrast': { enabled: false },
-                    'color-contrast-enhanced': { enabled: false }
-                }
             });
 
             return results.violations || [];
@@ -263,13 +372,63 @@ export class TestSuite {
 
     // (alter Parser entfernt, Nutzung des gemeinsamen Parsers parseAIAnalysis)
 
-    private deduplicate(axeViolations: any[], aiDetails: string[]): string[] {
-        const axeItems = axeViolations.map(v => `Axe: ${v.id}`);
-        const aiItems = aiDetails.map(d => `AI: ${d}`);
-        
-        // Simple deduplication by unique strings
-        const allItems = [...axeItems, ...aiItems];
-        return Array.from(new Set(allItems));
+    private deduplicate(axeDetails: string[], aiDetails: string[]): string[] {
+        return Array.from(new Set([...axeDetails, ...aiDetails]));
+    }
+
+    private computeDuplicates(aiViolations: AIParsedViolation[], axeViolations: any[]): string[] {
+        // Einfache Heuristik: gleicher ruleId String
+        const axeIds = new Set(axeViolations.map(v => v.id));
+        const dups = new Set<string>();
+        for (const v of aiViolations) {
+            if (v.ruleId && axeIds.has(v.ruleId)) dups.add(v.ruleId);
+        }
+        return Array.from(dups);
+    }
+    
+    /**
+     * Heuristisches Zeilen-Mapping für axe Violations zur Bildung von line|ruleId Keys.
+     * Sucht das erste HTML Fragment oder Tag im Original-Content.
+     * Limitationen (Mehrfach-Vorkommen, transformierte Wrapper) werden in der Methodik dokumentiert.
+     */
+    private mapAxeLineKeys(originalContent: string, axeViolations: any[]): Set<string> {
+        const content = originalContent;
+        const lines = content.split('\n');
+        const lineStartIdx: number[] = []; let acc = 0;
+        for (const l of lines) { lineStartIdx.push(acc); acc += l.length + 1; }
+        const findLine = (index: number) => {
+            let low = 0, high = lineStartIdx.length - 1;
+            while (low <= high) {
+                const mid = (low + high) >> 1;
+                const start = lineStartIdx[mid];
+                const next = mid + 1 < lineStartIdx.length ? lineStartIdx[mid+1] : Infinity;
+                if (start <= index && index < next) return mid + 1; // 1-based
+                if (index < start) high = mid - 1; else low = mid + 1;
+            }
+            return 0;
+        };
+        const keys = new Set<string>();
+        for (const v of axeViolations) {
+            const rule = v.id || '';
+            if (!rule || !Array.isArray(v.nodes)) continue;
+            for (const n of v.nodes) {
+                const frag: string | undefined = n.html;
+                if (!frag) continue;
+                const cleaned = frag.replace(/\s+/g, ' ').trim();
+                if (!cleaned) continue;
+                const primary = cleaned.slice(0, 120);
+                let idx = content.indexOf(primary);
+                if (idx === -1) {
+                    const tagMatch = cleaned.match(/<([a-zA-Z0-9-]+)/);
+                    if (tagMatch) idx = content.indexOf(tagMatch[0]);
+                }
+                if (idx !== -1) {
+                    const line = findLine(idx);
+                    if (line > 0) keys.add(`${line}|${rule}`);
+                }
+            }
+        }
+        return keys;
     }
 
     /**
@@ -355,31 +514,40 @@ export class TestSuite {
 
     private async saveCSV(results: TestResult[], mode: string): Promise<void> {
         const resultsDir = path.resolve(__dirname, '..', '..', 'test', 'results');
+        if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir, { recursive: true });
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
         const csvPath = path.join(resultsDir, `${mode}-${timestamp}.csv`);
-        const headers = ['file', 'mode', 'strategy', 'run', 'provider', 'model', 'found', 'expected', 'tp', 'fp', 'fn', 'precision', 'recall', 'f1', 'rate', 'timeMs', 'tokens', 'details'];
-        const rows = results.map(r => [
-            r.file,
-            r.mode,
-            r.strategy || '',
-            r.run ?? '',
-            r.provider || '',
-            r.model || '',
-            r.found,
-            r.expected,
-            r.tp ?? '',
-            r.fp ?? '',
-            r.fn ?? '',
-            r.precision?.toFixed(3) || '',
-            r.recall?.toFixed(3) || '',
-            r.f1?.toFixed(3) || '',
-            r.rate,
-            r.timeMs,
-            r.tokens,
-            `"${r.details.join('; ')}"`
-        ]);
-
-        const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+        const headers = ['file', 'mode', 'strategy', 'run', 'provider', 'model', 'found', 'expected', 'tp', 'fp', 'fn', 'precision', 'recall', 'f1', 'timeMs', 'tokens', 'details'];
+        const escape = (val: any) => {
+            const s = String(val);
+            if (s.includes('"') || s.includes(',') || s.includes('\n') || s.includes(';')) {
+                return '"' + s.replace(/"/g, '""') + '"';
+            }
+            return s;
+        };
+        const rows = results.map(r => headers.map(h => {
+            switch (h) {
+                case 'file': return escape(r.file);
+                case 'mode': return escape(r.mode);
+                case 'strategy': return escape(r.strategy || '');
+                case 'run': return escape(r.run ?? '');
+                case 'provider': return escape(r.provider || '');
+                case 'model': return escape(r.model || '');
+                case 'found': return escape(r.found);
+                case 'expected': return escape(r.expected);
+                case 'tp': return escape(r.tp ?? '');
+                case 'fp': return escape(r.fp ?? '');
+                case 'fn': return escape(r.fn ?? '');
+                case 'precision': return escape(r.precision?.toFixed(3) || '');
+                case 'recall': return escape(r.recall?.toFixed(3) || '');
+                case 'f1': return escape(r.f1?.toFixed(3) || '');
+                case 'timeMs': return escape(r.timeMs);
+                case 'tokens': return escape(r.tokens);
+                case 'details': return escape(r.details.join('; '));
+                default: return '';
+            }
+        }));
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
         fs.writeFileSync(csvPath, csv);
         console.log(`\n💾 Results saved: ${csvPath}`);
     }
@@ -432,10 +600,12 @@ export class TestSuite {
                 fStats.std.toFixed(3)
             ]);
         });
-        const resultsDir = path.resolve(__dirname, '..', '..', 'test', 'results');
+    const resultsDir = path.resolve(__dirname, '..', '..', 'test', 'results');
+    if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir, { recursive: true });
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
         const summaryPath = path.join(resultsDir, `${mode}-summary-${timestamp}.csv`);
         fs.writeFileSync(summaryPath, rows.map(r=>r.join(',')).join('\n'));
-        console.log(`📊 Summary saved: ${summaryPath}`);
+    console.log('\n� Running Combined Tests... (Union AI ∪ Axe)\n');
     }
 }
+
