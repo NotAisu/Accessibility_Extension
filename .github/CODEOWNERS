@@ -1,0 +1,15 @@
+# Global code owners - require review for all changes
+* @NotAisu
+
+# Specific areas requiring additional review
+src/ai/ @NotAisu
+src/llm/ @NotAisu
+src/extension.ts @NotAisu
+
+# Workflow files require review
+.github/ @NotAisu
+
+# Configuration files
+package.json @NotAisu
+tsconfig.json @NotAisu
+.eslintrc.json @NotAisu

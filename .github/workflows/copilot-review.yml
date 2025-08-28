@@ -1,0 +1,136 @@
+name: Copilot Branch Code Review
+
+on:
+  pull_request:
+    branches: ['main', 'develop']
+    types: [opened, synchronize, reopened]
+
+jobs:
+  copilot-review:
+    name: Copilot Branch Code Review
+    runs-on: ubuntu-latest
+    # Only run this workflow for branches that match the copilot pattern
+    if: startsWith(github.head_ref, 'copilot/')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run comprehensive code review
+        id: review
+        run: |
+          echo "Running code review for Copilot-generated branch: ${{ github.head_ref }}"
+          
+          # Initialize review results
+          LINT_RESULT=0
+          BUILD_RESULT=0
+          TEST_RESULT=0
+          
+          # Run linting
+          echo "::group::Running ESLint"
+          if npm run lint; then
+            echo "✅ Linting passed"
+            echo "LINT_STATUS=✅ Passed" >> $GITHUB_ENV
+          else
+            echo "❌ Linting failed"
+            echo "LINT_STATUS=❌ Failed" >> $GITHUB_ENV
+            LINT_RESULT=1
+          fi
+          echo "::endgroup::"
+          
+          # Run TypeScript compilation
+          echo "::group::Running TypeScript compilation"
+          if npm run compile; then
+            echo "✅ TypeScript compilation successful"
+            echo "BUILD_STATUS=✅ Passed" >> $GITHUB_ENV
+          else
+            echo "❌ TypeScript compilation failed"
+            echo "BUILD_STATUS=❌ Failed" >> $GITHUB_ENV
+            BUILD_RESULT=1
+          fi
+          echo "::endgroup::"
+          
+          # Run pretest (includes compile and lint again)
+          echo "::group::Running pretest checks"
+          if npm run pretest; then
+            echo "✅ Pretest checks passed"
+            echo "TEST_STATUS=✅ Passed" >> $GITHUB_ENV
+          else
+            echo "❌ Pretest checks failed"
+            echo "TEST_STATUS=❌ Failed" >> $GITHUB_ENV
+            TEST_RESULT=1
+          fi
+          echo "::endgroup::"
+          
+          # Set overall result
+          OVERALL_RESULT=$((LINT_RESULT + BUILD_RESULT + TEST_RESULT))
+          echo "OVERALL_RESULT=$OVERALL_RESULT" >> $GITHUB_ENV
+          
+          exit $OVERALL_RESULT
+        continue-on-error: true
+        
+      - name: Create detailed review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo, number } = context.issue;
+            const branchName = context.payload.pull_request.head.ref;
+            const overallResult = process.env.OVERALL_RESULT;
+            const lintStatus = process.env.LINT_STATUS || 'Not run';
+            const buildStatus = process.env.BUILD_STATUS || 'Not run';
+            const testStatus = process.env.TEST_STATUS || 'Not run';
+            
+            const isSuccess = overallResult === '0';
+            const reviewEvent = isSuccess ? 'APPROVE' : 'REQUEST_CHANGES';
+            
+            const reviewBody = `## 🤖 Automated Code Review for Copilot Branch
+            
+            **Branch:** \`${branchName}\`
+            **Overall Status:** ${isSuccess ? '✅ APPROVED' : '❌ CHANGES REQUESTED'}
+            
+            ### Code Quality Checks
+            
+            | Check | Status |
+            |-------|--------|
+            | ESLint | ${lintStatus} |
+            | TypeScript Build | ${buildStatus} |
+            | Pretest Suite | ${testStatus} |
+            
+            ${isSuccess ? 
+              `### ✅ Review Summary
+              All automated checks have passed! This Copilot-generated code meets our quality standards:
+              - Code follows linting rules
+              - TypeScript compiles without errors
+              - All pretest checks pass
+              
+              **Recommendation:** This PR is ready for human review and merge.` :
+              `### ❌ Issues Found
+              Some automated checks failed. Please review and address the following:
+              
+              ${lintStatus.includes('Failed') ? '- **Linting errors:** Check ESLint output for code style issues\n' : ''}
+              ${buildStatus.includes('Failed') ? '- **Build errors:** Check TypeScript compilation errors\n' : ''}
+              ${testStatus.includes('Failed') ? '- **Test failures:** Check pretest output for issues\n' : ''}
+              
+              **Next Steps:** Fix the identified issues and push updates to trigger a new review.`
+            }
+            
+            ---
+            *This review was automatically generated for Copilot branches to ensure code quality.*`;
+            
+            // Create the review
+            await github.rest.pulls.createReview({
+              owner,
+              repo,
+              pull_number: number,
+              body: reviewBody,
+              event: reviewEvent
+            });
