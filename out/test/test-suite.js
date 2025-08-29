@@ -41,6 +41,7 @@ const path = __importStar(require("path"));
 const dotenv = __importStar(require("dotenv"));
 const prompt_strategies_1 = require("../src/ai/prompt-strategies");
 const ai_response_parser_1 = require("../src/ai/ai-response-parser");
+const rule_id_normalizer_1 = require("../src/core/rule-id-normalizer");
 dotenv.config();
 class OpenRouterAPI {
     constructor() {
@@ -95,6 +96,10 @@ class OpenRouterAPI {
                     }
                 };
             }
+            // Timeout Handling für Hänger
+            const controller = new AbortController();
+            const timeoutMs = parseInt(process.env.AI_TIMEOUT_MS || '45000', 10);
+            const timeout = setTimeout(() => controller.abort(), timeoutMs);
             const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -105,7 +110,9 @@ class OpenRouterAPI {
                     'X-Title': 'Accessibility Extension Test Suite'
                 },
                 body: JSON.stringify(body),
+                signal: controller.signal
             });
+            clearTimeout(timeout);
             if (!response.ok) {
                 // Falls Modell structured outputs nicht unterstützt → einmalig deaktivieren und Fallback ohne response_format
                 if (this.useStructured && response.status === 400 && !this.structuredUnsupported.has(model)) {
@@ -146,7 +153,8 @@ class TestSuite {
             'wcag-violations.jsx',
             'wcag-violations.tsx',
             'wcag-violations.vue',
-            'wcag-violations.svelte'
+            'wcag-violations.svelte',
+            'no-violations.html'
         ];
         this.MODELS = (process.env.AI_MODELS || process.env.OPENROUTER_DEFAULT_MODEL || 'qwen/qwen3-coder:free')
             .split(',')
@@ -222,7 +230,11 @@ class TestSuite {
                         results.push(result);
                         console.log(`✓ ${file} (${strategyName}) [${model}] P=${metrics.precision.toFixed(2)} R=${metrics.recall.toFixed(2)} F1=${metrics.f1.toFixed(2)} TP=${metrics.tp} FP=${metrics.fp} FN=${metrics.fn} Found=${result.found}/${result.expected} t=${result.timeMs}ms tok=${result.tokens}`);
                     };
-                    for (const strategy of prompt_strategies_1.PROMPT_STRATEGIES) {
+                    const onlyStrategiesEnv = (process.env.AI_STRATEGIES || '').trim();
+                    const activeStrategies = onlyStrategiesEnv ?
+                        prompt_strategies_1.PROMPT_STRATEGIES.filter(s => onlyStrategiesEnv.split(',').map(x => x.trim()).includes(s.name)) :
+                        prompt_strategies_1.PROMPT_STRATEGIES;
+                    for (const strategy of activeStrategies) {
                         await runStrategy(strategy.name); // strikt nacheinander
                     }
                 }
@@ -302,7 +314,11 @@ class TestSuite {
                         results.push(result);
                         console.log(`✓ ${file} (${strategyName}) [combined ${model}] dup=${duplicates.length} ΔR=${deltaRecall.toFixed(3)} P=${combinedMetrics.precision.toFixed(2)} R=${combinedMetrics.recall.toFixed(2)} F1=${combinedMetrics.f1.toFixed(2)} Found=${result.found}/${result.expected} t=${result.timeMs}ms tok=${result.tokens}`);
                     };
-                    for (const strategy of prompt_strategies_1.PROMPT_STRATEGIES) {
+                    const onlyStrategiesEnv = (process.env.AI_STRATEGIES || '').trim();
+                    const activeStrategies = onlyStrategiesEnv ?
+                        prompt_strategies_1.PROMPT_STRATEGIES.filter(s => onlyStrategiesEnv.split(',').map(x => x.trim()).includes(s.name)) :
+                        prompt_strategies_1.PROMPT_STRATEGIES;
+                    for (const strategy of activeStrategies) {
                         await runStrategy(strategy.name);
                     }
                 }
@@ -351,10 +367,11 @@ class TestSuite {
                 htmlContent = this.wrapInHTML(content, filename);
             }
             const { window } = new jsdom_1.JSDOM(htmlContent, { pretendToBeVisual: true, resources: 'usable' });
-            // Canvas fix wie in der Extension
-            if (!window.HTMLCanvasElement.prototype.getContext) {
-                window.HTMLCanvasElement.prototype.getContext = () => null;
+            // Canvas getContext überschreiben (jsdom wirft sonst Not Implemented). Minimales measureText Stub.
+            try {
+                window.HTMLCanvasElement.prototype.getContext = function () { return { measureText: () => ({ width: 0 }) }; };
             }
+            catch { }
             const results = await axe.run(window.document.documentElement, {
                 runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
                 resultTypes: ['violations'],
@@ -494,8 +511,8 @@ class TestSuite {
             const strategy = (0, prompt_strategies_1.getPromptStrategy)(strategyName);
             const prompt = strategy.generatePrompt(this.addLineNumbers(content)) + '\n\nAntworte NUR als JSON Array von Objekten im Format: [{"line": <number>, "element": "<tag>", "issue": "<kurz>", "recommendation": "<fix>", "ruleId": "<wcag/rule>"}]';
             const response = await this.api.analyze(prompt, model);
-            const violations = (0, ai_response_parser_1.parseAIAnalysis)(response.content)
-                .filter(v => typeof v.line === 'number' && v.line > 0);
+            const violations = (0, rule_id_normalizer_1.normalizeRuleIds)((0, ai_response_parser_1.parseAIAnalysis)(response.content)
+                .filter(v => typeof v.line === 'number' && v.line > 0));
             return { violations, tokens: response.tokens };
         }
         catch (error) {
@@ -601,7 +618,7 @@ class TestSuite {
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
         const summaryPath = path.join(resultsDir, `${mode}-summary-${timestamp}.csv`);
         fs.writeFileSync(summaryPath, rows.map(r => r.join(',')).join('\n'));
-        console.log('\n� Running Combined Tests... (Union AI ∪ Axe)\n');
+        console.log(`\n📊 Summary (${mode}) saved: ${summaryPath}`);
     }
 }
 exports.TestSuite = TestSuite;

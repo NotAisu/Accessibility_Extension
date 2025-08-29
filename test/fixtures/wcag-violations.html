@@ -1,34 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WCAG 2.2 AA Comprehensive Test Suite</title>
     <style>
         /* Color-only information (WCAG 1.4.1) */
-        .error { color: red; }
-        .success { color: green; }
-        
+        .error {
+            color: red;
+        }
+
+        .success {
+            color: green;
+        }
+
         /* Insufficient contrast (WCAG 1.4.3) */
-        .low-contrast { color: #777; background: #999; }
-        
+        .low-contrast {
+            color: #777;
+            background: #999;
+        }
+
         /* Moving content without pause control (WCAG 2.2.2) */
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
-        .blinking { animation: blink 1s infinite; }
-        
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+
         /* Focus not visible (WCAG 2.4.7) */
-        button:focus { outline: none; }
-        
+        button:focus {
+            outline: none;
+        }
+
         /* Target too small (WCAG 2.5.8) */
-        .tiny-button { width: 10px; height: 10px; }
+        .tiny-button {
+            width: 10px;
+            height: 10px;
+        }
     </style>
 </head>
+
 <body>
     <!-- Missing page language (WCAG 3.1.1) - This should be detected -->
-    
+
     <main>
         <h1>WCAG 2.2 AA Violation Test Suite</h1>
-        
+
         <!-- 1.1.1 Non-text Content - Missing alt attributes -->
         <section id="images">
             <h2>Image Accessibility Violations</h2>
@@ -43,15 +73,15 @@
         <!-- 1.3.1 Info and Relationships - Semantic markup issues -->
         <section id="semantic">
             <h2>Semantic Structure Violations</h2>
-            
+
             <!-- Wrong heading hierarchy -->
             <h1>Secondary Title</h1>
             <h4>Should be h3</h4>
-            
+
             <!-- Non-semantic interactive elements -->
             <div onclick="submit()">Submit Button</div>
             <span onclick="toggleMenu()">Menu Toggle</span>
-            
+
             <!-- Tables without proper headers -->
             <table>
                 <tr>
@@ -65,7 +95,7 @@
                     <td>Berlin</td>
                 </tr>
             </table>
-            
+
             <!-- Lists without list markup -->
             <div>• Item 1</div>
             <div>• Item 2</div>
@@ -114,9 +144,9 @@
         <!-- 2.4.6 Headings and Labels - Unclear headings -->
         <section id="headings">
             <h2>Heading and Label Violations</h2>
-            <h3>Information</h3>
-            <h3>Data</h3>
-            <h3>Content</h3>
+            <h3>General Information About This Section</h3>
+            <h3>Data Overview</h3>
+            <h3>Content Details and Description</h3>
         </section>
 
         <!-- 2.4.7 Focus Visible - Missing focus indicators -->
@@ -141,16 +171,16 @@
                 <option value="page1.html">Page 1</option>
                 <option value="page2.html">Page 2</option>
             </select>
-            
+
             <!-- 3.3.2 Labels or Instructions - Missing form labels -->
             <input type="text" placeholder="Enter name">
             <input type="email">
             <textarea placeholder="Comments"></textarea>
-            
+
             <!-- 3.3.3 Error Suggestion - Poor error handling -->
             <input type="text" id="invalid-input" style="border: 2px solid red;">
             <span style="color: red;">Error</span>
-            
+
             <!-- Missing fieldset and legend -->
             <input type="radio" name="gender" value="male"> Male
             <input type="radio" name="gender" value="female"> Female
@@ -207,7 +237,7 @@
 
         <!-- Empty headings -->
         <h3></h3>
-        <h4>   </h4>
+        <h4> </h4>
 
         <!-- Duplicate IDs -->
         <div id="duplicate">First element</div>
@@ -217,7 +247,7 @@
         <div class="content-area">
             Main content without proper landmark
         </div>
-        
+
         <div class="sidebar">
             Secondary content
         </div>
@@ -234,23 +264,24 @@
 
     <script>
         // JavaScript that creates accessibility issues
-        
+
         // Focus trap without escape
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Tab') {
                 // Improper focus management
             }
         });
-        
+
         // Timeout without user control
-        setTimeout(function() {
+        setTimeout(function () {
             alert('Session will expire');
         }, 30000);
-        
+
         // Dynamic content without screen reader notification
         function updateContent() {
             document.getElementById('dynamic').innerHTML = 'New content loaded';
         }
     </script>
 </body>
+
 </html>

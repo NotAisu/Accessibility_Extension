@@ -3,6 +3,7 @@ import { LLMService } from '../llm/llm-service';
 import { MetricsService } from '../metrics/metrics-service';
 import { PromptStrategy, getPromptStrategy, getDefaultStrategy } from './prompt-strategies';
 import { parseAIAnalysis } from './ai-response-parser';
+import { normalizeRuleIds, normalizeRuleId } from '../core/rule-id-normalizer';
 
 interface WCAGViolation {
     element: string;
@@ -361,7 +362,7 @@ export class AISemanticAnalyzer {
      * Parst AI-Response zu WCAGViolation Array
      */
     private parseAIResponse(aiResponse: string, document: vscode.TextDocument): WCAGViolation[] {
-        const parsed = parseAIAnalysis(aiResponse);
+    const parsed = normalizeRuleIds(parseAIAnalysis(aiResponse));
         const violations: WCAGViolation[] = [];
         for (const p of parsed) {
             this.pushIfValidViolation({
@@ -369,7 +370,7 @@ export class AISemanticAnalyzer {
                 element: p.element || '',
                 issue: p.issue || '',
                 recommendation: p.recommendation || '',
-                ruleId: p.ruleId || 'ai-semantic'
+        ruleId: normalizeRuleId(p.ruleId) || 'ai-semantic'
             }, document, violations);
         }
         return violations;
@@ -424,41 +425,39 @@ export class AISemanticAnalyzer {
         findings: WCAGViolation[], 
         document: vscode.TextDocument
     ): vscode.Diagnostic[] {
-        const diagnostics = findings.map(finding => {
-            const violationId = `ai_violation_${document.uri.toString()}_${finding.range.start.line}_${finding.range.start.character}`;
-            const instanceId = `${violationId}_${Date.now()}_${Math.floor(Math.random()*1e6)}`;
+        return findings.map(finding => {
+            // Basis erweitert um Start-Character + Hash eines Issue-Ausschnitts für Kollisionsreduktion
+            const issueFragment = finding.message.slice(0,50);
+            const base = `${document.uri.toString()}|${finding.range.start.line}|${finding.range.start.character}|${finding.ruleId}|${finding.element?.slice(0,40)}|${issueFragment}`;
+            const hash = require('crypto').createHash('sha1').update(base).digest('hex').slice(0,10);
+            const vId = `ai-${hash}`;
             const diagnostic = new vscode.Diagnostic(
                 finding.range,
-                `[AI Semantic] ${finding.message}`,
+                `[AI Semantic] ${finding.message} (vID:${vId})`,
                 vscode.DiagnosticSeverity.Information 
             );
-            
-            diagnostic.code = JSON.stringify({ 
-                ruleId: finding.ruleId, 
+            diagnostic.code = JSON.stringify({
+                ruleId: finding.ruleId,
                 isAIGenerated: true,
                 element: finding.element,
                 recommendation: finding.message,
-                violationId,
-                instanceId,
+                vId,
                 feedbackGiven: false
             });
-            
             diagnostic.source = 'AI Accessibility Analyzer';
-            
             return diagnostic;
         });
-
-        return diagnostics;
     }
 
     /** Entfernt eine einzelne AI-Diagnostic anhand violationId */
-    public removeAIDiagnostic(violationId: string): void {
+    public removeAIDiagnostic(id: string): void {
         this.aiDiagnosticCollection.forEach((uri, diagnostics) => {
             const filtered = diagnostics.filter(d => {
                 try {
                     if (typeof d.code === 'string') {
                         const data = JSON.parse(d.code);
-                        return data.violationId !== violationId;
+                        if (data.vId === id) return false;
+                        if (data.violationId === id) return false; // legacy support
                     }
                 } catch {}
                 return true;

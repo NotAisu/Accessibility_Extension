@@ -363,6 +363,9 @@ class CustomAPIProvider {
         this.secretStorage = secretStorage;
         // Umbenannt für UI Anzeige
         this.name = 'OpenRouter';
+        this.useStructured = true;
+        this.useCaching = true;
+        this.structuredUnsupported = new Set();
     }
     async isConfigured() {
         // Für OpenRouter reicht der API Key; Endpoint ist fest
@@ -413,30 +416,67 @@ class CustomAPIProvider {
                 'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
                 'X-Title': 'Accessibility Extension'
             };
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    model,
-                    messages: [
-                        {
-                            role: "system",
-                            content: "You are an accessibility expert. Fix Frontend code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
+            // Prompt Caching: statischen & dynamischen Teil heuristisch teilen
+            const { staticPart, dynamicPart } = this.splitPrompt(prompt);
+            const userContent = this.useCaching ? [
+                { type: 'text', text: staticPart, cache_control: { type: 'ephemeral' } },
+                { type: 'text', text: dynamicPart }
+            ] : prompt;
+            const body = {
+                model,
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are an accessibility expert. Provide WCAG 2.2 AA compliant fixes or analyses. Be concise."
+                    },
+                    {
+                        role: "user",
+                        content: userContent
+                    }
+                ],
+                temperature: 0,
+                max_tokens: 512
+            };
+            // Structured Outputs nur wenn Prompt ausdrücklich JSON verlangt (Analysefälle)
+            const wantsJSON = /json array|antworte nur als json/i.test(prompt);
+            if (wantsJSON && this.useStructured && !this.structuredUnsupported.has(model)) {
+                body.response_format = {
+                    type: 'json_schema',
+                    json_schema: {
+                        name: 'wcag_violations',
+                        strict: true,
+                        schema: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    line: { type: 'integer' },
+                                    element: { type: 'string' },
+                                    issue: { type: 'string' },
+                                    recommendation: { type: 'string' },
+                                    ruleId: { type: 'string' }
+                                },
+                                required: ['line', 'ruleId'],
+                                additionalProperties: false
+                            }
                         }
-                    ],
-                    temperature: 0.1,
-                    max_tokens: 512
-                })
-            });
+                    }
+                };
+            }
+            const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
             if (!response.ok) {
+                if (wantsJSON && this.useStructured && response.status === 400 && !this.structuredUnsupported.has(model)) {
+                    this.structuredUnsupported.add(model);
+                    console.warn(`[OpenRouter] Structured outputs not supported for model ${model} – retrying without schema.`);
+                    return this.getAccessibilityFix(prompt);
+                }
                 throw new Error(`OpenRouter responded with ${response.status}: ${await response.text()}`);
             }
             const data = await response.json();
-            const content = data.choices?.[0]?.message?.content;
+            let content = data.choices?.[0]?.message?.content;
+            if (content && typeof content !== 'string') {
+                content = JSON.stringify(content);
+            }
             if (!content) {
                 throw new Error('No content found in OpenRouter response');
             }
@@ -445,6 +485,20 @@ class CustomAPIProvider {
         catch (error) {
             throw new Error(`OpenRouter request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
+    }
+    /**
+     * Heuristische Aufteilung: erster großer Code/Instruktionsblock (statisch) + Rest (dynamisch)
+     */
+    splitPrompt(full) {
+        if (full.length < 1200) {
+            return { staticPart: full, dynamicPart: '' };
+        }
+        // Versuche letzten Absatz als dynamisch anzunehmen
+        const parts = full.split(/\n\n+/);
+        if (parts.length < 2)
+            return { staticPart: full, dynamicPart: '' };
+        const dynamicPart = parts.pop() || '';
+        return { staticPart: parts.join('\n\n'), dynamicPart };
     }
     async setApiKey(apiKey) {
         await this.secretStorage.store('accessibility.customAPI.apiKey', apiKey);

@@ -37,6 +37,7 @@ exports.AISemanticAnalyzer = void 0;
 const vscode = __importStar(require("vscode"));
 const prompt_strategies_1 = require("./prompt-strategies");
 const ai_response_parser_1 = require("./ai-response-parser");
+const rule_id_normalizer_1 = require("../core/rule-id-normalizer");
 /**
  * AI Semantic Analyzer mit blauer Farbkodierung für WCAG-Semantik-Verstöße
  */
@@ -329,7 +330,7 @@ class AISemanticAnalyzer {
      * Parst AI-Response zu WCAGViolation Array
      */
     parseAIResponse(aiResponse, document) {
-        const parsed = (0, ai_response_parser_1.parseAIAnalysis)(aiResponse);
+        const parsed = (0, rule_id_normalizer_1.normalizeRuleIds)((0, ai_response_parser_1.parseAIAnalysis)(aiResponse));
         const violations = [];
         for (const p of parsed) {
             this.pushIfValidViolation({
@@ -337,7 +338,7 @@ class AISemanticAnalyzer {
                 element: p.element || '',
                 issue: p.issue || '',
                 recommendation: p.recommendation || '',
-                ruleId: p.ruleId || 'ai-semantic'
+                ruleId: (0, rule_id_normalizer_1.normalizeRuleId)(p.ruleId) || 'ai-semantic'
             }, document, violations);
         }
         return violations;
@@ -381,32 +382,36 @@ class AISemanticAnalyzer {
      * Erstellt blaue AI-Diagnostics für gefundene semantische Probleme
      */
     createAIDiagnostics(findings, document) {
-        const diagnostics = findings.map(finding => {
-            const violationId = `ai_violation_${document.uri.toString()}_${finding.range.start.line}_${finding.range.start.character}`;
-            const instanceId = `${violationId}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
-            const diagnostic = new vscode.Diagnostic(finding.range, `[AI Semantic] ${finding.message}`, vscode.DiagnosticSeverity.Information);
+        return findings.map(finding => {
+            // Basis erweitert um Start-Character + Hash eines Issue-Ausschnitts für Kollisionsreduktion
+            const issueFragment = finding.message.slice(0, 50);
+            const base = `${document.uri.toString()}|${finding.range.start.line}|${finding.range.start.character}|${finding.ruleId}|${finding.element?.slice(0, 40)}|${issueFragment}`;
+            const hash = require('crypto').createHash('sha1').update(base).digest('hex').slice(0, 10);
+            const vId = `ai-${hash}`;
+            const diagnostic = new vscode.Diagnostic(finding.range, `[AI Semantic] ${finding.message} (vID:${vId})`, vscode.DiagnosticSeverity.Information);
             diagnostic.code = JSON.stringify({
                 ruleId: finding.ruleId,
                 isAIGenerated: true,
                 element: finding.element,
                 recommendation: finding.message,
-                violationId,
-                instanceId,
+                vId,
                 feedbackGiven: false
             });
             diagnostic.source = 'AI Accessibility Analyzer';
             return diagnostic;
         });
-        return diagnostics;
     }
     /** Entfernt eine einzelne AI-Diagnostic anhand violationId */
-    removeAIDiagnostic(violationId) {
+    removeAIDiagnostic(id) {
         this.aiDiagnosticCollection.forEach((uri, diagnostics) => {
             const filtered = diagnostics.filter(d => {
                 try {
                     if (typeof d.code === 'string') {
                         const data = JSON.parse(d.code);
-                        return data.violationId !== violationId;
+                        if (data.vId === id)
+                            return false;
+                        if (data.violationId === id)
+                            return false; // legacy support
                     }
                 }
                 catch { }

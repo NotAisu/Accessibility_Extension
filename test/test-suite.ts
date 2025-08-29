@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as dotenv from 'dotenv';
 import { PROMPT_STRATEGIES, getPromptStrategy } from '../src/ai/prompt-strategies';
 import { parseAIAnalysis, AIParsedViolation } from '../src/ai/ai-response-parser';
+import { normalizeRuleIds, normalizeRuleId } from '../src/core/rule-id-normalizer';
 
 dotenv.config();
 
@@ -85,7 +86,10 @@ class OpenRouterAPI {
                     }
                 };
             }
-
+            // Timeout Handling für Hänger
+            const controller = new AbortController();
+            const timeoutMs = parseInt(process.env.AI_TIMEOUT_MS || '45000', 10);
+            const timeout = setTimeout(() => controller.abort(), timeoutMs);
             const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -96,7 +100,9 @@ class OpenRouterAPI {
                     'X-Title': 'Accessibility Extension Test Suite'
                 },
                 body: JSON.stringify(body),
+                signal: controller.signal
             });
+            clearTimeout(timeout);
             if (!response.ok) {
                 // Falls Modell structured outputs nicht unterstützt → einmalig deaktivieren und Fallback ohne response_format
                 if (this.useStructured && response.status === 400 && !this.structuredUnsupported.has(model)) {
@@ -136,7 +142,8 @@ export class TestSuite {
         'wcag-violations.jsx',
         'wcag-violations.tsx',
         'wcag-violations.vue',
-        'wcag-violations.svelte'
+        'wcag-violations.svelte',
+        'no-violations.html'
     ];
     private readonly MODELS: string[] = (process.env.AI_MODELS || process.env.OPENROUTER_DEFAULT_MODEL || 'qwen/qwen3-coder:free')
         .split(',')
@@ -216,7 +223,11 @@ export class TestSuite {
                         results.push(result);
                         console.log(`✓ ${file} (${strategyName}) [${model}] P=${metrics.precision.toFixed(2)} R=${metrics.recall.toFixed(2)} F1=${metrics.f1.toFixed(2)} TP=${metrics.tp} FP=${metrics.fp} FN=${metrics.fn} Found=${result.found}/${result.expected} t=${result.timeMs}ms tok=${result.tokens}`);
                     };
-                    for (const strategy of PROMPT_STRATEGIES) {
+                    const onlyStrategiesEnv = (process.env.AI_STRATEGIES || '').trim();
+                    const activeStrategies = onlyStrategiesEnv ? 
+                        PROMPT_STRATEGIES.filter(s => onlyStrategiesEnv.split(',').map(x=>x.trim()).includes(s.name)) : 
+                        PROMPT_STRATEGIES;
+                    for (const strategy of activeStrategies) {
                         await runStrategy(strategy.name); // strikt nacheinander
                     }
                 }
@@ -301,7 +312,11 @@ export class TestSuite {
                         results.push(result);
                         console.log(`✓ ${file} (${strategyName}) [combined ${model}] dup=${duplicates.length} ΔR=${deltaRecall.toFixed(3)} P=${combinedMetrics.precision.toFixed(2)} R=${combinedMetrics.recall.toFixed(2)} F1=${combinedMetrics.f1.toFixed(2)} Found=${result.found}/${result.expected} t=${result.timeMs}ms tok=${result.tokens}`);
                     };
-                    for (const strategy of PROMPT_STRATEGIES) {
+                    const onlyStrategiesEnv = (process.env.AI_STRATEGIES || '').trim();
+                    const activeStrategies = onlyStrategiesEnv ? 
+                        PROMPT_STRATEGIES.filter(s => onlyStrategiesEnv.split(',').map(x=>x.trim()).includes(s.name)) : 
+                        PROMPT_STRATEGIES;
+                    for (const strategy of activeStrategies) {
                         await runStrategy(strategy.name);
                     }
                 }
@@ -353,10 +368,10 @@ export class TestSuite {
 
             const { window } = new JSDOM(htmlContent, { pretendToBeVisual: true, resources: 'usable' });
             
-            // Canvas fix wie in der Extension
-            if (!window.HTMLCanvasElement.prototype.getContext) {
-                window.HTMLCanvasElement.prototype.getContext = () => null;
-            }
+            // Canvas getContext überschreiben (jsdom wirft sonst Not Implemented). Minimales measureText Stub.
+            try {
+                window.HTMLCanvasElement.prototype.getContext = function() { return { measureText: () => ({ width: 0 }) } as any; };
+            } catch {}
 
             const results = await axe.run(window.document.documentElement, {
                 runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
@@ -498,10 +513,12 @@ export class TestSuite {
     private async aiTest(content: string, strategyName: string, model: string): Promise<{ violations: AIParsedViolation[]; tokens: number }> {
         try {
             const strategy = getPromptStrategy(strategyName);
-            const prompt = strategy.generatePrompt(this.addLineNumbers(content)) + '\n\nAntworte NUR als JSON Array von Objekten im Format: [{"line": <number>, "element": "<tag>", "issue": "<kurz>", "recommendation": "<fix>", "ruleId": "<wcag/rule>"}]';
+                        const prompt = strategy.generatePrompt(this.addLineNumbers(content)) + '\n\nAntworte NUR als JSON Array von Objekten im Format: [{"line": <number>, "element": "<tag>", "issue": "<kurz>", "recommendation": "<fix>", "ruleId": "<wcag/rule>"}]';
             const response = await this.api.analyze(prompt, model);
-            const violations = parseAIAnalysis(response.content)
-                .filter(v => typeof v.line === 'number' && v.line > 0);
+                        const violations = normalizeRuleIds(
+                                parseAIAnalysis(response.content)
+                                    .filter(v => typeof v.line === 'number' && v.line > 0)
+                        );
             return { violations, tokens: response.tokens };
         } catch (error) {
             return { violations: [], tokens: 0 };
@@ -605,7 +622,7 @@ export class TestSuite {
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
         const summaryPath = path.join(resultsDir, `${mode}-summary-${timestamp}.csv`);
         fs.writeFileSync(summaryPath, rows.map(r=>r.join(',')).join('\n'));
-    console.log('\n� Running Combined Tests... (Union AI ∪ Axe)\n');
+    console.log(`\n📊 Summary (${mode}) saved: ${summaryPath}`);
     }
 }
 

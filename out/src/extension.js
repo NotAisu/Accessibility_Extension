@@ -45,6 +45,7 @@ const ai_semantic_analyzer_1 = require("./ai/ai-semantic-analyzer");
 const metrics_service_1 = require("./metrics/metrics-service");
 const metrics_dashboard_provider_1 = require("./views/metrics-dashboard-provider");
 const feedback_service_1 = require("./feedback/feedback-service");
+const rule_id_normalizer_1 = require("./core/rule-id-normalizer");
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
 let llmService;
 let codeTutorService;
@@ -316,8 +317,9 @@ async function updateDiagnostics(document) {
                     }
                 }
                 if (range) {
-                    const diagnostic = new vscode.Diagnostic(range, `${violation.help} (Regel: ${violation.id})`, vscode.DiagnosticSeverity.Warning);
-                    diagnostic.code = JSON.stringify({ ruleId: violation.id, help: violation.help });
+                    const normId = (0, rule_id_normalizer_1.normalizeRuleId)(violation.id);
+                    const diagnostic = new vscode.Diagnostic(range, `${violation.help} (Regel: ${normId || violation.id})`, vscode.DiagnosticSeverity.Warning);
+                    diagnostic.code = JSON.stringify({ ruleId: normId || violation.id, help: violation.help, originalRuleId: violation.id });
                     diagnostics.push(diagnostic);
                 }
             }
@@ -496,8 +498,9 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
                         const codeData = JSON.parse(diagnostic.code);
                         // Range (kann mehrere Zeilen umfassen) registrieren
                         aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
-                        if (codeData.isAIGenerated && codeData.violationId) {
-                            aiSemanticAnalyzer.removeAIDiagnostic(codeData.violationId);
+                        const removeId = codeData.vId || codeData.violationId; // support legacy
+                        if (codeData.isAIGenerated && removeId) {
+                            aiSemanticAnalyzer.removeAIDiagnostic(removeId);
                             // Mark feedbackGiven true in remaining diagnostics with same violationId (defensiv)
                             try {
                                 const aiDiags = aiSemanticAnalyzer.getDiagnosticCollection().get(editor.document.uri) || [];
@@ -505,7 +508,7 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
                                     if (typeof d.code === 'string') {
                                         try {
                                             const data = JSON.parse(d.code);
-                                            if (data.violationId === codeData.violationId) {
+                                            if (data.vId === removeId || data.violationId === removeId) {
                                                 data.feedbackGiven = true;
                                                 d.code = JSON.stringify(data);
                                             }
