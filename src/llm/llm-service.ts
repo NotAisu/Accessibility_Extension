@@ -375,8 +375,9 @@ class LocalLLMProvider implements LLMProvider {
         
         // Fallback: Alle String-Properties durchsuchen
         for (const key in data) {
-            if (typeof data[key] === 'string' && data[key].trim().length > 0) {
-                return data[key];
+            const val: unknown = (data as any)[key];
+            if (typeof val === 'string' && val.trim().length > 0) {
+                return val;
             }
         }
         
@@ -609,18 +610,21 @@ class GitHubCopilotProvider implements LLMProvider {
     
     async testConnection(): Promise<boolean> {
         try {
-            // Versuche verfügbare Modelle abzurufen
-            const models = await vscode.lm.selectChatModels({ vendor: 'copilot' });
+            const lm: any = (vscode as any).lm;
+            if (!lm || typeof lm.selectChatModels !== 'function') return false;
+            const models: any[] = await lm.selectChatModels({ vendor: 'copilot' });
             return models.length > 0;
-        } catch (error) {
+        } catch {
             return false;
         }
     }
 
     async getAvailableModels(): Promise<string[]> {
         try {
-            const models = await vscode.lm.selectChatModels({ vendor: 'copilot' });
-            const availableModels = models.map(model => model.family || model.id || 'unknown');
+            const lm: any = (vscode as any).lm;
+            if (!lm || typeof lm.selectChatModels !== 'function') return [];
+            const models: any[] = await lm.selectChatModels({ vendor: 'copilot' });
+            const availableModels = models.map((model: any) => model.family || model.id || 'unknown');
             
             // Erweiterte Modellliste mit gefilterten verfügbaren Modellen
             const targetModels = [
@@ -638,7 +642,7 @@ class GitHubCopilotProvider implements LLMProvider {
             
             // Nur verfügbare Modelle zurückgeben, fallback auf alle verfügbaren
             const intersection = targetModels.filter(model => 
-                availableModels.some(available => 
+                availableModels.some((available: string) => 
                     available.toLowerCase().includes(model.toLowerCase()) ||
                     model.toLowerCase().includes(available.toLowerCase())
                 )
@@ -660,57 +664,43 @@ class GitHubCopilotProvider implements LLMProvider {
 
     async getAccessibilityFix(prompt: string): Promise<string> {
         try {
+            const lm: any = (vscode as any).lm;
             const config = vscode.workspace.getConfiguration('accessibility');
             const selectedModel = config.get<string>('githubCopilot.model', 'gpt-4o');
-            
-            // Versuche erst spezifisches Modell zu finden
-            let models: vscode.LanguageModelChat[] = [];
-            
-            // Erweiterte Modell-Query mit verschiedenen Selektoren
+            if (!lm || typeof lm.selectChatModels !== 'function') {
+                throw new Error('Language Model API not available in this VS Code version.');
+            }
             const selectors = [
                 { vendor: 'copilot', family: selectedModel },
                 { vendor: 'copilot', id: selectedModel },
                 { vendor: 'copilot', family: selectedModel.replace('-', '') },
-                { vendor: 'copilot' } 
+                { vendor: 'copilot' }
             ];
-            
+            let models: any[] = [];
             for (const selector of selectors) {
                 try {
-                    models = await vscode.lm.selectChatModels(selector);
+                    models = await lm.selectChatModels(selector);
                     if (models.length > 0) break;
-                } catch (error) {
-                   
-                    continue;
-                }
+                } catch { /* ignore and try next */ }
             }
-
-            if (models.length === 0) {
-                throw new Error('No GitHub Copilot models available. Please ensure you are signed in to GitHub Copilot and have access to the Language Model API.');
+            if (!models.length) {
+                throw new Error('No GitHub Copilot models available or accessible.');
             }
-
             const model = models[0];
-            
-            const messages = [
-                vscode.LanguageModelChatMessage.User(
-                    "You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. " + prompt
-                )
-            ];
-
-            const response = await model.sendRequest(messages, {
-                justification: 'Fixing HTML code for accessibility compliance according to WCAG standards'
-            });
-
+            const lmMsg: any = (vscode as any).LanguageModelChatMessage;
+            const messages = lmMsg ? [ lmMsg.User("You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. " + prompt) ] : [ { role: 'user', content: prompt } ];
+            const response: any = await model.sendRequest(messages, { justification: 'Fixing HTML code for accessibility compliance according to WCAG standards' });
             let result = '';
-            for await (const fragment of response.text) {
-                result += fragment;
-            }
-
+            for await (const fragment of response.text) { result += fragment; }
             return this.extractCodeFromText(result.trim());
-        } catch (error) {
-            if (error instanceof vscode.LanguageModelError) {
-                throw new Error(`GitHub Copilot request failed: ${error.message} (Code: ${error.code})`);
+        } catch (error: any) {
+            const lmError: any = (vscode as any).LanguageModelError;
+            if (lmError && error instanceof lmError) {
+                const code = (error as any).code || 'unknown';
+                const msg = (error as any).message || 'Unknown';
+                throw new Error(`GitHub Copilot request failed: ${msg} (Code: ${code})`);
             }
-            throw new Error(`GitHub Copilot request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error(`GitHub Copilot request failed: ${error?.message || 'Unknown error'}`);
         }
     }
     

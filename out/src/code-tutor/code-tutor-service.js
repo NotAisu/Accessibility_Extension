@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CodeTutorService = void 0;
 const vscode = __importStar(require("vscode"));
@@ -43,6 +33,7 @@ class CodeTutorService {
     constructor() {
         this.decorationTypes = [];
         this.isActive = false;
+        this.currentTokenSource = null;
     }
     async toggleAnnotations(textEditor) {
         if (this.isActive) {
@@ -50,6 +41,11 @@ class CodeTutorService {
             this.clearAnnotations();
             this.isActive = false;
             vscode.window.showInformationMessage('Accessibility Tutor: annotations disabled');
+            if (this.currentTokenSource) {
+                this.currentTokenSource.cancel();
+                this.currentTokenSource.dispose();
+                this.currentTokenSource = null;
+            }
         }
         else {
             // Annotations are OFF → turn on
@@ -63,6 +59,8 @@ class CodeTutorService {
      */
     async annotateCode(textEditor) {
         try {
+            // Vorherige Annotations entfernen (sonst Duplikate bei Refresh)
+            this.clearAnnotations();
             // Step 1: Get visible code with line numbers
             const codeWithLineNumbers = this.getVisibleCodeWithLineNumbers(textEditor);
             if (!codeWithLineNumbers.trim()) {
@@ -70,21 +68,35 @@ class CodeTutorService {
                 return;
             }
             // Step 2: Select GitHub Copilot model
-            const [model] = await vscode.lm.selectChatModels({
-                vendor: 'copilot',
-                family: 'gpt-4o'
-            });
+            // Defensive: LM API ist nur in neueren VS Code Versionen verfügbar
+            const lm = vscode.lm;
+            if (!lm || typeof lm.selectChatModels !== 'function') {
+                vscode.window.showWarningMessage('Language Model API not available in this VS Code version. Install/enable GitHub Copilot.');
+                return;
+            }
+            const models = await lm.selectChatModels({ vendor: 'copilot', family: 'gpt-4o' });
+            const model = models[0];
             if (!model) {
                 vscode.window.showErrorMessage('GitHub Copilot not available. Please ensure you are signed in.');
                 return;
             }
             // Step 3: Prepare chat messages
-            const messages = [
-                vscode.LanguageModelChatMessage.User(this.getAnnotationPrompt()),
-                vscode.LanguageModelChatMessage.User(codeWithLineNumbers)
+            const lmMessageCtor = vscode.LanguageModelChatMessage;
+            const messages = lmMessageCtor ? [
+                lmMessageCtor.User(this.getAnnotationPrompt()),
+                lmMessageCtor.User(codeWithLineNumbers)
+            ] : [
+                // Fallback: einfacher user Prompt
+                { role: 'user', content: this.getAnnotationPrompt() + '\n\n' + codeWithLineNumbers }
             ];
             // Step 4: Send request to model
-            const chatResponse = await model.sendRequest(messages, {}, new vscode.CancellationTokenSource().token);
+            // Cancellation verwalten (bei erneutem Start abbrechen)
+            if (this.currentTokenSource) {
+                this.currentTokenSource.cancel();
+                this.currentTokenSource.dispose();
+            }
+            this.currentTokenSource = new vscode.CancellationTokenSource();
+            const chatResponse = await model.sendRequest(messages, {}, this.currentTokenSource.token);
             // Step 5: Process response and display decorations
             await this.parseChatResponse(chatResponse, textEditor);
         }
@@ -106,16 +118,17 @@ class CodeTutorService {
      * Gets the visible code with line numbers from the editor.
      */
     getVisibleCodeWithLineNumbers(textEditor) {
-        // Determine first and last visible lines
-        let currentLine = textEditor.visibleRanges[0].start.line;
-        const endLine = textEditor.visibleRanges[0].end.line;
-        let code = '';
-        // Collect text from each line and prefix with 1-based line number
-        while (currentLine < endLine) {
-            code += `${currentLine + 1}: ${textEditor.document.lineAt(currentLine).text} \n`;
-            currentLine++;
+        if (!textEditor.visibleRanges.length)
+            return '';
+        let startLine = textEditor.visibleRanges[0].start.line;
+        let endLineInclusive = textEditor.visibleRanges[0].end.line; // VS Code end ist exklusiv für Range, hier nutzen wir inklusiv für Darstellung
+        if (endLineInclusive > 0)
+            endLineInclusive -= 1;
+        const lines = [];
+        for (let line = startLine; line <= endLineInclusive; line++) {
+            lines.push(`${line + 1}: ${textEditor.document.lineAt(line).text}`);
         }
-        return code;
+        return lines.join('\n');
     }
     /**
      * Defines the prompt for the language model.
@@ -133,21 +146,41 @@ Return each suggestion as a standalone JSON object (JSON lines). Do not wrap in 
      * Processes the chat response and creates decorations.
      */
     async parseChatResponse(chatResponse, textEditor) {
-        let accumulatedResponse = '';
+        let buffer = '';
         for await (const fragment of chatResponse.text) {
-            accumulatedResponse += fragment;
-            // When the fragment contains a closing brace, try to parse accumulated JSON
-            if (fragment.includes('}')) {
-                try {
-                    const annotation = JSON.parse(accumulatedResponse);
-                    this.applyDecoration(textEditor, annotation.line, annotation.suggestion);
-                    // Reset accumulator for next object
-                    accumulatedResponse = '';
+            buffer += fragment;
+            // Stream kann mehrere JSON-Objekte oder Teilobjekte enthalten – zeilenweise prüfen
+            const lines = buffer.split(/\r?\n/);
+            // Letzte (potenziell unvollständige) Zeile im Buffer behalten
+            buffer = lines.pop() || '';
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed)
+                    continue;
+                if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) {
+                    continue; // Keine vollständige JSON-Zeile
                 }
-                catch (e) {
-                    // Nichts tun - warten auf vollständige JSON
+                try {
+                    const obj = JSON.parse(trimmed);
+                    if (typeof obj.line === 'number' && typeof obj.suggestion === 'string') {
+                        this.applyDecoration(textEditor, obj.line, obj.suggestion);
+                    }
+                }
+                catch {
+                    // Ignorieren – Modell könnte Freitext gesendet haben
                 }
             }
+        }
+        // Versuche am Ende verbleibenden Rest als JSON zu interpretieren
+        const final = buffer.trim();
+        if (final.startsWith('{') && final.endsWith('}')) {
+            try {
+                const obj = JSON.parse(final);
+                if (typeof obj.line === 'number' && typeof obj.suggestion === 'string') {
+                    this.applyDecoration(textEditor, obj.line, obj.suggestion);
+                }
+            }
+            catch { /* noop */ }
         }
     }
     /**

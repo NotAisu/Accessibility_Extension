@@ -354,6 +354,14 @@ async function updateDiagnostics(document: vscode.TextDocument) {
 
     const { window } = new JSDOM(text);
 
+    // Stub häufig fehlender Browser-APIs / Assets um axe "preload" Timeouts zu verhindern
+    try {
+        (window as any).requestAnimationFrame = (cb: any) => setTimeout(() => cb(Date.now()), 16);
+        (window as any).cancelAnimationFrame = (id: any) => clearTimeout(id);
+        // Verhindere Netzwerk-Fetches innerhalb axe (keine externen Assets laden)
+        (window as any).fetch = async () => ({ ok: true, text: async () => '', json: async () => ({}) });
+    } catch {}
+
     
     if (!window.HTMLCanvasElement.prototype.getContext) {
         window.HTMLCanvasElement.prototype.getContext = function() {
@@ -362,14 +370,24 @@ async function updateDiagnostics(document: vscode.TextDocument) {
     }
 
     try {
-        const results = await axe.run(window.document.documentElement, {
+        // Timeout Schutz: axe darf nicht ewig hängen
+        const AXE_TIMEOUT_MS = 5000;
+        const axePromise = axe.run(window.document.documentElement, {
             runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] },
             resultTypes: ['violations'],
+            preload: false, // Verhindert "Preload assets timed out" Fehler
             rules: {
                 'color-contrast': { enabled: false },
                 'color-contrast-enhanced': { enabled: false }
             }
         });
+        const timeoutPromise = new Promise<null>((_, reject) => setTimeout(() => reject(new Error('axe-timeout')), AXE_TIMEOUT_MS));
+        const results: any = await Promise.race([axePromise, timeoutPromise]);
+        if (!results) {
+            console.warn('axe returned no results (possibly timed out)');
+            diagnosticCollection.set(document.uri, []);
+            return;
+        }
 
         const diagnostics: vscode.Diagnostic[] = [];
         for (const violation of results.violations) {
@@ -413,7 +431,11 @@ async function updateDiagnostics(document: vscode.TextDocument) {
         diagnosticCollection.set(document.uri, diagnostics);
 
     } catch (error) {
-        console.error('Error in accessibility analysis:', error);
+        if (error instanceof Error && error.message === 'axe-timeout') {
+            console.warn('axe-core analysis aborted after timeout');
+        } else {
+            console.error('Error in accessibility analysis:', error);
+        }
         
         
         if (error instanceof Error && error.message.includes('HTMLCanvasElement.prototype.getContext')) {

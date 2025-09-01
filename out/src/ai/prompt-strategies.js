@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PROMPT_STRATEGIES = void 0;
-exports.getPromptStrategy = getPromptStrategy;
-exports.getDefaultStrategy = getDefaultStrategy;
+exports.getDefaultStrategy = exports.getPromptStrategy = exports.PROMPT_STRATEGIES = void 0;
 /**
  * One-Shot Learning Strategy
  * Direct, clear instruction with single example for immediate understanding
@@ -372,10 +370,12 @@ function getPromptStrategy(strategyName) {
     }
     return strategy;
 }
+exports.getPromptStrategy = getPromptStrategy;
 /**
  * Get default prompt strategy
  */
 function getDefaultStrategy() {
     return exports.PROMPT_STRATEGIES[0]; // One-shot as default
 }
+exports.getDefaultStrategy = getDefaultStrategy;
 //# sourceMappingURL=prompt-strategies.js.map

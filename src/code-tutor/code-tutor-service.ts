@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 export class CodeTutorService {
     private readonly decorationTypes: vscode.TextEditorDecorationType[] = [];
     private isActive: boolean = false; 
+    private currentTokenSource: vscode.CancellationTokenSource | null = null;
 
         public async toggleAnnotations(textEditor: vscode.TextEditor): Promise<void> {
         if (this.isActive) {
@@ -14,6 +15,11 @@ export class CodeTutorService {
             this.clearAnnotations();
             this.isActive = false;
             vscode.window.showInformationMessage('Accessibility Tutor: annotations disabled');
+            if (this.currentTokenSource) {
+                this.currentTokenSource.cancel();
+                this.currentTokenSource.dispose();
+                this.currentTokenSource = null;
+            }
         } else {
             // Annotations are OFF → turn on
             await this.annotateCode(textEditor);
@@ -27,6 +33,9 @@ export class CodeTutorService {
      */
     public async annotateCode(textEditor: vscode.TextEditor): Promise<void> {
         try {
+            // Vorherige Annotations entfernen (sonst Duplikate bei Refresh)
+            this.clearAnnotations();
+
             // Step 1: Get visible code with line numbers
             const codeWithLineNumbers = this.getVisibleCodeWithLineNumbers(textEditor);
             
@@ -36,10 +45,14 @@ export class CodeTutorService {
             }
 
             // Step 2: Select GitHub Copilot model
-            const [model] = await vscode.lm.selectChatModels({
-                vendor: 'copilot',
-                family: 'gpt-4o'
-            });
+            // Defensive: LM API ist nur in neueren VS Code Versionen verfügbar
+            const lm: any = (vscode as any).lm;
+            if (!lm || typeof lm.selectChatModels !== 'function') {
+                vscode.window.showWarningMessage('Language Model API not available in this VS Code version. Install/enable GitHub Copilot.');
+                return;
+            }
+            const models: any[] = await lm.selectChatModels({ vendor: 'copilot', family: 'gpt-4o' });
+            const model = models[0];
 
             if (!model) {
                 vscode.window.showErrorMessage('GitHub Copilot not available. Please ensure you are signed in.');
@@ -47,17 +60,23 @@ export class CodeTutorService {
             }
 
             // Step 3: Prepare chat messages
-            const messages = [
-                vscode.LanguageModelChatMessage.User(this.getAnnotationPrompt()),
-                vscode.LanguageModelChatMessage.User(codeWithLineNumbers)
+            const lmMessageCtor: any = (vscode as any).LanguageModelChatMessage;
+            const messages = lmMessageCtor ? [
+                lmMessageCtor.User(this.getAnnotationPrompt()),
+                lmMessageCtor.User(codeWithLineNumbers)
+            ] : [
+                // Fallback: einfacher user Prompt
+                { role: 'user', content: this.getAnnotationPrompt() + '\n\n' + codeWithLineNumbers }
             ];
 
             // Step 4: Send request to model
-            const chatResponse = await model.sendRequest(
-                messages,
-                {},
-                new vscode.CancellationTokenSource().token
-            );
+            // Cancellation verwalten (bei erneutem Start abbrechen)
+            if (this.currentTokenSource) {
+                this.currentTokenSource.cancel();
+                this.currentTokenSource.dispose();
+            }
+            this.currentTokenSource = new vscode.CancellationTokenSource();
+            const chatResponse: any = await model.sendRequest(messages, {}, this.currentTokenSource.token);
 
             // Step 5: Process response and display decorations
             await this.parseChatResponse(chatResponse, textEditor);
@@ -82,19 +101,15 @@ export class CodeTutorService {
      * Gets the visible code with line numbers from the editor.
      */
     private getVisibleCodeWithLineNumbers(textEditor: vscode.TextEditor): string {
-    // Determine first and last visible lines
-        let currentLine = textEditor.visibleRanges[0].start.line;
-        const endLine = textEditor.visibleRanges[0].end.line;
-
-        let code = '';
-
-    // Collect text from each line and prefix with 1-based line number
-        while (currentLine < endLine) {
-            code += `${currentLine + 1}: ${textEditor.document.lineAt(currentLine).text} \n`;
-            currentLine++;
+        if (!textEditor.visibleRanges.length) return '';
+        let startLine = textEditor.visibleRanges[0].start.line;
+        let endLineInclusive = textEditor.visibleRanges[0].end.line; // VS Code end ist exklusiv für Range, hier nutzen wir inklusiv für Darstellung
+        if (endLineInclusive > 0) endLineInclusive -= 1;
+        const lines: string[] = [];
+        for (let line = startLine; line <= endLineInclusive; line++) {
+            lines.push(`${line + 1}: ${textEditor.document.lineAt(line).text}`);
         }
-        
-        return code;
+        return lines.join('\n');
     }
 
     /**
@@ -114,25 +129,41 @@ Return each suggestion as a standalone JSON object (JSON lines). Do not wrap in 
      * Processes the chat response and creates decorations.
      */
     private async parseChatResponse(
-        chatResponse: vscode.LanguageModelChatResponse,
+    chatResponse: any,
         textEditor: vscode.TextEditor
     ): Promise<void> {
-        let accumulatedResponse = '';
-
+        let buffer = '';
         for await (const fragment of chatResponse.text) {
-            accumulatedResponse += fragment;
-
-            // When the fragment contains a closing brace, try to parse accumulated JSON
-            if (fragment.includes('}')) {
+            buffer += fragment;
+            // Stream kann mehrere JSON-Objekte oder Teilobjekte enthalten – zeilenweise prüfen
+            const lines = buffer.split(/\r?\n/);
+            // Letzte (potenziell unvollständige) Zeile im Buffer behalten
+            buffer = lines.pop() || '';
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed) continue;
+                if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) {
+                    continue; // Keine vollständige JSON-Zeile
+                }
                 try {
-                    const annotation = JSON.parse(accumulatedResponse);
-                    this.applyDecoration(textEditor, annotation.line, annotation.suggestion);
-                    // Reset accumulator for next object
-                    accumulatedResponse = '';
-                } catch (e) {
-                    // Nichts tun - warten auf vollständige JSON
+                    const obj = JSON.parse(trimmed);
+                    if (typeof obj.line === 'number' && typeof obj.suggestion === 'string') {
+                        this.applyDecoration(textEditor, obj.line, obj.suggestion);
+                    }
+                } catch {
+                    // Ignorieren – Modell könnte Freitext gesendet haben
                 }
             }
+        }
+        // Versuche am Ende verbleibenden Rest als JSON zu interpretieren
+        const final = buffer.trim();
+        if (final.startsWith('{') && final.endsWith('}')) {
+            try {
+                const obj = JSON.parse(final);
+                if (typeof obj.line === 'number' && typeof obj.suggestion === 'string') {
+                    this.applyDecoration(textEditor, obj.line, obj.suggestion);
+                }
+            } catch {/* noop */}
         }
     }
 

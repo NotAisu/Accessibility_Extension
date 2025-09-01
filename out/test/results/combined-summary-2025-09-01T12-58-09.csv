@@ -1,0 +1,7 @@
+file,mode,strategy,model,runs,found_mean,found_std,precision_mean,precision_std,recall_mean,recall_std,f1_mean,f1_std
+wcag-violations.html,combined,one-shot,qwen/qwen3-coder,1,84.00,0.00,0.024,0.000,0.047,0.000,0.031,0.000
+wcag-violations.jsx,combined,one-shot,qwen/qwen3-coder,1,48.00,0.00,0.438,0.000,0.538,0.000,0.483,0.000
+wcag-violations.tsx,combined,one-shot,qwen/qwen3-coder,1,48.00,0.00,0.438,0.000,0.538,0.000,0.483,0.000
+wcag-violations.vue,combined,one-shot,qwen/qwen3-coder,1,66.00,0.00,0.455,0.000,0.714,0.000,0.556,0.000
+wcag-violations.svelte,combined,one-shot,qwen/qwen3-coder,1,11.00,0.00,0.000,0.000,0.000,0.000,0.000,0.000
+no-violations.html,combined,one-shot,qwen/qwen3-coder,1,0.00,0.00,0.000,0.000,0.000,0.000,0.000,0.000

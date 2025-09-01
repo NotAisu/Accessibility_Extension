@@ -15,26 +15,15 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activate = activate;
-exports.deactivate = deactivate;
+exports.deactivate = exports.activate = void 0;
 const vscode = __importStar(require("vscode"));
 const jsdom_1 = require("jsdom");
 const axe = __importStar(require("axe-core"));
@@ -190,6 +179,7 @@ function activate(context) {
         updateAIStatusBar();
     }));
 }
+exports.activate = activate;
 /**
  * Periodically cleans up diagnostics for closed/inactive documents
  */
@@ -284,20 +274,38 @@ async function updateDiagnostics(document) {
         return;
     }
     const { window } = new jsdom_1.JSDOM(text);
+    // Stub häufig fehlender Browser-APIs / Assets um axe "preload" Timeouts zu verhindern
+    try {
+        window.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 16);
+        window.cancelAnimationFrame = (id) => clearTimeout(id);
+        // Verhindere Netzwerk-Fetches innerhalb axe (keine externen Assets laden)
+        window.fetch = async () => ({ ok: true, text: async () => '', json: async () => ({}) });
+    }
+    catch { }
     if (!window.HTMLCanvasElement.prototype.getContext) {
         window.HTMLCanvasElement.prototype.getContext = function () {
             return null;
         };
     }
     try {
-        const results = await axe.run(window.document.documentElement, {
+        // Timeout Schutz: axe darf nicht ewig hängen
+        const AXE_TIMEOUT_MS = 5000;
+        const axePromise = axe.run(window.document.documentElement, {
             runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] },
             resultTypes: ['violations'],
+            preload: false, // Verhindert "Preload assets timed out" Fehler
             rules: {
                 'color-contrast': { enabled: false },
                 'color-contrast-enhanced': { enabled: false }
             }
         });
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('axe-timeout')), AXE_TIMEOUT_MS));
+        const results = await Promise.race([axePromise, timeoutPromise]);
+        if (!results) {
+            console.warn('axe returned no results (possibly timed out)');
+            diagnosticCollection.set(document.uri, []);
+            return;
+        }
         const diagnostics = [];
         for (const violation of results.violations) {
             for (const node of violation.nodes) {
@@ -327,7 +335,12 @@ async function updateDiagnostics(document) {
         diagnosticCollection.set(document.uri, diagnostics);
     }
     catch (error) {
-        console.error('Error in accessibility analysis:', error);
+        if (error instanceof Error && error.message === 'axe-timeout') {
+            console.warn('axe-core analysis aborted after timeout');
+        }
+        else {
+            console.error('Error in accessibility analysis:', error);
+        }
         if (error instanceof Error && error.message.includes('HTMLCanvasElement.prototype.getContext')) {
             console.warn('Canvas context not available in JSDOM - color contrast checks disabled');
         }
@@ -581,4 +594,5 @@ function deactivate() {
         metricsService.dispose();
     }
 }
+exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map

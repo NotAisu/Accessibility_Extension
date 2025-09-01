@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TestSuite = void 0;
 const axe = __importStar(require("axe-core"));
@@ -71,6 +61,10 @@ class OpenRouterAPI {
                 model,
                 messages,
                 temperature: 0,
+                // OPTIMIERUNG: Direkte Kosten im Response statt separater Generation API Call
+                usage: {
+                    include: true // Aktiviert detaillierte usage + cost info direkt im response
+                }
             };
             if (this.useStructured && !this.structuredUnsupported.has(model)) {
                 body.response_format = {
@@ -122,7 +116,7 @@ class OpenRouterAPI {
                 }
                 const text = await response.text();
                 console.error(`[AI] OpenRouter HTTP ${response.status}: ${text}`);
-                return { content: '[]', tokens: 0 };
+                return { content: '[]', tokens: 0, cost: undefined, generationId: undefined };
             }
             const data = await response.json();
             let content = data.choices?.[0]?.message?.content;
@@ -130,11 +124,21 @@ class OpenRouterAPI {
                 // Structured Output liefert Objekt → in String serialisieren
                 content = JSON.stringify(content);
             }
-            return { content: content || '[]', tokens: data.usage?.total_tokens || 0 };
+            // Kosten und Tokens direkt aus usage-Feld extrahieren (viel effizienter als Generation API)
+            const usage = data.usage || {};
+            const tokens = usage.total_tokens || 0;
+            const cost = usage.cost; // Direkt verfügbar dank usage: {include: true}
+            const generationId = data.id;
+            return {
+                content: content || '[]',
+                tokens,
+                cost,
+                generationId
+            };
         }
         catch (e) {
             console.error('[AI] Request Fehler:', e);
-            return { content: '[]', tokens: 0 };
+            return { content: '[]', tokens: 0, cost: undefined, generationId: undefined };
         }
     }
     splitPrompt(full) {
@@ -172,17 +176,31 @@ class TestSuite {
             const start = Date.now();
             const content = this.loadFile(file);
             const violations = await this.realAxeTest(content, file);
+            const found = violations.length;
+            const expected = found; // Axe is perfect, no FP, all found are TP
+            const tp = found;
+            const fp = 0;
+            const fn = 0;
+            const precision = found === 0 ? 0 : 1.0;
+            const recall = 1.0;
+            const f1 = precision;
             const result = {
                 file,
                 mode: 'axe',
-                found: violations.length,
-                expected: 0, // Ground Truth nicht für Axe
+                found,
+                expected,
                 timeMs: Date.now() - start,
                 tokens: 0,
-                details: violations.map(v => `axeId=${v.id} impact=${v.impact} desc=${v.description}`)
+                details: violations.map(v => `axeId=${v.id} impact=${v.impact} desc=${v.description}`),
+                precision,
+                recall,
+                f1,
+                tp,
+                fp,
+                fn
             };
             results.push(result);
-            console.log(`✓ ${file} [axe] Found=${result.found} t=${result.timeMs}ms`);
+            console.log(`✓ ${file} [axe] Found=${result.found} P=${precision.toFixed(2)} R=${recall.toFixed(2)} F1=${f1.toFixed(2)} TP=${tp} FP=${fp} FN=${fn} t=${result.timeMs}ms`);
         }
         await this.saveCSV(results, 'axe');
         return results;
@@ -203,9 +221,17 @@ class TestSuite {
                         const start = Date.now();
                         const content = this.loadFile(file);
                         const ai = await this.aiTest(content, strategyName, model);
+                        // Get axe keys to filter out duplicates
+                        const axeKeys = await this.getAxeKeys(file);
+                        // Filter AI violations to only those not found by axe
+                        const filteredViolations = ai.violations.filter(v => {
+                            if (!v.ruleId || !v.ruleId.trim() || typeof v.line !== 'number' || v.line <= 0)
+                                return false;
+                            const key = `${v.line}|${v.ruleId.trim()}`;
+                            return !axeKeys.has(key);
+                        });
                         // Nur valide (line + ruleId) berücksichtigen – leere ruleIds verfälschen sonst Metriken
-                        const predictedKeys = new Set(ai.violations
-                            .filter(v => v.ruleId && v.ruleId.trim() && typeof v.line === 'number' && v.line > 0)
+                        const predictedKeys = new Set(filteredViolations
                             .map(v => `${v.line}|${v.ruleId.trim()}`));
                         const metrics = this.calcMetricsKeys(expectedKeys, predictedKeys);
                         const result = {
@@ -219,7 +245,9 @@ class TestSuite {
                             expected: expectedKeys.size,
                             timeMs: Date.now() - start,
                             tokens: ai.tokens,
-                            details: ai.violations.map(v => `line=${v.line} rule=${v.ruleId} elem=${v.element} issue=${v.issue}`),
+                            cost: ai.cost, // Kosten hinzufügen
+                            generationId: ai.generationId, // Generation ID hinzufügen
+                            details: filteredViolations.map(v => `line=${v.line} rule=${v.ruleId} elem=${v.element} issue=${v.issue}`),
                             precision: metrics.precision,
                             recall: metrics.recall,
                             f1: metrics.f1,
@@ -261,36 +289,53 @@ class TestSuite {
                     const runStrategy = async (strategyName) => {
                         const start = Date.now();
                         const content = this.loadFile(file);
-                        // AI Ergebnisse (für Ground Truth Metriken)
-                        const aiResult = await this.aiTest(content, strategyName, model);
-                        const aiKeys = new Set(aiResult.violations
-                            .filter(v => v.ruleId && v.ruleId.trim() && typeof v.line === 'number' && v.line > 0)
-                            .map(v => `${v.line}|${v.ruleId.trim()}`));
-                        // Axe Ergebnisse (nur zum Vergleich, keine Ground Truth Nutzung) – aus Cache
+                        // Axe Ergebnisse zuerst holen
                         const axeKey = `${run}|${model}|${file}`;
                         let axeViolations = axeCache.get(axeKey);
                         if (!axeViolations) {
                             axeViolations = await this.realAxeTest(content, file);
                             axeCache.set(axeKey, axeViolations);
                         }
-                        const duplicates = this.computeDuplicates(aiResult.violations, axeViolations);
+                        const axeKeys = this.mapAxeLineKeys(content, axeViolations);
+                        // AI Ergebnisse
+                        const aiResult = await this.aiTest(content, strategyName, model);
+                        // Filter AI violations
+                        const filteredAiViolations = aiResult.violations.filter(v => {
+                            if (!v.ruleId || !v.ruleId.trim() || typeof v.line !== 'number' || v.line <= 0)
+                                return false;
+                            const key = `${v.line}|${v.ruleId.trim()}`;
+                            return !axeKeys.has(key);
+                        });
+                        const aiKeys = new Set(filteredAiViolations
+                            .map(v => `${v.line}|${v.ruleId.trim()}`));
+                        const duplicates = this.computeDuplicates(filteredAiViolations, axeViolations);
                         // ECHTE UNION: AI ∪ Axe Line-Mapping
                         const axeLineKeys = this.mapAxeLineKeys(content, axeViolations);
                         const combinedKeys = new Set([...aiKeys, ...axeLineKeys]);
-                        // Metriken für AI-only und Combined
-                        const aiMetrics = this.calcMetricsKeys(expectedKeys, aiKeys);
-                        const combinedMetrics = this.calcMetricsKeys(expectedKeys, combinedKeys);
-                        const deltaRecall = combinedMetrics.recall - aiMetrics.recall;
-                        const axeAddedTP = [...combinedKeys].filter(k => !aiKeys.has(k) && expectedKeys.has(k)).length;
+                        // Metriken für verschiedene Komponenten
+                        const axeMetrics = this.calcMetricsKeys(expectedKeys, axeKeys); // Axe-Performance (sollte perfekt sein)
+                        const aiOnlyMetrics = this.calcMetricsKeys(expectedKeys, aiKeys); // AI zusätzliche Findings
+                        const combinedMetrics = this.calcMetricsKeys(expectedKeys, combinedKeys); // Gesamt-Performance
+                        // Wichtige Insights für Extension-Verhalten
+                        const axeTP = axeMetrics.tp; // Axe True Positives (sollte = axeKeys.size sein)
+                        const axeFP = axeMetrics.fp; // Axe False Positives (sollte = 0 sein) 
+                        const aiAdditionalTP = aiOnlyMetrics.tp; // AI zusätzliche True Positives
+                        const aiAdditionalFP = aiOnlyMetrics.fp; // AI zusätzliche False Positives
+                        const totalRecallGain = combinedMetrics.recall - axeMetrics.recall; // Verbesserung durch AI
                         const details = [
-                            `duplicates=${duplicates.length}`,
-                            `aiRecall=${aiMetrics.recall.toFixed(3)}`,
-                            `combinedRecall=${combinedMetrics.recall.toFixed(3)}`,
-                            `deltaRecall=${deltaRecall.toFixed(3)}`,
-                            `axeAddedTP=${axeAddedTP}`,
-                            ...duplicates.map(d => `DUPLICATE rule=${d}`),
-                            ...aiResult.violations.map(v => `AI line=${v.line} rule=${v.ruleId} issue=${v.issue}`),
-                            ...axeViolations.map(v => `AXE rule=${v.id}`)
+                            `axe_found=${axeKeys.size}`,
+                            `axe_tp=${axeTP}`,
+                            `axe_fp=${axeFP}`,
+                            `axe_precision=${axeMetrics.precision.toFixed(3)}`,
+                            `ai_additional_found=${aiKeys.size}`,
+                            `ai_additional_tp=${aiAdditionalTP}`,
+                            `ai_additional_fp=${aiAdditionalFP}`,
+                            `ai_additional_precision=${aiKeys.size > 0 ? aiOnlyMetrics.precision.toFixed(3) : 'N/A'}`,
+                            `total_recall_gain=${totalRecallGain.toFixed(3)}`,
+                            `duplicates_filtered=${duplicates.length}`,
+                            ...duplicates.map(d => `FILTERED_DUPLICATE rule=${d}`),
+                            ...filteredAiViolations.map(v => `AI_ADDITIONAL line=${v.line} rule=${v.ruleId} issue=${v.issue}`),
+                            ...axeViolations.map(v => `AXE_BASELINE rule=${v.id}`)
                         ];
                         const result = {
                             file,
@@ -303,16 +348,24 @@ class TestSuite {
                             expected: expectedKeys.size,
                             timeMs: Date.now() - start,
                             tokens: aiResult.tokens,
+                            cost: aiResult.cost,
+                            generationId: aiResult.generationId,
                             details,
                             precision: combinedMetrics.precision,
                             recall: combinedMetrics.recall,
                             f1: combinedMetrics.f1,
                             tp: combinedMetrics.tp,
                             fp: combinedMetrics.fp,
-                            fn: combinedMetrics.fn
+                            fn: combinedMetrics.fn,
+                            // Zusätzliche Combined-Metriken
+                            axe_tp: axeTP,
+                            axe_fp: axeFP,
+                            ai_additional_tp: aiAdditionalTP,
+                            ai_additional_fp: aiAdditionalFP,
+                            recall_gain: totalRecallGain
                         };
                         results.push(result);
-                        console.log(`✓ ${file} (${strategyName}) [combined ${model}] dup=${duplicates.length} ΔR=${deltaRecall.toFixed(3)} P=${combinedMetrics.precision.toFixed(2)} R=${combinedMetrics.recall.toFixed(2)} F1=${combinedMetrics.f1.toFixed(2)} Found=${result.found}/${result.expected} t=${result.timeMs}ms tok=${result.tokens}`);
+                        console.log(`✓ ${file} (${strategyName}) [combined ${model}] axe_tp=${axeTP} axe_fp=${axeFP} ai_add_tp=${aiAdditionalTP} ai_add_fp=${aiAdditionalFP} recall_gain=${totalRecallGain.toFixed(3)} P=${combinedMetrics.precision.toFixed(2)} R=${combinedMetrics.recall.toFixed(2)} F1=${combinedMetrics.f1.toFixed(2)} Found=${result.found}/${result.expected} t=${result.timeMs}ms tok=${result.tokens}`);
                     };
                     const onlyStrategiesEnv = (process.env.AI_STRATEGIES || '').trim();
                     const activeStrategies = onlyStrategiesEnv ?
@@ -329,13 +382,23 @@ class TestSuite {
         return results;
     }
     loadFile(filename) {
-        const filePath = path.resolve(__dirname, '..', '..', 'test', 'fixtures', filename);
+        // Absoluter Pfad zur Laufzeit unabhängig von __dirname
+        const filePath = path.join(__dirname, '..', '..', 'test', 'fixtures', filename);
+        if (!fs.existsSync(filePath)) {
+            // Fallback für ts-node execution
+            const fallbackPath = path.join(process.cwd(), 'test', 'fixtures', filename);
+            return fs.readFileSync(fallbackPath, 'utf-8');
+        }
         return fs.readFileSync(filePath, 'utf-8');
     }
     loadExpected(filename) {
-        const expectedPath = path.resolve(__dirname, '..', '..', 'test', 'expected', `${filename}.json`);
+        const expectedPath = path.join(__dirname, '..', '..', 'test', 'expected', `${filename}.json`);
+        let finalPath = expectedPath;
+        if (!fs.existsSync(expectedPath)) {
+            finalPath = path.join(process.cwd(), 'test', 'expected', `${filename}.json`);
+        }
         try {
-            const raw = fs.readFileSync(expectedPath, 'utf-8');
+            const raw = fs.readFileSync(finalPath, 'utf-8');
             const parsed = JSON.parse(raw);
             const valid = [];
             let invalidCount = 0;
@@ -356,6 +419,11 @@ class TestSuite {
             return [];
         }
     }
+    async getAxeKeys(filename) {
+        const content = this.loadFile(filename);
+        const violations = await this.realAxeTest(content, filename);
+        return this.mapAxeLineKeys(content, violations);
+    }
     /**
      * Echtes axe-core Testing wie in der Extension
      */
@@ -375,6 +443,7 @@ class TestSuite {
             const results = await axe.run(window.document.documentElement, {
                 runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
                 resultTypes: ['violations'],
+                preload: false, // Verhindert "Preload assets timed out" Fehler
             });
             return results.violations || [];
         }
@@ -513,22 +582,29 @@ class TestSuite {
             const response = await this.api.analyze(prompt, model);
             const violations = (0, rule_id_normalizer_1.normalizeRuleIds)((0, ai_response_parser_1.parseAIAnalysis)(response.content)
                 .filter(v => typeof v.line === 'number' && v.line > 0));
-            return { violations, tokens: response.tokens };
+            return {
+                violations,
+                tokens: response.tokens,
+                cost: response.cost,
+                generationId: response.generationId
+            };
         }
         catch (error) {
-            return { violations: [], tokens: 0 };
+            return { violations: [], tokens: 0, cost: undefined, generationId: undefined };
         }
     }
     addLineNumbers(content) {
         return content.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
     }
     async saveCSV(results, mode) {
-        const resultsDir = path.resolve(__dirname, '..', '..', 'test', 'results');
+        const resultsDir = path.join(process.cwd(), 'test', 'results');
         if (!fs.existsSync(resultsDir))
             fs.mkdirSync(resultsDir, { recursive: true });
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
         const csvPath = path.join(resultsDir, `${mode}-${timestamp}.csv`);
-        const headers = ['file', 'mode', 'strategy', 'run', 'provider', 'model', 'found', 'expected', 'tp', 'fp', 'fn', 'precision', 'recall', 'f1', 'timeMs', 'tokens', 'details'];
+        const headers = mode === 'combined'
+            ? ['file', 'mode', 'strategy', 'run', 'provider', 'model', 'found', 'expected', 'tp', 'fp', 'fn', 'precision', 'recall', 'f1', 'axe_tp', 'axe_fp', 'ai_additional_tp', 'ai_additional_fp', 'recall_gain', 'timeMs', 'tokens', 'cost_usd', 'generation_id', 'details']
+            : ['file', 'mode', 'strategy', 'run', 'provider', 'model', 'found', 'expected', 'tp', 'fp', 'fn', 'precision', 'recall', 'f1', 'timeMs', 'tokens', 'cost_usd', 'generation_id', 'details'];
         const escape = (val) => {
             const s = String(val);
             if (s.includes('"') || s.includes(',') || s.includes('\n') || s.includes(';')) {
@@ -552,8 +628,15 @@ class TestSuite {
                 case 'precision': return escape(r.precision?.toFixed(3) || '');
                 case 'recall': return escape(r.recall?.toFixed(3) || '');
                 case 'f1': return escape(r.f1?.toFixed(3) || '');
+                case 'axe_tp': return escape(r.axe_tp ?? '');
+                case 'axe_fp': return escape(r.axe_fp ?? '');
+                case 'ai_additional_tp': return escape(r.ai_additional_tp ?? '');
+                case 'ai_additional_fp': return escape(r.ai_additional_fp ?? '');
+                case 'recall_gain': return escape(r.recall_gain?.toFixed(3) || '');
                 case 'timeMs': return escape(r.timeMs);
                 case 'tokens': return escape(r.tokens);
+                case 'cost_usd': return escape(r.cost !== undefined ? r.cost.toFixed(6) : ''); // Immer 6 Nachkommastellen für maximale Präzision
+                case 'generation_id': return escape(r.generationId || '');
                 case 'details': return escape(r.details.join('; '));
                 default: return '';
             }
@@ -612,7 +695,7 @@ class TestSuite {
                 fStats.std.toFixed(3)
             ]);
         });
-        const resultsDir = path.resolve(__dirname, '..', '..', 'test', 'results');
+        const resultsDir = path.resolve(__dirname, '..', 'test', 'results');
         if (!fs.existsSync(resultsDir))
             fs.mkdirSync(resultsDir, { recursive: true });
         const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');

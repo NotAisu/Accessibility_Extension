@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMService = void 0;
 const vscode = __importStar(require("vscode"));
@@ -327,8 +317,9 @@ class LocalLLMProvider {
         }
         // Fallback: Alle String-Properties durchsuchen
         for (const key in data) {
-            if (typeof data[key] === 'string' && data[key].trim().length > 0) {
-                return data[key];
+            const val = data[key];
+            if (typeof val === 'string' && val.trim().length > 0) {
+                return val;
             }
         }
         return undefined;
@@ -533,18 +524,23 @@ class GitHubCopilotProvider {
     }
     async testConnection() {
         try {
-            // Versuche verfügbare Modelle abzurufen
-            const models = await vscode.lm.selectChatModels({ vendor: 'copilot' });
+            const lm = vscode.lm;
+            if (!lm || typeof lm.selectChatModels !== 'function')
+                return false;
+            const models = await lm.selectChatModels({ vendor: 'copilot' });
             return models.length > 0;
         }
-        catch (error) {
+        catch {
             return false;
         }
     }
     async getAvailableModels() {
         try {
-            const models = await vscode.lm.selectChatModels({ vendor: 'copilot' });
-            const availableModels = models.map(model => model.family || model.id || 'unknown');
+            const lm = vscode.lm;
+            if (!lm || typeof lm.selectChatModels !== 'function')
+                return [];
+            const models = await lm.selectChatModels({ vendor: 'copilot' });
+            const availableModels = models.map((model) => model.family || model.id || 'unknown');
             // Erweiterte Modellliste mit gefilterten verfügbaren Modellen
             const targetModels = [
                 'gpt-4.1',
@@ -559,7 +555,7 @@ class GitHubCopilotProvider {
                 'o4-mini'
             ];
             // Nur verfügbare Modelle zurückgeben, fallback auf alle verfügbaren
-            const intersection = targetModels.filter(model => availableModels.some(available => available.toLowerCase().includes(model.toLowerCase()) ||
+            const intersection = targetModels.filter(model => availableModels.some((available) => available.toLowerCase().includes(model.toLowerCase()) ||
                 model.toLowerCase().includes(available.toLowerCase())));
             return intersection.length > 0 ? intersection : availableModels;
         }
@@ -577,37 +573,34 @@ class GitHubCopilotProvider {
     }
     async getAccessibilityFix(prompt) {
         try {
+            const lm = vscode.lm;
             const config = vscode.workspace.getConfiguration('accessibility');
             const selectedModel = config.get('githubCopilot.model', 'gpt-4o');
-            // Versuche erst spezifisches Modell zu finden
-            let models = [];
-            // Erweiterte Modell-Query mit verschiedenen Selektoren
+            if (!lm || typeof lm.selectChatModels !== 'function') {
+                throw new Error('Language Model API not available in this VS Code version.');
+            }
             const selectors = [
                 { vendor: 'copilot', family: selectedModel },
                 { vendor: 'copilot', id: selectedModel },
                 { vendor: 'copilot', family: selectedModel.replace('-', '') },
                 { vendor: 'copilot' }
             ];
+            let models = [];
             for (const selector of selectors) {
                 try {
-                    models = await vscode.lm.selectChatModels(selector);
+                    models = await lm.selectChatModels(selector);
                     if (models.length > 0)
                         break;
                 }
-                catch (error) {
-                    continue;
-                }
+                catch { /* ignore and try next */ }
             }
-            if (models.length === 0) {
-                throw new Error('No GitHub Copilot models available. Please ensure you are signed in to GitHub Copilot and have access to the Language Model API.');
+            if (!models.length) {
+                throw new Error('No GitHub Copilot models available or accessible.');
             }
             const model = models[0];
-            const messages = [
-                vscode.LanguageModelChatMessage.User("You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. " + prompt)
-            ];
-            const response = await model.sendRequest(messages, {
-                justification: 'Fixing HTML code for accessibility compliance according to WCAG standards'
-            });
+            const lmMsg = vscode.LanguageModelChatMessage;
+            const messages = lmMsg ? [lmMsg.User("You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. " + prompt)] : [{ role: 'user', content: prompt }];
+            const response = await model.sendRequest(messages, { justification: 'Fixing HTML code for accessibility compliance according to WCAG standards' });
             let result = '';
             for await (const fragment of response.text) {
                 result += fragment;
@@ -615,10 +608,13 @@ class GitHubCopilotProvider {
             return this.extractCodeFromText(result.trim());
         }
         catch (error) {
-            if (error instanceof vscode.LanguageModelError) {
-                throw new Error(`GitHub Copilot request failed: ${error.message} (Code: ${error.code})`);
+            const lmError = vscode.LanguageModelError;
+            if (lmError && error instanceof lmError) {
+                const code = error.code || 'unknown';
+                const msg = error.message || 'Unknown';
+                throw new Error(`GitHub Copilot request failed: ${msg} (Code: ${code})`);
             }
-            throw new Error(`GitHub Copilot request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error(`GitHub Copilot request failed: ${error?.message || 'Unknown error'}`);
         }
     }
     extractCodeFromText(text) {

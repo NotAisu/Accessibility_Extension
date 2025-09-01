@@ -2,7 +2,7 @@
 // Gemeinsamer Parser für AI Accessibility Analyse-Ausgaben
 // Unabhängig von VS Code APIs, damit auch Tests (Node-Umgebung) ihn nutzen können.
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseAIAnalysis = parseAIAnalysis;
+exports.parseAIAnalysis = void 0;
 // Parse AI Response zu strukturierten Violations.
 // Robust gegenüber gemischten Formaten: kompletter JSON-Block, JSON-Lines, Code-Fences.
 function parseAIAnalysis(aiResponse) {
@@ -89,4 +89,5 @@ function parseAIAnalysis(aiResponse) {
         return true;
     });
 }
+exports.parseAIAnalysis = parseAIAnalysis;
 //# sourceMappingURL=ai-response-parser.js.map

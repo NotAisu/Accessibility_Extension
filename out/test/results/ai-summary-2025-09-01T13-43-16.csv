@@ -1,0 +1,7 @@
+file,mode,strategy,model,runs,found_mean,found_std,precision_mean,precision_std,recall_mean,recall_std,f1_mean,f1_std
+wcag-violations.html,ai,one-shot,z-ai/glm-4.5-air,1,0.00,0.00,0.000,0.000,0.000,0.000,0.000,0.000
+wcag-violations.jsx,ai,one-shot,z-ai/glm-4.5-air,1,0.00,0.00,0.000,0.000,0.000,0.000,0.000,0.000
+wcag-violations.tsx,ai,one-shot,z-ai/glm-4.5-air,1,0.00,0.00,0.000,0.000,0.000,0.000,0.000,0.000
+wcag-violations.vue,ai,one-shot,z-ai/glm-4.5-air,1,0.00,0.00,0.000,0.000,0.000,0.000,0.000,0.000
+wcag-violations.svelte,ai,one-shot,z-ai/glm-4.5-air,1,0.00,0.00,0.000,0.000,0.000,0.000,0.000,0.000
+no-violations.html,ai,one-shot,z-ai/glm-4.5-air,1,0.00,0.00,0.000,0.000,0.000,0.000,0.000,0.000
