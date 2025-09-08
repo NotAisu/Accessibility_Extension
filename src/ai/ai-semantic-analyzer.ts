@@ -30,7 +30,7 @@ export class AISemanticAnalyzer {
     private metricsService?: MetricsService;
     private isEnabled: boolean = false;
     private analysisScope: 'visible' | 'document' = 'visible';
-    private promptStrategy: string = 'one-shot';
+    private promptStrategy: string = 'direct-instruction';
     private getDiagnosticsCallback?: (uri: vscode.Uri) => vscode.Diagnostic[];
     // Merkt sich kürzlich per "Fix with AI" (oder AI QuickFix auf axe) behobene Zeilen, damit diese
     // bei unmittelbar folgenden Analysen nicht erneut als Verstöße auftauchen, solange sich die Zeile
@@ -57,7 +57,7 @@ export class AISemanticAnalyzer {
         const config = vscode.workspace.getConfiguration('accessibility');
         this.isEnabled = config.get<boolean>('aiAnalyzer.enabled', false);
         this.analysisScope = config.get<'visible' | 'document'>('aiAnalyzer.scope', 'visible');
-        this.promptStrategy = config.get<string>('aiAnalyzer.promptStrategy', 'one-shot');
+        this.promptStrategy = config.get<string>('aiAnalyzer.promptStrategy', 'direct-instruction');
     const ttl = config.get<number>('aiAnalyzer.recentFixSuppressionTTL', 300000);
     this.RECENTLY_FIXED_TTL_MS = Math.max(0, ttl);
     }

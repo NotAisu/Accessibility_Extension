@@ -331,7 +331,7 @@ class LLMSettingsProvider {
         const currentProvider = config.get('aiProvider', 'local');
         const analyzerEnabled = config.get('aiAnalyzer.enabled', false);
         const analysisScope = config.get('aiAnalyzer.scope', 'visible');
-        const promptStrategy = config.get('aiAnalyzer.promptStrategy', 'one-shot');
+        const promptStrategy = config.get('aiAnalyzer.promptStrategy', 'direct-instruction');
         // Provider-spezifische Konfigurationen
         const localEndpoint = config.get('localLLM.endpoint', 'http://127.0.0.1:1234');
         const localModel = config.get('localLLM.model', 'mistralai/devstral-small-2507');
@@ -928,10 +928,10 @@ class LLMSettingsProvider {
                 <div class="prompt-strategy">
                     <label for="prompt-strategy-select">Prompt Strategy:</label>
                     <select id="prompt-strategy-select" class="strategy-dropdown">
-                        <option value="one-shot">One-Shot - Quick direct analysis</option>
-                        <option value="few-shot">Few-Shot - Pattern-based analysis</option>
-                        <option value="chain-of-thought">Chain of Thought - Step-by-step reasoning</option>
-                        <option value="role-based">Role-Based - Multi-perspective analysis</option>
+                        <option value="direct-instruction">Direct Instruction - Scientifically optimized zero-shot analysis</option>
+                        <option value="few-shot">Few-Shot Learning - Strategic pattern induction through examples</option>
+                        <option value="chain-of-thought">Chain-of-Thought - Structured analytical reasoning process</option>
+                        <option value="role-based">Multi-Perspective Analysis - Comprehensive user-centered evaluation</option>
                     </select>
                     <div class="strategy-description" id="strategy-description">
                         Direct instruction with single example for quick analysis
@@ -1008,10 +1008,10 @@ class LLMSettingsProvider {
                 
                 function updateStrategyDescription(strategy) {
                     const descriptions = {
-                        'one-shot': 'Direct instruction with single example for quick analysis',
-                        'few-shot': 'Multiple examples for better pattern recognition',
-                        'chain-of-thought': 'Step-by-step reasoning for thorough analysis',
-                        'role-based': 'Analysis from multiple user perspectives and assistive technologies'
+                        'direct-instruction': 'Scientifically optimized zero-shot approach with explicit role assignment and structured task decomposition (Brown et al., 2020)',
+                        'few-shot': 'Strategic pattern induction through curated high-signal examples for optimal learning (Min et al., 2022)',
+                        'chain-of-thought': 'Structured analytical reasoning with explicit intermediate steps for complex analysis (Wei et al., 2022)',
+                        'role-based': 'Comprehensive evaluation through multiple user perspective lenses and assistive technology viewpoints (Wang et al., 2023)'
                     };
                     
                     const descElement = document.getElementById('strategy-description');

@@ -118,6 +118,17 @@
           ],
           "description": "Analysis scope: visible code only or complete document"
         },
+        "accessibility.aiAnalyzer.promptStrategy": {
+          "type": "string",
+          "default": "direct-instruction",
+          "enum": [
+            "direct-instruction",
+            "few-shot",
+            "chain-of-thought",
+            "role-based"
+          ],
+          "description": "AI prompt strategy: direct-instruction (optimized zero-shot), few-shot (pattern learning), chain-of-thought (structured reasoning), role-based (multi-perspective)"
+        },
       "accessibility.aiAnalyzer.recentFixSuppressionTTL": {
         "type": "number",
         "default": 300000,

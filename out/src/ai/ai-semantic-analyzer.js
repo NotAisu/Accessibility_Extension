@@ -36,7 +36,7 @@ class AISemanticAnalyzer {
         this.aiDiagnosticCollection = vscode.languages.createDiagnosticCollection('ai-accessibility');
         this.isEnabled = false;
         this.analysisScope = 'visible';
-        this.promptStrategy = 'one-shot';
+        this.promptStrategy = 'direct-instruction';
         // Merkt sich kürzlich per "Fix with AI" (oder AI QuickFix auf axe) behobene Zeilen, damit diese
         // bei unmittelbar folgenden Analysen nicht erneut als Verstöße auftauchen, solange sich die Zeile
         // inhaltlich nicht verändert hat. (URI -> (Line -> { textSnapshot, ts }))
@@ -57,7 +57,7 @@ class AISemanticAnalyzer {
         const config = vscode.workspace.getConfiguration('accessibility');
         this.isEnabled = config.get('aiAnalyzer.enabled', false);
         this.analysisScope = config.get('aiAnalyzer.scope', 'visible');
-        this.promptStrategy = config.get('aiAnalyzer.promptStrategy', 'one-shot');
+        this.promptStrategy = config.get('aiAnalyzer.promptStrategy', 'direct-instruction');
         const ttl = config.get('aiAnalyzer.recentFixSuppressionTTL', 300000);
         this.RECENTLY_FIXED_TTL_MS = Math.max(0, ttl);
     }
