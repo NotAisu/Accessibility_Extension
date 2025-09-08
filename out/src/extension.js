@@ -302,7 +302,7 @@ async function updateDiagnostics(document) {
         // Timeout Schutz: axe darf nicht ewig hängen
         const AXE_TIMEOUT_MS = 5000;
         const axeOptions = {
-            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] },
+            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
             resultTypes: ['violations'],
             rules: {
                 'color-contrast': { enabled: false },
@@ -404,11 +404,65 @@ class AccessibilityActionProvider {
         return action;
     }
 }
+function findElementRangeForDoc(document, lineIndex, element) {
+    const safeLine = Math.max(0, Math.min(lineIndex, document.lineCount - 1));
+    if (!element) {
+        const lt = document.lineAt(safeLine).text;
+        return new vscode.Range(safeLine, 0, safeLine, lt.length);
+    }
+    const tagMatch = element.match(/^<([A-Za-z0-9-]+)/);
+    if (!tagMatch) {
+        const lt = document.lineAt(safeLine).text;
+        return new vscode.Range(safeLine, 0, safeLine, lt.length);
+    }
+    const tag = tagMatch[1];
+    const openPat = `<${tag}`;
+    const closePat = `</${tag}>`;
+    const searchRadius = 20;
+    const startLine = Math.max(0, safeLine - searchRadius);
+    const startOffset = document.offsetAt(new vscode.Position(startLine, 0));
+    const full = document.getText();
+    let openIdx = full.indexOf(openPat, startOffset);
+    if (openIdx === -1)
+        openIdx = full.indexOf(openPat);
+    if (openIdx === -1) {
+        const lt = document.lineAt(safeLine).text;
+        return new vscode.Range(safeLine, 0, safeLine, lt.length);
+    }
+    const gtIdx = full.indexOf('>', openIdx);
+    if (gtIdx === -1) {
+        const pos = document.positionAt(openIdx);
+        const lt = document.lineAt(pos.line).text;
+        return new vscode.Range(pos.line, 0, pos.line, lt.length);
+    }
+    const selfCloseIdx = full.lastIndexOf('/>', gtIdx);
+    if (selfCloseIdx !== -1 && selfCloseIdx >= openIdx && selfCloseIdx <= gtIdx + 2) {
+        return new vscode.Range(document.positionAt(openIdx), document.positionAt(selfCloseIdx + 2));
+    }
+    const closeIdx = full.indexOf(closePat, gtIdx + 1);
+    if (closeIdx !== -1) {
+        return new vscode.Range(document.positionAt(openIdx), document.positionAt(closeIdx + closePat.length));
+    }
+    return new vscode.Range(document.positionAt(openIdx), document.positionAt(gtIdx + 1));
+}
 async function fixWithAI(diagnostic) {
     const editor = vscode.window.activeTextEditor;
     if (!editor)
         return;
-    const code = editor.document.getText(diagnostic.range);
+    // Versuche Element-Range über Diagnostic-Metadaten zu bestimmen (AI enthält element)
+    let elementRange = diagnostic.range;
+    let element = '';
+    try {
+        if (typeof diagnostic.code === 'string') {
+            const data = JSON.parse(diagnostic.code);
+            element = data.element || '';
+        }
+    }
+    catch { }
+    if (element) {
+        elementRange = findElementRangeForDoc(editor.document, diagnostic.range.start.line, element);
+    }
+    const code = editor.document.getText(elementRange);
     // Variable für quickFixId außerhalb des try-catch definieren
     let quickFixId = '';
     // Unterscheiden zwischen axe-core und AI-Diagnostics
@@ -494,22 +548,12 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
             if (fenced && fenced[1]) {
                 suggestion = fenced[1].trim();
             }
-            // Multi-line support: if suggestion has multiple lines and original range is single line,
-            // expand replacement to whole line (or lines) heuristically.
-            const originalLineText = editor.document.lineAt(diagnostic.range.start.line).text;
-            const isSingleLineRange = diagnostic.range.start.line === diagnostic.range.end.line;
-            let targetRange = diagnostic.range;
-            if (isSingleLineRange) {
-                const suggestionLineCount = suggestion.split(/\r?\n/).length;
-                if (suggestionLineCount > 1) {
-                    // Expand to full original line only; keep rest of document stable.
-                    targetRange = new vscode.Range(new vscode.Position(diagnostic.range.start.line, 0), new vscode.Position(diagnostic.range.start.line, originalLineText.length));
-                }
-            }
+            // Ersetze auf Element-Range
+            const targetRange = elementRange;
             // Safety: ensure document unchanged at target line before applying
             if (editor.document.version !== originalVersion) {
-                const currentLineNow = editor.document.lineAt(diagnostic.range.start.line).text;
-                if (currentLineNow !== originalLineText) {
+                const currentElementText = editor.document.getText(elementRange);
+                if (currentElementText !== code) {
                     vscode.window.showWarningMessage('Document changed since diagnostic was generated. Aborting fix to prevent conflicts.');
                     return;
                 }
@@ -526,7 +570,7 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
                     if (typeof diagnostic.code === 'string') {
                         const codeData = JSON.parse(diagnostic.code);
                         // Range (kann mehrere Zeilen umfassen) registrieren
-                        aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
+                        aiSemanticAnalyzer.recordFixedRange(editor.document, elementRange);
                         const removeId = codeData.vId || codeData.violationId; // support legacy
                         if (codeData.isAIGenerated && removeId) {
                             aiSemanticAnalyzer.removeAIDiagnostic(removeId);
@@ -552,11 +596,11 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
                         }
                     }
                     else {
-                        aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
+                        aiSemanticAnalyzer.recordFixedRange(editor.document, elementRange);
                     }
                 }
                 catch {
-                    aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
+                    aiSemanticAnalyzer.recordFixedRange(editor.document, elementRange);
                 }
                 updateAIStatusBar();
             }

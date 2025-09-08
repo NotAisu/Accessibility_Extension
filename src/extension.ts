@@ -384,7 +384,7 @@ async function updateDiagnostics(document: vscode.TextDocument) {
         // Timeout Schutz: axe darf nicht ewig hängen
         const AXE_TIMEOUT_MS = 5000;
     const axeOptions: any = {
-            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] },
+            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
             resultTypes: ['violations'],
             rules: {
                 'color-contrast': { enabled: false },

@@ -242,7 +242,7 @@ class MetricsService {
     async saveMetrics() {
         try {
             this.metrics.lastUpdated = Date.now();
-            await vscode.workspace.fs.writeFile(vscode.Uri.file(this.dataFilePath), Buffer.from(JSON.stringify(this.metrics, null, 2)));
+            await vscode.workspace.fs.writeFile(vscode.Uri.file(this.dataFilePath), new TextEncoder().encode(JSON.stringify(this.metrics, null, 2)));
         }
         catch (error) {
             console.error('Failed to save metrics:', error);

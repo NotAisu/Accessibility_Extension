@@ -336,8 +336,8 @@ class LLMSettingsProvider {
         const localEndpoint = config.get('localLLM.endpoint', 'http://127.0.0.1:1234');
         const localModel = config.get('localLLM.model', 'mistralai/devstral-small-2507');
         const githubModel = config.get('githubCopilot.model', 'gpt-4o');
-        const customEndpoint = config.get('customAPI.endpoint', 'https://api.openai.com/v1/chat/completions');
-        const customModel = config.get('customAPI.model', 'gpt-4o-mini');
+        const customEndpoint = config.get('customAPI.endpoint', 'https://openrouter.ai/api/v1/chat/completions');
+        const customModel = config.get('customAPI.model', 'qwen/qwen3-coder:free');
         // API Key aus SecretStorage holen
         const secretStorage = this.llmService.getSecretStorage();
         const hasApiKey = !!(await secretStorage.get('accessibility.customAPI.apiKey'));
@@ -875,18 +875,17 @@ class LLMSettingsProvider {
                 
                 <div class="provider-option">
                     <input type="radio" id="custom" name="provider" value="custom-api">
-                    <label for="custom">Custom API</label>
+                    <label for="custom">OpenRouter</label>
                 </div>
                 
                 <div class="config-group" id="custom-api-config">
                     <div class="config-item">
-                        <label for="custom-endpoint">API Endpoint:</label>
-                        <input type="text" id="custom-endpoint" placeholder="https://api.openai.com/v1/chat/completions">
-                        <button class="save-button" onclick="saveEndpoint()">Save</button>
+                        <label for="custom-endpoint">API Endpoint (read-only):</label>
+                        <input type="text" id="custom-endpoint" disabled>
                     </div>
                     <div class="config-item">
                         <label for="custom-model">Model:</label>
-                        <input type="text" id="custom-model" placeholder="gpt-4o-mini">
+                        <input type="text" id="custom-model" placeholder="qwen/qwen3-coder:free">
                         <button class="save-button" onclick="saveModel()">Save</button>
                     </div>
                     <div class="config-item">
@@ -895,7 +894,7 @@ class LLMSettingsProvider {
                         <button class="save-button" onclick="saveApiKey()">Save</button>
                         <div class="security-notice" id="apikey-status">🔒 API key is stored securely in VS Code SecretStorage</div>
                     </div>
-                    <div class="description">OpenAI, Anthropic, Cohere und andere APIs</div>
+                    <div class="description">Uses OpenRouter. Set your OpenRouter API key and model. Endpoint is fixed.</div>
                 </div>
             </div>
             
@@ -1044,8 +1043,6 @@ class LLMSettingsProvider {
                     
                     if (provider === 'local') {
                         endpoint = document.getElementById('local-endpoint').value;
-                    } else if (provider === 'custom-api') {
-                        endpoint = document.getElementById('custom-endpoint').value;
                     }
                     
                     if (endpoint) {
@@ -1166,7 +1163,9 @@ class LLMSettingsProvider {
                                 
                                 // Custom API config
                                 if (config.customAPI) {
-                                    document.getElementById('custom-endpoint').value = config.customAPI.endpoint || '';
+                                    const ce = document.getElementById('custom-endpoint');
+                                    ce.value = config.customAPI.endpoint || 'https://openrouter.ai/api/v1/chat/completions';
+                                    ce.disabled = true;
                                     document.getElementById('custom-model').value = config.customAPI.model || '';
                                     
                                     const apiKeyStatus = document.getElementById('apikey-status');

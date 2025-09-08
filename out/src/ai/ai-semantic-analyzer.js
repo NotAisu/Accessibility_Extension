@@ -322,13 +322,20 @@ class AISemanticAnalyzer {
     parseAIResponse(aiResponse, document) {
         const parsed = (0, rule_id_normalizer_1.normalizeRuleIds)((0, ai_response_parser_1.parseAIAnalysis)(aiResponse));
         const violations = [];
+        // Harte WCAG-Validierung: nur gültige WCAG Nummern (z.B. 1.3.1, 4.1.2)
+        const WCAG_NUM_REGEX = /^\d\.\d\.\d[a-z]?$/;
         for (const p of parsed) {
+            const normId = (0, rule_id_normalizer_1.normalizeRuleId)(p.ruleId);
+            if (!normId || !WCAG_NUM_REGEX.test(normId)) {
+                // Ignoriere nicht-normative oder leere Rule-IDs
+                continue;
+            }
             this.pushIfValidViolation({
                 line: p.line,
                 element: p.element || '',
                 issue: p.issue || '',
                 recommendation: p.recommendation || '',
-                ruleId: (0, rule_id_normalizer_1.normalizeRuleId)(p.ruleId) || 'ai-semantic'
+                ruleId: normId
             }, document, violations);
         }
         return violations;
@@ -339,15 +346,60 @@ class AISemanticAnalyzer {
         if (parsed.line <= 0 || parsed.line > document.lineCount)
             return;
         const lineIndex = parsed.line - 1;
-        const lineText = document.lineAt(lineIndex).text;
-        const range = new vscode.Range(new vscode.Position(lineIndex, 0), new vscode.Position(lineIndex, lineText.length));
+        const elementRange = this.findElementRange(document, lineIndex, parsed.element || '');
+        const fallbackLineText = document.lineAt(lineIndex).text;
         violations.push({
-            element: parsed.element || lineText.trim(),
+            element: parsed.element || fallbackLineText.trim(),
             message: `${parsed.issue}: ${parsed.recommendation}`,
-            range,
+            range: elementRange,
             ruleId: parsed.ruleId || 'ai-semantic',
             severity: 'warning'
         });
+    }
+    /**
+     * Multi-Line Element Range Finder (heuristisch):
+     * Sucht ab Nähe der Zeile nach <tag ...> und dem nächsten </tag>. Unterstützt selbstschließende Tags.
+     */
+    findElementRange(document, lineIndex, element) {
+        const safeLine = Math.max(0, Math.min(lineIndex, document.lineCount - 1));
+        if (!element) {
+            const lt = document.lineAt(safeLine).text;
+            return new vscode.Range(safeLine, 0, safeLine, lt.length);
+        }
+        const tagMatch = element.match(/^<([A-Za-z0-9-]+)/);
+        if (!tagMatch) {
+            const lt = document.lineAt(safeLine).text;
+            return new vscode.Range(safeLine, 0, safeLine, lt.length);
+        }
+        const tag = tagMatch[1];
+        const openPat = `<${tag}`;
+        const closePat = `</${tag}>`;
+        const searchRadius = 20;
+        const startLine = Math.max(0, safeLine - searchRadius);
+        const startOffset = document.offsetAt(new vscode.Position(startLine, 0));
+        const full = document.getText();
+        let openIdx = full.indexOf(openPat, startOffset);
+        if (openIdx === -1)
+            openIdx = full.indexOf(openPat);
+        if (openIdx === -1) {
+            const lt = document.lineAt(safeLine).text;
+            return new vscode.Range(safeLine, 0, safeLine, lt.length);
+        }
+        const gtIdx = full.indexOf('>', openIdx);
+        if (gtIdx === -1) {
+            const pos = document.positionAt(openIdx);
+            const lt = document.lineAt(pos.line).text;
+            return new vscode.Range(pos.line, 0, pos.line, lt.length);
+        }
+        const selfCloseIdx = full.lastIndexOf('/>', gtIdx);
+        if (selfCloseIdx !== -1 && selfCloseIdx >= openIdx && selfCloseIdx <= gtIdx + 2) {
+            return new vscode.Range(document.positionAt(openIdx), document.positionAt(selfCloseIdx + 2));
+        }
+        const closeIdx = full.indexOf(closePat, gtIdx + 1);
+        if (closeIdx !== -1) {
+            return new vscode.Range(document.positionAt(openIdx), document.positionAt(closeIdx + closePat.length));
+        }
+        return new vscode.Range(document.positionAt(openIdx), document.positionAt(gtIdx + 1));
     }
     /**
      * Verhindert Duplikate zwischen AI-Findings und axe-core Diagnostics
@@ -412,27 +464,19 @@ class AISemanticAnalyzer {
             }
         });
     }
-    /**
-     * Cleanup-Methode
-     */
+    /** Cleanup-Methode */
     dispose() {
         this.aiDiagnosticCollection.dispose();
     }
-    /**
-     * Holt AI-Diagnostics für ein Dokument
-     */
+    /** Holt AI-Diagnostics für ein Dokument */
     getAIDiagnostics(uri) {
         return this.aiDiagnosticCollection.get(uri) || [];
     }
-    /**
-     * Gibt die DiagnosticCollection zurück für Metrics
-     */
+    /** Gibt die DiagnosticCollection zurück für Metrics */
     getDiagnosticCollection() {
         return this.aiDiagnosticCollection;
     }
-    /**
-     * Clearer alle AI-Diagnostics
-     */
+    /** Clearer alle AI-Diagnostics */
     clearAll() {
         this.aiDiagnosticCollection.clear();
     }
