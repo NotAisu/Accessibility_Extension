@@ -273,13 +273,16 @@ async function updateDiagnostics(document) {
         diagnosticCollection.set(document.uri, []);
         return;
     }
-    const { window } = new jsdom_1.JSDOM(text);
+    // Use a JSDOM window and execute scripts in its own realm so axe runs in the same context
+    const { window } = new jsdom_1.JSDOM(text, { runScripts: 'dangerously' });
     // Stub häufig fehlender Browser-APIs / Assets um axe "preload" Timeouts zu verhindern
     try {
         window.requestAnimationFrame = (cb) => setTimeout(() => cb(Date.now()), 16);
         window.cancelAnimationFrame = (id) => clearTimeout(id);
-        // Verhindere Netzwerk-Fetches innerhalb axe (keine externen Assets laden)
-        window.fetch = async () => ({ ok: true, text: async () => '', json: async () => ({}) });
+        // Fetch nur stubben, wenn es nicht existiert – verhindert, dass axe Preload-Assets fehlschlagen
+        if (!window.fetch) {
+            window.fetch = async () => ({ ok: true, text: async () => '', json: async () => ({}) });
+        }
     }
     catch { }
     if (!window.HTMLCanvasElement.prototype.getContext) {
@@ -288,17 +291,30 @@ async function updateDiagnostics(document) {
         };
     }
     try {
+        // Inject axe into the same realm as JSDOM to avoid cross-realm argument validation issues
+        try {
+            // eslint-disable-next-line no-eval
+            window.eval(axe.source);
+        }
+        catch (e) {
+            console.warn('Failed to inject axe into JSDOM window:', e);
+        }
         // Timeout Schutz: axe darf nicht ewig hängen
         const AXE_TIMEOUT_MS = 5000;
-        const axePromise = axe.run(window.document.documentElement, {
+        const axeOptions = {
             runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] },
             resultTypes: ['violations'],
-            preload: false, // Verhindert "Preload assets timed out" Fehler
             rules: {
                 'color-contrast': { enabled: false },
                 'color-contrast-enhanced': { enabled: false }
             }
-        });
+        };
+        // Einige axe-Builds unterstützen 'preload'; wenn vorhanden, explizit deaktivieren
+        try {
+            axeOptions.preload = false;
+        }
+        catch { }
+        const axePromise = window.axe.run(window.document, axeOptions);
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('axe-timeout')), AXE_TIMEOUT_MS));
         const results = await Promise.race([axePromise, timeoutPromise]);
         if (!results) {
