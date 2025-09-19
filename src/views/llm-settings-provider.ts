@@ -1023,7 +1023,6 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                         <option value="direct-instruction">Direct Instruction - Scientifically optimized zero-shot analysis</option>
                         <option value="few-shot">Few-Shot Learning - Strategic pattern induction through examples</option>
                         <option value="chain-of-thought">Chain-of-Thought - Structured analytical reasoning process</option>
-                        <option value="role-based">Multi-Perspective Analysis - Comprehensive user-centered evaluation</option>
                     </select>
                     <div class="strategy-description" id="strategy-description">
                         Direct instruction with single example for quick analysis
@@ -1102,8 +1101,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     const descriptions = {
                         'direct-instruction': 'Scientifically optimized zero-shot approach with explicit role assignment and structured task decomposition (Brown et al., 2020)',
                         'few-shot': 'Strategic pattern induction through curated high-signal examples for optimal learning (Min et al., 2022)',
-                        'chain-of-thought': 'Structured analytical reasoning with explicit intermediate steps for complex analysis (Wei et al., 2022)',
-                        'role-based': 'Comprehensive evaluation through multiple user perspective lenses and assistive technology viewpoints (Wang et al., 2023)'
+                        'chain-of-thought'
                     };
                     
                     const descElement = document.getElementById('strategy-description');

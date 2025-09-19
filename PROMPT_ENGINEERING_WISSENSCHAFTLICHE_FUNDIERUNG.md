@@ -60,16 +60,7 @@ Diese Dokumentation beschreibt die wissenschaftlich fundierte Entwicklung der Pr
 
 **Wissenschaftliche Begründung:** Explizite Reasoning-Chains verbessern die Leistung bei komplexen Analyseaufgaben erheblich.
 
-#### 2.4 Multi-Perspective Role-Based Strategy
-**Forschungsbasis:** Wang et al. (2023) - Role-Playing with Large Language Models
-**Kernprinzip:** Multi-perspektivische Betrachtung durch verschiedene Nutzerrollen
-**Methodische Komponenten:**
-- 5 Nutzerperspektiven (Screen Reader, Keyboard-only, Low Vision, Cognitive, Assistive Technology)
-- Perspektiven-spezifische Checkpoints
-- Konsolidierte Ausgabe
-- Comprehensive Coverage
-
-**Wissenschaftliche Begründung:** Multiple Perspektiven erhöhen die Erkennungstiefe und reduzieren blinde Flecken in der Analyse.
+<!-- Hinweis: Die zuvor experimentelle Role-Based-Variante wurde entfernt. -->
 
 ## Gemeinsame Architektur-Komponenten
 
@@ -124,7 +115,7 @@ Jede Strategie implementiert messbare Qualitätskriterien:
 **Direct Instruction:** Schnelle, ressourceneffiziente Analyse
 **Few-Shot:** Optimales Gleichgewicht zwischen Qualität und Effizienz  
 **Chain-of-Thought:** Maximale Analysetiefe für komplexe Codebasen
-**Role-Based:** Comprehensive Coverage für kritische Anwendungen
+<!-- Role-Based Auswahl entfernt -->
 
 ### 5.2 Performance-Optimierung
 Jede Strategie ist für spezifische Anwendungskontexte optimiert:

@@ -30,7 +30,7 @@ npm run test:combined   # Axe + AI kombiniert
 - Zuverlässige Standard-Violations
 
 ### 2. AI-Only (`npm run test:ai`)
-- 4 Prompt-Strategien: one-shot, few-shot, chain-of-thought, role-based
+- 3 Prompt-Strategien: one-shot, few-shot, chain-of-thought
 - Multi-Model Schleife (ENV `AI_MODELS`)
 - Striktes JSON Output Schema (erzwungen durch Prompt)
 - Nutzung des zentralen Parsers (`parseAIAnalysis`)

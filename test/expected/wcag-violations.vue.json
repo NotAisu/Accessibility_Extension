@@ -1,44 +1,219 @@
 [
-  {"line":17, "ruleId": "1.1.1"},
-  {"line":18, "ruleId": "1.1.1"},
-  {"line":19, "ruleId": "1.1.1"},
-  {"line":21, "ruleId": "1.1.1"},
-  {"line":34, "ruleId": "1.3.1" },
-  {"line":35, "ruleId": "1.3.1" },
-  {"line":38, "ruleId": "1.3.1" },
-  {"line":42, "ruleId": "2.1.1" },
-  {"line":71, "ruleId": "1.4.3" },
-  {"line":74, "ruleId": "1.4.3" },
-  {"line":82, "ruleId": "2.1.1" },
-  {"line":87, "ruleId": "2.4.3" },
-  {"line":88, "ruleId": "2.4.3" },
-  {"line":89, "ruleId": "2.4.3" },
-  {"line":95, "ruleId": "2.2.2" },
-  {"line":96, "ruleId": "2.2.2" },
-  {"line":104, "ruleId": "2.4.4"},
-  {"line":105, "ruleId": "2.4.4" },
-  {"line":106, "ruleId": "2.4.4" },
-  {"line":107, "ruleId": "2.4.4" },
-  {"line":114, "ruleId": "2.4.7" },
-  {"line":117, "ruleId": "2.4.7" },
-  {"line":125, "ruleId": "2.5.8" },
-  {"line":128, "ruleId": "2.5.8" },
-  {"line":139, "ruleId": "3.2.2" },
-  {"line":150, "ruleId": "3.3.2" },
-  {"line":155, "ruleId": "3.3.2" },
-  {"line":156, "ruleId": "3.3.2" },
-  {"line":160, "ruleId": "3.3.2" },
-  {"line":161, "ruleId": "3.3.2" },
-  {"line":162, "ruleId": "3.3.2" },
-  {"line":172, "ruleId": "4.1.2" },
-  {"line":173, "ruleId": "4.1.2" },
-  {"line":185, "ruleId": "4.1.2" },
-  {"line":189, "ruleId": "4.1.2" },
-  {"line":196, "ruleId": "4.1.2"},
-  {"line":198, "ruleId": "4.1.2" },
-  {"line":212, "ruleId": "1.4.1" },
-  {"line":215, "ruleId": "1.4.1" },
-  {"line":236, "ruleId": "4.1.2"},
-  {"line":237, "ruleId": "4.1.2" },
-  {"line":243, "ruleId": "3.3.2" }
+  {
+    "line": 17,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a descriptive alt attribute to the image"
+  },
+  {
+    "line": 18,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Provide meaningful alt text for the chart image"
+  },
+  {
+    "line": 21,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Set alt=\"\" for decorative images to hide them from assistive tech"
+  },
+  {
+    "line": 34,
+    "ruleId": "1.3.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Change the heading to the appropriate level (e.g., <h2>) to maintain hierarchy"
+  },
+  {
+    "line": 35,
+    "ruleId": "1.3.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Replace <h4> with <h3> to follow proper heading order"
+  },
+  {
+    "line": 49,
+    "ruleId": "1.3.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Replace <td> with <th scope=\"col\"> for column headers"
+  },
+  {
+    "line": 61,
+    "ruleId": "1.3.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Use a <ul> with <li> elements instead of generic <div>s for lists"
+  },
+  {
+    "line": 84,
+    "ruleId": "4.1.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add role=\"button\" (or use a native <button>) to the focusable div"
+  },
+  {
+    "line": 104,
+    "ruleId": "2.4.4",
+    "element": "",
+    "issue": "",
+    "recommendation": "Replace vague link text with a descriptive phrase indicating the destination"
+  },
+  {
+    "line": 105,
+    "ruleId": "2.4.4",
+    "element": "",
+    "issue": "",
+    "recommendation": "Use specific link text that conveys the purpose of the link"
+  },
+  {
+    "line": 106,
+    "ruleId": "2.4.4",
+    "element": "",
+    "issue": "",
+    "recommendation": "Provide clear link text that describes what will be read"
+  },
+  {
+    "line": 107,
+    "ruleId": "2.4.4",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add visible link text or remove the empty anchor element"
+  },
+  {
+    "line": 125,
+    "ruleId": "2.5.8",
+    "element": "",
+    "issue": "",
+    "recommendation": "Increase the button size to at least 44 × 44 CSS px for adequate target size"
+  },
+  {
+    "line": 130,
+    "ruleId": "2.5.8",
+    "element": "",
+    "issue": "",
+    "recommendation": "Enlarge the clickable area to meet the minimum 44 × 44 CSS px target size"
+  },
+  {
+    "line": 150,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Associate the text input with a <label> (e.g., <label for=\"name\">Name</label>)"
+  },
+  {
+    "line": 155,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a <label> describing the email field and link it via for/id"
+  },
+  {
+    "line": 156,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Provide a <label> for the textarea to describe its purpose"
+  },
+  {
+    "line": 160,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Wrap the radio button in a <label> or add an aria-label attribute"
+  },
+  {
+    "line": 161,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Wrap the radio button in a <label> or add an aria-label attribute"
+  },
+  {
+    "line": 162,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Wrap the radio button in a <label> or add an aria-label attribute"
+  },
+  {
+    "line": 172,
+    "ruleId": "4.1.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add visible text or an aria-label to give the button an accessible name"
+  },
+  {
+    "line": 173,
+    "ruleId": "4.1.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Replace the ambiguous “?” with a clear, descriptive button label"
+  },
+  {
+    "line": 176,
+    "ruleId": "4.1.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Associate the <select> with a <label> element to provide a name"
+  },
+  {
+    "line": 185,
+    "ruleId": "4.1.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Remove tabindex from the hidden element or make it visible to assistive tech"
+  },
+  {
+    "line": 191,
+    "ruleId": "4.1.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Ensure aria-describedby references an existing element or remove the attribute"
+  },
+  {
+    "line": 198,
+    "ruleId": "4.1.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Use a valid aria-pressed value of \"true\" or \"false\""
+  },
+  {
+    "line": 212,
+    "ruleId": "1.4.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add non‑color cues (e.g., an asterisk) to indicate required fields"
+  },
+  {
+    "line": 215,
+    "ruleId": "1.4.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Provide additional visual indicators besides color for valid fields"
+  },
+  {
+    "line": 237,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a descriptive title attribute to the iframe (e.g., title=\"Widget\")"
+  },
+  {
+    "line": 238,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Provide a meaningful title attribute for the iframe content"
+  },
+  {
+    "line": 248,
+    "ruleId": "1.4.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Associate the error message with the form field and avoid color‑only indication"
+  }
 ]

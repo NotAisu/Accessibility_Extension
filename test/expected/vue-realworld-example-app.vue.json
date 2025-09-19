@@ -1,0 +1,30 @@
+[
+  {
+    "line": 7,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add alt attribute with descriptive text, e.g., alt=\"User profile picture\""
+  },
+  {
+    "line": 15,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add aria-hidden=\"true\" to hide the decorative icon from assistive technologies"
+  },
+  {
+    "line": 24,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add aria-hidden=\"true\" to hide the decorative icon from assistive technologies"
+  },
+  {
+    "line": 32,
+    "ruleId": "1.1.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add aria-hidden=\"true\" to hide the decorative icon from assistive technologies"
+  }
+]

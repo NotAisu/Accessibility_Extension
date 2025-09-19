@@ -13,6 +13,45 @@
 			"group": "test",
 			"problemMatcher": [],
 			"isBackground": false
+		},
+		{
+			"label": "Build Extension",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"compile"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build Extension (verify axe patch)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"compile"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "Build Extension",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"compile"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

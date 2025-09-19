@@ -124,16 +124,15 @@
           "enum": [
             "direct-instruction",
             "few-shot",
-            "chain-of-thought",
-            "role-based"
+            "chain-of-thought"
           ],
-          "description": "AI prompt strategy: direct-instruction (optimized zero-shot), few-shot (pattern learning), chain-of-thought (structured reasoning), role-based (multi-perspective)"
+          "description": "AI prompt strategy: direct-instruction (optimized zero-shot), few-shot (pattern learning), chain-of-thought (structured reasoning)"
         },
-      "accessibility.aiAnalyzer.recentFixSuppressionTTL": {
-        "type": "number",
-        "default": 300000,
-        "description": "TTL in ms for suppressing re-reporting of recently AI-fixed lines (set 0 to disable)"
-      },
+        "accessibility.aiAnalyzer.recentFixSuppressionTTL": {
+          "type": "number",
+          "default": 300000,
+          "description": "TTL in ms for suppressing re-reporting of recently AI-fixed lines (set 0 to disable)"
+        },
         "accessibility.localLLM.endpoint": {
           "type": "string",
           "default": "http://127.0.0.1:1234",
@@ -187,6 +186,7 @@
     "lint": "eslint src test --ext ts",
     "test:axe": "npm run pretest && node out/test/axe-cli.js",
     "test:ai": "npm run pretest && node out/test/ai-cli.js",
+    "generate:expected": "ts-node test/scripts/generate-expected.ts",
     "test:combined": "npm run pretest && node out/test/combined-cli.js",
     "test:mocha": "vscode-test",
     "test:direct": "node out/test/cli.js"
@@ -204,6 +204,7 @@
     "eslint": "8.57.0",
     "glob": "8.1.0",
     "mocha": "10.4.0",
+    "ts-node": "^10.9.2",
     "typescript": "5.4.5",
     "vue-eslint-parser": "10.2.0"
   },

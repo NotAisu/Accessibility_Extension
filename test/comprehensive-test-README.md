@@ -13,7 +13,7 @@ Diese neue Test-Suite bietet **echte AI Integration mit OpenRouter** und umfasse
 - `one-shot`: Direkter Einzelprompt
 - `few-shot`: Mit Beispielen
 - `chain-of-thought`: Schrittweise Analyse
-- `role-based`: Rollenbasierte Analyse
+<!-- role-based Strategie wurde entfernt -->
 
 ### Metriken
 - Found / Expected (Quantität)

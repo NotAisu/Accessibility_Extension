@@ -1,0 +1,44 @@
+[
+  {
+    "line": 48,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a for attribute referencing a control or use a fieldset with a legend to associate the group."
+  },
+  {
+    "line": 64,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a for attribute referencing a control or use a fieldset with a legend to associate the group."
+  },
+  {
+    "line": 82,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a for attribute referencing a control or use a fieldset with a legend to associate the group."
+  },
+  {
+    "line": 100,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a for attribute referencing a control or use a fieldset with a legend to associate the group."
+  },
+  {
+    "line": 153,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a for attribute referencing a control or use a fieldset with a legend to associate the group."
+  },
+  {
+    "line": 174,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a for attribute referencing a control or use a fieldset with a legend to associate the group."
+  }
+]

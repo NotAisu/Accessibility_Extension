@@ -1,0 +1,16 @@
+[
+  {
+    "line": 100,
+    "ruleId": "1.3.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add id=\"email\" to the input so it matches the label’s for attribute"
+  },
+  {
+    "line": 113,
+    "ruleId": "1.3.1",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add id=\"password\" to the input so it matches the label’s for attribute"
+  }
+]

@@ -1,196 +1,135 @@
 [
   {
-    "line": 10,
-    "ruleId": "3.2.1"
-  },
-  {
-    "line": 37,
-    "ruleId": "1.3.1"
-    
-  },
-  {
-    "line": 49,
-    "ruleId": "1.1.1"
-    
-  },
-  {
-    "line": 50,
-    "ruleId": "1.1.1"
-    
-  },
-  {
-    "line": 51,
-    "ruleId": "1.1.1"
-    
-  },
-  {
-    "line": 53,
-    "ruleId": "1.1.1"
-    
-  },
-  {
-    "line": 56,
-    "ruleId": "1.1.1"
-    
-  },
-  {
-    "line": 66,
-    "ruleId": "1.3.1"
-    
-  },
-  {
-    "line": 67,
-    "ruleId": "1.3.1"
-    
-  },
-  {
-    "line": 70,
-    "ruleId": "2.1.1"
-    
-  },
-  {
-    "line": 74,
-    "ruleId": "2.1.1"
-    
-  },
-  {
     "line": 103,
-    "ruleId": "1.4.3"
-    
+    "ruleId": "1.4.3",
+    "element": "",
+    "issue": "",
+    "recommendation": "Use text and background colors with contrast ratio ≥4.5:1"
   },
   {
-    "line": 114,
-    "ruleId": "2.1.1"
-    
+    "line": 106,
+    "ruleId": "1.4.3",
+    "element": "",
+    "issue": "",
+    "recommendation": "Choose colors meeting contrast ≥4.5:1 for button text"
   },
   {
     "line": 119,
-    "ruleId": "3.3.2"
-    
-  },
-  {
-    "line": 120,
-    "ruleId": "3.3.2"
-    
-  },
-  {
-    "line": 121,
-    "ruleId": "3.3.2"
-    
+    "ruleId": "2.4.3",
+    "element": "",
+    "issue": "",
+    "recommendation": "Remove custom tabindex or order sequentially to preserve natural focus order"
   },
   {
     "line": 127,
-    "ruleId": "2.4.4"
-    
+    "ruleId": "2.4.4",
+    "element": "",
+    "issue": "",
+    "recommendation": "Use descriptive link text or provide context for the link purpose"
   },
   {
     "line": 128,
-    "ruleId": "2.4.4"
-    
+    "ruleId": "2.4.4",
+    "element": "",
+    "issue": "",
+    "recommendation": "Use descriptive link text or provide context for the link purpose"
   },
   {
     "line": 129,
-    "ruleId": "2.4.4"
-    
+    "ruleId": "2.4.4",
+    "element": "",
+    "issue": "",
+    "recommendation": "Use descriptive link text or provide context for the link purpose"
   },
   {
     "line": 130,
-    "ruleId": "2.4.4"
-    
+    "ruleId": "2.4.4",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add meaningful text or aria-label to give the link an accessible name"
+  },
+  {
+    "line": 137,
+    "ruleId": "2.4.7",
+    "element": "",
+    "issue": "",
+    "recommendation": "Preserve default outline or add a custom visible focus style"
+  },
+  {
+    "line": 140,
+    "ruleId": "2.4.7",
+    "element": "",
+    "issue": "",
+    "recommendation": "Preserve default outline or add a custom visible focus style"
   },
   {
     "line": 148,
-    "ruleId": "2.5.8"
-    
+    "ruleId": "2.5.8",
+    "element": "",
+    "issue": "",
+    "recommendation": "Increase interactive element size to at least 44 px square"
+  },
+  {
+    "line": 151,
+    "ruleId": "2.5.8",
+    "element": "",
+    "issue": "",
+    "recommendation": "Increase interactive element size to at least 44 px square"
   },
   {
     "line": 162,
-    "ruleId": "3.2.2"
-    
+    "ruleId": "3.2.5",
+    "element": "",
+    "issue": "",
+    "recommendation": "Require explicit activation (e.g., button) before navigation to avoid unexpected context change"
   },
   {
-    "line": 176,
-    "ruleId": "3.2.1"
-    
+    "line": 173,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a <label for=\"auto-focus-input\">Name</label> to associate the input with a label"
+  },
+  {
+    "line": 178,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a descriptive <label> for the email input field"
   },
   {
     "line": 179,
-    "ruleId": "3.3.2"
-    
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add a <label> for the textarea to provide a label"
   },
   {
-    "line": 183,
-    "ruleId": "3.3.2"
-    
+    "line": 182,
+    "ruleId": "3.3.2",
+    "element": "",
+    "issue": "",
+    "recommendation": "Wrap radio buttons in a <fieldset><legend>Gender</legend>...</fieldset> to provide grouping and label"
   },
   {
-    "line": 184,
-    "ruleId": "3.3.2"
-    
-  },
-  {
-    "line": 185,
-    "ruleId": "3.3.2"
-    
-  },
-  {
-    "line": 195,
-    "ruleId": "4.1.2"
-    
-  },
-  {
-    "line": 208,
-    "ruleId": "2.1.1"
-    
-  },
-  {
-    "line": 208,
-    "ruleId": "4.1.2"
-    
-  },
-  {
-    "line": 219,
-    "ruleId": "1.1.1"
-    
-  },
-  {
-    "line": 221,
-    "ruleId": "4.1.2"
-    
-  },
-  {
-    "line": 235,
-    "ruleId": "1.4.1"
-    
-  },
-  {
-    "line": 238,
-    "ruleId": "1.4.1"
-    
-  },
-  {
-    "line": 244,
-    "ruleId": "2.1.1"
-    
-  },
-  {
-    "line": 262,
-    "ruleId": "4.1.2"
-    
-  },
-  {
-    "line": 263,
-    "ruleId": "4.1.2"
-    
-  },
-  {
-    "line": 266,
-    "ruleId": "2.2.2"
-    
+    "line": 274,
+    "ruleId": "3.3.3",
+    "element": "",
+    "issue": "",
+    "recommendation": "Add aria-describedby referencing the error message element to associate the error with the control"
   },
   {
     "line": 278,
-    "ruleId": "1.4.1"
-    
+    "ruleId": "3.3.3",
+    "element": "",
+    "issue": "",
+    "recommendation": "Give the error span an id and reference it via aria-describedby on the related input"
+  },
+  {
+    "line": 242,
+    "ruleId": "2.4.3",
+    "element": "",
+    "issue": "",
+    "recommendation": "Move focus to the modal when opened, trap focus within, and return focus to the trigger on close"
   }
 ]
