@@ -25,7 +25,7 @@ async function main() {
             if (typeof aiTestFn !== 'function') throw new Error('aiTest function not accessible on TestSuite instance');
             const aiResult = await aiTestFn.call(suite, content, strategyName, model);
 
-            const entries = (aiResult.violations || []).map((v: any) => ({ line: v.line, ruleId: v.ruleId || '', element: v.element || '', issue: v.issue || '', recommendation: v.recommendation || '' }));
+            const entries = (aiResult.violations || []).map((v: any) => ({ line: v.line, ruleId: v.ruleId || '' }));
             const outPath = path.join(expectedDir, `${file}.json`);
             fs.writeFileSync(outPath, JSON.stringify(entries, null, 2), 'utf-8');
             console.log(`Wrote ${outPath} (${entries.length} entries)`);

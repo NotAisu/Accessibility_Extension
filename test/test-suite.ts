@@ -474,7 +474,6 @@ export class TestSuite {
         }
     }
 
-    // (alter Parser entfernt, Nutzung des gemeinsamen Parsers parseAIAnalysis)
 
     private deduplicate(axeDetails: string[], aiDetails: string[]): string[] {
         return Array.from(new Set([...axeDetails, ...aiDetails]));
