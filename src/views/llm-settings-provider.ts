@@ -1101,7 +1101,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     const descriptions = {
                         'direct-instruction': 'Scientifically optimized zero-shot approach with explicit role assignment and structured task decomposition (Brown et al., 2020)',
                         'few-shot': 'Strategic pattern induction through curated high-signal examples for optimal learning (Min et al., 2022)',
-                        'chain-of-thought'
+                        'chain-of-thought': 'Structured analytical reasoning with explicit intermediate validation steps (Wei et al., 2022)'
                     };
                     
                     const descElement = document.getElementById('strategy-description');
@@ -1145,15 +1145,32 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 }
                 
                 function saveModel() {
-                    const provider = document.querySelector('input[name="provider"]:checked').value;
-                    let model;
+                    const providerRadio = document.querySelector('input[name="provider"]:checked');
+                    if (!providerRadio) {
+                        return;
+                    }
+
+                    const provider = providerRadio.value;
+                    let model = '';
                     
                     if (provider === 'local') {
-                        model = document.getElementById('local-model').value;
+                        const localInput = document.getElementById('local-model');
+                        if (localInput) {
+                            model = localInput.value;
+                        }
                     } else if (provider === 'github-copilot') {
-                        model = document.getElementById('copilot-model').value;
+                        const copilotSelect = document.getElementById('copilot-model');
+                        if (copilotSelect) {
+                            model = copilotSelect.value;
+                            if (copilotSelect.dataset) {
+                                copilotSelect.dataset.selectedModel = model;
+                            }
+                        }
                     } else if (provider === 'custom-api') {
-                        model = document.getElementById('custom-model').value;
+                        const customInput = document.getElementById('custom-model');
+                        if (customInput) {
+                            model = customInput.value;
+                        }
                     }
                     
                     if (model) {
@@ -1249,7 +1266,14 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                                 
                                 // GitHub Copilot config
                                 if (config.githubCopilot) {
-                                    document.getElementById('copilot-model').value = config.githubCopilot.model || 'gpt-4o';
+                                    const copilotSelect = document.getElementById('copilot-model');
+                                    if (copilotSelect) {
+                                        const savedModel = config.githubCopilot.model || 'gpt-4o';
+                                        copilotSelect.value = savedModel;
+                                        if (copilotSelect.dataset) {
+                                            copilotSelect.dataset.selectedModel = savedModel;
+                                        }
+                                    }
                                 }
                                 
                                 // Custom API config
@@ -1311,7 +1335,12 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 
                 function updateAvailableModels(models) {
                     const modelSelect = document.getElementById('copilot-model');
+                    if (!modelSelect) {
+                        return;
+                    }
+
                     if (models && models.length > 0) {
+                        const previousSelection = modelSelect.dataset ? (modelSelect.dataset.selectedModel || modelSelect.value) : '';
                         // Update options with available models
                         modelSelect.innerHTML = '';
                         models.forEach(model => {
@@ -1320,6 +1349,16 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                             option.textContent = model;
                             modelSelect.appendChild(option);
                         });
+
+                        if (previousSelection && models.some(m => m === previousSelection)) {
+                            modelSelect.value = previousSelection;
+                        } else {
+                            modelSelect.value = models[0];
+                        }
+
+                        if (modelSelect.dataset) {
+                            modelSelect.dataset.selectedModel = modelSelect.value;
+                        }
                     }
                 }
                 
