@@ -7,11 +7,7 @@ export interface PromptStrategy {
 }
 
 
-/**
- * DIRECT INSTRUCTION STRATEGY (Zero-Shot Optimized)
- * Implementiert direkte Instruktion mit optimaler Klarheit (Brown et al., 2020)
- * Wissenschaftliche Basis: Explizite Rollenzuweisung + strukturierte Aufgabendekomposition
- */
+// Direct instruction (zero-shot)
 class DirectInstructionStrategy implements PromptStrategy {
     public readonly name = 'direct-instruction';
     public readonly displayName = 'Direct Instruction (Zero-Shot)';
@@ -49,11 +45,7 @@ ${codeWithLineNumbers}
     }
 }
 
-/**
- * FEW-SHOT LEARNING STRATEGY (Optimized Exemplar Selection)
- * Implementiert strategische Musterinduzierung (Min et al., 2022)
- * Wissenschaftliche Basis: Kuratierte Exemplare für optimale Pattern Recognition
- */
+// Few-shot with examples
 class FewShotStrategy implements PromptStrategy {
     public readonly name = 'few-shot';
     public readonly displayName = 'Few-Shot Learning';
@@ -100,11 +92,7 @@ ${codeWithLineNumbers}
     }
 }
 
-/**
- * CHAIN-OF-THOUGHT REASONING STRATEGY (Explicit Analytical Process)
- * Implementiert schrittweise Reasoning-Prozesse (Wei et al., 2022)
- * Wissenschaftliche Basis: Strukturierte Denkphasen verbessern komplexe Analyseaufgaben
- */
+// Chain-of-thought (internal steps; output remains compact)
 class ChainOfThoughtStrategy implements PromptStrategy {
     public readonly name = 'chain-of-thought';
     public readonly displayName = 'Chain-of-Thought Reasoning';
@@ -134,18 +122,14 @@ ${codeWithLineNumbers}
     }
 }
 
-/**
- * Available prompt strategies (scientifically grounded implementations)
- */
+// Available strategies
 export const PROMPT_STRATEGIES: PromptStrategy[] = [
     new DirectInstructionStrategy(),
     new FewShotStrategy(),
     new ChainOfThoughtStrategy()
 ];
 
-/**
- * Get a prompt strategy by name
- */
+// Strategy by name
 export function getPromptStrategy(strategyName: string): PromptStrategy {
     const strategy = PROMPT_STRATEGIES.find(s => s.name === strategyName);
     if (!strategy) {
@@ -154,9 +138,7 @@ export function getPromptStrategy(strategyName: string): PromptStrategy {
     return strategy;
 }
 
-/**
- * Get default prompt strategy (Direct Instruction optimized for zero-shot performance)
- */
+// Default strategy
 export function getDefaultStrategy(): PromptStrategy {
-    return PROMPT_STRATEGIES[0]; // Direct Instruction as scientifically optimized default
+    return PROMPT_STRATEGIES[0];
 }

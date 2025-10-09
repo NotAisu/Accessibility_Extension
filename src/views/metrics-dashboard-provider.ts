@@ -43,7 +43,7 @@ export class MetricsDashboardProvider implements vscode.WebviewViewProvider {
 
         webviewView.webview.html = this._getHtmlForWebview();
 
-        // Message Handler
+    // Messages from the webview
         webviewView.webview.onDidReceiveMessage(async (data) => {
             switch (data.type) {
                 case 'clearData':
@@ -55,7 +55,7 @@ export class MetricsDashboardProvider implements vscode.WebviewViewProvider {
             }
         });
 
-        // Send initial data
+    // Load initial data
         setTimeout(() => {
             this.updateDashboard();
         }, 100);
@@ -70,7 +70,7 @@ export class MetricsDashboardProvider implements vscode.WebviewViewProvider {
         );
 
         if (result === 'Clear Data') {
-            // Verwende clearDataAndRefresh wenn DiagnosticCollections verfügbar sind
+            // Bei vorhandenen Collections: clearDataAndRefresh nutzen
             if (this.axeDiagnosticCollection && this.aiDiagnosticCollection) {
                 this.metricsService.clearDataAndRefresh(
                     this.axeDiagnosticCollection,

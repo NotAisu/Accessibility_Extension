@@ -1,9 +1,6 @@
 import * as vscode from 'vscode';
 
-/**
- * The Code Tutor Service uses the VS Code Language Model API (GitHub Copilot)
- * to create inline code annotations that help developers write more accessible code.
- */
+// Creates inline hints using the Language Model API (GitHub Copilot)
 export class CodeTutorService {
     private readonly decorationTypes: vscode.TextEditorDecorationType[] = [];
     private isActive: boolean = false; 
@@ -11,7 +8,7 @@ export class CodeTutorService {
 
         public async toggleAnnotations(textEditor: vscode.TextEditor): Promise<void> {
         if (this.isActive) {
-            // Annotations are ON → turn off
+            // Disable annotations
             this.clearAnnotations();
             this.isActive = false;
             vscode.window.showInformationMessage('Accessibility Tutor: annotations disabled');
@@ -21,22 +18,20 @@ export class CodeTutorService {
                 this.currentTokenSource = null;
             }
         } else {
-            // Annotations are OFF → turn on
+            // Enable annotations
             await this.annotateCode(textEditor);
             this.isActive = true;
             vscode.window.showInformationMessage('Accessibility Tutor: annotations enabled');
         }
     }
 
-    /**
-     * Main method that creates code annotations for the current editor.
-     */
+    // Generates annotations for the active editor
     public async annotateCode(textEditor: vscode.TextEditor): Promise<void> {
         try {
-            // Vorherige Annotations entfernen (sonst Duplikate bei Refresh)
+            // Remove previous annotations
             this.clearAnnotations();
 
-            // Step 1: Get visible code with line numbers
+            // Get visible code with line numbers
             const codeWithLineNumbers = this.getVisibleCodeWithLineNumbers(textEditor);
             
             if (!codeWithLineNumbers.trim()) {
@@ -44,8 +39,7 @@ export class CodeTutorService {
                 return;
             }
 
-            // Step 2: Select GitHub Copilot model
-            // Defensive: LM API ist nur in neueren VS Code Versionen verfügbar
+            // Select model (LM API may not be available in all VS Code versions)
             const lm: any = (vscode as any).lm;
             if (!lm || typeof lm.selectChatModels !== 'function') {
                 vscode.window.showWarningMessage('Language Model API not available in this VS Code version. Install/enable GitHub Copilot.');
@@ -59,18 +53,17 @@ export class CodeTutorService {
                 return;
             }
 
-            // Step 3: Prepare chat messages
+            // Prepare chat messages
             const lmMessageCtor: any = (vscode as any).LanguageModelChatMessage;
             const messages = lmMessageCtor ? [
                 lmMessageCtor.User(this.getAnnotationPrompt()),
                 lmMessageCtor.User(codeWithLineNumbers)
             ] : [
-                // Fallback: einfacher user Prompt
+                // Fallback: simple user prompt
                 { role: 'user', content: this.getAnnotationPrompt() + '\n\n' + codeWithLineNumbers }
             ];
 
-            // Step 4: Send request to model
-            // Cancellation verwalten (bei erneutem Start abbrechen)
+            // Send request; manage cancellation
             if (this.currentTokenSource) {
                 this.currentTokenSource.cancel();
                 this.currentTokenSource.dispose();
@@ -78,7 +71,7 @@ export class CodeTutorService {
             this.currentTokenSource = new vscode.CancellationTokenSource();
             const chatResponse: any = await model.sendRequest(messages, {}, this.currentTokenSource.token);
 
-            // Step 5: Process response and display decorations
+            // Parse response and show decorations
             await this.parseChatResponse(chatResponse, textEditor);
 
         } catch (error) {
@@ -87,9 +80,7 @@ export class CodeTutorService {
         }
     }
 
-    /**
-     * Removes all existing code annotations.
-     */
+    // Removes all existing annotations
     public clearAnnotations(): void {
         for (const decorationType of this.decorationTypes) {
             decorationType.dispose();
@@ -97,13 +88,11 @@ export class CodeTutorService {
         this.decorationTypes.length = 0;
     }
 
-    /**
-     * Gets the visible code with line numbers from the editor.
-     */
+    // Returns visible code with line numbers
     private getVisibleCodeWithLineNumbers(textEditor: vscode.TextEditor): string {
         if (!textEditor.visibleRanges.length) return '';
         let startLine = textEditor.visibleRanges[0].start.line;
-        let endLineInclusive = textEditor.visibleRanges[0].end.line; // VS Code end ist exklusiv für Range, hier nutzen wir inklusiv für Darstellung
+    let endLineInclusive = textEditor.visibleRanges[0].end.line; // end is exclusive → make inclusive here
         if (endLineInclusive > 0) endLineInclusive -= 1;
         const lines: string[] = [];
         for (let line = startLine; line <= endLineInclusive; line++) {
@@ -112,9 +101,7 @@ export class CodeTutorService {
         return lines.join('\n');
     }
 
-    /**
-     * Defines the prompt for the language model.
-     */
+    // Prompt sent to the Language Model
     private getAnnotationPrompt(): string {
     return `You are an accessibility tutor focused on reviewing source code for accessibility issues according to WCAG 2.2 AA standards. Analyze the provided code and identify line numbers that contain issues or could be improved for accessibility, especially semantic issues not detected by automated tools (semantic HTML structure, meaningful ARIA usage, keyboard accessibility, focus management, descriptive labels, etc.).
 
@@ -135,15 +122,15 @@ Return each suggestion as a standalone JSON object (JSON lines). Do not wrap in 
         let buffer = '';
         for await (const fragment of chatResponse.text) {
             buffer += fragment;
-            // Stream kann mehrere JSON-Objekte oder Teilobjekte enthalten – zeilenweise prüfen
+            // Stream may contain multiple JSON objects or partial objects – check line by line
             const lines = buffer.split(/\r?\n/);
-            // Letzte (potenziell unvollständige) Zeile im Buffer behalten
+            // Keep the last (potentially incomplete) line in the buffer
             buffer = lines.pop() || '';
             for (const line of lines) {
                 const trimmed = line.trim();
                 if (!trimmed) continue;
                 if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) {
-                    continue; // Keine vollständige JSON-Zeile
+                    continue; // Not a complete JSON line
                 }
                 try {
                     const obj = JSON.parse(trimmed);
@@ -151,11 +138,11 @@ Return each suggestion as a standalone JSON object (JSON lines). Do not wrap in 
                         this.applyDecoration(textEditor, obj.line, obj.suggestion);
                     }
                 } catch {
-                    // Ignorieren – Modell könnte Freitext gesendet haben
+                    // Ignore — model may have sent free text
                 }
             }
         }
-        // Versuche am Ende verbleibenden Rest als JSON zu interpretieren
+        // Try to parse remaining buffer as JSON at the end
         const final = buffer.trim();
         if (final.startsWith('{') && final.endsWith('}')) {
             try {
@@ -179,10 +166,10 @@ Return each suggestion as a standalone JSON object (JSON lines). Do not wrap in 
             }
         });
 
-        // Decoration-Type für spätere Aufräumung speichern
+        // Store decoration type for later cleanup
         this.decorationTypes.push(decorationType);
 
-        // Ende der Zeile mit der angegebenen Zeilennummer holen
+        // Get end position of the specified line
         const lineLength = editor.document.lineAt(line - 1).text.length;
         const range = new vscode.Range(
             new vscode.Position(line - 1, lineLength),

@@ -50,7 +50,7 @@ export class LLMService {
     private providers: Map<string, LLMProvider> = new Map();
     private secretStorage: vscode.SecretStorage;
     private metricsService?: MetricsService;
-    // Sehr einfacher In-Memory Cache (Prompt -> Result)
+    // Simple in-memory cache (prompt -> result)
     private cache: Map<string, { value: string; ts: number }> = new Map();
     private readonly CACHE_TTL_MS = 1000 * 60 * 2; // 2 Minuten sinnvoll ohne Overengineering
     
@@ -88,11 +88,11 @@ export class LLMService {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
 
-        // Cache Check (nur wenn Prompt nicht leer)
+    // Cache check (only if prompt is not empty)
         const cacheKey = 'fix:' + prompt;
         const cached = this.getFromCache(cacheKey);
         if (cached) {
-            // Trotzdem QuickFix Attempt für Konsistenz der Metriken registrieren
+            // Still record a quick-fix attempt for metric consistency
             let quickFixId = '';
             if (this.metricsService) quickFixId = this.metricsService.recordQuickFixAttempt();
             return { result: cached, quickFixId };
@@ -154,7 +154,7 @@ export class LLMService {
         }
     }
 
-    // --- Einfache Cache Helfer ---
+    // --- Simple cache helpers ---
     private getFromCache(key: string): string | undefined {
         const entry = this.cache.get(key);
         if (!entry) return undefined;
@@ -167,7 +167,7 @@ export class LLMService {
 
     private storeInCache(key: string, value: string): void {
         this.cache.set(key, { value, ts: Date.now() });
-        // Kleines LRU-Pruning (hart begrenzt auf 50 Einträge)
+    // Small LRU-style pruning (hard limit 50 entries)
         if (this.cache.size > 50) {
             const oldestKey = [...this.cache.entries()].sort((a,b)=>a[1].ts - b[1].ts)[0][0];
             this.cache.delete(oldestKey);
@@ -342,7 +342,7 @@ class LocalLLMProvider implements LLMProvider {
             return undefined;
         }
         
-        // Gängige API-Felder prüfen
+    // Check common API fields
         const possibleFields: (keyof LLMResponse)[] = [
             'text', 'content', 'answer', 'response', 'result', 'output', 'completion', 'generated_text'
         ];
@@ -354,7 +354,7 @@ class LocalLLMProvider implements LLMProvider {
             }
         }
         
-        // Verschachtelte Strukturen prüfen
+    // Check nested structures
         if (data.message) {
             if (typeof data.message === 'string') {
                 return data.message;
@@ -363,7 +363,7 @@ class LocalLLMProvider implements LLMProvider {
             }
         }
         
-        // OpenAI-Format prüfen
+    // Check OpenAI-like format
         if (data.choices && Array.isArray(data.choices) && data.choices.length > 0) {
             const choice = data.choices[0];
             
@@ -373,7 +373,7 @@ class LocalLLMProvider implements LLMProvider {
             if (choice.delta?.content) return choice.delta.content;
         }
         
-        // Fallback: Alle String-Properties durchsuchen
+    // Fallback: scan all string properties
         for (const key in data) {
             const val: unknown = (data as any)[key];
             if (typeof val === 'string' && val.trim().length > 0) {
@@ -401,9 +401,9 @@ class LocalLLMProvider implements LLMProvider {
             return genericMatch[1].trim();
         }
         
-        // Prüfen, ob der Text selbst gültiges HTML ist
+    // Check if the text looks like valid HTML
         if (text.includes('<') && text.includes('>')) {
-            // Vereinfachte Validierung für HTML-Tags
+            // Simplified validation for HTML tags
             const htmlTagRegex = /<[^>]+>[\s\S]*<\/[^>]+>/;
             const tagMatch = text.match(htmlTagRegex);
             
@@ -418,7 +418,7 @@ class LocalLLMProvider implements LLMProvider {
 }
 
 class CustomAPIProvider implements LLMProvider {
-    // Umbenannt für UI Anzeige
+    // Renamed for UI display
     name = 'OpenRouter';
     private useStructured = true;
     private useCaching = true;
@@ -427,7 +427,7 @@ class CustomAPIProvider implements LLMProvider {
     constructor(private secretStorage: vscode.SecretStorage) {}
     
     async isConfigured(): Promise<boolean> {
-        // Für OpenRouter reicht der API Key; Endpoint ist fest
+    // OpenRouter only needs the API key; endpoint is fixed
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
         return !!apiKey;
     }
@@ -443,7 +443,7 @@ class CustomAPIProvider implements LLMProvider {
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json',
-                    // Empfohlene zusätzliche Header für OpenRouter Ranking / Policy
+                    // Recommended extra headers for OpenRouter ranking/policy
                     'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
                     'X-Title': 'Accessibility Extension'
                 },
@@ -462,7 +462,7 @@ class CustomAPIProvider implements LLMProvider {
     async getAccessibilityFix(prompt: string): Promise<string> {
         const config = vscode.workspace.getConfiguration('accessibility');
     const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-    // Fester Endpoint für OpenRouter
+    // Fixed endpoint for OpenRouter
     const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
     const model = config.get<string>('customAPI.model', 'qwen/qwen3-coder:free');
         
@@ -478,7 +478,7 @@ class CustomAPIProvider implements LLMProvider {
                 'X-Title': 'Accessibility Extension'
             } as Record<string,string>;
 
-            // Prompt Caching: statischen & dynamischen Teil heuristisch teilen
+            // Prompt caching: heuristically split static and dynamic parts
             const { staticPart, dynamicPart } = this.splitPrompt(prompt);
             const userContent: any = this.useCaching ? [
                 { type: 'text', text: staticPart, cache_control: { type: 'ephemeral' } },
@@ -501,7 +501,7 @@ class CustomAPIProvider implements LLMProvider {
                 max_tokens: 512
             };
 
-            // Structured Outputs nur wenn Prompt ausdrücklich JSON verlangt (Analysefälle)
+            // Structured outputs only if prompt explicitly requests JSON (analysis cases)
             const wantsJSON = /json array|antworte nur als json/i.test(prompt);
             if (wantsJSON && this.useStructured && !this.structuredUnsupported.has(model)) {
                 body.response_format = {
@@ -562,7 +562,7 @@ class CustomAPIProvider implements LLMProvider {
         if (full.length < 1200) {
             return { staticPart: full, dynamicPart: '' };
         }
-        // Versuche letzten Absatz als dynamisch anzunehmen
+        // Treat the last paragraph as dynamic part
         const parts = full.split(/\n\n+/);
         if (parts.length < 2) return { staticPart: full, dynamicPart: '' };
         const dynamicPart = parts.pop() || '';
@@ -705,7 +705,7 @@ class GitHubCopilotProvider implements LLMProvider {
     }
     
     private extractCodeFromText(text: string): string {
-        // HTML-Code zwischen ```html und ``` extrahieren
+    // Extract HTML code between ```html fences
         const htmlCodeBlockRegex = /```html\s*([\s\S]*?)\s*```/;
         const htmlMatch = text.match(htmlCodeBlockRegex);
         
@@ -713,7 +713,7 @@ class GitHubCopilotProvider implements LLMProvider {
             return htmlMatch[1].trim();
         }
         
-        // Generischen Code zwischen ``` und ``` extrahieren
+    // Extract generic code between ``` fences
         const codeBlockRegex = /```\s*([\s\S]*?)\s*```/;
         const genericMatch = text.match(codeBlockRegex);
         
@@ -721,7 +721,7 @@ class GitHubCopilotProvider implements LLMProvider {
             return genericMatch[1].trim();
         }
         
-        // Prüfen, ob der Text selbst gültiges HTML ist
+    // Check if the text itself is valid-looking HTML
         if (text.includes('<') && text.includes('>')) {
             return text.trim();
         }

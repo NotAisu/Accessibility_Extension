@@ -61,9 +61,7 @@ type WebviewMessage =
     | SaveModelMessage
     | SaveApiKeyMessage;
 
-/**
- * WebView Provider für AI Accessibility Settings
- */
+/** Webview provider for AI Accessibility Settings */
 export class LLMSettingsProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'aiAccessibilitySettings';
 
@@ -116,7 +114,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        // Message Handler für WebView Kommunikation
+    // Message handler for webview communication
         webviewView.webview.onDidReceiveMessage(async (data: WebviewMessage) => {
             switch (data.type) {
                 case 'providerChanged':
@@ -209,7 +207,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
 
     private async handleApiKeySave(apiKey: string): Promise<void> {
         try {
-            // SecretStorage für API Key verwenden
+            // Store API key using SecretStorage
             const secretStorage = this.llmService.getSecretStorage();
             await secretStorage.store('accessibility.customAPI.apiKey', apiKey);
             
@@ -290,7 +288,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     'Analysis Scope: Visible code only' : 
                     'Analysis Scope: Entire document';
                 
-                // Status Bar Item für schnelle Benachrichtigung
+                // Temporary status bar notification
                 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
                 statusBarItem.text = `$(gear) ${message}`;
                 statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
@@ -316,7 +314,7 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                     `Prompt Strategy: ${strategyObj.displayName}` : 
                     `Prompt Strategy: ${strategy}`;
                 
-                // Status Bar Item für schnelle Benachrichtigung
+                // Temporary status bar notification
                 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
                 statusBarItem.text = `$(brain) ${message}`;
                 statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
@@ -350,13 +348,18 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 return;
             }
 
-            // Progress anzeigen
+            // Progress anzeigen (cancellable)
+            const controller = new AbortController();
+            const { signal } = controller;
             await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: "AI Semantic Analysis running...",
-                cancellable: false
-            }, async () => {
-                await this.aiAnalyzer!.startAnalysis();
+                cancellable: true
+            }, async (progress, token) => {
+                token.onCancellationRequested(() => {
+                    controller.abort();
+                });
+                await this.aiAnalyzer!.startAnalysis(undefined, undefined, signal);
             });
 
             // Metrics Dashboard nach AI-Analyse aktualisieren
@@ -419,14 +422,14 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
         const analysisScope = config.get<'visible' | 'document'>('aiAnalyzer.scope', 'visible');
         const promptStrategy = config.get<string>('aiAnalyzer.promptStrategy', 'direct-instruction');
         
-        // Provider-spezifische Konfigurationen
+    // Provider-specific configuration
         const localEndpoint = config.get<string>('localLLM.endpoint', 'http://127.0.0.1:1234');
         const localModel = config.get<string>('localLLM.model', 'mistralai/devstral-small-2507');
         const githubModel = config.get<string>('githubCopilot.model', 'gpt-4o');
     const customEndpoint = config.get<string>('customAPI.endpoint', 'https://openrouter.ai/api/v1/chat/completions');
     const customModel = config.get<string>('customAPI.model', 'qwen/qwen3-coder:free');
         
-        // API Key aus SecretStorage holen
+    // Read API key from SecretStorage
         const secretStorage = this.llmService.getSecretStorage();
         const hasApiKey = !!(await secretStorage.get('accessibility.customAPI.apiKey'));
 
@@ -453,10 +456,10 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
             }
         });
 
-        // Connection Status prüfen
+    // Check connection status
         await this.updateConnectionStatus();
         
-        // Verfügbare Modelle laden (wenn GitHub Copilot)
+    // Load available models (for GitHub Copilot)
         if (currentProvider === 'github-copilot') {
             await this.handleGetAvailableModels();
         }
@@ -1020,12 +1023,12 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 <div class="prompt-strategy">
                     <label for="prompt-strategy-select">Prompt Strategy:</label>
                     <select id="prompt-strategy-select" class="strategy-dropdown">
-                        <option value="direct-instruction">Direct Instruction - Scientifically optimized zero-shot analysis</option>
-                        <option value="few-shot">Few-Shot Learning - Strategic pattern induction through examples</option>
-                        <option value="chain-of-thought">Chain-of-Thought - Structured analytical reasoning process</option>
+                        <option value="direct-instruction">Zero Shot</option>
+                        <option value="few-shot">Few Shot</option>
+                        <option value="chain-of-thought">Chain of Thought</option>
                     </select>
                     <div class="strategy-description" id="strategy-description">
-                        Direct instruction with single example for quick analysis
+                        
                     </div>
                 </div>
                 
@@ -1099,9 +1102,9 @@ export class LLMSettingsProvider implements vscode.WebviewViewProvider {
                 
                 function updateStrategyDescription(strategy) {
                     const descriptions = {
-                        'direct-instruction': 'Scientifically optimized zero-shot approach with explicit role assignment and structured task decomposition (Brown et al., 2020)',
-                        'few-shot': 'Strategic pattern induction through curated high-signal examples for optimal learning (Min et al., 2022)',
-                        'chain-of-thought': 'Structured analytical reasoning with explicit intermediate validation steps (Wei et al., 2022)'
+                        'direct-instruction': 'Zero Shot: Prompt ohne Beispiele.',
+                        'few-shot': 'Few Shot: Prompt mit Beispielen.',
+                        'chain-of-thought': 'Chain of Thought: Schrittweise Begründung.'
                     };
                     
                     const descElement = document.getElementById('strategy-description');
