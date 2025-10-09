@@ -1,30 +1,9 @@
 [
-  {
-    "line": 7,
-    "ruleId": "1.1.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add alt attribute with descriptive text, e.g., alt=\"User profile picture\""
-  },
-  {
-    "line": 15,
-    "ruleId": "1.1.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add aria-hidden=\"true\" to hide the decorative icon from assistive technologies"
-  },
-  {
-    "line": 24,
-    "ruleId": "1.1.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add aria-hidden=\"true\" to hide the decorative icon from assistive technologies"
-  },
-  {
-    "line": 32,
-    "ruleId": "1.1.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add aria-hidden=\"true\" to hide the decorative icon from assistive technologies"
-  }
+  { "line": 7, "ruleId": "1.1.1" },
+  { "line": 8, "ruleId": "1.3.1" },
+  { "line": 15, "ruleId": "1.1.1" },
+  { "line": 24, "ruleId": "1.1.1" },
+  { "line": 32, "ruleId": "1.1.1" },
+  { "line": 53, "ruleId": "2.4.4" },
+  { "line": 63, "ruleId": "2.4.4" }
 ]

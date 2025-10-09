@@ -12,24 +12,24 @@ dotenv.config();
 interface TestResult {
     file: string;
     mode: 'axe' | 'ai' | 'combined';
-    strategy?: string; // Prompt-Strategie (nur AI / Combined)
-    provider?: string; // AI Provider (z.B. OpenRouter)
-    model?: string;    // Modell-ID
-    run?: number;      // Lauf (für Mehrfachläufe)
+    strategy?: string; // Prompt strategy (AI/Combined only)
+    provider?: string; // AI provider (e.g., OpenRouter)
+    model?: string;    // Model ID
+    run?: number;      // Run index (for repeated runs)
     found: number;
     expected: number;
     timeMs: number;
     tokens: number;
-    cost?: number; // Kosten in USD (falls verfügbar)
-    generationId?: string; // OpenRouter Generation ID
-    details: string[]; // Textuelle Details
+    cost?: number; // Cost in USD (if available)
+    generationId?: string; // OpenRouter generation ID
+    details: string[]; // Plain-text details
     precision?: number;
     recall?: number;
     f1?: number;
     tp?: number;
     fp?: number;
     fn?: number;
-    // Zusätzliche Metriken für Combined-Tests
+    // Additional metrics for combined mode
     axe_tp?: number;
     axe_fp?: number;
     ai_additional_tp?: number;
@@ -46,14 +46,14 @@ class OpenRouterAPI {
     private key = (process.env.OPENROUTER_API_KEY || '').trim();
     private useStructured = (process.env.AI_STRUCTURED || '1') !== '0';
     private useCaching = (process.env.AI_CACHE || '0') === '1';
-    private structuredUnsupported = new Set<string>(); // Modelle bei denen response_format fehlschlug
+    private structuredUnsupported = new Set<string>(); // Models where response_format failed
     public async analyze(prompt: string, model: string): Promise<{ content: string; tokens: number; cost?: number; generationId?: string }> {
         if (!this.key) {
-            console.warn('[AI] OPENROUTER_API_KEY fehlt – AI Test übersprungen.');
+            console.warn('[AI] OPENROUTER_API_KEY missing — skipping AI test.');
             return { content: '[]', tokens: 0 };
         }
         try {
-            // Prompt Aufteilung: großer statischer Code-Block (cache_control) + Instruktion
+            // Prompt split: large static code block (cache_control) + instruction
             const [staticPart, instructionPart] = this.splitPrompt(prompt);
             const messages: any[] = [
                 {
@@ -69,9 +69,9 @@ class OpenRouterAPI {
                 model,
                 messages,
                 temperature: 0,
-                // OPTIMIERUNG: Direkte Kosten im Response statt separater Generation API Call
+                // Optimization: request cost in the response instead of a separate generation API call
                 usage: {
-                    include: true  // Aktiviert detaillierte usage + cost info direkt im response
+                    include: true  // Enables detailed usage + cost info directly in the response
                 }
             };
             if (this.useStructured && !this.structuredUnsupported.has(model)) {
@@ -98,7 +98,7 @@ class OpenRouterAPI {
                     }
                 };
             }
-            // Timeout Handling für Hänger
+            // Timeout handling for stalled requests
             const controller = new AbortController();
             const timeoutMs = parseInt(process.env.AI_TIMEOUT_MS || '45000', 10);
             const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -116,10 +116,10 @@ class OpenRouterAPI {
             });
             clearTimeout(timeout);
             if (!response.ok) {
-                // Falls Modell structured outputs nicht unterstützt → einmalig deaktivieren und Fallback ohne response_format
+                // If the model does not support structured outputs → disable once and retry without response_format
                 if (this.useStructured && response.status === 400 && !this.structuredUnsupported.has(model)) {
                     this.structuredUnsupported.add(model);
-                    console.warn(`[AI] Structured outputs nicht unterstützt für Modell ${model} – Fallback.`);
+                    console.warn(`[AI] Structured outputs not supported for model ${model} — falling back.`);
                     return this.analyze(prompt, model);
                 }
                 const text = await response.text();
@@ -129,14 +129,14 @@ class OpenRouterAPI {
             const data = await response.json();
             let content = data.choices?.[0]?.message?.content;
             if (content && typeof content !== 'string') {
-                // Structured Output liefert Objekt → in String serialisieren
+                // Structured output returns an object → serialize to string
                 content = JSON.stringify(content);
             }
             
-            // Kosten und Tokens direkt aus usage-Feld extrahieren (viel effizienter als Generation API)
+            // Extract cost and tokens from the usage field (more efficient than a separate generation API)
             const usage = data.usage || {};
             const tokens = usage.total_tokens || 0;
-            const cost = usage.cost; // Direkt verfügbar dank usage: {include: true}
+            const cost = usage.cost; // Available directly via usage: { include: true }
             const generationId = data.id;
             
             return { 
@@ -146,13 +146,13 @@ class OpenRouterAPI {
                 generationId
             };
         } catch (e) {
-            console.error('[AI] Request Fehler:', e);
+            console.error('[AI] Request error:', e);
             return { content: '[]', tokens: 0, cost: undefined, generationId: undefined };
         }
     }
 
     private splitPrompt(full: string): [string,string] {
-        const marker = 'Antworte NUR als JSON';
+        const marker = 'Answer ONLY as JSON';
         const idx = full.indexOf(marker);
         if (idx === -1) return [full, ''];
         return [full.slice(0, idx).trim(), full.slice(idx).trim()];
@@ -161,18 +161,36 @@ class OpenRouterAPI {
 
 export class TestSuite {
     private api = new OpenRouterAPI();
-    private readonly TEST_FILES = [
-        'wcag-violations.html',
-        'wcag-violations.jsx',
-        'wcag-violations.tsx',
-        'wcag-violations.vue',
-        'wcag-violations.svelte',
-        'no-violations.html'
-    ];
+    private readonly TEST_FILES: string[];
     private readonly MODELS: string[] = (process.env.AI_MODELS || process.env.OPENROUTER_DEFAULT_MODEL || 'qwen/qwen3-coder:free')
         .split(',')
         .map(m => m.trim())
         .filter(Boolean);
+
+    constructor() {
+        // Load all files from test/fixtures dynamically
+        const fixturesDir = path.join(process.cwd(), 'test', 'fixtures');
+        try {
+            this.TEST_FILES = fs.readdirSync(fixturesDir)
+                .filter(f => {
+                    const filePath = path.join(fixturesDir, f);
+                    return fs.statSync(filePath).isFile() && !f.startsWith('.');
+                })
+                .sort(); // Alphabetical sort for stable order
+            console.log(`📁 Loaded ${this.TEST_FILES.length} fixtures from test/fixtures/`);
+        } catch (error) {
+            console.error('❌ Failed to read fixtures directory:', error);
+            // Fallback to a small hardcoded list
+            this.TEST_FILES = [
+                'wcag-violations.html',
+                'wcag-violations.jsx',
+                'wcag-violations.tsx',
+                'wcag-violations.vue',
+                'wcag-violations.svelte',
+                'no-violations.html'
+            ];
+        }
+    }
    
 
     private getRuns(): number {
@@ -240,7 +258,7 @@ export class TestSuite {
                             const key = `${v.line}|${v.ruleId.trim()}`;
                             return !axeKeys.has(key);
                         });
-                        // Nur valide (line + ruleId) berücksichtigen – leere ruleIds verfälschen sonst Metriken
+                        // Consider only valid entries (line + ruleId) — empty ruleIds would skew metrics
                         const predictedKeys = new Set(
                             filteredViolations
                                 .map(v => `${v.line}|${v.ruleId!.trim()}`)
@@ -257,8 +275,8 @@ export class TestSuite {
                             expected: expectedKeys.size,
                             timeMs: Date.now() - start,
                             tokens: ai.tokens,
-                            cost: ai.cost, // Kosten hinzufügen
-                            generationId: ai.generationId, // Generation ID hinzufügen
+                            cost: ai.cost, // Include cost
+                            generationId: ai.generationId, // Include generation ID
                             details: filteredViolations.map(v => `line=${v.line} rule=${v.ruleId} elem=${v.element} issue=${v.issue}`),
                             precision: metrics.precision,
                             recall: metrics.recall,
@@ -275,7 +293,7 @@ export class TestSuite {
                         PROMPT_STRATEGIES.filter(s => onlyStrategiesEnv.split(',').map(x=>x.trim()).includes(s.name)) : 
                         PROMPT_STRATEGIES;
                     for (const strategy of activeStrategies) {
-                        await runStrategy(strategy.name); // strikt nacheinander
+                        await runStrategy(strategy.name); // strictly sequential
                     }
                 }
             }
@@ -289,7 +307,7 @@ export class TestSuite {
         console.log('\n🚀 Running Combined Tests...\n');
         const results: TestResult[] = [];
         const runs = this.getRuns();
-        // Cache Axe Violations pro (run,model,file) damit nicht jede Strategie erneut scannt
+        // Cache axe violations per (run, model, file) so each strategy doesn't rescan
         const axeCache = new Map<string, any[]>();
         for (let run = 1; run <= runs; run++) {
             if (runs > 1) console.log(`Run ${run}/${runs}`);
@@ -301,7 +319,7 @@ export class TestSuite {
                     const runStrategy = async (strategyName: string) => {
                         const start = Date.now();
                         const content = this.loadFile(file);
-                        // Axe Ergebnisse zuerst holen
+                        // Get axe results first
                         const axeKey = `${run}|${model}|${file}`;
                         let axeViolations = axeCache.get(axeKey);
                         if (!axeViolations) {
@@ -309,7 +327,7 @@ export class TestSuite {
                             axeCache.set(axeKey, axeViolations);
                         }
                         const axeKeys = this.mapAxeLineKeys(content, axeViolations);
-                        // AI Ergebnisse
+                        // AI results
                         const aiResult = await this.aiTest(content, strategyName, model);
                         // Filter AI violations
                         const filteredAiViolations = aiResult.violations.filter(v => {
@@ -323,21 +341,21 @@ export class TestSuite {
                         );
                         const duplicates = this.computeDuplicates(filteredAiViolations, axeViolations);
                         
-                        // ECHTE UNION: AI ∪ Axe Line-Mapping
+                        // True union: AI ∪ Axe line mapping
                         const axeLineKeys = this.mapAxeLineKeys(content, axeViolations);
                         const combinedKeys = new Set<string>([...aiKeys, ...axeLineKeys]);
                         
-                        // Metriken für verschiedene Komponenten
-                        const axeMetrics = this.calcMetricsKeys(expectedKeys, axeKeys); // Axe-Performance (sollte perfekt sein)
-                        const aiOnlyMetrics = this.calcMetricsKeys(expectedKeys, aiKeys); // AI zusätzliche Findings
-                        const combinedMetrics = this.calcMetricsKeys(expectedKeys, combinedKeys); // Gesamt-Performance
+                        // Metrics for individual components
+                        const axeMetrics = this.calcMetricsKeys(expectedKeys, axeKeys); // Axe baseline (expected to be perfect)
+                        const aiOnlyMetrics = this.calcMetricsKeys(expectedKeys, aiKeys); // AI-only additional findings
+                        const combinedMetrics = this.calcMetricsKeys(expectedKeys, combinedKeys); // Overall performance
                         
-                        // Wichtige Insights für Extension-Verhalten
-                        const axeTP = axeMetrics.tp; // Axe True Positives (sollte = axeKeys.size sein)
-                        const axeFP = axeMetrics.fp; // Axe False Positives (sollte = 0 sein) 
-                        const aiAdditionalTP = aiOnlyMetrics.tp; // AI zusätzliche True Positives
-                        const aiAdditionalFP = aiOnlyMetrics.fp; // AI zusätzliche False Positives
-                        const totalRecallGain = combinedMetrics.recall - axeMetrics.recall; // Verbesserung durch AI
+                        // Key insights for the extension behavior
+                        const axeTP = axeMetrics.tp; // Axe true positives (should equal axeKeys.size)
+                        const axeFP = axeMetrics.fp; // Axe false positives (should be 0)
+                        const aiAdditionalTP = aiOnlyMetrics.tp; // AI extra true positives
+                        const aiAdditionalFP = aiOnlyMetrics.fp; // AI extra false positives
+                        const totalRecallGain = combinedMetrics.recall - axeMetrics.recall; // Improvement due to AI
                         
                         const details: string[] = [
                             `axe_found=${axeKeys.size}`,
@@ -361,7 +379,7 @@ export class TestSuite {
                             run,
                             provider: 'OpenRouter',
                             model,
-                            found: combinedKeys.size,  // UNION statt nur AI
+                            found: combinedKeys.size,  // Union (not just AI)
                             expected: expectedKeys.size,
                             timeMs: Date.now() - start,
                             tokens: aiResult.tokens,
@@ -374,7 +392,7 @@ export class TestSuite {
                             tp: combinedMetrics.tp,
                             fp: combinedMetrics.fp,
                             fn: combinedMetrics.fn,
-                            // Zusätzliche Combined-Metriken
+                            // Additional combined metrics
                             axe_tp: axeTP,
                             axe_fp: axeFP,
                             ai_additional_tp: aiAdditionalTP,
@@ -400,10 +418,10 @@ export class TestSuite {
     }
 
     private loadFile(filename: string): string {
-        // Absoluter Pfad zur Laufzeit unabhängig von __dirname
+        // Absolute path resolution at runtime, independent of __dirname
         const filePath = path.join(__dirname, '..', '..', 'test', 'fixtures', filename);
         if (!fs.existsSync(filePath)) {
-            // Fallback für ts-node execution
+            // Fallback for ts-node execution
             const fallbackPath = path.join(process.cwd(), 'test', 'fixtures', filename);
             return fs.readFileSync(fallbackPath, 'utf-8');
         }
@@ -417,6 +435,10 @@ export class TestSuite {
             finalPath = path.join(process.cwd(), 'test', 'expected', `${filename}.json`);
         }
         try {
+            if (!fs.existsSync(finalPath)) {
+                console.warn(`⚠️  Expected file missing: ${filename}.json — metrics will be computed without a baseline`);
+                return [];
+            }
             const raw = fs.readFileSync(finalPath, 'utf-8');
             const parsed = JSON.parse(raw) as any[];
             const valid: ExpectedViolation[] = [];
@@ -429,10 +451,11 @@ export class TestSuite {
                 }
             }
             if (invalidCount > 0) {
-                console.warn(`[GT] ${filename}: ${invalidCount} ungültige Ground-Truth Einträge ignoriert (fehlende line/ruleId).`);
+                console.warn(`[GT] ${filename}: ${invalidCount} invalid ground-truth entries ignored (missing line/ruleId).`);
             }
             return valid;
-        } catch {
+        } catch (error) {
+            console.warn(`⚠️  Failed to load expected file for ${filename}: ${error}`);
             return [];
         }
     }
@@ -444,11 +467,11 @@ export class TestSuite {
     }
 
     /**
-     * Echtes axe-core Testing wie in der Extension
+     * Run axe-core in JSDOM similar to the extension.
      */
     private async realAxeTest(content: string, filename: string): Promise<any[]> {
         try {
-            // Für non-HTML Dateien, wrappen wir in HTML für axe-core
+            // For non-HTML files, wrap into minimal HTML for axe-core
             let htmlContent = content;
             if (!filename.endsWith('.html')) {
                 htmlContent = this.wrapInHTML(content, filename);
@@ -456,7 +479,7 @@ export class TestSuite {
 
             const { window } = new JSDOM(htmlContent, { pretendToBeVisual: true, resources: 'usable' });
             
-            // Canvas getContext überschreiben (jsdom wirft sonst Not Implemented). Minimales measureText Stub.
+            // Override canvas getContext (JSDOM throws Not Implemented). Provide a minimal measureText stub.
             try {
                 window.HTMLCanvasElement.prototype.getContext = function() { return { measureText: () => ({ width: 0 }) } as any; };
             } catch {}
@@ -464,7 +487,7 @@ export class TestSuite {
             const results = await axe.run(window.document.documentElement, {
                 runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'] },
                 resultTypes: ['violations'],
-                preload: false, // Verhindert "Preload assets timed out" Fehler
+                preload: false, // Avoids "Preload assets timed out" errors
             });
 
             return results.violations || [];
@@ -480,7 +503,7 @@ export class TestSuite {
     }
 
     private computeDuplicates(aiViolations: AIParsedViolation[], axeViolations: any[]): string[] {
-        // Einfache Heuristik: gleicher ruleId String
+        // Simple heuristic: same ruleId string
         const axeIds = new Set(axeViolations.map(v => v.id));
         const dups = new Set<string>();
         for (const v of aiViolations) {
@@ -490,9 +513,9 @@ export class TestSuite {
     }
     
     /**
-     * Heuristisches Zeilen-Mapping für axe Violations zur Bildung von line|ruleId Keys.
-     * Sucht das erste HTML Fragment oder Tag im Original-Content.
-     * Limitationen (Mehrfach-Vorkommen, transformierte Wrapper) werden in der Methodik dokumentiert.
+     * Heuristic line mapping for axe violations to form line|ruleId keys.
+     * Looks for the first HTML fragment or tag in the original content.
+     * Known limitations: duplicates, transformed wrappers.
      */
     private mapAxeLineKeys(originalContent: string, axeViolations: any[]): Set<string> {
         const content = originalContent;
@@ -535,26 +558,26 @@ export class TestSuite {
     }
 
     /**
-     * Wrappe JSX/TSX/Vue/Svelte Content in HTML für axe-core
+     * Wrap JSX/TSX/Vue/Svelte content into HTML for axe-core.
      */
     private wrapInHTML(content: string, filename: string): string {
         if (filename.endsWith('.html')) {
             return content;
         }
 
-        // Für JSX/TSX, extrahiere JSX und konvertiere zu HTML-ähnlich
+        // For JSX/TSX: extract JSX and convert to HTML-like content
         if (filename.endsWith('.jsx') || filename.endsWith('.tsx')) {
             const jsxContent = this.extractJSXElements(content);
             return `<!DOCTYPE html><html><head><title>Test</title></head><body>${jsxContent}</body></html>`;
         }
 
-        // Für Vue, extrahiere Template
+        // For Vue: extract <template>
         if (filename.endsWith('.vue')) {
             const templateContent = this.extractVueTemplate(content);
             return `<!DOCTYPE html><html><head><title>Test</title></head><body>${templateContent}</body></html>`;
         }
 
-        // Für Svelte, extrahiere HTML Teil
+        // For Svelte: extract HTML part
         if (filename.endsWith('.svelte')) {
             const htmlContent = this.extractSvelteHTML(content);
             return `<!DOCTYPE html><html><head><title>Test</title></head><body>${htmlContent}</body></html>`;
@@ -564,22 +587,22 @@ export class TestSuite {
     }
 
     private extractJSXElements(content: string): string {
-        // Vereinfachte JSX zu HTML Konvertierung
+        // Simplified JSX-to-HTML conversion
         let html = content;
         
-        // Entferne Imports, Exports, Functions
+        // Remove imports, exports, and function declarations
         html = html.replace(/^import.*$/gm, '');
         html = html.replace(/^export.*$/gm, '');
         html = html.replace(/const\s+\w+.*?=.*?=>\s*\{/g, '');
         html = html.replace(/function\s+\w+.*?\{/g, '');
         
-        // Finde JSX Return statements
+        // Find JSX return statements
         const jsxMatch = html.match(/return\s*\(([\s\S]*?)\);?\s*}/);
         if (jsxMatch) {
             html = jsxMatch[1];
         }
         
-        // JSX zu HTML conversions
+        // JSX-to-HTML conversions
         html = html.replace(/className=/g, 'class=');
         html = html.replace(/\{[^}]*\}/g, ''); // Remove JS expressions
         
@@ -592,7 +615,7 @@ export class TestSuite {
     }
 
     private extractSvelteHTML(content: string): string {
-        // Entferne Script und Style Blöcke
+        // Remove <script> and <style> blocks
         let html = content.replace(/<script[\s\S]*?<\/script>/g, '');
         html = html.replace(/<style[\s\S]*?<\/style>/g, '');
         return html.trim();
@@ -601,7 +624,7 @@ export class TestSuite {
     private async aiTest(content: string, strategyName: string, model: string): Promise<{ violations: AIParsedViolation[]; tokens: number; cost?: number; generationId?: string }> {
         try {
             const strategy = getPromptStrategy(strategyName);
-                        const prompt = strategy.generatePrompt(this.addLineNumbers(content)) + '\n\nAntworte NUR als JSON Array von Objekten im Format: [{"line": <number>, "element": "<tag>", "issue": "<kurz>", "recommendation": "<fix>", "ruleId": "<wcag/rule>"}]';
+                        const prompt = strategy.generatePrompt(this.addLineNumbers(content)) + '\n\nAnswer ONLY as a JSON array of objects in the format: [{"line": <number>, "element": "<tag>", "issue": "<short>", "recommendation": "<fix>", "ruleId": "<wcag/rule>"}]';
             const response = await this.api.analyze(prompt, model);
                         const violations = normalizeRuleIds(
                                 parseAIAnalysis(response.content)
@@ -660,7 +683,7 @@ export class TestSuite {
                 case 'recall_gain': return escape(r.recall_gain?.toFixed(3) || '');
                 case 'timeMs': return escape(r.timeMs);
                 case 'tokens': return escape(r.tokens);
-                case 'cost_usd': return escape(r.cost !== undefined ? r.cost.toFixed(6) : ''); // Immer 6 Nachkommastellen für maximale Präzision
+                case 'cost_usd': return escape(r.cost !== undefined ? r.cost.toFixed(6) : ''); // Always 6 decimals for consistency
                 case 'generation_id': return escape(r.generationId || '');
                 case 'details': return escape(r.details.join('; '));
                 default: return '';

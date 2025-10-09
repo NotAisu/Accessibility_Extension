@@ -1,65 +1,8 @@
 [
-  {
-    "line": 126,
-    "ruleId": "1.3.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add a top‑level heading (e.g., <h1>) before this <h2> or change it to <h1> so the page has an h1 heading."
-  },
-  {
-    "line": 170,
-    "ruleId": "1.3.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add a top‑level heading (e.g., <h1>) before this <h2> or change it to <h1> so the page has an h1 heading."
-  },
-  {
-    "line": 462,
-    "ruleId": "1.3.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add a top‑level heading (e.g., <h1>) before this <h2> or change it to <h1> so the page has an h1 heading."
-  },
-  {
-    "line": 503,
-    "ruleId": "1.3.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add a top‑level heading (e.g., <h1>) before this <h2> or change it to <h1> so the page has an h1 heading."
-  },
-  {
-    "line": 544,
-    "ruleId": "1.3.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add a top‑level heading (e.g., <h1>) before this <h2> or change it to <h1> so the page has an h1 heading."
-  },
-  {
-    "line": 607,
-    "ruleId": "1.3.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add a top‑level heading (e.g., <h1>) before this <h2> or change it to <h1> so the page has an h1 heading."
-  },
-  {
-    "line": 679,
-    "ruleId": "1.3.1",
-    "element": "",
-    "issue": "",
-    "recommendation": "Add a top‑level heading (e.g., <h1>) before this <h2> or change it to <h1> so the page has an h1 heading."
-  },
-  {
-    "line": 188,
-    "ruleId": "3.3.2",
-    "element": "",
-    "issue": "",
-    "recommendation": "Do not nest <label> elements; give each input its own label and associate via for/id or wrapping, removing the outer label that lacks a control."
-  },
-  {
-    "line": 240,
-    "ruleId": "3.3.2",
-    "element": "",
-    "issue": "",
-    "recommendation": "Remove the duplicate 'label' attribute and set for=\"country\" to match the input id, ensuring the label correctly references the form control."
-  }
+  { "line": 80, "ruleId": "1.3.1" },
+  { "line": 93, "ruleId": "1.3.1" },
+  { "line": 240, "ruleId": "4.1.2" },
+  { "line": 256, "ruleId": "4.1.2" },
+  { "line": 339, "ruleId": "1.3.1" },
+  { "line": 464, "ruleId": "1.1.1" }
 ]
