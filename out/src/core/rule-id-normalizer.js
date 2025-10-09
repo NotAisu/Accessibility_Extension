@@ -1,23 +1,23 @@
 "use strict";
 /**
- * Normalisiert ruleIds (axe-core Rule IDs, freie AI Beschreibungen, WCAG Nummern) auf einen
- * kanonischen Schlüssel für Metriken & Duplikat-Filterung.
- * Strategie:
- * 1. Trimme & lowercase
- * 2. WCAG Nummern (z.B. 1.4.3) bleiben erhalten
- * 3. Mapping von bekannten axe / umgangssprachlichen Synonymen auf WCAG Nummer
- * 4. Entferne Sonderzeichen / mehrfach Spaces
+ * Normalizes ruleIds (axe-core rule IDs, free-form AI descriptions, WCAG numbers) to a
+ * canonical key for metrics and duplicate filtering.
+ * Strategy:
+ * 1. Trim and lowercase
+ * 2. Keep WCAG numbers (e.g., 1.4.3) as-is
+ * 3. Map known axe IDs / colloquial synonyms to WCAG numbers
+ * 4. Remove special characters / excessive spaces
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.normalizeRuleIds = exports.normalizeRuleId = void 0;
-// Statisches Synonym-Mapping entfernt: nur echte axe-core RuleIDs werden berücksichtigt.
-// Multi-SC & Primär-Entscheidung erfolgt dynamisch in axe-wcag-dynamic.ts
-// Vollständiges Mapping: jede axe-core RuleID -> primäres (oder abgeleitetes) WCAG Erfolgskriterium.
-// Quellen:
-//  - Offizielle axe Tags (wcagXYZ) für eindeutige Zuordnung
-//  - Multi-SC: fachliche Priorisierung (PRIMARY_OVERRIDE in axe-wcag-dynamic.ts gespiegelt)
-//  - Ohne WCAG Tag: begründete, heuristische Zuordnung (klar markieren, in Thesis dokumentieren)
-// Hinweis: Nur EIN SC pro Regel für Metrik-Konsistenz; Multi-SC Fälle verlieren sekundäre Kriterien.
+// Static synonym mapping note: only real axe-core rule IDs are considered.
+// Multi-SC & primary decision is handled dynamically elsewhere.
+// Full mapping: each axe-core rule ID -> primary (or derived) WCAG success criterion.
+// Sources:
+//  - Official axe tags (wcagXYZ) for unambiguous mapping
+//  - Multi-SC: practical prioritization (primary override mirrored elsewhere)
+//  - Without WCAG tag: reasoned heuristic mapping
+// Note: Only ONE SC per rule for metric consistency; Multi-SC cases drop secondary criteria.
 const SYNONYM_MAP = {
     // --- Mit offiziellen WCAG Tags (Single) ---
     'aria-allowed-attr': '4.1.2',
@@ -87,14 +87,14 @@ const SYNONYM_MAP = {
     'th-has-data-cells': '1.3.1',
     'valid-lang': '3.1.2',
     'video-caption': '1.2.2',
-    // --- Multi-SC (offizielle mehrere Tags) – Primär ausgewählt ---
-    'area-alt': '2.4.4', // sekundär 4.1.2
-    'aria-hidden-body': '1.3.1', // sekundär 4.1.2
-    'input-image-alt': '1.1.1', // sekundär 4.1.2
-    'link-name': '2.4.4', // sekundär 4.1.2
-    'meta-refresh-no-exceptions': '2.2.4', // sekundär 3.2.5
-    'scrollable-region-focusable': '2.1.1', // sekundär 2.1.3
-    // --- Regeln ohne offizielle WCAG Ziffern-Tags (heuristische Zuordnung) ---
+    // --- Multi-SC (official multiple tags) – primary selected ---
+    'area-alt': '2.4.4', // secondary 4.1.2
+    'aria-hidden-body': '1.3.1', // secondary 4.1.2
+    'input-image-alt': '1.1.1', // secondary 4.1.2
+    'link-name': '2.4.4', // secondary 4.1.2
+    'meta-refresh-no-exceptions': '2.2.4', // secondary 3.2.5
+    'scrollable-region-focusable': '2.1.1', // secondary 2.1.3
+    // --- Rules without official WCAG numeric tags (heuristic mapping) ---
     'accesskeys': '2.1.1',
     'aria-allowed-role': '4.1.2',
     'aria-dialog-name': '4.1.2',
@@ -126,30 +126,30 @@ const SYNONYM_MAP = {
     'table-duplicate-name': '1.3.1',
     'meta-viewport-large': '1.4.10'
 };
-const WCAG_NUMBER_REGEX = /^(\d\.\d\.\d[a-z]?)(?:\b|$)/; // 1.4.3, 1.4.3a
+const WCAG_NUMBER_REGEX = /^(\d\.\d\.\d[a-z]?)(?:\b|$)/; // e.g., 1.4.3 or 1.4.3a
 function normalizeRuleId(raw) {
     if (!raw)
         return '';
     let s = raw.trim().toLowerCase();
     if (!s)
         return '';
-    // Entferne Klammern & doppelte Leerzeichen
+    // Remove parentheses & duplicate spaces
     s = s.replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
-    // Wenn bereits eine WCAG Nummer enthalten → extrahieren & zurück
+    // If a WCAG number is present → extract & return
     const numMatch = s.match(WCAG_NUMBER_REGEX);
     if (numMatch) {
         return numMatch[1];
     }
-    // Sonderfälle: ersetze Nicht-Alphanumerisches (außer - und .) durch -
+    // Special cases: replace non-alphanumeric (except - and .) with -
     s = s.replace(/[^a-z0-9.\- ]+/g, '-').replace(/\s+/g, '-');
-    // 1) Statisches vollständiges Mapping zuerst
+    // 1) Try static full mapping first
     if (SYNONYM_MAP[s])
         return SYNONYM_MAP[s];
-    // 2) Dynamisches Fallback (falls neue axe Version neue Rule liefert)
+    // 2) Dynamic fallback (e.g., for new axe versions)
     return s;
 }
 exports.normalizeRuleId = normalizeRuleId;
-/** Normalisiert alle ruleIds einer Liste in-place */
+/** Normalizes all ruleIds of a list in-place */
 function normalizeRuleIds(items) {
     for (const it of items) {
         if (it.ruleId)

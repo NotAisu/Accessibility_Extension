@@ -27,7 +27,7 @@ exports.FeedbackService = void 0;
 const vscode = __importStar(require("vscode"));
 class FeedbackService {
     constructor(metricsService) {
-        this.givenFeedbackForDiagnostics = new Set(); // instanceId based now
+        this.givenFeedbackForDiagnostics = new Set(); // per instanceId
         this.metricsService = metricsService;
     }
     static getInstance(metricsService) {
@@ -39,9 +39,7 @@ class FeedbackService {
     setAIDiagnosticCollection(collection) {
         this.aiDiagnosticCollection = collection;
     }
-    /**
-     * Shows a feedback dialog for quick fix operations
-     */
+    // Dialog for quick-fix feedback
     async showQuickFixFeedback(quickFixId, ruleId) {
         const config = vscode.workspace.getConfiguration('accessibility');
         const showFeedback = config.get('feedback.showQuickFixFeedback', true);
@@ -65,9 +63,7 @@ class FeedbackService {
             console.error('Error showing quick fix feedback:', error);
         }
     }
-    /**
-     * Shows a feedback dialog for AI analyzer violations
-     */
+    // Dialog for AI analyzer feedback
     async showViolationFeedback(violationId, ruleId) {
         const config = vscode.workspace.getConfiguration('accessibility');
         const showFeedback = config.get('feedback.showViolationFeedback', true);
@@ -91,9 +87,7 @@ class FeedbackService {
             console.error('Error showing violation feedback:', error);
         }
     }
-    /**
-     * Shows a non-intrusive feedback notification
-     */
+    // Lightweight thank-you notification
     async showQuickFeedback(options) {
         try {
             const buttons = options.showThumbsUpDown ? ['👍', '👎'] : ['OK'];
@@ -126,9 +120,7 @@ class FeedbackService {
             return undefined;
         }
     }
-    /**
-     * Shows a thank you message for positive feedback
-     */
+    // Short thank-you message
     showThankYouMessage() {
         const messages = [
             'Thanks for the feedback! 🎉',
@@ -137,16 +129,14 @@ class FeedbackService {
             'Perfect! Your feedback is valuable. 💯'
         ];
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-        // Use a subtle notification that doesn't interrupt workflow
+        // Use status bar to avoid interrupting the workflow
         vscode.window.setStatusBarMessage(randomMessage, 3000);
     }
-    /**
-     * Shows inline feedback buttons in hover/code action context
-     */
+    // Inline feedback buttons for hover/code actions
     createInlineFeedbackButtons(quickFixId, ruleId) {
         const markdown = new vscode.MarkdownString();
         markdown.isTrusted = true;
-        // Create command URIs for feedback
+        // Command-URIs erzeugen
         const positiveUri = vscode.Uri.parse(`command:accessibility-extension.giveFeedback?${encodeURIComponent(JSON.stringify({
             quickFixId,
             feedback: 'positive',
@@ -162,9 +152,7 @@ class FeedbackService {
         markdown.appendMarkdown(`[👎 Poor](${negativeUri} "This fix needs improvement")`);
         return markdown;
     }
-    /**
-     * Creates a feedback command for use in code actions and hovers
-     */
+    // Command handler to receive feedback
     createFeedbackCommand() {
         const disposables = [];
         disposables.push(vscode.commands.registerCommand('accessibility-extension.giveFeedback', async (args) => {
@@ -178,7 +166,7 @@ class FeedbackService {
                     // feedback param includes instanceId encoded? We expect args.violationId to still be violationId; need instanceId separately in command args in future if required.
                     const key = args.violationId + ':' + args.instanceId;
                     if (this.givenFeedbackForDiagnostics.has(key)) {
-                        vscode.window.setStatusBarMessage('Feedback wurde bereits abgegeben.', 2500);
+                        vscode.window.setStatusBarMessage('Feedback already submitted.', 2500);
                         return;
                     }
                     const isCorrect = feedback === 'positive';
@@ -212,9 +200,7 @@ class FeedbackService {
         }));
         return { dispose: () => disposables.forEach(d => d.dispose()) };
     }
-    /**
-     * Creates a hover provider that shows feedback options for diagnostics
-     */
+    /** Creates a hover provider that shows feedback options for diagnostics */
     createFeedbackHoverProvider() {
         const self = this;
         return {
@@ -236,7 +222,7 @@ class FeedbackService {
                         markdown.appendMarkdown(`**AI Accessibility Detection**\n\n`);
                         markdown.appendMarkdown(`${relevantDiagnostic.message}\n\n`);
                         // Add feedback buttons for AI violations
-                        // Versuche persistente violationId aus diagnostic.code zu lesen; fallback generieren
+                        // Try to read persistent violationId from diagnostic.code; generate fallback
                         let violationId;
                         try {
                             violationId = codeData.violationId;
@@ -265,7 +251,7 @@ class FeedbackService {
                             instanceId
                         }))}`);
                         if (alreadyGiven) {
-                            markdown.appendMarkdown(`---\n_Feedback bereits gegeben._`);
+                            markdown.appendMarkdown(`---\n_Feedback already given._`);
                         }
                         else {
                             markdown.appendMarkdown(`---\n**Is this detection correct?** `);

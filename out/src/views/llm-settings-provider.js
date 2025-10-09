@@ -26,9 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMSettingsProvider = void 0;
 const vscode = __importStar(require("vscode"));
 const prompt_strategies_1 = require("../ai/prompt-strategies");
-/**
- * WebView Provider für AI Accessibility Settings
- */
+/** Webview provider for AI Accessibility Settings */
 class LLMSettingsProvider {
     constructor(_extensionUri, llmService) {
         this._extensionUri = _extensionUri;
@@ -54,7 +52,7 @@ class LLMSettingsProvider {
             localResourceRoots: [this._extensionUri]
         };
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-        // Message Handler für WebView Kommunikation
+        // Message handler for webview communication
         webviewView.webview.onDidReceiveMessage(async (data) => {
             switch (data.type) {
                 case 'providerChanged':
@@ -142,7 +140,7 @@ class LLMSettingsProvider {
     }
     async handleApiKeySave(apiKey) {
         try {
-            // SecretStorage für API Key verwenden
+            // Store API key using SecretStorage
             const secretStorage = this.llmService.getSecretStorage();
             await secretStorage.store('accessibility.customAPI.apiKey', apiKey);
             vscode.window.showInformationMessage('API key stored securely');
@@ -214,7 +212,7 @@ class LLMSettingsProvider {
                 const message = scope === 'visible' ?
                     'Analysis Scope: Visible code only' :
                     'Analysis Scope: Entire document';
-                // Status Bar Item für schnelle Benachrichtigung
+                // Temporary status bar notification
                 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
                 statusBarItem.text = `$(gear) ${message}`;
                 statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
@@ -237,7 +235,7 @@ class LLMSettingsProvider {
                 const message = strategyObj ?
                     `Prompt Strategy: ${strategyObj.displayName}` :
                     `Prompt Strategy: ${strategy}`;
-                // Status Bar Item für schnelle Benachrichtigung
+                // Temporary status bar notification
                 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
                 statusBarItem.text = `$(brain) ${message}`;
                 statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
@@ -267,13 +265,18 @@ class LLMSettingsProvider {
                 vscode.window.showWarningMessage('No active editor found');
                 return;
             }
-            // Progress anzeigen
+            // Progress anzeigen (cancellable)
+            const controller = new AbortController();
+            const { signal } = controller;
             await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: "AI Semantic Analysis running...",
-                cancellable: false
-            }, async () => {
-                await this.aiAnalyzer.startAnalysis();
+                cancellable: true
+            }, async (progress, token) => {
+                token.onCancellationRequested(() => {
+                    controller.abort();
+                });
+                await this.aiAnalyzer.startAnalysis(undefined, undefined, signal);
             });
             // Metrics Dashboard nach AI-Analyse aktualisieren
             this.updateMetricsAfterAnalysis();
@@ -332,13 +335,13 @@ class LLMSettingsProvider {
         const analyzerEnabled = config.get('aiAnalyzer.enabled', false);
         const analysisScope = config.get('aiAnalyzer.scope', 'visible');
         const promptStrategy = config.get('aiAnalyzer.promptStrategy', 'direct-instruction');
-        // Provider-spezifische Konfigurationen
+        // Provider-specific configuration
         const localEndpoint = config.get('localLLM.endpoint', 'http://127.0.0.1:1234');
         const localModel = config.get('localLLM.model', 'mistralai/devstral-small-2507');
         const githubModel = config.get('githubCopilot.model', 'gpt-4o');
         const customEndpoint = config.get('customAPI.endpoint', 'https://openrouter.ai/api/v1/chat/completions');
         const customModel = config.get('customAPI.model', 'qwen/qwen3-coder:free');
-        // API Key aus SecretStorage holen
+        // Read API key from SecretStorage
         const secretStorage = this.llmService.getSecretStorage();
         const hasApiKey = !!(await secretStorage.get('accessibility.customAPI.apiKey'));
         this.sendMessage({
@@ -363,9 +366,9 @@ class LLMSettingsProvider {
                 }
             }
         });
-        // Connection Status prüfen
+        // Check connection status
         await this.updateConnectionStatus();
-        // Verfügbare Modelle laden (wenn GitHub Copilot)
+        // Load available models (for GitHub Copilot)
         if (currentProvider === 'github-copilot') {
             await this.handleGetAvailableModels();
         }
@@ -927,12 +930,12 @@ class LLMSettingsProvider {
                 <div class="prompt-strategy">
                     <label for="prompt-strategy-select">Prompt Strategy:</label>
                     <select id="prompt-strategy-select" class="strategy-dropdown">
-                        <option value="direct-instruction">Direct Instruction - Scientifically optimized zero-shot analysis</option>
-                        <option value="few-shot">Few-Shot Learning - Strategic pattern induction through examples</option>
-                        <option value="chain-of-thought">Chain-of-Thought - Structured analytical reasoning process</option>
+                        <option value="direct-instruction">Zero Shot</option>
+                        <option value="few-shot">Few Shot</option>
+                        <option value="chain-of-thought">Chain of Thought</option>
                     </select>
                     <div class="strategy-description" id="strategy-description">
-                        Direct instruction with single example for quick analysis
+                        
                     </div>
                 </div>
                 
@@ -1006,9 +1009,9 @@ class LLMSettingsProvider {
                 
                 function updateStrategyDescription(strategy) {
                     const descriptions = {
-                        'direct-instruction': 'Scientifically optimized zero-shot approach with explicit role assignment and structured task decomposition (Brown et al., 2020)',
-                        'few-shot': 'Strategic pattern induction through curated high-signal examples for optimal learning (Min et al., 2022)',
-                        'chain-of-thought'
+                        'direct-instruction': 'Zero Shot: Prompt ohne Beispiele.',
+                        'few-shot': 'Few Shot: Prompt mit Beispielen.',
+                        'chain-of-thought': 'Chain of Thought: Schrittweise Begründung.'
                     };
                     
                     const descElement = document.getElementById('strategy-description');
@@ -1052,15 +1055,32 @@ class LLMSettingsProvider {
                 }
                 
                 function saveModel() {
-                    const provider = document.querySelector('input[name="provider"]:checked').value;
-                    let model;
+                    const providerRadio = document.querySelector('input[name="provider"]:checked');
+                    if (!providerRadio) {
+                        return;
+                    }
+
+                    const provider = providerRadio.value;
+                    let model = '';
                     
                     if (provider === 'local') {
-                        model = document.getElementById('local-model').value;
+                        const localInput = document.getElementById('local-model');
+                        if (localInput) {
+                            model = localInput.value;
+                        }
                     } else if (provider === 'github-copilot') {
-                        model = document.getElementById('copilot-model').value;
+                        const copilotSelect = document.getElementById('copilot-model');
+                        if (copilotSelect) {
+                            model = copilotSelect.value;
+                            if (copilotSelect.dataset) {
+                                copilotSelect.dataset.selectedModel = model;
+                            }
+                        }
                     } else if (provider === 'custom-api') {
-                        model = document.getElementById('custom-model').value;
+                        const customInput = document.getElementById('custom-model');
+                        if (customInput) {
+                            model = customInput.value;
+                        }
                     }
                     
                     if (model) {
@@ -1156,7 +1176,14 @@ class LLMSettingsProvider {
                                 
                                 // GitHub Copilot config
                                 if (config.githubCopilot) {
-                                    document.getElementById('copilot-model').value = config.githubCopilot.model || 'gpt-4o';
+                                    const copilotSelect = document.getElementById('copilot-model');
+                                    if (copilotSelect) {
+                                        const savedModel = config.githubCopilot.model || 'gpt-4o';
+                                        copilotSelect.value = savedModel;
+                                        if (copilotSelect.dataset) {
+                                            copilotSelect.dataset.selectedModel = savedModel;
+                                        }
+                                    }
                                 }
                                 
                                 // Custom API config
@@ -1218,7 +1245,12 @@ class LLMSettingsProvider {
                 
                 function updateAvailableModels(models) {
                     const modelSelect = document.getElementById('copilot-model');
+                    if (!modelSelect) {
+                        return;
+                    }
+
                     if (models && models.length > 0) {
+                        const previousSelection = modelSelect.dataset ? (modelSelect.dataset.selectedModel || modelSelect.value) : '';
                         // Update options with available models
                         modelSelect.innerHTML = '';
                         models.forEach(model => {
@@ -1227,6 +1259,16 @@ class LLMSettingsProvider {
                             option.textContent = model;
                             modelSelect.appendChild(option);
                         });
+
+                        if (previousSelection && models.some(m => m === previousSelection)) {
+                            modelSelect.value = previousSelection;
+                        } else {
+                            modelSelect.value = models[0];
+                        }
+
+                        if (modelSelect.dataset) {
+                            modelSelect.dataset.selectedModel = modelSelect.value;
+                        }
                     }
                 }
                 

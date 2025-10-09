@@ -1,15 +1,10 @@
 "use strict";
-// Gemeinsamer Parser für AI Accessibility Analyse-Ausgaben
-// Unabhängig von VS Code APIs, damit auch Tests (Node-Umgebung) ihn nutzen können.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseAIAnalysis = void 0;
-// Parse AI Response zu strukturierten Violations.
-// Robust gegenüber gemischten Formaten: kompletter JSON-Block, JSON-Lines, Code-Fences.
 function parseAIAnalysis(aiResponse) {
     const violations = [];
     if (!aiResponse || !aiResponse.trim())
         return violations;
-    // 1. Fenced code extrahieren
     const fenceRegex = /```(?:json)?\n([\s\S]*?)```/gi;
     const fencedBlocks = [];
     let fenceMatch;
@@ -18,7 +13,6 @@ function parseAIAnalysis(aiResponse) {
             fencedBlocks.push(fenceMatch[1]);
     }
     const candidateText = fencedBlocks.length > 0 ? fencedBlocks.join('\n') : aiResponse;
-    // Helper zum Validieren & Pushen
     const push = (obj) => {
         if (!obj || typeof obj.line !== 'number')
             return;
@@ -32,7 +26,6 @@ function parseAIAnalysis(aiResponse) {
             ruleId: obj.ruleId
         });
     };
-    // 2. Versuche komplettes Array zu parsen
     try {
         const maybeArray = JSON.parse(candidateText);
         if (Array.isArray(maybeArray)) {
@@ -43,7 +36,6 @@ function parseAIAnalysis(aiResponse) {
         }
     }
     catch { /* ignore */ }
-    // 3. JSON-Lines / akkumulierte Fragmente
     const lines = candidateText.split(/\r?\n/);
     let buffer = '';
     for (const rawLine of lines) {
@@ -63,12 +55,9 @@ function parseAIAnalysis(aiResponse) {
                 }
                 buffer = '';
             }
-            catch {
-                // weiter sammeln
-            }
+            catch { }
         }
     }
-    // 4. Fallback: einzelne Objekte per Regex
     if (violations.length === 0) {
         const objectRegex = /\{[^}]*"line"[^}]*\}/g;
         const matches = candidateText.match(objectRegex) || [];
@@ -79,7 +68,6 @@ function parseAIAnalysis(aiResponse) {
             catch { }
         }
     }
-    // Duplikate nach Zeile + Issue entfernen
     const seen = new Set();
     return violations.filter(v => {
         const key = v.line + '|' + (v.issue || '') + '|' + (v.ruleId || '');

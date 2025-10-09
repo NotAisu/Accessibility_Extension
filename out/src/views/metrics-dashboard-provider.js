@@ -46,7 +46,7 @@ class MetricsDashboardProvider {
             localResourceRoots: [this._extensionUri]
         };
         webviewView.webview.html = this._getHtmlForWebview();
-        // Message Handler
+        // Messages from the webview
         webviewView.webview.onDidReceiveMessage(async (data) => {
             switch (data.type) {
                 case 'clearData':
@@ -57,7 +57,7 @@ class MetricsDashboardProvider {
                     break;
             }
         });
-        // Send initial data
+        // Load initial data
         setTimeout(() => {
             this.updateDashboard();
         }, 100);
@@ -65,7 +65,7 @@ class MetricsDashboardProvider {
     async handleClearData() {
         const result = await vscode.window.showWarningMessage('Are you sure you want to clear all metrics data? This action cannot be undone.', { modal: true }, 'Clear Data', 'Cancel');
         if (result === 'Clear Data') {
-            // Verwende clearDataAndRefresh wenn DiagnosticCollections verfügbar sind
+            // Bei vorhandenen Collections: clearDataAndRefresh nutzen
             if (this.axeDiagnosticCollection && this.aiDiagnosticCollection) {
                 this.metricsService.clearDataAndRefresh(this.axeDiagnosticCollection, this.aiDiagnosticCollection);
             }

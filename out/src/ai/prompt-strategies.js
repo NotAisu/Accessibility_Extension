@@ -1,11 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDefaultStrategy = exports.getPromptStrategy = exports.PROMPT_STRATEGIES = void 0;
-/**
- * DIRECT INSTRUCTION STRATEGY (Zero-Shot Optimized)
- * Implementiert direkte Instruktion mit optimaler Klarheit (Brown et al., 2020)
- * Wissenschaftliche Basis: Explizite Rollenzuweisung + strukturierte Aufgabendekomposition
- */
+// Direct instruction (zero-shot)
 class DirectInstructionStrategy {
     constructor() {
         this.name = 'direct-instruction';
@@ -43,11 +39,7 @@ ${codeWithLineNumbers}
 >>>`;
     }
 }
-/**
- * FEW-SHOT LEARNING STRATEGY (Optimized Exemplar Selection)
- * Implementiert strategische Musterinduzierung (Min et al., 2022)
- * Wissenschaftliche Basis: Kuratierte Exemplare für optimale Pattern Recognition
- */
+// Few-shot with examples
 class FewShotStrategy {
     constructor() {
         this.name = 'few-shot';
@@ -94,11 +86,7 @@ ${codeWithLineNumbers}
 >>>`;
     }
 }
-/**
- * CHAIN-OF-THOUGHT REASONING STRATEGY (Explicit Analytical Process)
- * Implementiert schrittweise Reasoning-Prozesse (Wei et al., 2022)
- * Wissenschaftliche Basis: Strukturierte Denkphasen verbessern komplexe Analyseaufgaben
- */
+// Chain-of-thought (internal steps; output remains compact)
 class ChainOfThoughtStrategy {
     constructor() {
         this.name = 'chain-of-thought';
@@ -128,17 +116,13 @@ ${codeWithLineNumbers}
 >>>`;
     }
 }
-/**
- * Available prompt strategies (scientifically grounded implementations)
- */
+// Available strategies
 exports.PROMPT_STRATEGIES = [
     new DirectInstructionStrategy(),
     new FewShotStrategy(),
     new ChainOfThoughtStrategy()
 ];
-/**
- * Get a prompt strategy by name
- */
+// Strategy by name
 function getPromptStrategy(strategyName) {
     const strategy = exports.PROMPT_STRATEGIES.find(s => s.name === strategyName);
     if (!strategy) {
@@ -147,11 +131,9 @@ function getPromptStrategy(strategyName) {
     return strategy;
 }
 exports.getPromptStrategy = getPromptStrategy;
-/**
- * Get default prompt strategy (Direct Instruction optimized for zero-shot performance)
- */
+// Default strategy
 function getDefaultStrategy() {
-    return exports.PROMPT_STRATEGIES[0]; // Direct Instruction as scientifically optimized default
+    return exports.PROMPT_STRATEGIES[0];
 }
 exports.getDefaultStrategy = getDefaultStrategy;
 //# sourceMappingURL=prompt-strategies.js.map

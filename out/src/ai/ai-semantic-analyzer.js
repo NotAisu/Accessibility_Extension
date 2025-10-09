@@ -28,20 +28,15 @@ const vscode = __importStar(require("vscode"));
 const prompt_strategies_1 = require("./prompt-strategies");
 const ai_response_parser_1 = require("./ai-response-parser");
 const rule_id_normalizer_1 = require("../core/rule-id-normalizer");
-/**
- * AI Semantic Analyzer mit blauer Farbkodierung für WCAG-Semantik-Verstöße
- */
 class AISemanticAnalyzer {
     constructor(llmService) {
         this.aiDiagnosticCollection = vscode.languages.createDiagnosticCollection('ai-accessibility');
         this.isEnabled = false;
         this.analysisScope = 'visible';
         this.promptStrategy = 'direct-instruction';
-        // Merkt sich kürzlich per "Fix with AI" (oder AI QuickFix auf axe) behobene Zeilen, damit diese
-        // bei unmittelbar folgenden Analysen nicht erneut als Verstöße auftauchen, solange sich die Zeile
-        // inhaltlich nicht verändert hat. (URI -> (Line -> { textSnapshot, ts }))
+        // Tracks recently fixed lines to avoid immediate re-reporting of the same issue
         this.recentlyFixed = new Map();
-        this.RECENTLY_FIXED_TTL_MS = 1000 * 60 * 5; // Default 5 Min (override by setting)
+        this.RECENTLY_FIXED_TTL_MS = 1000 * 60 * 5;
         this.lastSuppressedCount = 0;
         this.lastReportedCount = 0;
         this.llmService = llmService;
@@ -85,100 +80,93 @@ class AISemanticAnalyzer {
     isAnalyzerEnabled() {
         return this.isEnabled;
     }
-    /**
-     * Manuelle Analyse-Methode (wird von Button getriggert)
-     */
-    async startAnalysis(document, existingAxeDiagnostics) {
+    async startAnalysis(document, existingAxeDiagnostics, signal) {
         if (!this.isEnabled) {
             vscode.window.showWarningMessage('AI Semantic Analyzer is not enabled');
             return;
         }
-        // Aktuelles Dokument verwenden wenn nicht übergeben
+        // Use current document if not provided
         if (!document) {
             const editor = vscode.window.activeTextEditor;
             if (!editor) {
-                vscode.window.showWarningMessage('Kein aktiver Editor gefunden');
+                vscode.window.showWarningMessage('No active editor found');
                 return;
             }
             document = editor.document;
         }
-        // Unterstützte Dateitypen prüfen
+        // Check supported languages
         const supportedLanguages = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
         if (!supportedLanguages.includes(document.languageId)) {
-            vscode.window.showWarningMessage(`Dateityp ${document.languageId} wird nicht unterstützt`);
+            vscode.window.showWarningMessage(`Language ${document.languageId} is not supported`);
             return;
         }
-        // Bestehende axe-core Diagnostics holen wenn nicht übergeben
+        // Get axe-core diagnostics if not provided
         if (!existingAxeDiagnostics) {
             existingAxeDiagnostics = this.getDiagnosticsCallback ?
                 this.getDiagnosticsCallback(document.uri) :
                 [];
         }
-        await this.analyzeVisibleCode(document, existingAxeDiagnostics);
+        await this.analyzeVisibleCode(document, existingAxeDiagnostics, signal);
     }
-    /**
-     * Hauptanalyse-Methode (jetzt privat, wird von startAnalysis aufgerufen)
-     */
-    async analyzeVisibleCode(document, existingAxeDiagnostics) {
+    async analyzeVisibleCode(document, existingAxeDiagnostics, signal) {
         if (!this.isEnabled) {
             this.aiDiagnosticCollection.set(document.uri, []);
             return;
         }
-        // Start Performance-Timer
+        // Start performance timer
         const analysisId = this.metricsService?.startAIAnalysis();
         try {
-            await this.performAnalysis(document, existingAxeDiagnostics);
-            // End Performance-Timer bei Erfolg
+            await this.performAnalysis(document, existingAxeDiagnostics, signal);
+            // End performance timer on success
             if (analysisId && this.metricsService) {
                 this.metricsService.endAIAnalysis(analysisId);
             }
         }
         catch (error) {
             console.error('AI Semantic Analysis failed:', error);
-            // End Performance-Timer auch bei Fehler
+            // End performance timer on error
             if (analysisId && this.metricsService) {
                 this.metricsService.endAIAnalysis(analysisId);
             }
         }
     }
-    /**
-     * Interne Analyse-Methode
-     */
-    async performAnalysis(document, existingAxeDiagnostics) {
+    // Internal analysis method
+    async performAnalysis(document, existingAxeDiagnostics, signal) {
         try {
-            // Sichtbaren Code holen
+            // Get code with line numbers based on scope
             const codeWithLineNumbers = this.getCodeWithLineNumbers(document);
             if (!codeWithLineNumbers.trim()) {
                 this.aiDiagnosticCollection.set(document.uri, []);
                 return;
             }
-            // AI-Analyse durchführen
-            const aiFindings = await this.performAIAnalysis(codeWithLineNumbers, document);
-            // Axe-core Duplikate filtern
+            // Perform AI analysis
+            // Abort early if requested
+            if (signal?.aborted)
+                throw new Error('AI analysis aborted');
+            const aiFindings = await this.performAIAnalysis(codeWithLineNumbers, document, signal);
+            if (signal?.aborted)
+                throw new Error('AI analysis aborted');
+            // Filter out duplicates with axe-core diagnostics
             const filteredFindings = this.filterAxeProblems(aiFindings, existingAxeDiagnostics);
-            // Kürzlich behobene Zeilen ausfiltern (nur wenn unverändert)
+            // Suppress recently fixed lines (only if unchanged)
             const stableFindings = this.filterRecentlyFixedProblems(filteredFindings, document);
             this.lastReportedCount = stableFindings.length;
-            // Blaue AI-Diagnostics erstellen (inkl. Metrics-Update)
+            // Create blue AI diagnostics (also updates metrics)
             const aiDiagnostics = this.createAIDiagnostics(stableFindings, document);
-            // Diagnostics setzen
+            // Set diagnostics
             this.aiDiagnosticCollection.set(document.uri, aiDiagnostics);
         }
         catch (error) {
             console.error('AI Semantic Analysis error:', error);
-            // Fehler nicht anzeigen, um UX nicht zu beeinträchtigen
+            // Do not surface the error to the user to avoid disrupting UX
             this.aiDiagnosticCollection.set(document.uri, []);
         }
     }
-    /**
-     * Markiert eine Zeile als kürzlich behoben. Wird nach erfolgreichem Fix aufgerufen.
-     */
+    // Marks a line as recently fixed. Called after a successful fix.
     recordFixedLine(document, line) {
         this.recordFixedRange(document, new vscode.Range(line, 0, line, 0));
     }
-    /**
-     * Markiert alle Zeilen einer Range als gefixt (z.B. bei Mehrzeilen-Ersatz durch AI)
-     */
+    // Marks all lines in a range as fixed (e.g., when AI replaces multiple lines)
     recordFixedRange(document, range) {
         const start = Math.max(0, Math.min(range.start.line, document.lineCount - 1));
         const end = Math.max(0, Math.min(range.end.line, document.lineCount - 1));
@@ -194,7 +182,7 @@ class AISemanticAnalyzer {
         }
         this.cleanupRecentlyFixed();
     }
-    /** Entfernt abgelaufene Einträge aus recentlyFixed */
+    // Removes expired entries from the recentlyFixed map
     cleanupRecentlyFixed() {
         const now = Date.now();
         for (const [uri, lineMap] of this.recentlyFixed.entries()) {
@@ -208,10 +196,7 @@ class AISemanticAnalyzer {
             }
         }
     }
-    /**
-     * Filtert Findings heraus, deren Zeilen unmittelbar zuvor gefixt wurden
-     * und deren Inhalt unverändert geblieben ist.
-     */
+    // Filters out findings on lines recently fixed where the line content is unchanged
     filterRecentlyFixedProblems(findings, document) {
         if (findings.length === 0)
             return findings;
@@ -238,18 +223,16 @@ class AISemanticAnalyzer {
         this.lastSuppressedCount = suppressed;
         return result;
     }
-    /** Liefert zuletzt unterdrückte & gemeldete Counts (für StatusBar) */
+    // Returns last suppressed & reported counts (for status bar)
     getLastCounts() {
         return { reported: this.lastReportedCount, suppressed: this.lastSuppressedCount };
     }
-    /** Löscht den Memory für kürzlich gefixte Zeilen */
+    // Clears memory for recently fixed lines
     clearRecentFixMemory() {
         this.recentlyFixed.clear();
         this.lastSuppressedCount = 0;
     }
-    /**
-     * Holt Code basierend auf Analysis-Scope (visible vs. document)
-     */
+    // Returns code based on analysis scope (visible vs. document)
     getCodeWithLineNumbers(document) {
         if (this.analysisScope === 'document') {
             return this.getAllCodeWithLineNumbers(document);
@@ -258,13 +241,11 @@ class AISemanticAnalyzer {
             return this.getVisibleCodeWithLineNumbers(document);
         }
     }
-    /**
-     * Holt sichtbaren Code mit Zeilennummern
-     */
+    // Returns visible code with line numbers
     getVisibleCodeWithLineNumbers(document) {
         const editor = vscode.window.activeTextEditor;
         if (!editor || editor.document.uri.toString() !== document.uri.toString()) {
-            // Fallback: komplettes Dokument analysieren
+            // Fallback: analyze whole document
             return this.getAllCodeWithLineNumbers(document);
         }
         if (editor.visibleRanges.length === 0) {
@@ -280,9 +261,7 @@ class AISemanticAnalyzer {
         }
         return code;
     }
-    /**
-     * Fallback: Komplettes Dokument mit Zeilennummern
-     */
+    // Fallback: whole document with line numbers
     getAllCodeWithLineNumbers(document) {
         let code = '';
         for (let line = 0; line < document.lineCount; line++) {
@@ -290,10 +269,8 @@ class AISemanticAnalyzer {
         }
         return code;
     }
-    /**
-     * Führt AI-Analyse durch und gibt semantische WCAG-Verstöße zurück
-     */
-    async performAIAnalysis(codeWithLineNumbers, document) {
+    // Runs AI analysis and returns semantic WCAG violations
+    async performAIAnalysis(codeWithLineNumbers, document, signal) {
         try {
             const strategy = (0, prompt_strategies_1.getPromptStrategy)(this.promptStrategy);
             const prompt = strategy.generatePrompt(codeWithLineNumbers);
@@ -302,8 +279,12 @@ class AISemanticAnalyzer {
             return violations;
         }
         catch (error) {
+            const err = error;
+            if (err && (err.name === 'AbortError' || (err instanceof Error && err.message === 'The user aborted a request.') || (err instanceof Error && err.message === 'AI analysis aborted'))) {
+                console.log('AI analysis was aborted by user');
+                return [];
+            }
             console.error('AI analysis request failed:', error);
-            // Fallback to default strategy if current strategy fails
             try {
                 const defaultStrategy = (0, prompt_strategies_1.getDefaultStrategy)();
                 const prompt = defaultStrategy.generatePrompt(codeWithLineNumbers);
@@ -316,9 +297,7 @@ class AISemanticAnalyzer {
             }
         }
     }
-    /**
-     * Parst AI-Response zu WCAGViolation Array
-     */
+    // Parses AI response into a list of WCAG violations
     parseAIResponse(aiResponse, document) {
         const parsed = (0, rule_id_normalizer_1.normalizeRuleIds)((0, ai_response_parser_1.parseAIAnalysis)(aiResponse));
         const violations = [];
@@ -349,31 +328,25 @@ class AISemanticAnalyzer {
             severity: 'warning'
         });
     }
-    /**
-     * Verhindert Duplikate zwischen AI-Findings und axe-core Diagnostics
-     */
+    // Prevents duplicates between AI findings and axe-core diagnostics
     filterAxeProblems(aiFindings, axeDiagnostics) {
         return aiFindings.filter(aiFinding => {
-            // Prüfen ob axe-core bereits ein Problem in derselben Zeile gefunden hat
+            // Check whether axe-core already reported an issue in the same line
             return !axeDiagnostics.some(axeDiag => {
                 return this.rangesOverlap(aiFinding.range, axeDiag.range);
             });
         });
     }
-    /**
-     * Prüft ob zwei Ranges überlappen
-     */
+    // Checks if two ranges overlap
     rangesOverlap(range1, range2) {
         return range1.start.line === range2.start.line ||
             range1.end.line === range2.end.line ||
             (range1.start.line < range2.end.line && range1.end.line > range2.start.line);
     }
-    /**
-     * Erstellt blaue AI-Diagnostics für gefundene semantische Probleme
-     */
+    // Creates blue AI diagnostics for found semantic issues
     createAIDiagnostics(findings, document) {
         return findings.map(finding => {
-            // Basis erweitert um Start-Character + Hash eines Issue-Ausschnitts für Kollisionsreduktion
+            // Base extends start character + hash from issue snippet to reduce collisions
             const issueFragment = finding.message.slice(0, 50);
             const base = `${document.uri.toString()}|${finding.range.start.line}|${finding.range.start.character}|${finding.ruleId}|${finding.element?.slice(0, 40)}|${issueFragment}`;
             const hash = require('crypto').createHash('sha1').update(base).digest('hex').slice(0, 10);
@@ -391,7 +364,7 @@ class AISemanticAnalyzer {
             return diagnostic;
         });
     }
-    /** Entfernt eine einzelne AI-Diagnostic anhand violationId */
+    // Removes a single AI diagnostic by violationId
     removeAIDiagnostic(id) {
         this.aiDiagnosticCollection.forEach((uri, diagnostics) => {
             const filtered = diagnostics.filter(d => {
@@ -412,27 +385,19 @@ class AISemanticAnalyzer {
             }
         });
     }
-    /**
-     * Cleanup-Methode
-     */
+    // Cleanup
     dispose() {
         this.aiDiagnosticCollection.dispose();
     }
-    /**
-     * Holt AI-Diagnostics für ein Dokument
-     */
+    // Returns AI diagnostics for a document
     getAIDiagnostics(uri) {
         return this.aiDiagnosticCollection.get(uri) || [];
     }
-    /**
-     * Gibt die DiagnosticCollection zurück für Metrics
-     */
+    // Returns the diagnostic collection for metrics
     getDiagnosticCollection() {
         return this.aiDiagnosticCollection;
     }
-    /**
-     * Clearer alle AI-Diagnostics
-     */
+    // Clears all AI diagnostics
     clearAll() {
         this.aiDiagnosticCollection.clear();
     }

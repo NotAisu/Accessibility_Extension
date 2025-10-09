@@ -28,7 +28,7 @@ const vscode = __importStar(require("vscode"));
 class LLMService {
     constructor(secretStorage) {
         this.providers = new Map();
-        // Sehr einfacher In-Memory Cache (Prompt -> Result)
+        // Simple in-memory cache (prompt -> result)
         this.cache = new Map();
         this.CACHE_TTL_MS = 1000 * 60 * 2; // 2 Minuten sinnvoll ohne Overengineering
         this.secretStorage = secretStorage;
@@ -56,11 +56,11 @@ class LLMService {
         if (!(await provider.isConfigured())) {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
-        // Cache Check (nur wenn Prompt nicht leer)
+        // Cache check (only if prompt is not empty)
         const cacheKey = 'fix:' + prompt;
         const cached = this.getFromCache(cacheKey);
         if (cached) {
-            // Trotzdem QuickFix Attempt für Konsistenz der Metriken registrieren
+            // Still record a quick-fix attempt for metric consistency
             let quickFixId = '';
             if (this.metricsService)
                 quickFixId = this.metricsService.recordQuickFixAttempt();
@@ -114,7 +114,7 @@ class LLMService {
             throw error;
         }
     }
-    // --- Einfache Cache Helfer ---
+    // --- Simple cache helpers ---
     getFromCache(key) {
         const entry = this.cache.get(key);
         if (!entry)
@@ -127,7 +127,7 @@ class LLMService {
     }
     storeInCache(key, value) {
         this.cache.set(key, { value, ts: Date.now() });
-        // Kleines LRU-Pruning (hart begrenzt auf 50 Einträge)
+        // Small LRU-style pruning (hard limit 50 entries)
         if (this.cache.size > 50) {
             const oldestKey = [...this.cache.entries()].sort((a, b) => a[1].ts - b[1].ts)[0][0];
             this.cache.delete(oldestKey);
@@ -284,7 +284,7 @@ class LocalLLMProvider {
         if (!data) {
             return undefined;
         }
-        // Gängige API-Felder prüfen
+        // Check common API fields
         const possibleFields = [
             'text', 'content', 'answer', 'response', 'result', 'output', 'completion', 'generated_text'
         ];
@@ -294,7 +294,7 @@ class LocalLLMProvider {
                 return value;
             }
         }
-        // Verschachtelte Strukturen prüfen
+        // Check nested structures
         if (data.message) {
             if (typeof data.message === 'string') {
                 return data.message;
@@ -303,7 +303,7 @@ class LocalLLMProvider {
                 return data.message.content;
             }
         }
-        // OpenAI-Format prüfen
+        // Check OpenAI-like format
         if (data.choices && Array.isArray(data.choices) && data.choices.length > 0) {
             const choice = data.choices[0];
             if (choice.text)
@@ -315,7 +315,7 @@ class LocalLLMProvider {
             if (choice.delta?.content)
                 return choice.delta.content;
         }
-        // Fallback: Alle String-Properties durchsuchen
+        // Fallback: scan all string properties
         for (const key in data) {
             const val = data[key];
             if (typeof val === 'string' && val.trim().length > 0) {
@@ -337,9 +337,9 @@ class LocalLLMProvider {
         if (genericMatch && genericMatch[1]) {
             return genericMatch[1].trim();
         }
-        // Prüfen, ob der Text selbst gültiges HTML ist
+        // Check if the text looks like valid HTML
         if (text.includes('<') && text.includes('>')) {
-            // Vereinfachte Validierung für HTML-Tags
+            // Simplified validation for HTML tags
             const htmlTagRegex = /<[^>]+>[\s\S]*<\/[^>]+>/;
             const tagMatch = text.match(htmlTagRegex);
             if (tagMatch) {
@@ -352,14 +352,14 @@ class LocalLLMProvider {
 class CustomAPIProvider {
     constructor(secretStorage) {
         this.secretStorage = secretStorage;
-        // Umbenannt für UI Anzeige
+        // Renamed for UI display
         this.name = 'OpenRouter';
         this.useStructured = true;
         this.useCaching = true;
         this.structuredUnsupported = new Set();
     }
     async isConfigured() {
-        // Für OpenRouter reicht der API Key; Endpoint ist fest
+        // OpenRouter only needs the API key; endpoint is fixed
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
         return !!apiKey;
     }
@@ -375,7 +375,7 @@ class CustomAPIProvider {
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json',
-                    // Empfohlene zusätzliche Header für OpenRouter Ranking / Policy
+                    // Recommended extra headers for OpenRouter ranking/policy
                     'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
                     'X-Title': 'Accessibility Extension'
                 },
@@ -394,7 +394,7 @@ class CustomAPIProvider {
     async getAccessibilityFix(prompt) {
         const config = vscode.workspace.getConfiguration('accessibility');
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-        // Fester Endpoint für OpenRouter
+        // Fixed endpoint for OpenRouter
         const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
         const model = config.get('customAPI.model', 'qwen/qwen3-coder:free');
         if (!apiKey) {
@@ -407,7 +407,7 @@ class CustomAPIProvider {
                 'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
                 'X-Title': 'Accessibility Extension'
             };
-            // Prompt Caching: statischen & dynamischen Teil heuristisch teilen
+            // Prompt caching: heuristically split static and dynamic parts
             const { staticPart, dynamicPart } = this.splitPrompt(prompt);
             const userContent = this.useCaching ? [
                 { type: 'text', text: staticPart, cache_control: { type: 'ephemeral' } },
@@ -428,7 +428,7 @@ class CustomAPIProvider {
                 temperature: 0,
                 max_tokens: 512
             };
-            // Structured Outputs nur wenn Prompt ausdrücklich JSON verlangt (Analysefälle)
+            // Structured outputs only if prompt explicitly requests JSON (analysis cases)
             const wantsJSON = /json array|antworte nur als json/i.test(prompt);
             if (wantsJSON && this.useStructured && !this.structuredUnsupported.has(model)) {
                 body.response_format = {
@@ -484,7 +484,7 @@ class CustomAPIProvider {
         if (full.length < 1200) {
             return { staticPart: full, dynamicPart: '' };
         }
-        // Versuche letzten Absatz als dynamisch anzunehmen
+        // Treat the last paragraph as dynamic part
         const parts = full.split(/\n\n+/);
         if (parts.length < 2)
             return { staticPart: full, dynamicPart: '' };
@@ -618,19 +618,19 @@ class GitHubCopilotProvider {
         }
     }
     extractCodeFromText(text) {
-        // HTML-Code zwischen ```html und ``` extrahieren
+        // Extract HTML code between ```html fences
         const htmlCodeBlockRegex = /```html\s*([\s\S]*?)\s*```/;
         const htmlMatch = text.match(htmlCodeBlockRegex);
         if (htmlMatch && htmlMatch[1]) {
             return htmlMatch[1].trim();
         }
-        // Generischen Code zwischen ``` und ``` extrahieren
+        // Extract generic code between ``` fences
         const codeBlockRegex = /```\s*([\s\S]*?)\s*```/;
         const genericMatch = text.match(codeBlockRegex);
         if (genericMatch && genericMatch[1]) {
             return genericMatch[1].trim();
         }
-        // Prüfen, ob der Text selbst gültiges HTML ist
+        // Check if the text itself is valid-looking HTML
         if (text.includes('<') && text.includes('>')) {
             return text.trim();
         }

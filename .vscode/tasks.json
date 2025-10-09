@@ -52,6 +52,28 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "Build Extension",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"compile"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Build Extension (compile TS)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"compile"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }
