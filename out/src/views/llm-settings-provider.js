@@ -15,30 +15,18 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMSettingsProvider = void 0;
 const vscode = __importStar(require("vscode"));
 const prompt_strategies_1 = require("../ai/prompt-strategies");
-/**
- * WebView Provider für AI Accessibility Settings
- */
+/** Webview provider for AI Accessibility Settings */
 class LLMSettingsProvider {
     constructor(_extensionUri, llmService) {
         this._extensionUri = _extensionUri;
@@ -64,7 +52,7 @@ class LLMSettingsProvider {
             localResourceRoots: [this._extensionUri]
         };
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
-        // Message Handler für WebView Kommunikation
+        // Message handler for webview communication
         webviewView.webview.onDidReceiveMessage(async (data) => {
             switch (data.type) {
                 case 'providerChanged':
@@ -152,7 +140,7 @@ class LLMSettingsProvider {
     }
     async handleApiKeySave(apiKey) {
         try {
-            // SecretStorage für API Key verwenden
+            // Store API key using SecretStorage
             const secretStorage = this.llmService.getSecretStorage();
             await secretStorage.store('accessibility.customAPI.apiKey', apiKey);
             vscode.window.showInformationMessage('API key stored securely');
@@ -224,7 +212,7 @@ class LLMSettingsProvider {
                 const message = scope === 'visible' ?
                     'Analysis Scope: Visible code only' :
                     'Analysis Scope: Entire document';
-                // Status Bar Item für schnelle Benachrichtigung
+                // Temporary status bar notification
                 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
                 statusBarItem.text = `$(gear) ${message}`;
                 statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
@@ -247,7 +235,7 @@ class LLMSettingsProvider {
                 const message = strategyObj ?
                     `Prompt Strategy: ${strategyObj.displayName}` :
                     `Prompt Strategy: ${strategy}`;
-                // Status Bar Item für schnelle Benachrichtigung
+                // Temporary status bar notification
                 const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
                 statusBarItem.text = `$(brain) ${message}`;
                 statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.prominentBackground');
@@ -277,13 +265,18 @@ class LLMSettingsProvider {
                 vscode.window.showWarningMessage('No active editor found');
                 return;
             }
-            // Progress anzeigen
+            // Progress anzeigen (cancellable)
+            const controller = new AbortController();
+            const { signal } = controller;
             await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: "AI Semantic Analysis running...",
-                cancellable: false
-            }, async () => {
-                await this.aiAnalyzer.startAnalysis();
+                cancellable: true
+            }, async (progress, token) => {
+                token.onCancellationRequested(() => {
+                    controller.abort();
+                });
+                await this.aiAnalyzer.startAnalysis(undefined, undefined, signal);
             });
             // Metrics Dashboard nach AI-Analyse aktualisieren
             this.updateMetricsAfterAnalysis();
@@ -341,14 +334,14 @@ class LLMSettingsProvider {
         const currentProvider = config.get('aiProvider', 'local');
         const analyzerEnabled = config.get('aiAnalyzer.enabled', false);
         const analysisScope = config.get('aiAnalyzer.scope', 'visible');
-        const promptStrategy = config.get('aiAnalyzer.promptStrategy', 'one-shot');
-        // Provider-spezifische Konfigurationen
+        const promptStrategy = config.get('aiAnalyzer.promptStrategy', 'direct-instruction');
+        // Provider-specific configuration
         const localEndpoint = config.get('localLLM.endpoint', 'http://127.0.0.1:1234');
         const localModel = config.get('localLLM.model', 'mistralai/devstral-small-2507');
         const githubModel = config.get('githubCopilot.model', 'gpt-4o');
-        const customEndpoint = config.get('customAPI.endpoint', 'https://api.openai.com/v1/chat/completions');
-        const customModel = config.get('customAPI.model', 'gpt-4o-mini');
-        // API Key aus SecretStorage holen
+        const customEndpoint = config.get('customAPI.endpoint', 'https://openrouter.ai/api/v1/chat/completions');
+        const customModel = config.get('customAPI.model', 'qwen/qwen3-coder:free');
+        // Read API key from SecretStorage
         const secretStorage = this.llmService.getSecretStorage();
         const hasApiKey = !!(await secretStorage.get('accessibility.customAPI.apiKey'));
         this.sendMessage({
@@ -373,9 +366,9 @@ class LLMSettingsProvider {
                 }
             }
         });
-        // Connection Status prüfen
+        // Check connection status
         await this.updateConnectionStatus();
-        // Verfügbare Modelle laden (wenn GitHub Copilot)
+        // Load available models (for GitHub Copilot)
         if (currentProvider === 'github-copilot') {
             await this.handleGetAvailableModels();
         }
@@ -885,18 +878,17 @@ class LLMSettingsProvider {
                 
                 <div class="provider-option">
                     <input type="radio" id="custom" name="provider" value="custom-api">
-                    <label for="custom">Custom API</label>
+                    <label for="custom">OpenRouter</label>
                 </div>
                 
                 <div class="config-group" id="custom-api-config">
                     <div class="config-item">
-                        <label for="custom-endpoint">API Endpoint:</label>
-                        <input type="text" id="custom-endpoint" placeholder="https://api.openai.com/v1/chat/completions">
-                        <button class="save-button" onclick="saveEndpoint()">Save</button>
+                        <label for="custom-endpoint">API Endpoint (read-only):</label>
+                        <input type="text" id="custom-endpoint" disabled>
                     </div>
                     <div class="config-item">
                         <label for="custom-model">Model:</label>
-                        <input type="text" id="custom-model" placeholder="gpt-4o-mini">
+                        <input type="text" id="custom-model" placeholder="qwen/qwen3-coder:free">
                         <button class="save-button" onclick="saveModel()">Save</button>
                     </div>
                     <div class="config-item">
@@ -905,7 +897,7 @@ class LLMSettingsProvider {
                         <button class="save-button" onclick="saveApiKey()">Save</button>
                         <div class="security-notice" id="apikey-status">🔒 API key is stored securely in VS Code SecretStorage</div>
                     </div>
-                    <div class="description">OpenAI, Anthropic, Cohere und andere APIs</div>
+                    <div class="description">Uses OpenRouter. Set your OpenRouter API key and model. Endpoint is fixed.</div>
                 </div>
             </div>
             
@@ -938,13 +930,12 @@ class LLMSettingsProvider {
                 <div class="prompt-strategy">
                     <label for="prompt-strategy-select">Prompt Strategy:</label>
                     <select id="prompt-strategy-select" class="strategy-dropdown">
-                        <option value="one-shot">One-Shot - Quick direct analysis</option>
-                        <option value="few-shot">Few-Shot - Pattern-based analysis</option>
-                        <option value="chain-of-thought">Chain of Thought - Step-by-step reasoning</option>
-                        <option value="role-based">Role-Based - Multi-perspective analysis</option>
+                        <option value="direct-instruction">Zero Shot</option>
+                        <option value="few-shot">Few Shot</option>
+                        <option value="chain-of-thought">Chain of Thought</option>
                     </select>
                     <div class="strategy-description" id="strategy-description">
-                        Direct instruction with single example for quick analysis
+                        
                     </div>
                 </div>
                 
@@ -1018,10 +1009,9 @@ class LLMSettingsProvider {
                 
                 function updateStrategyDescription(strategy) {
                     const descriptions = {
-                        'one-shot': 'Direct instruction with single example for quick analysis',
-                        'few-shot': 'Multiple examples for better pattern recognition',
-                        'chain-of-thought': 'Step-by-step reasoning for thorough analysis',
-                        'role-based': 'Analysis from multiple user perspectives and assistive technologies'
+                        'direct-instruction': 'Zero Shot: Prompt ohne Beispiele.',
+                        'few-shot': 'Few Shot: Prompt mit Beispielen.',
+                        'chain-of-thought': 'Chain of Thought: Schrittweise Begründung.'
                     };
                     
                     const descElement = document.getElementById('strategy-description');
@@ -1054,8 +1044,6 @@ class LLMSettingsProvider {
                     
                     if (provider === 'local') {
                         endpoint = document.getElementById('local-endpoint').value;
-                    } else if (provider === 'custom-api') {
-                        endpoint = document.getElementById('custom-endpoint').value;
                     }
                     
                     if (endpoint) {
@@ -1067,15 +1055,32 @@ class LLMSettingsProvider {
                 }
                 
                 function saveModel() {
-                    const provider = document.querySelector('input[name="provider"]:checked').value;
-                    let model;
+                    const providerRadio = document.querySelector('input[name="provider"]:checked');
+                    if (!providerRadio) {
+                        return;
+                    }
+
+                    const provider = providerRadio.value;
+                    let model = '';
                     
                     if (provider === 'local') {
-                        model = document.getElementById('local-model').value;
+                        const localInput = document.getElementById('local-model');
+                        if (localInput) {
+                            model = localInput.value;
+                        }
                     } else if (provider === 'github-copilot') {
-                        model = document.getElementById('copilot-model').value;
+                        const copilotSelect = document.getElementById('copilot-model');
+                        if (copilotSelect) {
+                            model = copilotSelect.value;
+                            if (copilotSelect.dataset) {
+                                copilotSelect.dataset.selectedModel = model;
+                            }
+                        }
                     } else if (provider === 'custom-api') {
-                        model = document.getElementById('custom-model').value;
+                        const customInput = document.getElementById('custom-model');
+                        if (customInput) {
+                            model = customInput.value;
+                        }
                     }
                     
                     if (model) {
@@ -1171,12 +1176,21 @@ class LLMSettingsProvider {
                                 
                                 // GitHub Copilot config
                                 if (config.githubCopilot) {
-                                    document.getElementById('copilot-model').value = config.githubCopilot.model || 'gpt-4o';
+                                    const copilotSelect = document.getElementById('copilot-model');
+                                    if (copilotSelect) {
+                                        const savedModel = config.githubCopilot.model || 'gpt-4o';
+                                        copilotSelect.value = savedModel;
+                                        if (copilotSelect.dataset) {
+                                            copilotSelect.dataset.selectedModel = savedModel;
+                                        }
+                                    }
                                 }
                                 
                                 // Custom API config
                                 if (config.customAPI) {
-                                    document.getElementById('custom-endpoint').value = config.customAPI.endpoint || '';
+                                    const ce = document.getElementById('custom-endpoint');
+                                    ce.value = config.customAPI.endpoint || 'https://openrouter.ai/api/v1/chat/completions';
+                                    ce.disabled = true;
                                     document.getElementById('custom-model').value = config.customAPI.model || '';
                                     
                                     const apiKeyStatus = document.getElementById('apikey-status');
@@ -1231,7 +1245,12 @@ class LLMSettingsProvider {
                 
                 function updateAvailableModels(models) {
                     const modelSelect = document.getElementById('copilot-model');
+                    if (!modelSelect) {
+                        return;
+                    }
+
                     if (models && models.length > 0) {
+                        const previousSelection = modelSelect.dataset ? (modelSelect.dataset.selectedModel || modelSelect.value) : '';
                         // Update options with available models
                         modelSelect.innerHTML = '';
                         models.forEach(model => {
@@ -1240,6 +1259,16 @@ class LLMSettingsProvider {
                             option.textContent = model;
                             modelSelect.appendChild(option);
                         });
+
+                        if (previousSelection && models.some(m => m === previousSelection)) {
+                            modelSelect.value = previousSelection;
+                        } else {
+                            modelSelect.value = models[0];
+                        }
+
+                        if (modelSelect.dataset) {
+                            modelSelect.dataset.selectedModel = modelSelect.value;
+                        }
                     }
                 }
                 

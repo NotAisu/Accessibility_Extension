@@ -21,7 +21,7 @@ export class FeedbackService {
     private static instance: FeedbackService;
     private metricsService: MetricsService;
     private aiDiagnosticCollection?: vscode.DiagnosticCollection;
-    private givenFeedbackForDiagnostics: Set<string> = new Set(); // instanceId based now
+    private givenFeedbackForDiagnostics: Set<string> = new Set(); // per instanceId
 
     private constructor(metricsService: MetricsService) {
         this.metricsService = metricsService;
@@ -38,9 +38,7 @@ export class FeedbackService {
         this.aiDiagnosticCollection = collection;
     }
 
-    /**
-     * Shows a feedback dialog for quick fix operations
-     */
+    // Dialog for quick-fix feedback
     public async showQuickFixFeedback(quickFixId: string, ruleId: string): Promise<void> {
         const config = vscode.workspace.getConfiguration('accessibility');
         const showFeedback = config.get<boolean>('feedback.showQuickFixFeedback', true);
@@ -71,9 +69,7 @@ export class FeedbackService {
         }
     }
 
-    /**
-     * Shows a feedback dialog for AI analyzer violations
-     */
+    // Dialog for AI analyzer feedback
     public async showViolationFeedback(violationId: string, ruleId: string): Promise<void> {
         const config = vscode.workspace.getConfiguration('accessibility');
         const showFeedback = config.get<boolean>('feedback.showViolationFeedback', true);
@@ -104,9 +100,7 @@ export class FeedbackService {
         }
     }
 
-    /**
-     * Shows a non-intrusive feedback notification
-     */
+    // Lightweight thank-you notification
     public async showQuickFeedback(options: FeedbackOptions): Promise<FeedbackType | undefined> {
         try {
             const buttons = options.showThumbsUpDown ? ['👍', '👎'] : ['OK'];
@@ -144,9 +138,7 @@ export class FeedbackService {
         }
     }
 
-    /**
-     * Shows a thank you message for positive feedback
-     */
+    // Short thank-you message
     private showThankYouMessage(): void {
         const messages = [
             'Thanks for the feedback! 🎉',
@@ -157,18 +149,16 @@ export class FeedbackService {
         
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         
-        // Use a subtle notification that doesn't interrupt workflow
+        // Use status bar to avoid interrupting the workflow
         vscode.window.setStatusBarMessage(randomMessage, 3000);
     }
 
-    /**
-     * Shows inline feedback buttons in hover/code action context
-     */
+    // Inline feedback buttons for hover/code actions
     public createInlineFeedbackButtons(quickFixId: string, ruleId: string): vscode.MarkdownString {
         const markdown = new vscode.MarkdownString();
         markdown.isTrusted = true;
         
-        // Create command URIs for feedback
+    // Command-URIs erzeugen
         const positiveUri = vscode.Uri.parse(`command:accessibility-extension.giveFeedback?${encodeURIComponent(JSON.stringify({
             quickFixId,
             feedback: 'positive',
@@ -188,9 +178,7 @@ export class FeedbackService {
         return markdown;
     }
 
-    /**
-     * Creates a feedback command for use in code actions and hovers
-     */
+    // Command handler to receive feedback
     public createFeedbackCommand(): vscode.Disposable {
     const disposables: vscode.Disposable[] = [];
     disposables.push(vscode.commands.registerCommand('accessibility-extension.giveFeedback', async (args: FeedbackCommandArgs) => {
@@ -204,7 +192,7 @@ export class FeedbackService {
                     // feedback param includes instanceId encoded? We expect args.violationId to still be violationId; need instanceId separately in command args in future if required.
                     const key = args.violationId + ':' + (args as any).instanceId;
                     if (this.givenFeedbackForDiagnostics.has(key)) {
-                        vscode.window.setStatusBarMessage('Feedback wurde bereits abgegeben.', 2500);
+                        vscode.window.setStatusBarMessage('Feedback already submitted.', 2500);
                         return;
                     }
                     const isCorrect = feedback === 'positive';
@@ -222,7 +210,7 @@ export class FeedbackService {
                 console.error('Error processing feedback command:', error);
             }
         }));
-        // Dismiss command
+    // Dismiss command
         disposables.push(vscode.commands.registerCommand('accessibility-extension.dismissAIDiagnostic', async (rawArgs: any) => {
             try {
                 const { violationId } = rawArgs || {};
@@ -237,9 +225,7 @@ export class FeedbackService {
         return { dispose: () => disposables.forEach(d => d.dispose()) };
     }
 
-    /**
-     * Creates a hover provider that shows feedback options for diagnostics
-     */
+    /** Creates a hover provider that shows feedback options for diagnostics */
     public createFeedbackHoverProvider(): vscode.HoverProvider {
         const self = this;
         return {
@@ -266,7 +252,7 @@ export class FeedbackService {
                         markdown.appendMarkdown(`${relevantDiagnostic.message}\n\n`);
                         
                         // Add feedback buttons for AI violations
-                        // Versuche persistente violationId aus diagnostic.code zu lesen; fallback generieren
+                        // Try to read persistent violationId from diagnostic.code; generate fallback
                         let violationId: string | undefined;
                         try {
                             violationId = codeData.violationId;
@@ -298,7 +284,7 @@ export class FeedbackService {
                         }))}`);
 
                         if (alreadyGiven) {
-                            markdown.appendMarkdown(`---\n_Feedback bereits gegeben._`);
+                            markdown.appendMarkdown(`---\n_Feedback already given._`);
                         } else {
                             markdown.appendMarkdown(`---\n**Is this detection correct?** `);
                             markdown.appendMarkdown(`[✅ Yes](${correctUri} "This violation is correct") | `);

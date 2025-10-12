@@ -1,3 +1,4 @@
+
 export interface PromptStrategy {
     name: string;
     displayName: string;
@@ -5,380 +6,139 @@ export interface PromptStrategy {
     generatePrompt(codeWithLineNumbers: string): string;
 }
 
-/**
- * One-Shot Learning Strategy
- * Direct, clear instruction with single example for immediate understanding
- */
-class OneShotStrategy implements PromptStrategy {
-    public readonly name = 'one-shot';
-    public readonly displayName = 'One-Shot';
-    public readonly description = 'Direct instruction with single example for quick analysis';
+
+// Direct instruction (zero-shot)
+class DirectInstructionStrategy implements PromptStrategy {
+    public readonly name = 'direct-instruction';
+    public readonly displayName = 'Direct Instruction (Zero-Shot)';
+    public readonly description = 'Optimized zero-shot approach with explicit role assignment and structured task decomposition';
 
     generatePrompt(codeWithLineNumbers: string): string {
-    return `Analyze the following frontend code for ACTUAL WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/). Report ONLY genuine issues that map to real success criteria or normative rules. Skip stylistic or already compliant lines.
-        If a line already conforms to WCAG 2.2 AA, DO NOT report it.
+    return `DIRECT WCAG 2.2 AA ACCESSIBILITY AUDIT (ZERO-SHOT)
 
-EXAMPLE:
-For code like: <div role="button">Click me</div>
-Response: {"line": 1, "element": "<div role=\"button\">", "issue": "Non-semantic button implementation", "recommendation": "Use semantic <button> element instead of div with role", "ruleId": "4.1.2"}
+TASK:
+Identify ONLY genuine WCAG 2.2 Level AA violations in the code. If none: output nothing.
 
-ANALYZE ALL AREAS:
+EXCLUDE (never report): stylistic preferences, SEO, performance, maintainability, speculative UX, color contrast guesses without evidence, vague risks.
 
-1. SEMANTICS & STRUCTURE:
-- Wrong HTML semantics: <div role="button"> instead of <button>
-- Illogical heading hierarchy: <h1> then <h3> without <h2>
-- Missing landmarks: <div> instead of <main>, <nav>, <section>
-- Meaningless generic containers without semantic value
+FOCUS (illustrative, not exhaustive):
+1.1.1 text alternatives | 1.3.1 structure | 1.4.1 colour reliance | 2.4.4 link purpose | 3.3.2 form labels | 4.1.2 name/role/value
 
-2. ACCESSIBILITY & LABELS:
-- Unclear/unspecific labels: "Submit", "Click here", "Read more"
-- Missing labels for form elements
-- Empty interactive elements: <button></button>, <a href="#"></a>
-- Insufficient button/link descriptions without context
+ZERO-SHOT CHECKLIST (internal, silent):
+1. Line scan → potential normative obligation?  
+2. Confirm concrete criterion violated (no guessing).  
+3. Draft minimal actionable fix (no rewrites).  
+4. Remove borderline / ambiguous cases.  
+5. Enforce uniqueness (line, ruleId) & format.  
 
-3. NAVIGATION & FOCUS:
-- Problematic tab order: tabindex without logical structure
-- Missing or incorrectly implemented skip links
-- Focus traps or inaccessible areas
-- Keyboard navigation blocked by CSS/JS
+OUTPUT (JSON Lines ONLY, no extra prose):
+{"line": <int>, "element": "<minimal snippet>", "issue": "<concise violation>", "recommendation": "<minimal actionable fix>", "ruleId": "<SC>"}
+Rules: ruleId pattern ^([1-4]\.[1-4]\.[1-9]|2\.5\.8)$ ; ≤1 object per source line; no duplicates; issue ≤80 chars; recommendation ≤120 chars.
+No arrays. No markdown. Empty output if no violations.
 
-4. ARIA & ACCESSIBILITY:
-- Wrong/redundant ARIA attributes: <img aria-label="image">
-- aria-hidden on interactive elements
-- Missing or wrong aria-describedby/aria-labelledby connections
-- Live regions missing for dynamic content
+SILENT SELF-VERIFY before emitting: all genuine, no style/false positives, format valid.
 
-5. VISUAL DESIGN IN CODE:
-- Color as only information carrier in CSS
-- Insufficient contrast ratios in CSS variables
-- Text made invisible by CSS (color: transparent, etc.)
-- Responsive design ignoring accessibility breakpoints
-
-6. INTERACTION & TIMING:
-- Time-based content without pause/stop functions
-- Auto-playing media without controls
-- Timeout mechanisms without warning or extension
-- Moving content without reduction option
-
-7. FORMS:
-- Missing fieldsets/legends for related fields
-- Error messages not linked to fields
-- Required fields not clearly marked
-- Validation only visual, not for screen readers
-
-8. DYNAMIC CONTENT:
-- Modal dialogs without focus management
-- AJAX updates without screen reader notification
-- Progressive enhancement neglected
-- Client-side routing without accessibility features
-
-STRICT OUTPUT RULES:
-1. Only include a line if it demonstrably violates WCAG 2.2 AA.
-2. Use real rule IDs (e.g. "1.3.1", "2.4.4", "4.1.2"). Do NOT invent IDs.
-3. Each physical line at most once. No duplicates.
-4. If a line is already compliant, DO NOT return it.
-5. Ignore purely visual formatting, indentation, class naming, or inline style cosmetics unless they directly break WCAG.
-6. Do NOT repeat the same issue wording for similar lines unless each is a distinct violation.
-7. Output ONLY JSON objects, one per violation, no prose outside JSON.
-8. Keys required: line, element, issue, recommendation, ruleId.
-
-Return one JSON object per line that violates WCAG:
-{"line": <line_number>, "element": "<HTML_or_selector>", "issue": "<succinct_problem>", "recommendation": "<specific_fix>", "ruleId": "<WCAG_2.2_AA_ID>"}
-
-Code:
-${codeWithLineNumbers}`;
+CODE:
+<<<
+${codeWithLineNumbers}
+>>>`;
     }
 }
 
-/**
- * Few-Shot Learning Strategy
- * Multiple examples to establish pattern recognition
- */
+// Few-shot with examples
 class FewShotStrategy implements PromptStrategy {
     public readonly name = 'few-shot';
-    public readonly displayName = 'Few-Shot';
-    public readonly description = 'Multiple examples for better pattern recognition';
+    public readonly displayName = 'Few-Shot Learning';
+    public readonly description = 'Strategic pattern induction through curated high-signal examples';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for REAL WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/). If a line already conforms to WCAG 2.2 AA, DO NOT report it. Learn strictly from these examples (only genuine violations with valid success criterion IDs):
+    return `WCAG 2.2 AA ACCESSIBILITY AUDIT (FEW-SHOT)
 
-EXAMPLE 1 - Semantic Issues:
-Code: <div role="button" onclick="submit()">Submit</div>
-Response: {"line": 1, "element": "<div role=\"button\">", "issue": "Non-semantic button implementation", "recommendation": "Use semantic <button> element: <button onclick=\"submit()\">Submit</button>", "ruleId": "4.1.2"}
+OBJECTIVE:
+Generalise from exemplars. Report only genuine WCAG 2.2 AA violations. Output nothing if none.
 
-EXAMPLE 2 - Missing Labels:
-Code: <input type="email" placeholder="Enter email">
-Response: {"line": 1, "element": "<input type=\"email\">", "issue": "Missing accessible label", "recommendation": "Add label: <label for=\"email\">Email:</label><input type=\"email\" id=\"email\" placeholder=\"Enter email\">", "ruleId": "3.3.2"}
+EXEMPLARS (Input → Expected JSON Line):
+1)
+<div onclick="save()">Save</div>
+{"line": 1, "element": "<div onclick=\"save()\">", "issue": "Div used as button lacks semantics", "recommendation": "Use <button onclick=\"save()\">Save</button>", "ruleId": "4.1.2"}
 
-EXAMPLE 3 - Heading Hierarchy:
-Code: <h1>Title</h1><h3>Subsection</h3>
-Response: {"line": 2, "element": "<h3>", "issue": "Skipped heading level", "recommendation": "Use h2 instead of h3 to maintain logical hierarchy", "ruleId": "1.3.1"}
+2)
+<input type="email" placeholder="Email">
+{"line": 1, "element": "<input type=\"email\">", "issue": "Email input missing accessible label", "recommendation": "Add <label for=\"em\">Email</label> + id=\"em\"", "ruleId": "3.3.2"}
 
-EXAMPLE 4 - Empty Links:
-Code: <a href="/page"><img src="icon.png"></a>
-Response: {"line": 1, "element": "<a href=\"/page\">", "issue": "Link without accessible text", "recommendation": "Add alt text to image or aria-label to link: <a href=\"/page\" aria-label=\"Go to page\"><img src=\"icon.png\" alt=\"\"></a>", "ruleId": "2.4.4"}
+3)
+<h1>Main</h1>\n<h3>Sub</h3>
+{"line": 2, "element": "<h3>", "issue": "Heading level skips from h1 to h3", "recommendation": "Change h3 to h2 for order", "ruleId": "1.3.1"}
 
-EXAMPLE 5 - Color-only Information:
-Code: .error { color: red; }
-Response: {"line": 1, "element": ".error", "issue": "Information conveyed by color only", "recommendation": "Add text or icon indicators in addition to color", "ruleId": "1.4.1"}
+4)
+<a href="/docs"><img src="doc.png" alt=""></a>
+{"line": 1, "element": "<a href=\"/docs\">", "issue": "Link lacks accessible name", "recommendation": "Add meaningful alt or aria-label", "ruleId": "2.4.4"}
 
-STRICT RULES:
-1. Only real WCAG 2.2 AA failures (no stylistic or subjective preferences)
-2. Each physical source line at most once; skip compliant lines entirely
-3. Use authentic success criterion IDs (e.g. 1.3.1, 2.4.4, 4.1.2) – NEVER invent IDs
-4. Ignore color contrast unless a hardcoded color obviously fails contrast (otherwise skip)
-5. Ignore pure formatting / class naming / indentation differences
-6. Recommendation MUST be a concrete minimal fix (semantic replacement, attribute addition, structural correction)
-7. Output ONLY JSON objects (no prose) with keys: line, element, issue, recommendation, ruleId
-8. Do not duplicate the same issue wording across multiple lines unless each is a separate instance
+5)
+<span class="error">Required</span>
+{"line": 1, "element": ".error", "issue": "Error conveyed only by color", "recommendation": "Add icon or text cue besides color", "ruleId": "1.4.1"}
 
-Now analyze the following code using the same pattern. Look for:
+ABSTRACTED PATTERNS (internal, do not output): semantics (4.1.2); labeling (3.3.2/4.1.2); structural sequence (1.3.1); link purpose naming (2.4.4); non-color redundancy (1.4.1).
+Do not copy wording blindly; adapt to actual code.
 
-SEMANTICS & STRUCTURE:
-- Non-semantic elements with roles instead of proper HTML elements
-- Incorrect heading hierarchy (h1→h3, missing h2)
-- Missing landmark elements (main, nav, section, aside)
-- Generic containers without semantic meaning
+OUTPUT (JSON Lines only):
+{"line": <int>, "element": "<minimal snippet>", "issue": "<concise violation>", "recommendation": "<minimal actionable fix>", "ruleId": "<SC>"}
+Rules: ruleId ^([1-4]\.[1-4]\.[1-9]|2\.5\.8)$ ; ≤1 per line; unique (line,ruleId); issue ≤80 chars; recommendation ≤120 chars; no arrays/markdown; empty if none.
 
-ACCESSIBILITY & LABELS:
-- Form elements without proper labels
-- Buttons/links with unclear or missing text
-- Images without alt text
-- Interactive elements without accessible names
-
-NAVIGATION & FOCUS:
-- Improper tabindex usage
-- Missing skip links
-- Focus management issues
-- Keyboard navigation barriers
-
-ARIA & ACCESSIBILITY:
-- Incorrect ARIA usage
-- Redundant or conflicting ARIA attributes
-- Missing live regions for dynamic content
-- aria-hidden on focusable elements
-
-For each issue found, return a JSON object following the examples above.
-
-Code:
-${codeWithLineNumbers}`;
+CODE:
+<<<
+${codeWithLineNumbers}
+>>>`;
     }
 }
 
-/**
- * Chain of Thought Strategy
- * Step-by-step reasoning process for complex analysis
- */
+// Chain-of-thought (internal steps; output remains compact)
 class ChainOfThoughtStrategy implements PromptStrategy {
     public readonly name = 'chain-of-thought';
-    public readonly displayName = 'Chain of Thought';
-    public readonly description = 'Step-by-step reasoning for thorough analysis';
+    public readonly displayName = 'Chain-of-Thought Reasoning';
+    public readonly description = 'Structured analytical reasoning with explicit intermediate steps';
 
     generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for REAL WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) using step-by-step reasoning. If a line already conforms, skip it entirely.
+    return `WCAG 2.2 AA ACCESSIBILITY AUDIT (CHAIN-OF-THOUGHT)
 
-REASONING PROCESS:
-1. First, read through the code to understand its structure and purpose
-2. Identify all interactive elements (buttons, links, form controls)
-3. Check semantic correctness of each element
-4. Verify accessibility attributes and labels
-5. Examine the information architecture and navigation
-6. Look for visual design issues that affect accessibility
-7. Consider dynamic behavior and timing issues
+INSTRUCTION: Perform the following INTERNAL reasoning pipeline silently. Output ONLY final JSON Lines (no reasoning text, no commentary).
 
-STEP-BY-STEP ANALYSIS EXAMPLE:
-Code: <div class="button" onclick="save()">Save</div>
+INTERNAL STEPS (do not emit):
+1. INVENTORY: Internally list elements, interactive widgets, forms, media, headings, ARIA usage.
+2. CRITERION MAPPING: For each candidate, test against WCAG 2.2 AA (focus: 1.1.1, 1.3.1, 1.4.1, 2.4.4, 3.3.2, 4.1.2). Reject uncertain cases.
+3. CANDIDATE REFINEMENT: Remove stylistic / speculative / ambiguous items.
+4. FIX SYNTHESIS: Draft minimal, specific remediation for each validated violation.
+5. FORMAT ENFORCEMENT: Ensure uniqueness (line,ruleId), ≤1 per line, field length limits, regex compliance.
+6. FINAL SELF-CHECK: All genuine, no reasoning leaked.
 
-Step 1: Identify element type → This is a div being used as a button
-Step 2: Check semantics → div is not semantic for interactive elements
-Step 3: Check accessibility → No keyboard support, no ARIA attributes
-Step 4: Determine violation → WCAG 4.1.2 (Name, Role, Value)
-Step 5: Provide solution → Use <button> element instead
+OUTPUT FORMAT (JSON Lines only):
+{"line": <int>, "element": "<minimal snippet>", "issue": "<concise violation>", "recommendation": "<minimal actionable fix>", "ruleId": "<SC>"}
+Rules: ruleId pattern ^([1-4]\.[1-4]\.[1-9]|2\.5\.8)$ ; issue ≤80 chars; recommendation ≤120 chars; no arrays/markdown; empty if none.
 
-Response: {"line": 1, "element": "<div class=\"button\">", "issue": "Non-semantic button implementation lacks keyboard support", "recommendation": "Replace with semantic button: <button onclick=\"save()\">Save</button>", "ruleId": "4.1.2"}
-
-Now analyze the following code step by step:
-
-STEP 1: STRUCTURAL ANALYSIS
-- Read through the code to understand the overall structure
-- Identify the main content areas and their relationships
-- Note any interactive elements or form controls
-
-STEP 2: SEMANTIC EVALUATION
-- Check if HTML elements are used for their intended purpose
-- Verify heading hierarchy follows logical order (h1→h2→h3)
-- Ensure landmarks (main, nav, section) are properly used
-
-STEP 3: ACCESSIBILITY ATTRIBUTES
-- Verify all form elements have proper labels
-- Check for appropriate ARIA attributes where needed
-- Ensure images have meaningful alt text
-
-STEP 4: NAVIGATION AND FOCUS
-- Analyze tab order and keyboard navigation
-- Check for focus indicators and focus management
-- Verify skip links are present and functional
-
-STEP 5: INTERACTION DESIGN
-- Review button and link implementations
-- Check for proper error handling and feedback
-- Ensure all interactive elements are accessible
-
-STEP 6: VISUAL AND TEMPORAL CONSIDERATIONS
-- Look for color-only information conveyance
-- Check for sufficient contrast in CSS
-- Identify any timing or motion accessibility issues
-
-STRICT OUTPUT RULES:
-1. Only authentic WCAG 2.2 AA failures (no subjective style or best-practice-only items)
-2. One JSON object per violating line, never more than one per line
-3. Use valid success criterion IDs (e.g. 1.3.1, 2.4.4, 4.1.2) – NEVER invent
-4. Skip color contrast unless explicit hardcoded values clearly fail
-5. Recommendation must be minimal and directly actionable
-6. Output ONLY JSON objects (no prose) with keys: line, element, issue, recommendation, ruleId
-7. If zero violations, output nothing
-
-For each violation provide:
-{"line": <line_number>, "element": "<HTML_element>", "issue": "<concise_reasoning>", "recommendation": "<precise_fix>", "ruleId": "<WCAG_rule_ID>"}
-
-Code to analyze:
-${codeWithLineNumbers}`;
+CODE:
+<<<
+${codeWithLineNumbers}
+>>>`;
     }
 }
 
-/**
- * Role-Based Strategy
- * Analysis from the perspective of different user roles and assistive technologies
- */
-class RoleBasedStrategy implements PromptStrategy {
-    public readonly name = 'role-based';
-    public readonly displayName = 'Role-Based';
-    public readonly description = 'Analysis from multiple user perspectives and assistive technologies';
-
-    generatePrompt(codeWithLineNumbers: string): string {
-        return `Analyze the following frontend code for REAL WCAG 2.2 AA violations (https://www.w3.org/TR/WCAG22/) from multiple user perspectives. If a line is compliant, do NOT report it.
-
-ROLE-BASED ANALYSIS FRAMEWORK:
-
-🔍 SCREEN READER USER PERSPECTIVE:
-- Can all content be accessed and understood through audio?
-- Are there proper headings for navigation?
-- Do form elements have clear labels?
-- Is the reading order logical?
-- Are there sufficient landmarks for navigation?
-
-♿ KEYBOARD-ONLY USER PERSPECTIVE:
-- Can all interactive elements be reached via keyboard?
-- Is the tab order logical and predictable?
-- Are there visible focus indicators?
-- Can users skip repetitive content?
-- Are there keyboard traps?
-
-👁️ LOW VISION USER PERSPECTIVE:
-- Is there sufficient color contrast?
-- Can content be zoomed to 200% without horizontal scrolling?
-- Is information conveyed without relying solely on color?
-- Are touch targets large enough (minimum 44px)?
-- Is text readable and scalable?
-
-🧠 COGNITIVE ACCESSIBILITY PERSPECTIVE:
-- Are instructions clear and simple?
-- Is the interface predictable and consistent?
-- Are error messages helpful and specific?
-- Is there enough time to complete tasks?
-- Can users control timing and motion?
-
-🤖 ASSISTIVE TECHNOLOGY COMPATIBILITY:
-- Voice control software compatibility
-- Switch navigation device support
-- Eye-tracking software compatibility
-- Alternative input device support
-
-ANALYSIS EXAMPLE:
-Code: <span onclick="delete()" class="delete-btn">×</span>
-
-Screen Reader Analysis: No semantic meaning, unclear purpose
-Keyboard User Analysis: Not focusable, no keyboard activation
-Low Vision Analysis: Small target, unclear symbol
-Cognitive Analysis: Unclear action, no confirmation
-AT Compatibility: Not accessible to voice commands
-
-Response: {"line": 1, "element": "<span onclick=\"delete()\">", "issue": "Delete action inaccessible to multiple user groups - no keyboard support, unclear labeling, poor semantics", "recommendation": "Use semantic button with clear label: <button onclick=\"delete()\" aria-label=\"Delete item\">Delete</button>", "ruleId": "4.1.2"}
-
-Now analyze the code from each perspective:
-
-FOR SCREEN READER USERS:
-- Check all text alternatives and labels
-- Verify heading structure and landmarks
-- Ensure proper reading order
-- Look for missing or redundant ARIA attributes
-
-FOR KEYBOARD USERS:
-- Verify all interactive elements are keyboard accessible
-- Check tab order and focus management
-- Look for skip links and focus indicators
-- Identify potential keyboard traps
-
-FOR LOW VISION USERS:
-- Check color contrast and color reliance
-- Verify zoom and reflow capabilities
-- Ensure adequate target sizes
-- Look for text scaling issues
-
-FOR COGNITIVE ACCESSIBILITY:
-- Check clarity of instructions and labels
-- Verify error prevention and recovery
-- Look for timing and session issues
-- Ensure predictable behavior
-
-FOR ASSISTIVE TECHNOLOGY:
-- Check semantic markup quality
-- Verify programmatic relationships
-- Ensure proper state communication
-- Look for custom control accessibility
-
-STRICT OUTPUT RULES:
-1. Only genuine WCAG 2.2 AA failures (no speculative UX critiques)
-2. One JSON object per failing line maximum
-3. Valid success criterion IDs only (e.g. 1.3.1, 2.4.4, 4.1.2)
-4. Recommendation must directly address accessibility barrier
-5. Do NOT output explanatory prose, ONLY JSON objects
-6. Keys required: line, element, issue, recommendation, ruleId
-7. Skip color contrast unless explicit hardcoded color implies failure
-8. If none -> output nothing
-
-For each accessibility barrier:
-{"line": <line_number>, "element": "<HTML_element>", "issue": "<concise_barrier>", "recommendation": "<direct_fix>", "ruleId": "<WCAG_rule_ID>"}
-
-Code to analyze:
-${codeWithLineNumbers}`;
-    }
-}
-
-/**
- * Available prompt strategies
- */
+// Available strategies
 export const PROMPT_STRATEGIES: PromptStrategy[] = [
-    new OneShotStrategy(),
+    new DirectInstructionStrategy(),
     new FewShotStrategy(),
-    new ChainOfThoughtStrategy(),
-    new RoleBasedStrategy()
+    new ChainOfThoughtStrategy()
 ];
 
-/**
- * Get a prompt strategy by name
- */
+// Strategy by name
 export function getPromptStrategy(strategyName: string): PromptStrategy {
     const strategy = PROMPT_STRATEGIES.find(s => s.name === strategyName);
     if (!strategy) {
-        throw new Error(`Unknown prompt strategy: ${strategyName}`);
+        throw new Error(`Unknown prompt strategy: ${strategyName}. Available: ${PROMPT_STRATEGIES.map(s => s.name).join(', ')}`);
     }
     return strategy;
 }
 
-/**
- * Get default prompt strategy
- */
+// Default strategy
 export function getDefaultStrategy(): PromptStrategy {
-    return PROMPT_STRATEGIES[0]; // One-shot as default
+    return PROMPT_STRATEGIES[0];
 }

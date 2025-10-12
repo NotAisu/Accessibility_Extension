@@ -8,6 +8,7 @@ import { AISemanticAnalyzer } from './ai/ai-semantic-analyzer';
 import { MetricsService } from './metrics/metrics-service';
 import { MetricsDashboardProvider } from './views/metrics-dashboard-provider';
 import { FeedbackService } from './feedback/feedback-service';
+import { normalizeRuleId } from './core/rule-id-normalizer';
 
 
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
@@ -17,12 +18,8 @@ let aiSemanticAnalyzer: AISemanticAnalyzer;
 let metricsService: MetricsService;
 let feedbackService: FeedbackService;
 let aiStatusBarItem: vscode.StatusBarItem;
-
-// Memory leak prevention: Track active documents and cleanup timer
 let cleanupTimer: NodeJS.Timeout | undefined;
-const CLEANUP_INTERVAL_MS = 30000; // 30 seconds
-
-// Race condition prevention: Debounced metrics updates
+const CLEANUP_INTERVAL_MS = 30000;
 let metricsUpdateTimer: NodeJS.Timeout | undefined;
 const METRICS_UPDATE_DELAY_MS = 300;
 
@@ -30,30 +27,24 @@ const METRICS_UPDATE_DELAY_MS = 300;
 export function activate(context: vscode.ExtensionContext) {
     console.log('🚀 Activating Accessibility Extension...');
     
-    // Services mit SecretStorage initialisieren
     llmService = new LLMService(context.secrets);
     codeTutorService = new CodeTutorService();
     metricsService = MetricsService.getInstance(context);
     feedbackService = FeedbackService.getInstance(metricsService);
-    // Set metrics service in LLM service
     llmService.setMetricsService(metricsService);
     
     aiSemanticAnalyzer = new AISemanticAnalyzer(llmService);
     aiSemanticAnalyzer.setMetricsService(metricsService);
-    // Jetzt wo der Analyzer existiert, AI DiagnosticCollection an FeedbackService durchreichen
     if (typeof (feedbackService as any).setAIDiagnosticCollection === 'function') {
         feedbackService.setAIDiagnosticCollection(aiSemanticAnalyzer.getDiagnosticCollection());
     }
     
-    // Set up callback for AI analyzer to access axe-core diagnostics
     aiSemanticAnalyzer.setDiagnosticsCallback((uri: vscode.Uri) => {
         return Array.from(diagnosticCollection.get(uri) || []);
     });
 
     console.log('📊 Services initialized successfully');
-
     
-    // Register LLM Settings webview provider
     const llmSettingsProvider = new LLMSettingsProvider(context.extensionUri, llmService);
     llmSettingsProvider.setAIAnalyzer(aiSemanticAnalyzer);
     llmSettingsProvider.setCodeTutorService(codeTutorService);
@@ -67,45 +58,37 @@ export function activate(context: vscode.ExtensionContext) {
     );
     console.log(`Registered LLM Settings Provider with viewType: ${LLMSettingsProvider.viewType}`);
 
-    // Register Metrics Dashboard webview provider
     const metricsDashboardProvider = new MetricsDashboardProvider(context.extensionUri, metricsService);
     context.subscriptions.push(
         vscode.window.registerWebviewViewProvider(MetricsDashboardProvider.viewType, metricsDashboardProvider)
     );
     console.log(`Registered Metrics Dashboard Provider with viewType: ${MetricsDashboardProvider.viewType}`);
 
-    // Set DiagnosticCollections for the dashboard provider so it can refresh violations after clearing data
     metricsDashboardProvider.setDiagnosticCollections(
         diagnosticCollection,
         aiSemanticAnalyzer.getDiagnosticCollection()
     );
 
     console.log('Accessibility Extension: All WebView Providers registered successfully');
-
-    // Register feedback command
     context.subscriptions.push(
         feedbackService.createFeedbackCommand()
     );
 
-    // Register feedback hover provider
     context.subscriptions.push(
         vscode.languages.registerHoverProvider(
             ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'],
             feedbackService.createFeedbackHoverProvider()
         )
     );
-    
-    // Accessibility-bezogene Befehle
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.fixWithAI', fixWithAI)
     );
 
-    // AI Analysis Command (wird vom WebView Button getriggert)
+    // AI analysis command (triggered by the webview button)
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.startAIAnalysis', async () => {
             try {
                 await aiSemanticAnalyzer.startAnalysis();
-                // Metrics nach AI-Analyse aktualisieren
                 updateGlobalViolationMetrics();
                 updateAIStatusBar();
             } catch (error) {
@@ -114,7 +97,6 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
-    // Test Connection Command
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.testConnection', async () => {
             try {
@@ -133,7 +115,6 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
-    // Debug Commands for Testing
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.openDashboard', async () => {
             await vscode.commands.executeCommand('accessibilityMetricsDashboard.focus');
@@ -146,7 +127,6 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
-    // Code Tutor Befehle
     context.subscriptions.push(
         vscode.commands.registerTextEditorCommand('accessibility-extension.codeTutorAnnotate', async (textEditor: vscode.TextEditor) => {
             await codeTutorService.toggleAnnotations(textEditor);
@@ -156,11 +136,10 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.codeTutorClear', () => {
             codeTutorService.clearAnnotations();
-            vscode.window.showInformationMessage('Code Tutor Annotationen wurden gelöscht.');
+            vscode.window.showInformationMessage('Code Tutor annotations cleared.');
         })
     );
 
-    // Metrics and Feedback Commands
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.showMetrics', () => {
             vscode.commands.executeCommand('workbench.view.extension.accessibility-metrics');
@@ -177,7 +156,6 @@ export function activate(context: vscode.ExtensionContext) {
             );
 
             if (result === 'Clear Data') {
-                // Verwende clearDataAndRefresh um aktuelle Violations beizubehalten
                 metricsService.clearDataAndRefresh(
                     diagnosticCollection,
                     aiSemanticAnalyzer.getDiagnosticCollection()
@@ -187,8 +165,6 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
-
-    
     context.subscriptions.push(
         vscode.commands.registerCommand('accessibility-extension.showFeedbackStats', () => {
             const stats = metricsService.getDashboardData();
@@ -209,23 +185,18 @@ export function activate(context: vscode.ExtensionContext) {
         )
     );
 
-  
     context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((document) => {
-        // Clean up diagnostics for closed document
         diagnosticCollection.delete(document.uri);
         aiSemanticAnalyzer.getDiagnosticCollection().delete(document.uri);
-        // Update global metrics after cleanup
         updateGlobalViolationMetrics();
     }));
 
     vscode.window.visibleTextEditors.forEach(editor => runDiagnostics(editor.document));
 
-    // Start memory cleanup timer
     startDiagnosticCleanup();
 
-    // StatusBar Item
     aiStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     aiStatusBarItem.text = 'AI: inactive';
     aiStatusBarItem.command = 'accessibility-extension.startAIAnalysis';
@@ -233,7 +204,6 @@ export function activate(context: vscode.ExtensionContext) {
     aiStatusBarItem.show();
     context.subscriptions.push(aiStatusBarItem);
 
-    // Command: Clear Recent Fix Memory
     context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.clearRecentAIMemory', () => {
         aiSemanticAnalyzer.clearRecentFixMemory();
         vscode.window.showInformationMessage('AI recent fix memory cleared.');
@@ -241,18 +211,12 @@ export function activate(context: vscode.ExtensionContext) {
     }));
 }
 
-/**
- * Periodically cleans up diagnostics for closed/inactive documents
- */
 function startDiagnosticCleanup(): void {
     cleanupTimer = setInterval(() => {
         cleanupInactiveDiagnostics();
     }, CLEANUP_INTERVAL_MS);
 }
 
-/**
- * Removes diagnostics for documents that are no longer open
- */
 function cleanupInactiveDiagnostics(): void {
     const activeDocuments = new Set(
         vscode.workspace.textDocuments.map(doc => doc.uri.toString())
@@ -274,7 +238,6 @@ function cleanupInactiveDiagnostics(): void {
         }
     });
 
-    // Remove stale diagnostics
     staleUris.forEach(uri => {
         diagnosticCollection.delete(uri);
         aiCollection.delete(uri);
@@ -286,32 +249,20 @@ function cleanupInactiveDiagnostics(): void {
     }
 }
 
-/**
- * Führt Diagnostics für ein Dokument aus (nur axe-core, AI ist jetzt manuell)
- */
 async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
-    // Nur für unterstützte Dateitypen
     const supportedLanguages = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
     if (!supportedLanguages.includes(document.languageId)) {
         return;
     }
 
     try {
-        // 1. Axe-core Diagnostics ausführen (sofortiges Feedback)
         await updateDiagnostics(document);
-        
-        // 2. Zentrale Metrics-Update für alle Diagnostics
         updateGlobalViolationMetrics();
-        
     } catch (error) {
         console.error('Error running diagnostics:', error);
     }
 }
 
-/**
- * Updates die globalen Violation Metrics basierend auf allen aktuellen Diagnostics
- * Debounced to prevent race conditions
- */
 function updateGlobalViolationMetrics(): void {
     debouncedMetricsUpdate();
 }
@@ -322,9 +273,6 @@ function updateAIStatusBar(): void {
     aiStatusBarItem.text = `AI: ${counts.reported} findings (${counts.suppressed} suppressed)`;
 }
 
-/**
- * Debounced metrics update to prevent race conditions
- */
 function debouncedMetricsUpdate(): void {
     if (metricsUpdateTimer) {
         clearTimeout(metricsUpdateTimer);
@@ -351,7 +299,18 @@ async function updateDiagnostics(document: vscode.TextDocument) {
         return;
     }
 
-    const { window } = new JSDOM(text);
+    // Use a JSDOM window and execute scripts in its own realm so axe runs in the same context
+    const { window } = new JSDOM(text, { runScripts: 'dangerously' });
+
+    // Stub commonly missing browser APIs/assets to avoid axe "preload" timeouts
+    try {
+        (window as any).requestAnimationFrame = (cb: any) => setTimeout(() => cb(Date.now()), 16);
+        (window as any).cancelAnimationFrame = (id: any) => clearTimeout(id);
+    // Only stub fetch if it doesn't exist — prevents axe preload assets from failing
+        if (!(window as any).fetch) {
+            (window as any).fetch = async () => ({ ok: true, text: async () => '', json: async () => ({}) });
+        }
+    } catch {}
 
     
     if (!window.HTMLCanvasElement.prototype.getContext) {
@@ -361,14 +320,32 @@ async function updateDiagnostics(document: vscode.TextDocument) {
     }
 
     try {
-        const results = await axe.run(window.document.documentElement, {
-            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'] },
+    // Inject axe into the same JSDOM context
+        try {
+            // eslint-disable-next-line no-eval
+            (window as any).eval((axe as any).source);
+        } catch (e) {
+            console.warn('Failed to inject axe into JSDOM window:', e);
+        }
+
+        const AXE_TIMEOUT_MS = 5000;
+    const axeOptions: any = {
+            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa','wcag22a', 'wcag22aa'] },
             resultTypes: ['violations'],
             rules: {
                 'color-contrast': { enabled: false },
                 'color-contrast-enhanced': { enabled: false }
             }
-        });
+    };
+    try { (axeOptions as any).preload = false; } catch {}
+    const axePromise = (window as any).axe.run(window.document, axeOptions);
+        const timeoutPromise = new Promise<null>((_, reject) => setTimeout(() => reject(new Error('axe-timeout')), AXE_TIMEOUT_MS));
+        const results: any = await Promise.race([axePromise, timeoutPromise]);
+        if (!results) {
+            console.warn('axe returned no results (possibly timed out)');
+            diagnosticCollection.set(document.uri, []);
+            return;
+        }
 
         const diagnostics: vscode.Diagnostic[] = [];
         for (const violation of results.violations) {
@@ -397,12 +374,13 @@ async function updateDiagnostics(document: vscode.TextDocument) {
                 }
 
                 if (range) {
+                    const normId = normalizeRuleId(violation.id);
                     const diagnostic = new vscode.Diagnostic(
                         range,
-                        `${violation.help} (Regel: ${violation.id})`,
+                        `${violation.help} (Rule: ${normId || violation.id})`,
                         vscode.DiagnosticSeverity.Warning
                     );
-                    diagnostic.code = JSON.stringify({ ruleId: violation.id, help: violation.help });
+                    diagnostic.code = JSON.stringify({ ruleId: normId || violation.id, help: violation.help, originalRuleId: violation.id });
                     diagnostics.push(diagnostic);
                 }
             }
@@ -411,7 +389,11 @@ async function updateDiagnostics(document: vscode.TextDocument) {
         diagnosticCollection.set(document.uri, diagnostics);
 
     } catch (error) {
-        console.error('Error in accessibility analysis:', error);
+        if (error instanceof Error && error.message === 'axe-timeout') {
+            console.warn('axe-core analysis aborted after timeout');
+        } else {
+            console.error('Error in accessibility analysis:', error);
+        }
         
         
         if (error instanceof Error && error.message.includes('HTMLCanvasElement.prototype.getContext')) {
@@ -426,14 +408,14 @@ async function updateDiagnostics(document: vscode.TextDocument) {
 
 class AccessibilityActionProvider implements vscode.CodeActionProvider {
     provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext): vscode.CodeAction[] {
-        // Filter für alle Accessibility-Diagnostics (axe-core und AI)
+    // Filter all accessibility diagnostics (axe-core and AI)
         const accessibilityDiagnostics = context.diagnostics.filter(diagnostic => {
-            // axe-core Diagnostics haben string code
+            // axe-core diagnostics have string code
             if (typeof diagnostic.code === 'string') {
                 return true;
             }
             
-            // AI-Diagnostics haben JSON code mit isAIGenerated flag
+            // AI diagnostics have JSON code with isAIGenerated flag
             try {
                 if (typeof diagnostic.code === 'string') {
                     const codeData = JSON.parse(diagnostic.code);
@@ -450,7 +432,7 @@ class AccessibilityActionProvider implements vscode.CodeActionProvider {
             return [];
         }
 
-        // Eine einheitliche "Fix with AI" Aktion für alle Accessibility-Probleme
+    // Provide a unified "Fix with AI" action for all accessibility issues
         return accessibilityDiagnostics.map(diagnostic => this.createCommandAction(diagnostic));
     }
 
@@ -600,16 +582,17 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
             const applied = await vscode.workspace.applyEdit(edit);
             if (applied) {
                 vscode.window.showInformationMessage('✅ AI fix applied.');
-                // Nach erfolgreichem Fix nur AI-Diagnostic entfernen (axe-core bleibt bestehen und wird
-                // beim nächsten regulären Lauf neu bewertet). Zusätzlich die fixte Zeile merken, um sofortige
-                // Re-Deklaration des gleichen AI-Verstoßes zu vermeiden.
+                // After a successful fix only remove the AI diagnostic (axe-core remains and will
+                // be re-evaluated on the next run). Also record the fixed line(s) to avoid immediate
+                // re-reporting of the same AI issue.
                 try {
                     if (typeof diagnostic.code === 'string') {
                         const codeData = JSON.parse(diagnostic.code);
-                        // Range (kann mehrere Zeilen umfassen) registrieren
+                        // Register range (may span multiple lines)
                         aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
-                        if (codeData.isAIGenerated && codeData.violationId) {
-                            aiSemanticAnalyzer.removeAIDiagnostic(codeData.violationId);
+                        const removeId = codeData.vId || codeData.violationId; // support legacy
+                        if (codeData.isAIGenerated && removeId) {
+                            aiSemanticAnalyzer.removeAIDiagnostic(removeId);
                             // Mark feedbackGiven true in remaining diagnostics with same violationId (defensiv)
                             try {
                                 const aiDiags = aiSemanticAnalyzer.getDiagnosticCollection().get(editor.document.uri) || [];
@@ -617,7 +600,7 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
                                     if (typeof d.code === 'string') {
                                         try {
                                             const data = JSON.parse(d.code);
-                                            if (data.violationId === codeData.violationId) {
+                                            if (data.vId === removeId || data.violationId === removeId) {
                                                 data.feedbackGiven = true;
                                                 d.code = JSON.stringify(data);
                                             }

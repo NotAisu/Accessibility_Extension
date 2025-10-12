@@ -1,6 +1,3 @@
-// Gemeinsamer Parser für AI Accessibility Analyse-Ausgaben
-// Unabhängig von VS Code APIs, damit auch Tests (Node-Umgebung) ihn nutzen können.
-
 export interface AIParsedViolation {
   line: number;
   element?: string;
@@ -9,13 +6,10 @@ export interface AIParsedViolation {
   ruleId?: string;
 }
 
-// Parse AI Response zu strukturierten Violations.
-// Robust gegenüber gemischten Formaten: kompletter JSON-Block, JSON-Lines, Code-Fences.
 export function parseAIAnalysis(aiResponse: string): AIParsedViolation[] {
   const violations: AIParsedViolation[] = [];
   if (!aiResponse || !aiResponse.trim()) return violations;
 
-  // 1. Fenced code extrahieren
   const fenceRegex = /```(?:json)?\n([\s\S]*?)```/gi;
   const fencedBlocks: string[] = [];
   let fenceMatch: RegExpExecArray | null;
@@ -24,7 +18,6 @@ export function parseAIAnalysis(aiResponse: string): AIParsedViolation[] {
   }
   const candidateText = fencedBlocks.length > 0 ? fencedBlocks.join('\n') : aiResponse;
 
-  // Helper zum Validieren & Pushen
   const push = (obj: any) => {
     if (!obj || typeof obj.line !== 'number') return;
     if (obj.line <= 0) return;
@@ -37,7 +30,6 @@ export function parseAIAnalysis(aiResponse: string): AIParsedViolation[] {
     });
   };
 
-  // 2. Versuche komplettes Array zu parsen
   try {
     const maybeArray = JSON.parse(candidateText);
     if (Array.isArray(maybeArray)) {
@@ -46,7 +38,6 @@ export function parseAIAnalysis(aiResponse: string): AIParsedViolation[] {
     }
   } catch { /* ignore */ }
 
-  // 3. JSON-Lines / akkumulierte Fragmente
   const lines = candidateText.split(/\r?\n/);
   let buffer = '';
   for (const rawLine of lines) {
@@ -62,13 +53,10 @@ export function parseAIAnalysis(aiResponse: string): AIParsedViolation[] {
           push(parsed);
         }
         buffer = '';
-      } catch {
-        // weiter sammeln
-      }
+      } catch {}
     }
   }
 
-  // 4. Fallback: einzelne Objekte per Regex
   if (violations.length === 0) {
     const objectRegex = /\{[^}]*"line"[^}]*\}/g;
     const matches = candidateText.match(objectRegex) || [];
@@ -77,7 +65,6 @@ export function parseAIAnalysis(aiResponse: string): AIParsedViolation[] {
     }
   }
 
-  // Duplikate nach Zeile + Issue entfernen
   const seen = new Set<string>();
   return violations.filter(v => {
     const key = v.line + '|' + (v.issue || '') + '|' + (v.ruleId || '');

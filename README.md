@@ -32,7 +32,7 @@ WCAG 2.2 AA Auditing + Semantische AI-Analyse + Quick Fixes + Lernunterstützun
 ## 1. Überblick
 Die Erweiterung kombiniert klassische statische Accessibility Analyse (axe-core) mit einer semantischen KI-Schicht, um auch nicht-triviale WCAG-Verstöße (z.B. schlechte Struktur, fehlende Landmark-Semantik, unklare Labels) zu erkennen. Dazu kommen:
 - AI Quick Fixes pro Diagnostic (kontextbezogene Code-Ersetzung)
-- Prompt-Strategien (One-Shot, Few-Shot, Chain-of-Thought, Role-Based)
+- Prompt-Strategien (One-Shot, Few-Shot, Chain-of-Thought)
 - Metrik-Dashboard (Erkennungsqualität, Performance, Quick-Fix-Feedback)
 - Feedback-Loops zur kontinuierlichen Qualitätsbewertung
 - Code Tutor mit Inline-Anmerkungen (Lernorientiert, Copilot Language Model API)
@@ -59,7 +59,7 @@ src/
 	extension.ts                # Einstieg & Registrierungen
 	ai/
 		ai-semantic-analyzer.ts   # Semantische Analyse + Prompt Strategie Integration
-		prompt-strategies.ts      # Strategien (one-shot, few-shot, chain-of-thought, role-based)
+		prompt-strategies.ts      # Strategien (one-shot, few-shot, chain-of-thought)
 	llm/llm-service.ts          # Provider Orchestrierung (local, copilot, custom)
 	code-tutor/                 # Code Tutor Service (LM API Nutzung)
 	metrics/metrics-service.ts  # Metrik Aggregation & Persistenz
@@ -131,7 +131,6 @@ Erstkonfiguration im Activity Bar Icon „AI Accessibility“ → AI Settings We
 | one-shot | Schnell, wenig Token | Evtl. oberflächlich |
 | few-shot | Bessere Mustererkennung | Mehr Tokens, langsamer |
 | chain-of-thought | Komplexere Ableitungen | Risiko Halluzinationen / Länger |
-| role-based | Multi-Perspektive (AT, Nutzergruppen) | Höhere Antwortlänge |
 
 Fallback: Bei Fehler Rückfall auf Default Strategie.
 

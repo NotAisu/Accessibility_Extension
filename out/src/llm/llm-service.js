@@ -15,30 +15,20 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LLMService = void 0;
 const vscode = __importStar(require("vscode"));
 class LLMService {
     constructor(secretStorage) {
         this.providers = new Map();
-        // Sehr einfacher In-Memory Cache (Prompt -> Result)
+        // Simple in-memory cache (prompt -> result)
         this.cache = new Map();
         this.CACHE_TTL_MS = 1000 * 60 * 2; // 2 Minuten sinnvoll ohne Overengineering
         this.secretStorage = secretStorage;
@@ -66,11 +56,11 @@ class LLMService {
         if (!(await provider.isConfigured())) {
             throw new Error(`${provider.name} is not properly configured. Please check your settings.`);
         }
-        // Cache Check (nur wenn Prompt nicht leer)
+        // Cache check (only if prompt is not empty)
         const cacheKey = 'fix:' + prompt;
         const cached = this.getFromCache(cacheKey);
         if (cached) {
-            // Trotzdem QuickFix Attempt für Konsistenz der Metriken registrieren
+            // Still record a quick-fix attempt for metric consistency
             let quickFixId = '';
             if (this.metricsService)
                 quickFixId = this.metricsService.recordQuickFixAttempt();
@@ -124,7 +114,7 @@ class LLMService {
             throw error;
         }
     }
-    // --- Einfache Cache Helfer ---
+    // --- Simple cache helpers ---
     getFromCache(key) {
         const entry = this.cache.get(key);
         if (!entry)
@@ -137,7 +127,7 @@ class LLMService {
     }
     storeInCache(key, value) {
         this.cache.set(key, { value, ts: Date.now() });
-        // Kleines LRU-Pruning (hart begrenzt auf 50 Einträge)
+        // Small LRU-style pruning (hard limit 50 entries)
         if (this.cache.size > 50) {
             const oldestKey = [...this.cache.entries()].sort((a, b) => a[1].ts - b[1].ts)[0][0];
             this.cache.delete(oldestKey);
@@ -294,7 +284,7 @@ class LocalLLMProvider {
         if (!data) {
             return undefined;
         }
-        // Gängige API-Felder prüfen
+        // Check common API fields
         const possibleFields = [
             'text', 'content', 'answer', 'response', 'result', 'output', 'completion', 'generated_text'
         ];
@@ -304,7 +294,7 @@ class LocalLLMProvider {
                 return value;
             }
         }
-        // Verschachtelte Strukturen prüfen
+        // Check nested structures
         if (data.message) {
             if (typeof data.message === 'string') {
                 return data.message;
@@ -313,7 +303,7 @@ class LocalLLMProvider {
                 return data.message.content;
             }
         }
-        // OpenAI-Format prüfen
+        // Check OpenAI-like format
         if (data.choices && Array.isArray(data.choices) && data.choices.length > 0) {
             const choice = data.choices[0];
             if (choice.text)
@@ -325,10 +315,11 @@ class LocalLLMProvider {
             if (choice.delta?.content)
                 return choice.delta.content;
         }
-        // Fallback: Alle String-Properties durchsuchen
+        // Fallback: scan all string properties
         for (const key in data) {
-            if (typeof data[key] === 'string' && data[key].trim().length > 0) {
-                return data[key];
+            const val = data[key];
+            if (typeof val === 'string' && val.trim().length > 0) {
+                return val;
             }
         }
         return undefined;
@@ -346,9 +337,9 @@ class LocalLLMProvider {
         if (genericMatch && genericMatch[1]) {
             return genericMatch[1].trim();
         }
-        // Prüfen, ob der Text selbst gültiges HTML ist
+        // Check if the text looks like valid HTML
         if (text.includes('<') && text.includes('>')) {
-            // Vereinfachte Validierung für HTML-Tags
+            // Simplified validation for HTML tags
             const htmlTagRegex = /<[^>]+>[\s\S]*<\/[^>]+>/;
             const tagMatch = text.match(htmlTagRegex);
             if (tagMatch) {
@@ -361,11 +352,14 @@ class LocalLLMProvider {
 class CustomAPIProvider {
     constructor(secretStorage) {
         this.secretStorage = secretStorage;
-        // Umbenannt für UI Anzeige
+        // Renamed for UI display
         this.name = 'OpenRouter';
+        this.useStructured = true;
+        this.useCaching = true;
+        this.structuredUnsupported = new Set();
     }
     async isConfigured() {
-        // Für OpenRouter reicht der API Key; Endpoint ist fest
+        // OpenRouter only needs the API key; endpoint is fixed
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
         return !!apiKey;
     }
@@ -381,7 +375,7 @@ class CustomAPIProvider {
                 headers: {
                     'Authorization': `Bearer ${apiKey}`,
                     'Content-Type': 'application/json',
-                    // Empfohlene zusätzliche Header für OpenRouter Ranking / Policy
+                    // Recommended extra headers for OpenRouter ranking/policy
                     'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
                     'X-Title': 'Accessibility Extension'
                 },
@@ -400,7 +394,7 @@ class CustomAPIProvider {
     async getAccessibilityFix(prompt) {
         const config = vscode.workspace.getConfiguration('accessibility');
         const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-        // Fester Endpoint für OpenRouter
+        // Fixed endpoint for OpenRouter
         const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
         const model = config.get('customAPI.model', 'qwen/qwen3-coder:free');
         if (!apiKey) {
@@ -413,30 +407,67 @@ class CustomAPIProvider {
                 'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
                 'X-Title': 'Accessibility Extension'
             };
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    model,
-                    messages: [
-                        {
-                            role: "system",
-                            content: "You are an accessibility expert. Fix Frontend code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text."
-                        },
-                        {
-                            role: "user",
-                            content: prompt
+            // Prompt caching: heuristically split static and dynamic parts
+            const { staticPart, dynamicPart } = this.splitPrompt(prompt);
+            const userContent = this.useCaching ? [
+                { type: 'text', text: staticPart, cache_control: { type: 'ephemeral' } },
+                { type: 'text', text: dynamicPart }
+            ] : prompt;
+            const body = {
+                model,
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are an accessibility expert. Provide WCAG 2.2 AA compliant fixes or analyses. Be concise."
+                    },
+                    {
+                        role: "user",
+                        content: userContent
+                    }
+                ],
+                temperature: 0,
+                max_tokens: 512
+            };
+            // Structured outputs only if prompt explicitly requests JSON (analysis cases)
+            const wantsJSON = /json array|antworte nur als json/i.test(prompt);
+            if (wantsJSON && this.useStructured && !this.structuredUnsupported.has(model)) {
+                body.response_format = {
+                    type: 'json_schema',
+                    json_schema: {
+                        name: 'wcag_violations',
+                        strict: true,
+                        schema: {
+                            type: 'array',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    line: { type: 'integer' },
+                                    element: { type: 'string' },
+                                    issue: { type: 'string' },
+                                    recommendation: { type: 'string' },
+                                    ruleId: { type: 'string' }
+                                },
+                                required: ['line', 'ruleId'],
+                                additionalProperties: false
+                            }
                         }
-                    ],
-                    temperature: 0.1,
-                    max_tokens: 512
-                })
-            });
+                    }
+                };
+            }
+            const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
             if (!response.ok) {
+                if (wantsJSON && this.useStructured && response.status === 400 && !this.structuredUnsupported.has(model)) {
+                    this.structuredUnsupported.add(model);
+                    console.warn(`[OpenRouter] Structured outputs not supported for model ${model} – retrying without schema.`);
+                    return this.getAccessibilityFix(prompt);
+                }
                 throw new Error(`OpenRouter responded with ${response.status}: ${await response.text()}`);
             }
             const data = await response.json();
-            const content = data.choices?.[0]?.message?.content;
+            let content = data.choices?.[0]?.message?.content;
+            if (content && typeof content !== 'string') {
+                content = JSON.stringify(content);
+            }
             if (!content) {
                 throw new Error('No content found in OpenRouter response');
             }
@@ -445,6 +476,20 @@ class CustomAPIProvider {
         catch (error) {
             throw new Error(`OpenRouter request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
+    }
+    /**
+     * Heuristische Aufteilung: erster großer Code/Instruktionsblock (statisch) + Rest (dynamisch)
+     */
+    splitPrompt(full) {
+        if (full.length < 1200) {
+            return { staticPart: full, dynamicPart: '' };
+        }
+        // Treat the last paragraph as dynamic part
+        const parts = full.split(/\n\n+/);
+        if (parts.length < 2)
+            return { staticPart: full, dynamicPart: '' };
+        const dynamicPart = parts.pop() || '';
+        return { staticPart: parts.join('\n\n'), dynamicPart };
     }
     async setApiKey(apiKey) {
         await this.secretStorage.store('accessibility.customAPI.apiKey', apiKey);
@@ -479,18 +524,23 @@ class GitHubCopilotProvider {
     }
     async testConnection() {
         try {
-            // Versuche verfügbare Modelle abzurufen
-            const models = await vscode.lm.selectChatModels({ vendor: 'copilot' });
+            const lm = vscode.lm;
+            if (!lm || typeof lm.selectChatModels !== 'function')
+                return false;
+            const models = await lm.selectChatModels({ vendor: 'copilot' });
             return models.length > 0;
         }
-        catch (error) {
+        catch {
             return false;
         }
     }
     async getAvailableModels() {
         try {
-            const models = await vscode.lm.selectChatModels({ vendor: 'copilot' });
-            const availableModels = models.map(model => model.family || model.id || 'unknown');
+            const lm = vscode.lm;
+            if (!lm || typeof lm.selectChatModels !== 'function')
+                return [];
+            const models = await lm.selectChatModels({ vendor: 'copilot' });
+            const availableModels = models.map((model) => model.family || model.id || 'unknown');
             // Erweiterte Modellliste mit gefilterten verfügbaren Modellen
             const targetModels = [
                 'gpt-4.1',
@@ -505,7 +555,7 @@ class GitHubCopilotProvider {
                 'o4-mini'
             ];
             // Nur verfügbare Modelle zurückgeben, fallback auf alle verfügbaren
-            const intersection = targetModels.filter(model => availableModels.some(available => available.toLowerCase().includes(model.toLowerCase()) ||
+            const intersection = targetModels.filter(model => availableModels.some((available) => available.toLowerCase().includes(model.toLowerCase()) ||
                 model.toLowerCase().includes(available.toLowerCase())));
             return intersection.length > 0 ? intersection : availableModels;
         }
@@ -523,37 +573,34 @@ class GitHubCopilotProvider {
     }
     async getAccessibilityFix(prompt) {
         try {
+            const lm = vscode.lm;
             const config = vscode.workspace.getConfiguration('accessibility');
             const selectedModel = config.get('githubCopilot.model', 'gpt-4o');
-            // Versuche erst spezifisches Modell zu finden
-            let models = [];
-            // Erweiterte Modell-Query mit verschiedenen Selektoren
+            if (!lm || typeof lm.selectChatModels !== 'function') {
+                throw new Error('Language Model API not available in this VS Code version.');
+            }
             const selectors = [
                 { vendor: 'copilot', family: selectedModel },
                 { vendor: 'copilot', id: selectedModel },
                 { vendor: 'copilot', family: selectedModel.replace('-', '') },
                 { vendor: 'copilot' }
             ];
+            let models = [];
             for (const selector of selectors) {
                 try {
-                    models = await vscode.lm.selectChatModels(selector);
+                    models = await lm.selectChatModels(selector);
                     if (models.length > 0)
                         break;
                 }
-                catch (error) {
-                    continue;
-                }
+                catch { /* ignore and try next */ }
             }
-            if (models.length === 0) {
-                throw new Error('No GitHub Copilot models available. Please ensure you are signed in to GitHub Copilot and have access to the Language Model API.');
+            if (!models.length) {
+                throw new Error('No GitHub Copilot models available or accessible.');
             }
             const model = models[0];
-            const messages = [
-                vscode.LanguageModelChatMessage.User("You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. " + prompt)
-            ];
-            const response = await model.sendRequest(messages, {
-                justification: 'Fixing HTML code for accessibility compliance according to WCAG standards'
-            });
+            const lmMsg = vscode.LanguageModelChatMessage;
+            const messages = lmMsg ? [lmMsg.User("You are an accessibility expert. Fix HTML code to be WCAG compliant. Return ONLY the corrected HTML code without any explanations, markdown formatting, or additional text. " + prompt)] : [{ role: 'user', content: prompt }];
+            const response = await model.sendRequest(messages, { justification: 'Fixing HTML code for accessibility compliance according to WCAG standards' });
             let result = '';
             for await (const fragment of response.text) {
                 result += fragment;
@@ -561,26 +608,29 @@ class GitHubCopilotProvider {
             return this.extractCodeFromText(result.trim());
         }
         catch (error) {
-            if (error instanceof vscode.LanguageModelError) {
-                throw new Error(`GitHub Copilot request failed: ${error.message} (Code: ${error.code})`);
+            const lmError = vscode.LanguageModelError;
+            if (lmError && error instanceof lmError) {
+                const code = error.code || 'unknown';
+                const msg = error.message || 'Unknown';
+                throw new Error(`GitHub Copilot request failed: ${msg} (Code: ${code})`);
             }
-            throw new Error(`GitHub Copilot request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw new Error(`GitHub Copilot request failed: ${error?.message || 'Unknown error'}`);
         }
     }
     extractCodeFromText(text) {
-        // HTML-Code zwischen ```html und ``` extrahieren
+        // Extract HTML code between ```html fences
         const htmlCodeBlockRegex = /```html\s*([\s\S]*?)\s*```/;
         const htmlMatch = text.match(htmlCodeBlockRegex);
         if (htmlMatch && htmlMatch[1]) {
             return htmlMatch[1].trim();
         }
-        // Generischen Code zwischen ``` und ``` extrahieren
+        // Extract generic code between ``` fences
         const codeBlockRegex = /```\s*([\s\S]*?)\s*```/;
         const genericMatch = text.match(codeBlockRegex);
         if (genericMatch && genericMatch[1]) {
             return genericMatch[1].trim();
         }
-        // Prüfen, ob der Text selbst gültiges HTML ist
+        // Check if the text itself is valid-looking HTML
         if (text.includes('<') && text.includes('>')) {
             return text.trim();
         }

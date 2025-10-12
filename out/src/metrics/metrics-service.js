@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MetricsService = void 0;
 const vscode = __importStar(require("vscode"));
@@ -79,7 +69,7 @@ class MetricsService {
             lastUpdated: Date.now()
         };
     }
-    // Grundlegende Methoden für Violation Tracking (Active Document-basiert)
+    // Basic methods for violation tracking (active-document based)
     updateAxeCoreViolations(count) {
         if (!this.isEnabled)
             return;
@@ -96,23 +86,23 @@ class MetricsService {
         this.updateTotalCurrentViolations();
         this.saveAndNotify();
     }
-    // Neue Methode: Update Violations basierend auf allen offenen Dokumenten
+    // Update violations based on all open documents
     updateCurrentViolationsFromDiagnostics(axeDiagnosticCollection, aiDiagnosticCollection) {
         if (!this.isEnabled)
             return;
         let totalAxeViolations = 0;
         let totalAIViolations = 0;
-        // Sammle alle Violations aus allen Dokumenten
+        // Collect violations from all documents
         axeDiagnosticCollection.forEach((uri, diagnostics) => {
             totalAxeViolations += diagnostics.length;
         });
-        // Sammle AI Violations falls verfügbar
+        // Collect AI violations if available
         if (aiDiagnosticCollection) {
             aiDiagnosticCollection.forEach((uri, diagnostics) => {
                 totalAIViolations += diagnostics.length;
             });
         }
-        // Update Metrics
+        // Update metrics
         const newMetrics = { ...this.metrics };
         newMetrics.currentAxeCoreViolations = totalAxeViolations;
         newMetrics.currentAIAnalyzerViolations = totalAIViolations;
@@ -132,7 +122,7 @@ class MetricsService {
         this.calculateDetectionAccuracy();
         this.saveAndNotify();
     }
-    // QuickFix Tracking
+    // Quick-fix tracking
     recordQuickFixAttempt() {
         if (!this.isEnabled)
             return '';
@@ -151,7 +141,7 @@ class MetricsService {
         else {
             this.metrics.quickFixesBadFeedback++;
         }
-        // Performance Zeit berechnen falls verfügbar
+        // Compute performance time if available
         const startTime = this.quickFixStartTimes.get(fixId);
         if (startTime) {
             const duration = performance.now() - startTime;
@@ -164,7 +154,7 @@ class MetricsService {
         this.calculateQuickFixSuccessRate();
         this.saveAndNotify();
     }
-    // AI Analysis Performance Tracking
+    // AI analysis performance tracking
     startAIAnalysis() {
         if (!this.isEnabled)
             return '';
@@ -186,7 +176,7 @@ class MetricsService {
             this.saveAndNotify();
         }
     }
-    // Berechnungen
+    // Calculations
     updateTotalCurrentViolations() {
         this.metrics.totalCurrentViolations = this.metrics.currentAxeCoreViolations + this.metrics.currentAIAnalyzerViolations;
     }
@@ -208,7 +198,7 @@ class MetricsService {
             this.metrics.avgQuickFixTimeMs = this.metrics.quickFixTotalTimeMs / this.metrics.quickFixCount;
         }
     }
-    // Getter für Dashboard
+    // Getters for dashboard
     getSimpleMetrics() {
         return { ...this.metrics };
     }
@@ -224,7 +214,7 @@ class MetricsService {
             if (fs.existsSync(this.dataFilePath)) {
                 const data = await vscode.workspace.fs.readFile(vscode.Uri.file(this.dataFilePath));
                 const loaded = JSON.parse(Buffer.from(data).toString());
-                // Backward-Kompatibilität für alte Property-Namen
+                // Backward compatibility for older property names
                 if (loaded.axeCoreViolations !== undefined) {
                     loaded.currentAxeCoreViolations = loaded.axeCoreViolations;
                     delete loaded.axeCoreViolations;
@@ -241,7 +231,7 @@ class MetricsService {
                     }
                     delete loaded.totalViolations;
                 }
-                // Merge with defaults für Kompatibilität
+                // Merge with defaults for compatibility
                 this.metrics = { ...this.metrics, ...loaded };
             }
         }
@@ -252,7 +242,7 @@ class MetricsService {
     async saveMetrics() {
         try {
             this.metrics.lastUpdated = Date.now();
-            await vscode.workspace.fs.writeFile(vscode.Uri.file(this.dataFilePath), Buffer.from(JSON.stringify(this.metrics, null, 2)));
+            await vscode.workspace.fs.writeFile(vscode.Uri.file(this.dataFilePath), new TextEncoder().encode(JSON.stringify(this.metrics, null, 2)));
         }
         catch (error) {
             console.error('Failed to save metrics:', error);
@@ -262,7 +252,7 @@ class MetricsService {
         await this.saveMetrics();
         this.eventEmitter.fire();
     }
-    // Utility Methoden
+    // Utility methods
     clearData() {
         this.initializeMetrics();
         this.saveAndNotify();
@@ -270,7 +260,7 @@ class MetricsService {
     }
     clearDataAndRefresh(axeDiagnosticCollection, aiDiagnosticCollection) {
         this.initializeMetrics();
-        // Lade aktuelle Violations aus DiagnosticCollections neu
+        // Refresh metrics from current diagnostic collections
         if (axeDiagnosticCollection && aiDiagnosticCollection) {
             this.updateCurrentViolationsFromDiagnostics(axeDiagnosticCollection, aiDiagnosticCollection);
         }
@@ -285,7 +275,7 @@ class MetricsService {
     getEnabled() {
         return this.isEnabled;
     }
-    // Kompatibilität mit bestehendem Code
+    // Compatibility with existing code
     recordViolation(source, ruleId, severity) {
         return `violation_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
     }

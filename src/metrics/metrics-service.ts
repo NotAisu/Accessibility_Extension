@@ -86,7 +86,7 @@ export class MetricsService {
         };
     }
 
-    // Grundlegende Methoden für Violation Tracking (Active Document-basiert)
+    // Basic methods for violation tracking (active-document based)
     public updateAxeCoreViolations(count: number): void {
         if (!this.isEnabled) return;
         
@@ -105,7 +105,7 @@ export class MetricsService {
         this.saveAndNotify();
     }
 
-    // Neue Methode: Update Violations basierend auf allen offenen Dokumenten
+    // Update violations based on all open documents
     public updateCurrentViolationsFromDiagnostics(
         axeDiagnosticCollection: vscode.DiagnosticCollection,
         aiDiagnosticCollection: vscode.DiagnosticCollection
@@ -115,19 +115,19 @@ export class MetricsService {
         let totalAxeViolations = 0;
         let totalAIViolations = 0;
 
-        // Sammle alle Violations aus allen Dokumenten
+    // Collect violations from all documents
         axeDiagnosticCollection.forEach((uri, diagnostics) => {
             totalAxeViolations += diagnostics.length;
         });
 
-        // Sammle AI Violations falls verfügbar
+    // Collect AI violations if available
         if (aiDiagnosticCollection) {
             aiDiagnosticCollection.forEach((uri, diagnostics) => {
                 totalAIViolations += diagnostics.length;
             });
         }
 
-        // Update Metrics
+    // Update metrics
         const newMetrics = { ...this.metrics };
     newMetrics.currentAxeCoreViolations = totalAxeViolations;
     newMetrics.currentAIAnalyzerViolations = totalAIViolations;
@@ -149,7 +149,7 @@ export class MetricsService {
         this.saveAndNotify();
     }
 
-    // QuickFix Tracking
+    // Quick-fix tracking
     public recordQuickFixAttempt(): string {
         if (!this.isEnabled) return '';
         
@@ -169,7 +169,7 @@ export class MetricsService {
             this.metrics.quickFixesBadFeedback++;
         }
         
-        // Performance Zeit berechnen falls verfügbar
+    // Compute performance time if available
         const startTime = this.quickFixStartTimes.get(fixId);
         if (startTime) {
             const duration = performance.now() - startTime;
@@ -184,7 +184,7 @@ export class MetricsService {
         this.saveAndNotify();
     }
 
-    // AI Analysis Performance Tracking
+    // AI analysis performance tracking
     public startAIAnalysis(): string {
         if (!this.isEnabled) return '';
         
@@ -208,7 +208,7 @@ export class MetricsService {
         }
     }
 
-    // Berechnungen
+    // Calculations
     private updateTotalCurrentViolations(): void {
         this.metrics.totalCurrentViolations = this.metrics.currentAxeCoreViolations + this.metrics.currentAIAnalyzerViolations;
     }
@@ -235,7 +235,7 @@ export class MetricsService {
         }
     }
 
-    // Getter für Dashboard
+    // Getters for dashboard
     public getSimpleMetrics(): SimpleMetrics {
         return { ...this.metrics };
     }
@@ -255,7 +255,7 @@ export class MetricsService {
                 const data = await vscode.workspace.fs.readFile(vscode.Uri.file(this.dataFilePath));
                 const loaded = JSON.parse(Buffer.from(data).toString());
                 
-                // Backward-Kompatibilität für alte Property-Namen
+                // Backward compatibility for older property names
                 if (loaded.axeCoreViolations !== undefined) {
                     loaded.currentAxeCoreViolations = loaded.axeCoreViolations;
                     delete loaded.axeCoreViolations;
@@ -273,7 +273,7 @@ export class MetricsService {
                     delete loaded.totalViolations;
                 }
                 
-                // Merge with defaults für Kompatibilität
+                // Merge with defaults for compatibility
                 this.metrics = { ...this.metrics, ...loaded };
             }
         } catch (error) {
@@ -286,7 +286,7 @@ export class MetricsService {
             this.metrics.lastUpdated = Date.now();
             await vscode.workspace.fs.writeFile(
                 vscode.Uri.file(this.dataFilePath),
-                Buffer.from(JSON.stringify(this.metrics, null, 2))
+                new TextEncoder().encode(JSON.stringify(this.metrics, null, 2))
             );
         } catch (error) {
             console.error('Failed to save metrics:', error);
@@ -298,7 +298,7 @@ export class MetricsService {
         this.eventEmitter.fire();
     }
 
-    // Utility Methoden
+    // Utility methods
     public clearData(): void {
         this.initializeMetrics();
         this.saveAndNotify();
@@ -311,7 +311,7 @@ export class MetricsService {
     ): void {
         this.initializeMetrics();
         
-        // Lade aktuelle Violations aus DiagnosticCollections neu
+    // Refresh metrics from current diagnostic collections
         if (axeDiagnosticCollection && aiDiagnosticCollection) {
             this.updateCurrentViolationsFromDiagnostics(axeDiagnosticCollection, aiDiagnosticCollection);
         }
@@ -324,14 +324,14 @@ export class MetricsService {
         this.isEnabled = enabled;
         const config = vscode.workspace.getConfiguration('accessibility');
         config.update('metrics.enabled', enabled, vscode.ConfigurationTarget.Global);
-        console.log(`📊 Metrics tracking ${enabled ? 'enabled' : 'disabled'}`);
+    console.log(`📊 Metrics tracking ${enabled ? 'enabled' : 'disabled'}`);
     }
 
     public getEnabled(): boolean {
         return this.isEnabled;
     }
 
-    // Kompatibilität mit bestehendem Code
+    // Compatibility with existing code
    public recordViolation(
         source: 'ai-analyzer' | 'axe-core',
         ruleId?: string,
