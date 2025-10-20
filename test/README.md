@@ -153,6 +153,13 @@ Hinweise:
 - Geänderte Zeilen: Verschiebt sich Code, stimmen line Keys nicht mehr.
 - Fehlendes AI_MODELS: Nur ein Modell wird getestet (kein Vergleich).
 
+## Quellen der Testdaten
+- https://github.com/FormBold/html-form-examples-templates
+- https://github.com/snidersd/react-examples/blob/master/src/App.js
+- https://github.com/mdn/todo-vue
+- https://github.com/ignitedotdev-templates/svelte-realword-example/tree/main/src/routes
+- der Rest wurde synthetisch erstellt
+
 ## ✅ ToDo bei Erweiterungen
 - Axe Violations auf Lines mappen (Source Maps / AST Parsing)
 - Signifikanztests (z.B. McNemar) für Modellvergleiche nach Stabilisierung
