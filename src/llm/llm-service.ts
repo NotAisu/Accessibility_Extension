@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { MetricsService } from '../metrics/metrics-service';
 
 // Type interfaces for LLM responses
 interface LLMMessage {
@@ -28,16 +27,6 @@ interface LLMResponse {
     [key: string]: unknown; // Index signature for dynamic properties
 }
 
-interface ChatMessage {
-    role: 'system' | 'user' | 'assistant';
-    content: string;
-}
-
-interface WebviewMessage {
-    type: string;
-    [key: string]: unknown;
-}
-
 export interface LLMProvider {
     name: string;
     isConfigured(): Promise<boolean>;
@@ -48,25 +37,13 @@ export interface LLMProvider {
 
 export class LLMService {
     private providers: Map<string, LLMProvider> = new Map();
-    private secretStorage: vscode.SecretStorage;
-    private metricsService?: MetricsService;
     // Simple in-memory cache (prompt -> result)
     private cache: Map<string, { value: string; ts: number }> = new Map();
     private readonly CACHE_TTL_MS = 1000 * 60 * 2; // 2 Minuten sinnvoll ohne Overengineering
     
-    constructor(secretStorage: vscode.SecretStorage) {
-        this.secretStorage = secretStorage;
-        this.initializeProviders();
-    }
-
-    public setMetricsService(metricsService: MetricsService): void {
-        this.metricsService = metricsService;
-    }
-    
-    private initializeProviders(): void {
+    constructor() {
         this.providers.set('local', new LocalLLMProvider());
         this.providers.set('github-copilot', new GitHubCopilotProvider());
-        this.providers.set('custom-api', new CustomAPIProvider(this.secretStorage));
     }
     
     public async getCurrentProvider(): Promise<LLMProvider> {
@@ -81,7 +58,7 @@ export class LLMService {
         return provider;
     }
     
-    public async getAccessibilityFix(prompt: string): Promise<{ result: string; quickFixId: string }> {
+    public async getAccessibilityFix(prompt: string): Promise<string> {
         const provider = await this.getCurrentProvider();
         
         if (!(await provider.isConfigured())) {
@@ -92,22 +69,13 @@ export class LLMService {
         const cacheKey = 'fix:' + prompt;
         const cached = this.getFromCache(cacheKey);
         if (cached) {
-            // Still record a quick-fix attempt for metric consistency
-            let quickFixId = '';
-            if (this.metricsService) quickFixId = this.metricsService.recordQuickFixAttempt();
-            return { result: cached, quickFixId };
-        }
-
-        // Record attempt and get tracking ID
-        let quickFixId = '';
-        if (this.metricsService) {
-            quickFixId = this.metricsService.recordQuickFixAttempt();
+            return cached;
         }
 
         try {
             const result = await provider.getAccessibilityFix(prompt);
             this.storeInCache(cacheKey, result);
-            return { result, quickFixId };
+            return result;
         } catch (error) {
             console.error(`LLM Provider ${provider.name} failed:`, error);
             
@@ -115,7 +83,7 @@ export class LLMService {
             const fallbackResult = await this.tryFallbackStrategies(prompt, provider.name);
             if (fallbackResult) {
                 this.storeInCache(cacheKey, fallbackResult);
-                return { result: fallbackResult, quickFixId };
+                return fallbackResult;
             }
             
             throw error;
@@ -249,10 +217,6 @@ export class LLMService {
             console.error('Failed to get available models:', error);
             return [];
         }
-    }
-
-    public getSecretStorage(): vscode.SecretStorage {
-        return this.secretStorage;
     }
 }
 
@@ -413,189 +377,6 @@ class LocalLLMProvider implements LLMProvider {
         }
         
        
-        return text.trim();
-    }
-}
-
-class CustomAPIProvider implements LLMProvider {
-    // Renamed for UI display
-    name = 'OpenRouter';
-    private useStructured = true;
-    private useCaching = true;
-    private structuredUnsupported = new Set<string>();
-    
-    constructor(private secretStorage: vscode.SecretStorage) {}
-    
-    async isConfigured(): Promise<boolean> {
-    // OpenRouter only needs the API key; endpoint is fixed
-        const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-        return !!apiKey;
-    }
-    
-    async testConnection(): Promise<boolean> {
-        try {
-            const config = vscode.workspace.getConfiguration('accessibility');
-            const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-            const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
-            if (!apiKey) return false;
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                    // Recommended extra headers for OpenRouter ranking/policy
-                    'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
-                    'X-Title': 'Accessibility Extension'
-                },
-                body: JSON.stringify({
-                    model: config.get<string>('customAPI.model', 'qwen/qwen3-coder:free'),
-                    messages: [{ role: 'user', content: 'ping' }],
-                    max_tokens: 5
-                })
-            });
-            return response.ok;
-        } catch {
-            return false;
-        }
-    }
-
-    async getAccessibilityFix(prompt: string): Promise<string> {
-        const config = vscode.workspace.getConfiguration('accessibility');
-    const apiKey = await this.secretStorage.get('accessibility.customAPI.apiKey');
-    // Fixed endpoint for OpenRouter
-    const endpoint = 'https://openrouter.ai/api/v1/chat/completions';
-    const model = config.get<string>('customAPI.model', 'qwen/qwen3-coder:free');
-        
-        if (!apiKey) {
-            throw new Error('API key not configured. Please set it in the AI Accessibility settings.');
-        }
-
-        try {
-            const headers = {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://github.com/NotAisu/Accessibility_Extension',
-                'X-Title': 'Accessibility Extension'
-            } as Record<string,string>;
-
-            // Prompt caching: heuristically split static and dynamic parts
-            const { staticPart, dynamicPart } = this.splitPrompt(prompt);
-            const userContent: any = this.useCaching ? [
-                { type: 'text', text: staticPart, cache_control: { type: 'ephemeral' } },
-                { type: 'text', text: dynamicPart }
-            ] : prompt;
-
-            const body: any = {
-                model,
-                messages: [
-                    {
-                        role: "system",
-                        content: "You are an accessibility expert. Provide WCAG 2.2 AA compliant fixes or analyses. Be concise."
-                    },
-                    {
-                        role: "user",
-                        content: userContent
-                    }
-                ],
-                temperature: 0,
-                max_tokens: 512
-            };
-
-            // Structured outputs only if prompt explicitly requests JSON (analysis cases)
-            const wantsJSON = /json array|antworte nur als json/i.test(prompt);
-            if (wantsJSON && this.useStructured && !this.structuredUnsupported.has(model)) {
-                body.response_format = {
-                    type: 'json_schema',
-                    json_schema: {
-                        name: 'wcag_violations',
-                        strict: true,
-                        schema: {
-                            type: 'array',
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    line: { type: 'integer' },
-                                    element: { type: 'string' },
-                                    issue: { type: 'string' },
-                                    recommendation: { type: 'string' },
-                                    ruleId: { type: 'string' }
-                                },
-                                required: ['line','ruleId'],
-                                additionalProperties: false
-                            }
-                        }
-                    }
-                };
-            }
-
-            const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
-
-            if (!response.ok) {
-                if (wantsJSON && this.useStructured && response.status === 400 && !this.structuredUnsupported.has(model)) {
-                    this.structuredUnsupported.add(model);
-                    console.warn(`[OpenRouter] Structured outputs not supported for model ${model} – retrying without schema.`);
-                    return this.getAccessibilityFix(prompt);
-                }
-                throw new Error(`OpenRouter responded with ${response.status}: ${await response.text()}`);
-            }
-            
-            const data = await response.json();
-            let content = data.choices?.[0]?.message?.content;
-            if (content && typeof content !== 'string') {
-                content = JSON.stringify(content);
-            }
-            
-            if (!content) {
-                throw new Error('No content found in OpenRouter response');
-            }
-            
-            return this.extractCodeFromText(content);
-        } catch (error) {
-            throw new Error(`OpenRouter request failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-        }
-    }
-
-    /**
-     * Heuristische Aufteilung: erster großer Code/Instruktionsblock (statisch) + Rest (dynamisch)
-     */
-    private splitPrompt(full: string): { staticPart: string; dynamicPart: string } {
-        if (full.length < 1200) {
-            return { staticPart: full, dynamicPart: '' };
-        }
-        // Treat the last paragraph as dynamic part
-        const parts = full.split(/\n\n+/);
-        if (parts.length < 2) return { staticPart: full, dynamicPart: '' };
-        const dynamicPart = parts.pop() || '';
-        return { staticPart: parts.join('\n\n'), dynamicPart };
-    }
-
-    async setApiKey(apiKey: string): Promise<void> {
-        await this.secretStorage.store('accessibility.customAPI.apiKey', apiKey);
-    }
-
-    async getApiKey(): Promise<string | undefined> {
-        return await this.secretStorage.get('accessibility.customAPI.apiKey');
-    }
-    
-    private extractCodeFromText(text: string): string {
-        const htmlCodeBlockRegex = /```html\s*([\s\S]*?)\s*```/;
-        const htmlMatch = text.match(htmlCodeBlockRegex);
-        
-        if (htmlMatch && htmlMatch[1]) {
-            return htmlMatch[1].trim();
-        }
-        
-        const codeBlockRegex = /```\s*([\s\S]*?)\s*```/;
-        const genericMatch = text.match(codeBlockRegex);
-        
-        if (genericMatch && genericMatch[1]) {
-            return genericMatch[1].trim();
-        }
-        
-        if (text.includes('<') && text.includes('>')) {
-            return text.trim();
-        }
-        
         return text.trim();
     }
 }

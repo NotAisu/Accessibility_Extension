@@ -4,3 +4,7 @@ node_modules
 test/results/
 CLAUDE.md
 docs/
+GLOSSARY.md
+out/
+dist/
+*.vsix

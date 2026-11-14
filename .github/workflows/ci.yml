@@ -19,5 +19,7 @@ jobs:
       - run: npm run lint -- --max-warnings=0
       - run: npm run typecheck
       - run: npm run compile
+      - run: npm run test:unit
+      - run: npm run bundle
       # Smoke test: runs axe-core over all fixtures; fails if the analysis crashes.
       - run: node out/test/axe-cli.js

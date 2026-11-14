@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { LLMService } from '../llm/llm-service';
-import { MetricsService } from '../metrics/metrics-service';
-import { PromptStrategy, getPromptStrategy, getDefaultStrategy } from './prompt-strategies';
+import { getDefaultStrategy } from './prompt-strategies';
 import { parseAIAnalysis } from './ai-response-parser';
 import { normalizeRuleIds, normalizeRuleId } from '../core/rule-id-normalizer';
 
@@ -24,10 +23,8 @@ interface AIAnalysisResult {
 export class AISemanticAnalyzer {
     private aiDiagnosticCollection = vscode.languages.createDiagnosticCollection('ai-accessibility');
     private llmService: LLMService;
-    private metricsService?: MetricsService;
     private isEnabled: boolean = false;
     private analysisScope: 'visible' | 'document' = 'visible';
-    private promptStrategy: string = 'direct-instruction';
     private getDiagnosticsCallback?: (uri: vscode.Uri) => vscode.Diagnostic[];
     // Tracks recently fixed lines to avoid immediate re-reporting of the same issue
     private recentlyFixed: Map<string, Map<number, { text: string; ts: number }>> = new Map();
@@ -44,15 +41,10 @@ export class AISemanticAnalyzer {
         this.getDiagnosticsCallback = callback;
     }
 
-    public setMetricsService(metricsService: MetricsService): void {
-        this.metricsService = metricsService;
-    }
-
     private loadSettings(): void {
         const config = vscode.workspace.getConfiguration('accessibility');
         this.isEnabled = config.get<boolean>('aiAnalyzer.enabled', false);
         this.analysisScope = config.get<'visible' | 'document'>('aiAnalyzer.scope', 'visible');
-        this.promptStrategy = config.get<string>('aiAnalyzer.promptStrategy', 'direct-instruction');
     const ttl = config.get<number>('aiAnalyzer.recentFixSuppressionTTL', 300000);
     this.RECENTLY_FIXED_TTL_MS = Math.max(0, ttl);
     }
@@ -67,16 +59,6 @@ export class AISemanticAnalyzer {
         this.analysisScope = scope;
         const config = vscode.workspace.getConfiguration('accessibility');
         config.update('aiAnalyzer.scope', scope, vscode.ConfigurationTarget.Global);
-    }
-
-    public setPromptStrategy(strategy: string): void {
-        this.promptStrategy = strategy;
-        const config = vscode.workspace.getConfiguration('accessibility');
-        config.update('aiAnalyzer.promptStrategy', strategy, vscode.ConfigurationTarget.Global);
-    }
-
-    public getPromptStrategy(): string {
-        return this.promptStrategy;
     }
 
     public getAnalysisScope(): 'visible' | 'document' {
@@ -134,23 +116,10 @@ export class AISemanticAnalyzer {
             return;
         }
 
-    // Start performance timer
-        const analysisId = this.metricsService?.startAIAnalysis();
-
         try {
             await this.performAnalysis(document, existingAxeDiagnostics, signal);
-            
-            // End performance timer on success
-            if (analysisId && this.metricsService) {
-                this.metricsService.endAIAnalysis(analysisId);
-            }
         } catch (error) {
             console.error('AI Semantic Analysis failed:', error);
-            
-            // End performance timer on error
-            if (analysisId && this.metricsService) {
-                this.metricsService.endAIAnalysis(analysisId);
-            }
         }
     }
 
@@ -182,7 +151,7 @@ export class AISemanticAnalyzer {
             const stableFindings = this.filterRecentlyFixedProblems(filteredFindings, document);
             this.lastReportedCount = stableFindings.length;
             
-            // Create blue AI diagnostics (also updates metrics)
+            // Create blue AI diagnostics
             const aiDiagnostics = this.createAIDiagnostics(stableFindings, document);
             
             // Set diagnostics
@@ -315,13 +284,9 @@ export class AISemanticAnalyzer {
         signal?: AbortSignal
     ): Promise<WCAGViolation[]> {
         try {
-            const strategy = getPromptStrategy(this.promptStrategy);
-            const prompt = strategy.generatePrompt(codeWithLineNumbers);
-            
+            const prompt = getDefaultStrategy().generatePrompt(codeWithLineNumbers);
             const aiResponse = await this.llmService.getAIAnalysis(prompt);
-            const violations = this.parseAIResponse(aiResponse, document);
-            
-            return violations;
+            return this.parseAIResponse(aiResponse, document);
         } catch (error) {
             const err: any = error;
             if (err && (err.name === 'AbortError' || (err instanceof Error && err.message === 'The user aborted a request.') || (err instanceof Error && err.message === 'AI analysis aborted'))) {
@@ -329,15 +294,7 @@ export class AISemanticAnalyzer {
                 return [];
             }
             console.error('AI analysis request failed:', error);
-            try {
-                const defaultStrategy = getDefaultStrategy();
-                const prompt = defaultStrategy.generatePrompt(codeWithLineNumbers);
-                const aiResponse = await this.llmService.getAIAnalysis(prompt);
-                return this.parseAIResponse(aiResponse, document);
-            } catch (fallbackError) {
-                console.error('Fallback AI analysis also failed:', fallbackError);
-                return [];
-            }
+            return [];
         }
     }
 
@@ -416,8 +373,7 @@ export class AISemanticAnalyzer {
                 isAIGenerated: true,
                 element: finding.element,
                 recommendation: finding.message,
-                vId,
-                feedbackGiven: false
+                vId
             });
             diagnostic.source = 'AI Accessibility Analyzer';
             return diagnostic;
@@ -453,7 +409,7 @@ export class AISemanticAnalyzer {
         return this.aiDiagnosticCollection.get(uri) || [];
     }
 
-    // Returns the diagnostic collection for metrics
+    // Returns the diagnostic collection
     public getDiagnosticCollection(): vscode.DiagnosticCollection {
         return this.aiDiagnosticCollection;
     }

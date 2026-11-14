@@ -1,14 +1,37 @@
 {
-  "name": "accessibility-extension",
-  "displayName": "Accessibility Extension",
-  "description": "WCAG 2.2 linting and quick fixes for frontend developers.",
+  "name": "allyproof",
+  "displayName": "Allyproof – WCAG 2.2 Accessibility Checker",
+  "description": "WCAG 2.2 accessibility checks and AI-assisted fixes, starting with HTML.",
   "version": "0.0.1",
+  "publisher": "notaisu",
+  "license": "MIT",
+  "pricing": "Free",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NotAisu/Accessibility_Extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NotAisu/Accessibility_Extension/issues"
+  },
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "wcag",
+    "wcag 2.2",
+    "axe",
+    "aria",
+    "html",
+    "react",
+    "vue",
+    "svelte"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
     "Linters",
-    "Programming Languages"
+    "Testing",
+    "AI"
   ],
   "activationEvents": [
     "onLanguage:html",
@@ -17,97 +40,54 @@
     "onLanguage:javascriptreact",
     "onLanguage:typescriptreact"
   ],
-  "main": "./out/src/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "accessibility-extension.fixWithAI",
-        "title": "Fix with Local AI"
+        "command": "allyproof.startAIReview",
+        "title": "Start AI Review",
+        "category": "Allyproof"
       },
       {
-        "command": "accessibility-extension.fixWithAISemantic",
-        "title": "Fix with AI (Semantic)"
+        "command": "allyproof.fixWithAI",
+        "title": "Fix with AI",
+        "category": "Allyproof"
       },
       {
-        "command": "accessibility-extension.testConnection",
-        "title": "Test AI Connection"
+        "command": "allyproof.testConnection",
+        "title": "Test AI Connection",
+        "category": "Allyproof"
       },
       {
-        "command": "accessibility-extension.codeTutorClear",
-        "title": "Accessibility Tutor: Annotationen löschen",
-        "icon": "$(clear-all)"
-      },
-      {
-        "command": "accessibility-extension.openDashboard",
-        "title": "Open Accessibility Dashboard"
-      },
-      {
-        "command": "accessibility-extension.openSettings",
-        "title": "Open AI Settings"
-      },
-      {
-        "command": "accessibility-extension.startAIAnalysis",
-        "title": "Start AI Semantic Analysis"
+        "command": "allyproof.clearRecentAIMemory",
+        "title": "Clear Recent AI Fix Memory",
+        "category": "Allyproof"
       }
     ],
     "menus": {
       "commandPalette": [
         {
-          "command": "accessibility-extension.codeTutorClear"
-        }
-      ]
-    },
-    "views": {
-      "aiAccessibility": [
-        {
-          "id": "aiAccessibilitySettings",
-          "name": "AI Settings",
-          "icon": "$(settings-gear)",
-          "type": "webview",
-          "when": "true"
-        },
-        {
-          "id": "accessibilityMetricsDashboard",
-          "name": "Metrics Dashboard",
-          "icon": "$(graph)",
-          "type": "webview",
-          "when": "true"
-        }
-      ],
-      "explorer": [
-        {
-          "id": "accessibilityReminders",
-          "name": "Accessibility Reminders",
-          "icon": "$(checklist)"
-        }
-      ]
-    },
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "aiAccessibility",
-          "title": "AI Accessibility",
-          "icon": "$(mortar-board)"
+          "command": "allyproof.fixWithAI",
+          "when": "false"
         }
       ]
     },
     "configuration": {
-      "title": "Accessibility Extension",
+      "title": "Allyproof",
       "properties": {
         "accessibility.aiProvider": {
           "type": "string",
           "default": "local",
           "enum": [
             "local",
-            "github-copilot",
-            "custom-api"
+            "github-copilot"
           ],
           "description": "AI provider for accessibility fixes"
         },
         "accessibility.aiAnalyzer.enabled": {
           "type": "boolean",
           "default": false,
-          "description": "Enable AI semantic analyzer for WCAG violations"
+          "description": "Enable AI Review for WCAG problems a Check cannot detect"
         },
         "accessibility.aiAnalyzer.scope": {
           "type": "string",
@@ -117,16 +97,6 @@
             "document"
           ],
           "description": "Analysis scope: visible code only or complete document"
-        },
-        "accessibility.aiAnalyzer.promptStrategy": {
-          "type": "string",
-          "default": "direct-instruction",
-          "enum": [
-            "direct-instruction",
-            "few-shot",
-            "chain-of-thought"
-          ],
-          "description": "AI prompt strategy: direct-instruction (optimized zero-shot), few-shot (pattern learning), chain-of-thought (structured reasoning)"
         },
         "accessibility.aiAnalyzer.recentFixSuppressionTTL": {
           "type": "number",
@@ -159,27 +129,12 @@
             "o4-mini"
           ],
           "description": "GitHub Copilot model selection"
-        },
-        "accessibility.customAPI.endpoint": {
-          "type": "string",
-          "default": "https://openrouter.ai/api/v1/chat/completions",
-          "description": "(Read-only) OpenRouter endpoint – wird intern genutzt"
-        },
-        "accessibility.customAPI.model": {
-          "type": "string",
-          "default": "qwen/qwen3-coder:free",
-          "description": "OpenRouter Modell-ID (z.B. qwen/qwen3-coder:free)"
-        },
-        "accessibility.customAPI.headers": {
-          "type": "object",
-          "default": {},
-          "description": "Custom headers for API requests"
         }
       }
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "vscode:prepublish": "npm run bundle",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
@@ -189,13 +144,16 @@
     "generate:expected": "ts-node test/scripts/generate-expected.ts",
     "test:combined": "npm run pretest && node out/test/combined-cli.js",
     "test:mocha": "vscode-test",
-    "test:direct": "node out/test/cli.js",
     "prepare": "husky",
-    "typecheck": "tsc -p ./ --noEmit"
+    "typecheck": "tsc -p ./ --noEmit",
+    "bundle": "node esbuild.js --production",
+    "package": "vsce package",
+    "test:unit": "mocha"
   },
   "devDependencies": {
     "@types/eslint": "9.6.1",
     "@types/glob": "8.1.0",
+    "@types/jsdom": "21.1.7",
     "@types/mocha": "10.0.6",
     "@types/node": "18.19.34",
     "@types/vscode": "1.85.0",
@@ -203,6 +161,9 @@
     "@typescript-eslint/parser": "7.7.1",
     "@vscode/test-cli": "0.0.9",
     "@vscode/test-electron": "2.3.9",
+    "@vscode/vsce": "4.1.1",
+    "dotenv": "17.2.1",
+    "esbuild": "0.28.2",
     "eslint": "8.57.0",
     "glob": "8.1.0",
     "husky": "9.1.7",
@@ -213,14 +174,7 @@
     "vue-eslint-parser": "10.2.0"
   },
   "dependencies": {
-    "@types/jsdom": "21.1.7",
-    "@types/react": "19.1.10",
     "axe-core": "4.8.4",
-    "dotenv": "17.2.1",
-    "eslint-plugin-jsx-a11y": "6.8.0",
-    "eslint-plugin-vuejs-accessibility": "2.4.1",
-    "jsdom": "26.1.0",
-    "react": "19.1.1",
-    "vue": "3.5.19"
+    "jsdom": "26.1.0"
   }
 }
