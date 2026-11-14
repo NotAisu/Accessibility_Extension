@@ -189,7 +189,9 @@
     "generate:expected": "ts-node test/scripts/generate-expected.ts",
     "test:combined": "npm run pretest && node out/test/combined-cli.js",
     "test:mocha": "vscode-test",
-    "test:direct": "node out/test/cli.js"
+    "test:direct": "node out/test/cli.js",
+    "prepare": "husky",
+    "typecheck": "tsc -p ./ --noEmit"
   },
   "devDependencies": {
     "@types/eslint": "9.6.1",
@@ -203,6 +205,8 @@
     "@vscode/test-electron": "2.3.9",
     "eslint": "8.57.0",
     "glob": "8.1.0",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
     "mocha": "10.4.0",
     "ts-node": "^10.9.2",
     "typescript": "5.4.5",
