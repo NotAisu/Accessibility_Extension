@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import { LLMService } from './llm/llm-service';
 import { AISemanticAnalyzer } from './ai/ai-semantic-analyzer';
-import { checkHtml } from './core/html-check';
+import { CheckDiagnostics, CHECK_SOURCE } from './check-diagnostics';
 
 const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
 
-const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
+const check = new CheckDiagnostics();
+const diagnosticCollection = check.collection;
 let llmService: LLMService;
 let aiSemanticAnalyzer: AISemanticAnalyzer;
 let aiStatusBarItem: vscode.StatusBarItem;
@@ -67,10 +68,11 @@ export function activate(context: vscode.ExtensionContext) {
         )
     );
 
+    context.subscriptions.push(check, vscode.languages.registerHoverProvider(SUPPORTED_LANGUAGES, check));
     context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((document) => {
-        diagnosticCollection.delete(document.uri);
+        check.delete(document.uri);
         aiSemanticAnalyzer.getDiagnosticCollection().delete(document.uri);
     }));
 
@@ -114,7 +116,7 @@ function cleanupInactiveDiagnostics(): void {
     });
 
     staleUris.forEach(uri => {
-        diagnosticCollection.delete(uri);
+        check.delete(uri);
         aiCollection.delete(uri);
     });
 }
@@ -139,49 +141,23 @@ function updateAIStatusBar(): void {
 
 async function updateDiagnostics(document: vscode.TextDocument) {
     try {
-        const findings = await checkHtml(document.getText());
-        const diagnostics = findings.map(finding => {
-            const range = new vscode.Range(document.positionAt(finding.start), document.positionAt(finding.end));
-            const diagnostic = new vscode.Diagnostic(
-                range,
-                `${finding.help} (Rule: ${finding.ruleId})`,
-                vscode.DiagnosticSeverity.Warning
-            );
-            diagnostic.code = JSON.stringify({ ruleId: finding.ruleId, help: finding.help, originalRuleId: finding.originalRuleId });
-            return diagnostic;
-        });
-        diagnosticCollection.set(document.uri, diagnostics);
+        await check.update(document);
     } catch (error) {
         if (error instanceof Error && error.message === 'axe-timeout') {
             console.warn('axe-core analysis aborted after timeout');
         } else {
             console.error('Error in accessibility analysis:', error);
         }
-        diagnosticCollection.set(document.uri, []);
+        check.delete(document.uri);
     }
 }
 
 class AccessibilityActionProvider implements vscode.CodeActionProvider {
     provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext): vscode.CodeAction[] {
-    // Filter all accessibility diagnostics (axe-core and AI)
-        const accessibilityDiagnostics = context.diagnostics.filter(diagnostic => {
-            // axe-core diagnostics have string code
-            if (typeof diagnostic.code === 'string') {
-                return true;
-            }
-            
-            // AI diagnostics have JSON code with isAIGenerated flag
-            try {
-                if (typeof diagnostic.code === 'string') {
-                    const codeData = JSON.parse(diagnostic.code);
-                    return codeData.isAIGenerated === true;
-                }
-            } catch (error) {
-                // Ignore parsing errors
-            }
-            
-            return false;
-        });
+        // Check diagnostics carry the Allyproof source, AI diagnostics a JSON string code
+        const accessibilityDiagnostics = context.diagnostics.filter(diagnostic =>
+            diagnostic.source === CHECK_SOURCE || typeof diagnostic.code === 'string'
+        );
 
         if (accessibilityDiagnostics.length === 0) {
             return [];

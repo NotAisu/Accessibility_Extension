@@ -1,0 +1,5531 @@
+{
+  "source": "https://github.com/act-rules/act-rules.github.io/tree/50d2bede1ee705be6840d06f356a6ae2fd94cb2c",
+  "cases": [
+    {
+      "file": "cases/6cfa84-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", passed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", passed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", passed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", passed example 6",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", failed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", failed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", failed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", failed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/6cfa84-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule 6cfa84 \"Element with aria-hidden has no content in sequential focus navigation\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ff89c9-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule ff89c9 \"ARIA required context role\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 6",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 7",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 8",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-9.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 9",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-passed-10.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", passed example 10",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 5",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 6",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-7.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 7",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-8.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 8",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-9.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 9",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-failed-10.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", failed example 10",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc4a75-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule bc4a75 \"ARIA required owned elements\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e7aa44-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule e7aa44 \"Audio element content has text alternative\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/efbfc7-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule efbfc7 \"Text content that changes automatically can be paused, stopped or hidden\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", passed example 6",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", passed example 7",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", passed example 8",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 5",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 6",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 7",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-8.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 8",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-9.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 9",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-failed-10.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", failed example 10",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-inapplicable-6.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", inapplicable example 6",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-inapplicable-7.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", inapplicable example 7",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-inapplicable-8.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", inapplicable example 8",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/73f2c2-inapplicable-9.html",
+      "languageId": "html",
+      "note": "ACT rule 73f2c2 \"Autocomplete attribute has valid value\", inapplicable example 9",
+      "expect": [
+        {
+          "criterion": "1.3.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", passed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", passed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", passed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", passed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", passed example 7",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", failed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", failed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", failed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/97a4e1-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule 97a4e1 \"Button has non-empty accessible name\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 5",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 6",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 7",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 8",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-9.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 9",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-10.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 10",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cf77f2-passed-12.html",
+      "languageId": "html",
+      "note": "ACT rule cf77f2 \"Bypass Blocks of Repeated Content\", passed example 12",
+      "expect": [
+        {
+          "criterion": "2.4.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b33eff-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule b33eff \"Orientation of the page is not restricted using CSS transforms\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.3.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c249d5-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule c249d5 \"Device motion based changes to the content can be disabled\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.5.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/7677a9-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 7677a9 \"Device motion based changes to the content can also be created from the user interface\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.5.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", passed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", passed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", passed example 3",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", passed example 4",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", passed example 5",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", failed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", failed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", failed example 3",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", failed example 4",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/off6ek-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule off6ek \"HTML element language subtag matches language\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", passed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", passed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", passed example 3",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", passed example 4",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", passed example 5",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", failed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", failed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", failed example 3",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", failed example 4",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", failed example 6",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-failed-7.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", failed example 7",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-failed-8.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", failed example 8",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-failed-9.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", failed example 9",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/de46e4-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule de46e4 \"Element with lang attribute has valid language tag\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/7d6734-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule 7d6734 \"SVG element with explicit role has non-empty accessible name\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/80af7b-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 80af7b \"Focusable element has no keyboard trap\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/80af7b-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 80af7b \"Focusable element has no keyboard trap\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/80af7b-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 80af7b \"Focusable element has no keyboard trap\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/80af7b-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 80af7b \"Focusable element has no keyboard trap\", passed example 7",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/80af7b-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 80af7b \"Focusable element has no keyboard trap\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/80af7b-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 80af7b \"Focusable element has no keyboard trap\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/80af7b-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 80af7b \"Focusable element has no keyboard trap\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/80af7b-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 80af7b \"Focusable element has no keyboard trap\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", passed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", passed example 5",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", passed example 6",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", passed example 7",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", failed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", failed example 6",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/cc0f0a-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule cc0f0a \"Form field label is descriptive\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 6",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 7",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 8",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-passed-9.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", passed example 9",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 6",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-7.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 7",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-8.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 8",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-failed-9.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", failed example 9",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e086e5-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule e086e5 \"Form field has non-empty accessible name\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", passed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", passed example 6",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", failed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b49b2e-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule b49b2e \"Heading is descriptive\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b5c3f8-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule b5c3f8 \"HTML page has lang attribute\", passed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b5c3f8-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule b5c3f8 \"HTML page has lang attribute\", failed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b5c3f8-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule b5c3f8 \"HTML page has lang attribute\", failed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b5c3f8-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule b5c3f8 \"HTML page has lang attribute\", failed example 3",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b5c3f8-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule b5c3f8 \"HTML page has lang attribute\", failed example 4",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", passed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", passed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", passed example 3",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", passed example 4",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", failed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", failed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", failed example 3",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", failed example 4",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", failed example 5",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/ucwvc8-inapplicable-6.html",
+      "languageId": "html",
+      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 6",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bf051a-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule bf051a \"HTML page lang attribute has valid language tag\", passed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bf051a-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule bf051a \"HTML page lang attribute has valid language tag\", passed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bf051a-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule bf051a \"HTML page lang attribute has valid language tag\", failed example 1",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bf051a-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule bf051a \"HTML page lang attribute has valid language tag\", failed example 2",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bf051a-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule bf051a \"HTML page lang attribute has valid language tag\", failed example 3",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bf051a-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule bf051a \"HTML page lang attribute has valid language tag\", failed example 4",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2779a5-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 2779a5 \"HTML page has non-empty title\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2779a5-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 2779a5 \"HTML page has non-empty title\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2779a5-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 2779a5 \"HTML page has non-empty title\", passed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2779a5-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 2779a5 \"HTML page has non-empty title\", passed example 5",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2779a5-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 2779a5 \"HTML page has non-empty title\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2779a5-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 2779a5 \"HTML page has non-empty title\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2779a5-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 2779a5 \"HTML page has non-empty title\", failed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2779a5-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 2779a5 \"HTML page has non-empty title\", failed example 5",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c4a8a4-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule c4a8a4 \"HTML page title is descriptive\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c4a8a4-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule c4a8a4 \"HTML page title is descriptive\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c4a8a4-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule c4a8a4 \"HTML page title is descriptive\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c4a8a4-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule c4a8a4 \"HTML page title is descriptive\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c4a8a4-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule c4a8a4 \"HTML page title is descriptive\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c4a8a4-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule c4a8a4 \"HTML page title is descriptive\", failed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/cae760-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule cae760 \"Iframe element has non-empty accessible name\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-inapplicable-7.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", inapplicable example 7",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-inapplicable-8.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", inapplicable example 8",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/qt1vmo-inapplicable-9.html",
+      "languageId": "html",
+      "note": "ACT rule qt1vmo \"Image accessible name is descriptive\", inapplicable example 9",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59796f-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule 59796f \"Image button has non-empty accessible name\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", passed example 7",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-passed-9.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", passed example 9",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/0va7u6-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 0va7u6 \"HTML images contain no text\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.4.5",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/23a2a8-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 23a2a8 \"Image has non-empty accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/23a2a8-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 23a2a8 \"Image has non-empty accessible name\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/23a2a8-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 23a2a8 \"Image has non-empty accessible name\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/23a2a8-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 23a2a8 \"Image has non-empty accessible name\", passed example 7",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/23a2a8-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 23a2a8 \"Image has non-empty accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/23a2a8-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 23a2a8 \"Image has non-empty accessible name\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/23a2a8-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 23a2a8 \"Image has non-empty accessible name\", failed example 5",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/23a2a8-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 23a2a8 \"Image has non-empty accessible name\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-inapplicable-8.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", inapplicable example 8",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/e88epe-inapplicable-10.html",
+      "languageId": "html",
+      "note": "ACT rule e88epe \"Image not in the accessibility tree is decorative\", inapplicable example 10",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/36b590-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 36b590 \"Error message describes invalid form field value\", passed example 1",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/36b590-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 36b590 \"Error message describes invalid form field value\", passed example 2",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/36b590-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 36b590 \"Error message describes invalid form field value\", passed example 3",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/36b590-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 36b590 \"Error message describes invalid form field value\", failed example 1",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/36b590-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 36b590 \"Error message describes invalid form field value\", failed example 2",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/36b590-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 36b590 \"Error message describes invalid form field value\", failed example 4",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/36b590-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 36b590 \"Error message describes invalid form field value\", failed example 5",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/36b590-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 36b590 \"Error message describes invalid form field value\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", passed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", passed example 5",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", passed example 6",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", passed example 8",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-passed-9.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", passed example 9",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", failed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", failed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", failed example 6",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/5effbb-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule 5effbb \"Link in context is descriptive\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 6",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 7",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 8",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-10.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 10",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-passed-11.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", passed example 11",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 6",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-7.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 7",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-9.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 9",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-10.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 10",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-failed-11.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", failed example 11",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/c487ae-inapplicable-6.html",
+      "languageId": "html",
+      "note": "ACT rule c487ae \"Link has non-empty accessible name\", inapplicable example 6",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 4",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 5",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 6",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 7",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 8",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-passed-9.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", passed example 9",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-inapplicable-6.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", inapplicable example 6",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/fd3a94-inapplicable-7.html",
+      "languageId": "html",
+      "note": "ACT rule fd3a94 \"Links with identical accessible names and same context serve equivalent purpose\", inapplicable example 7",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/m6b1q3-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule m6b1q3 \"Menuitem has non-empty accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/m6b1q3-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule m6b1q3 \"Menuitem has non-empty accessible name\", passed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/m6b1q3-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule m6b1q3 \"Menuitem has non-empty accessible name\", passed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/m6b1q3-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule m6b1q3 \"Menuitem has non-empty accessible name\", passed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/m6b1q3-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule m6b1q3 \"Menuitem has non-empty accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/m6b1q3-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule m6b1q3 \"Menuitem has non-empty accessible name\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/m6b1q3-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule m6b1q3 \"Menuitem has non-empty accessible name\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", failed example 3",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", failed example 4",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-inapplicable-6.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", inapplicable example 6",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-inapplicable-7.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", inapplicable example 7",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/bc659a-inapplicable-8.html",
+      "languageId": "html",
+      "note": "ACT rule bc659a \"Meta element has no refresh delay\", inapplicable example 8",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", failed example 5",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", failed example 6",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-failed-7.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", failed example 7",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/b4f0c3-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule b4f0c3 \"Meta viewport allows for zoom\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/9bd38c-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 9bd38c \"Content has alternative for visual reference\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/9bd38c-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule 9bd38c \"Content has alternative for visual reference\", passed example 6",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/9bd38c-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 9bd38c \"Content has alternative for visual reference\", passed example 7",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/9bd38c-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule 9bd38c \"Content has alternative for visual reference\", passed example 8",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/9bd38c-passed-14.html",
+      "languageId": "html",
+      "note": "ACT rule 9bd38c \"Content has alternative for visual reference\", passed example 14",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/9bd38c-passed-15.html",
+      "languageId": "html",
+      "note": "ACT rule 9bd38c \"Content has alternative for visual reference\", passed example 15",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/9bd38c-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 9bd38c \"Content has alternative for visual reference\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/9bd38c-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 9bd38c \"Content has alternative for visual reference\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", passed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", passed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", passed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", passed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", failed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", failed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", failed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", failed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", failed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/307n5z-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 307n5z \"Element with presentational children has no focusable content\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/oj04fd-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule oj04fd \"Element in sequential focus order has visible focus\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.4.7",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/oj04fd-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule oj04fd \"Element in sequential focus order has visible focus\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.4.7",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/oj04fd-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule oj04fd \"Element in sequential focus order has visible focus\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.4.7",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/oj04fd-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule oj04fd \"Element in sequential focus order has visible focus\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "2.4.7",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", passed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", passed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", passed example 4",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", passed example 5",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", failed example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", failed example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2t702h-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule 2t702h \"Summary element has non-empty accessible name\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", passed example 6",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-inapplicable-6.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", inapplicable example 6",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/d0f69e-inapplicable-7.html",
+      "languageId": "html",
+      "note": "ACT rule d0f69e \"Table header cell has assigned cells\", inapplicable example 7",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", passed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", passed example 6",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", passed example 7",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", passed example 8",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/a25f45-inapplicable-6.html",
+      "languageId": "html",
+      "note": "ACT rule a25f45 \"Headers attribute specified on a cell refers to cells in the same table element\", inapplicable example 6",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 8",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-passed-10.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 10",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-passed-11.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 11",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-5.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 1",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 2",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 3",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 4",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 5",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 7",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-8.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 8",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-11.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 11",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-13.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 13",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-14.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 14",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-15.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 15",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-passed-16.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", passed example 16",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 1",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 2",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 3",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 4",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 5",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-6.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 6",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-7.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 7",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-8.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 8",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-9.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 9",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-10.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 10",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-11.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 11",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-12.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 12",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-13.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 13",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-14.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 14",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-15.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 15",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-failed-16.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", failed example 16",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/2ee8b8-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule 2ee8b8 \"Visible label is part of accessible name\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "2.5.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59br37-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule 59br37 \"Zoomed text node is not clipped with CSS overflow\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/59br37-inapplicable-4.html",
+      "languageId": "html",
+      "note": "ACT rule 59br37 \"Zoomed text node is not clipped with CSS overflow\", inapplicable example 4",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": false
+        }
+      ]
+    }
+  ]
+}

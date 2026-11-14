@@ -33,6 +33,8 @@ async function main() {
         outfile: 'dist/extension.js',
         // canvas is an optional jsdom peer; bufferutil/utf-8-validate are optional ws add-ons
         external: ['vscode', 'canvas', 'bufferutil', 'utf-8-validate'],
+        // The UMD build of this @html-eslint dependency resolves its modules dynamically, which a bundle cannot follow
+        alias: { 'vscode-css-languageservice': 'vscode-css-languageservice/lib/esm/cssLanguageService.js' },
         minify: production,
         sourcemap: !production,
         sourcesContent: false,

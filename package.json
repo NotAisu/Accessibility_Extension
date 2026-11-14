@@ -138,11 +138,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src test --ext ts",
-    "test:axe": "npm run pretest && node out/test/axe-cli.js",
-    "test:ai": "npm run pretest && node out/test/ai-cli.js",
-    "generate:expected": "ts-node test/scripts/generate-expected.ts",
-    "test:combined": "npm run pretest && node out/test/combined-cli.js",
+    "lint": "eslint src test",
+    "test:gate": "ts-node test/ground-truth/gate.ts",
     "test:mocha": "vscode-test",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
@@ -151,30 +148,28 @@
     "test:unit": "mocha"
   },
   "devDependencies": {
-    "@types/eslint": "9.6.1",
     "@types/glob": "8.1.0",
     "@types/jsdom": "21.1.7",
     "@types/mocha": "10.0.6",
     "@types/node": "18.19.34",
     "@types/vscode": "1.85.0",
-    "@typescript-eslint/eslint-plugin": "7.7.1",
-    "@typescript-eslint/parser": "7.7.1",
     "@vscode/test-cli": "0.0.9",
     "@vscode/test-electron": "2.3.9",
     "@vscode/vsce": "4.1.1",
-    "dotenv": "17.2.1",
     "esbuild": "0.28.2",
-    "eslint": "8.57.0",
     "glob": "8.1.0",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
     "mocha": "10.4.0",
     "ts-node": "^10.9.2",
     "typescript": "5.4.5",
-    "vue-eslint-parser": "10.2.0"
+    "typescript-eslint": "8.72.2"
   },
   "dependencies": {
-    "axe-core": "4.8.4",
+    "@html-eslint/eslint-plugin": "0.68.0",
+    "@html-eslint/parser": "0.68.0",
+    "axe-core": "4.14.0",
+    "eslint": "10.15.0",
     "jsdom": "26.1.0"
   }
 }

@@ -35,10 +35,11 @@ All commands are in the Command Palette under **Allyproof**:
 npm install
 npm run bundle      # dist/extension.js
 npm run test:unit
+npm run test:gate   # Check precision/recall against ground truth
 npm run package     # allyproof-<version>.vsix
 ```
 
-Press F5 to launch an Extension Development Host. See `test/README.md` for the fixture suites.
+Press F5 to launch an Extension Development Host. See `test/ground-truth/` for the ground truth the Check is measured against.
 
 ## License
 

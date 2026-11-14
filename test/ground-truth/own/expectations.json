@@ -1,0 +1,18 @@
+{
+  "source": "Written for Allyproof",
+  "cases": [
+    {
+      "file": "html/sign-up-form.html",
+      "languageId": "html",
+      "note": "Image without alt, unlabelled password field, empty button and empty link",
+      "expect": [
+        { "criterion": "1.1.1", "line": 9 },
+        { "criterion": "4.1.2", "line": 13 },
+        { "criterion": "4.1.2", "line": 14 },
+        { "criterion": "2.4.4", "line": 16 },
+        { "criterion": "3.1.1", "present": false },
+        { "criterion": "2.4.2", "present": false }
+      ]
+    }
+  ]
+}
