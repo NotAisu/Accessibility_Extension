@@ -1,104 +1,42 @@
 import * as vscode from 'vscode';
-import { JSDOM } from 'jsdom';
-import * as axe from 'axe-core';
 import { LLMService } from './llm/llm-service';
-import { CodeTutorService } from './code-tutor/code-tutor-service';
-import { LLMSettingsProvider } from './views/llm-settings-provider';
 import { AISemanticAnalyzer } from './ai/ai-semantic-analyzer';
-import { MetricsService } from './metrics/metrics-service';
-import { MetricsDashboardProvider } from './views/metrics-dashboard-provider';
-import { FeedbackService } from './feedback/feedback-service';
-import { normalizeRuleId } from './core/rule-id-normalizer';
+import { checkHtml } from './core/html-check';
 
+const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
 
 const diagnosticCollection = vscode.languages.createDiagnosticCollection('accessibility');
 let llmService: LLMService;
-let codeTutorService: CodeTutorService;
 let aiSemanticAnalyzer: AISemanticAnalyzer;
-let metricsService: MetricsService;
-let feedbackService: FeedbackService;
 let aiStatusBarItem: vscode.StatusBarItem;
 let cleanupTimer: NodeJS.Timeout | undefined;
 const CLEANUP_INTERVAL_MS = 30000;
-let metricsUpdateTimer: NodeJS.Timeout | undefined;
-const METRICS_UPDATE_DELAY_MS = 300;
 
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('🚀 Activating Accessibility Extension...');
-    
-    llmService = new LLMService(context.secrets);
-    codeTutorService = new CodeTutorService();
-    metricsService = MetricsService.getInstance(context);
-    feedbackService = FeedbackService.getInstance(metricsService);
-    llmService.setMetricsService(metricsService);
-    
+    llmService = new LLMService();
     aiSemanticAnalyzer = new AISemanticAnalyzer(llmService);
-    aiSemanticAnalyzer.setMetricsService(metricsService);
-    if (typeof (feedbackService as any).setAIDiagnosticCollection === 'function') {
-        feedbackService.setAIDiagnosticCollection(aiSemanticAnalyzer.getDiagnosticCollection());
-    }
-    
     aiSemanticAnalyzer.setDiagnosticsCallback((uri: vscode.Uri) => {
         return Array.from(diagnosticCollection.get(uri) || []);
     });
 
-    console.log('📊 Services initialized successfully');
-    
-    const llmSettingsProvider = new LLMSettingsProvider(context.extensionUri, llmService);
-    llmSettingsProvider.setAIAnalyzer(aiSemanticAnalyzer);
-    llmSettingsProvider.setCodeTutorService(codeTutorService);
-    llmSettingsProvider.setMetricsService(metricsService);
-    llmSettingsProvider.setDiagnosticCollections(
-        diagnosticCollection,
-        aiSemanticAnalyzer.getDiagnosticCollection()
-    );
     context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(LLMSettingsProvider.viewType, llmSettingsProvider)
-    );
-    console.log(`Registered LLM Settings Provider with viewType: ${LLMSettingsProvider.viewType}`);
-
-    const metricsDashboardProvider = new MetricsDashboardProvider(context.extensionUri, metricsService);
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(MetricsDashboardProvider.viewType, metricsDashboardProvider)
-    );
-    console.log(`Registered Metrics Dashboard Provider with viewType: ${MetricsDashboardProvider.viewType}`);
-
-    metricsDashboardProvider.setDiagnosticCollections(
-        diagnosticCollection,
-        aiSemanticAnalyzer.getDiagnosticCollection()
-    );
-
-    console.log('Accessibility Extension: All WebView Providers registered successfully');
-    context.subscriptions.push(
-        feedbackService.createFeedbackCommand()
+        vscode.commands.registerCommand('allyproof.fixWithAI', fixWithAI)
     );
 
     context.subscriptions.push(
-        vscode.languages.registerHoverProvider(
-            ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'],
-            feedbackService.createFeedbackHoverProvider()
-        )
-    );
-    context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.fixWithAI', fixWithAI)
-    );
-
-    // AI analysis command (triggered by the webview button)
-    context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.startAIAnalysis', async () => {
+        vscode.commands.registerCommand('allyproof.startAIReview', async () => {
             try {
                 await aiSemanticAnalyzer.startAnalysis();
-                updateGlobalViolationMetrics();
                 updateAIStatusBar();
             } catch (error) {
-                console.error('AI Analysis command failed:', error);
+                console.error('AI Review command failed:', error);
             }
         })
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.testConnection', async () => {
+        vscode.commands.registerCommand('allyproof.testConnection', async () => {
             try {
                 const isConnected = await llmService.testConnection();
                 const message = isConnected ? 
@@ -115,71 +53,15 @@ export function activate(context: vscode.ExtensionContext) {
         })
     );
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.openDashboard', async () => {
-            await vscode.commands.executeCommand('accessibilityMetricsDashboard.focus');
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.openSettings', async () => {
-            await vscode.commands.executeCommand('aiAccessibilitySettings.focus');
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerTextEditorCommand('accessibility-extension.codeTutorAnnotate', async (textEditor: vscode.TextEditor) => {
-            await codeTutorService.toggleAnnotations(textEditor);
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.codeTutorClear', () => {
-            codeTutorService.clearAnnotations();
-            vscode.window.showInformationMessage('Code Tutor annotations cleared.');
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.showMetrics', () => {
-            vscode.commands.executeCommand('workbench.view.extension.accessibility-metrics');
-        })
-    );
-
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.clearMetrics', async () => {
-            const result = await vscode.window.showWarningMessage(
-                'Are you sure you want to clear all metrics data?',
-                'Clear Data',
-                'Cancel'
-            );
-
-            if (result === 'Clear Data') {
-                metricsService.clearDataAndRefresh(
-                    diagnosticCollection,
-                    aiSemanticAnalyzer.getDiagnosticCollection()
-                );
-                vscode.window.showInformationMessage('Metrics data cleared successfully.');
-            }
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('accessibility-extension.showFeedbackStats', () => {
-            const stats = metricsService.getDashboardData();
-            
-            vscode.window.showInformationMessage(
-                `📊 Metrics Stats - Detection Accuracy: ${stats.detectionAccuracy.toFixed(1)}%, ` +
-                `Quick Fix Success Rate: ${stats.quickFixSuccessRate.toFixed(1)}%, ` +
-                `Total Current Violations: ${stats.totalCurrentViolations}`
-            );
-        })
-    );
+    context.subscriptions.push(vscode.commands.registerCommand('allyproof.clearRecentAIMemory', () => {
+        aiSemanticAnalyzer.clearRecentFixMemory();
+        vscode.window.showInformationMessage('AI recent fix memory cleared.');
+        updateAIStatusBar();
+    }));
 
     context.subscriptions.push(
         vscode.languages.registerCodeActionsProvider(
-            ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'],
+            SUPPORTED_LANGUAGES,
             new AccessibilityActionProvider(),
             { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }
         )
@@ -190,7 +72,6 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(vscode.workspace.onDidCloseTextDocument((document) => {
         diagnosticCollection.delete(document.uri);
         aiSemanticAnalyzer.getDiagnosticCollection().delete(document.uri);
-        updateGlobalViolationMetrics();
     }));
 
     vscode.window.visibleTextEditors.forEach(editor => runDiagnostics(editor.document));
@@ -199,16 +80,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     aiStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     aiStatusBarItem.text = 'AI: inactive';
-    aiStatusBarItem.command = 'accessibility-extension.startAIAnalysis';
-    aiStatusBarItem.tooltip = 'Run AI Accessibility Analysis';
+    aiStatusBarItem.command = 'allyproof.startAIReview';
+    aiStatusBarItem.tooltip = 'Start AI Review';
     aiStatusBarItem.show();
     context.subscriptions.push(aiStatusBarItem);
-
-    context.subscriptions.push(vscode.commands.registerCommand('accessibility-extension.clearRecentAIMemory', () => {
-        aiSemanticAnalyzer.clearRecentFixMemory();
-        vscode.window.showInformationMessage('AI recent fix memory cleared.');
-        updateAIStatusBar();
-    }));
 }
 
 function startDiagnosticCleanup(): void {
@@ -224,7 +99,7 @@ function cleanupInactiveDiagnostics(): void {
 
     // Clean up main diagnostic collection
     const staleUris: vscode.Uri[] = [];
-    diagnosticCollection.forEach((uri, diagnostics) => {
+    diagnosticCollection.forEach((uri) => {
         if (!activeDocuments.has(uri.toString())) {
             staleUris.push(uri);
         }
@@ -232,7 +107,7 @@ function cleanupInactiveDiagnostics(): void {
 
     // Clean up AI diagnostic collection
     const aiCollection = aiSemanticAnalyzer.getDiagnosticCollection();
-    aiCollection.forEach((uri, diagnostics) => {
+    aiCollection.forEach((uri) => {
         if (!activeDocuments.has(uri.toString())) {
             staleUris.push(uri);
         }
@@ -242,29 +117,18 @@ function cleanupInactiveDiagnostics(): void {
         diagnosticCollection.delete(uri);
         aiCollection.delete(uri);
     });
-
-    if (staleUris.length > 0) {
-        console.log(`🧹 Cleaned up ${staleUris.length} stale diagnostic entries`);
-        debouncedMetricsUpdate();
-    }
 }
 
 async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
-    const supportedLanguages = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
-    if (!supportedLanguages.includes(document.languageId)) {
+    if (!SUPPORTED_LANGUAGES.includes(document.languageId)) {
         return;
     }
 
     try {
         await updateDiagnostics(document);
-        updateGlobalViolationMetrics();
     } catch (error) {
         console.error('Error running diagnostics:', error);
     }
-}
-
-function updateGlobalViolationMetrics(): void {
-    debouncedMetricsUpdate();
 }
 
 function updateAIStatusBar(): void {
@@ -273,135 +137,26 @@ function updateAIStatusBar(): void {
     aiStatusBarItem.text = `AI: ${counts.reported} findings (${counts.suppressed} suppressed)`;
 }
 
-function debouncedMetricsUpdate(): void {
-    if (metricsUpdateTimer) {
-        clearTimeout(metricsUpdateTimer);
-    }
-    
-    metricsUpdateTimer = setTimeout(() => {
-        if (!metricsService) return;
-        
-        try {
-            metricsService.updateCurrentViolationsFromDiagnostics(
-                diagnosticCollection,
-                aiSemanticAnalyzer.getDiagnosticCollection()
-            );
-        } catch (error) {
-            console.error('Failed to update metrics:', error);
-        }
-    }, METRICS_UPDATE_DELAY_MS);
-}
-
 async function updateDiagnostics(document: vscode.TextDocument) {
-    const text = document.getText();
-    if (!text) {
-        diagnosticCollection.set(document.uri, []);
-        return;
-    }
-
-    // Use a JSDOM window and execute scripts in its own realm so axe runs in the same context
-    const { window } = new JSDOM(text, { runScripts: 'dangerously' });
-
-    // Stub commonly missing browser APIs/assets to avoid axe "preload" timeouts
     try {
-        (window as any).requestAnimationFrame = (cb: any) => setTimeout(() => cb(Date.now()), 16);
-        (window as any).cancelAnimationFrame = (id: any) => clearTimeout(id);
-    // Only stub fetch if it doesn't exist — prevents axe preload assets from failing
-        if (!(window as any).fetch) {
-            (window as any).fetch = async () => ({ ok: true, text: async () => '', json: async () => ({}) });
-        }
-    } catch {}
-
-    
-    if (!window.HTMLCanvasElement.prototype.getContext) {
-        window.HTMLCanvasElement.prototype.getContext = function() {
-            return null; 
-        };
-    }
-
-    try {
-    // Inject axe into the same JSDOM context
-        try {
-            // eslint-disable-next-line no-eval
-            (window as any).eval((axe as any).source);
-        } catch (e) {
-            console.warn('Failed to inject axe into JSDOM window:', e);
-        }
-
-        const AXE_TIMEOUT_MS = 5000;
-    const axeOptions: any = {
-            runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa','wcag22a', 'wcag22aa'] },
-            resultTypes: ['violations'],
-            rules: {
-                'color-contrast': { enabled: false },
-                'color-contrast-enhanced': { enabled: false }
-            }
-    };
-    try { (axeOptions as any).preload = false; } catch {}
-    const axePromise = (window as any).axe.run(window.document, axeOptions);
-        const timeoutPromise = new Promise<null>((_, reject) => setTimeout(() => reject(new Error('axe-timeout')), AXE_TIMEOUT_MS));
-        const results: any = await Promise.race([axePromise, timeoutPromise]);
-        if (!results) {
-            console.warn('axe returned no results (possibly timed out)');
-            diagnosticCollection.set(document.uri, []);
-            return;
-        }
-
-        const diagnostics: vscode.Diagnostic[] = [];
-        for (const violation of results.violations) {
-            for (const node of violation.nodes) {
-                let range: vscode.Range | undefined;
-
-                if (node.target.length === 1 && node.target[0] === 'html') {
-                    const htmlTagRegex = /<html[^>]*>/i;
-                    const match = text.match(htmlTagRegex);
-                    if (match && typeof match.index === 'number') {
-                        range = new vscode.Range(
-                            document.positionAt(match.index),
-                            document.positionAt(match.index + match[0].length)
-                        );
-                    }
-                } else {
-                    const problematicHtml = node.html;
-                    const index = text.indexOf(problematicHtml);
-
-                    if (index !== -1) {
-                        range = new vscode.Range(
-                            document.positionAt(index),
-                            document.positionAt(index + problematicHtml.length)
-                        );
-                    }
-                }
-
-                if (range) {
-                    const normId = normalizeRuleId(violation.id);
-                    const diagnostic = new vscode.Diagnostic(
-                        range,
-                        `${violation.help} (Rule: ${normId || violation.id})`,
-                        vscode.DiagnosticSeverity.Warning
-                    );
-                    diagnostic.code = JSON.stringify({ ruleId: normId || violation.id, help: violation.help, originalRuleId: violation.id });
-                    diagnostics.push(diagnostic);
-                }
-            }
-        }
-
+        const findings = await checkHtml(document.getText());
+        const diagnostics = findings.map(finding => {
+            const range = new vscode.Range(document.positionAt(finding.start), document.positionAt(finding.end));
+            const diagnostic = new vscode.Diagnostic(
+                range,
+                `${finding.help} (Rule: ${finding.ruleId})`,
+                vscode.DiagnosticSeverity.Warning
+            );
+            diagnostic.code = JSON.stringify({ ruleId: finding.ruleId, help: finding.help, originalRuleId: finding.originalRuleId });
+            return diagnostic;
+        });
         diagnosticCollection.set(document.uri, diagnostics);
-
     } catch (error) {
         if (error instanceof Error && error.message === 'axe-timeout') {
             console.warn('axe-core analysis aborted after timeout');
         } else {
             console.error('Error in accessibility analysis:', error);
         }
-        
-        
-        if (error instanceof Error && error.message.includes('HTMLCanvasElement.prototype.getContext')) {
-            console.warn('Canvas context not available in JSDOM - color contrast checks disabled');
-        } else {
-            vscode.window.showErrorMessage('An error occurred during accessibility analysis.');
-        }
-        
         diagnosticCollection.set(document.uri, []);
     }
 }
@@ -439,7 +194,7 @@ class AccessibilityActionProvider implements vscode.CodeActionProvider {
     private createCommandAction(diagnostic: vscode.Diagnostic): vscode.CodeAction {
         const action = new vscode.CodeAction('Fix with AI', vscode.CodeActionKind.QuickFix);
         action.command = {
-            command: 'accessibility-extension.fixWithAI',
+            command: 'allyproof.fixWithAI',
             title: 'Generate fix with AI',
             arguments: [diagnostic]
         };
@@ -454,9 +209,6 @@ async function fixWithAI(diagnostic: vscode.Diagnostic) {
     if (!editor) return;
 
     const code = editor.document.getText(diagnostic.range);
-    
-    // Variable für quickFixId außerhalb des try-catch definieren
-    let quickFixId = '';
     
     // Unterscheiden zwischen axe-core und AI-Diagnostics
     let help: string;
@@ -541,9 +293,7 @@ REQUIREMENTS:
 Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, nothing else.`;
             }
             
-            const response = await llmService.getAccessibilityFix(prompt);
-            let suggestion = response.result.trim();
-            quickFixId = response.quickFixId;
+            let suggestion = (await llmService.getAccessibilityFix(prompt)).trim();
             
             // Detect fenced code blocks and extract core content
             const fenced = suggestion.match(/```[a-zA-Z]*\n([\s\S]*?)```/);
@@ -593,23 +343,6 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
                         const removeId = codeData.vId || codeData.violationId; // support legacy
                         if (codeData.isAIGenerated && removeId) {
                             aiSemanticAnalyzer.removeAIDiagnostic(removeId);
-                            // Mark feedbackGiven true in remaining diagnostics with same violationId (defensiv)
-                            try {
-                                const aiDiags = aiSemanticAnalyzer.getDiagnosticCollection().get(editor.document.uri) || [];
-                                const updated = aiDiags.map(d => {
-                                    if (typeof d.code === 'string') {
-                                        try {
-                                            const data = JSON.parse(d.code);
-                                            if (data.vId === removeId || data.violationId === removeId) {
-                                                data.feedbackGiven = true;
-                                                d.code = JSON.stringify(data);
-                                            }
-                                        } catch {}
-                                    }
-                                    return d;
-                                });
-                                aiSemanticAnalyzer.getDiagnosticCollection().set(editor.document.uri, updated);
-                            } catch {}
                         }
                     } else {
                         aiSemanticAnalyzer.recordFixedRange(editor.document, diagnostic.range);
@@ -621,29 +354,9 @@ Return ONLY the corrected code for line ${diagnostic.range.start.line + 1}, noth
             } else {
                 vscode.window.showErrorMessage('Failed to apply AI fix edit.');
             }
-            
-            // Extract rule ID from diagnostic for feedback
-            let ruleId = '';
-            try {
-                if (typeof diagnostic.code === 'string') {
-                    const codeData = JSON.parse(diagnostic.code);
-                    ruleId = codeData.ruleId || ruleId;
-                }
-            } catch (error) {
-                console.log(error)
-            }
-            
-            // Show feedback request after a delay
-            setTimeout(() => {
-                feedbackService.showQuickFixFeedback(quickFixId, ruleId);
-            }, 1500);
-            
         } catch (error) {
             console.error('QuickFix failed:', error);
             vscode.window.showErrorMessage(`Failed to get suggestion from AI: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            
-            // Record failed attempt in metrics
-            metricsService.recordQuickFixFeedback(quickFixId, 'negative');
         }
     });
 }
@@ -654,22 +367,12 @@ export function deactivate() {
         clearInterval(cleanupTimer);
         cleanupTimer = undefined;
     }
-    if (metricsUpdateTimer) {
-        clearTimeout(metricsUpdateTimer);
-        metricsUpdateTimer = undefined;
-    }
 
     // Clear diagnostics
     diagnosticCollection.clear();
     
     // Dispose services
-    if (codeTutorService) {
-        codeTutorService.clearAnnotations();
-    }
     if (aiSemanticAnalyzer) {
         aiSemanticAnalyzer.dispose();
-    }
-    if (metricsService) {
-        metricsService.dispose();
     }
 }
