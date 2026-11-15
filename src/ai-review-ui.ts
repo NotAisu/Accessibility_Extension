@@ -20,7 +20,12 @@ export class AIReview implements vscode.Disposable {
         private readonly context: vscode.ExtensionContext,
         private readonly languages: string[],
         /** Check Findings of exactly the reviewed text, so their offsets match the AI Findings'. */
-        private readonly checkFindings: (document: AnalysisDocument) => Promise<Finding[]>
+        private readonly checkFindings: (document: AnalysisDocument) => Promise<Finding[]>,
+        /** Mirrors the AI diagnostics in the Findings tree: shows the AI Findings beside the Check's, or clears them. */
+        private readonly tree: {
+            setAI(document: vscode.TextDocument, findings: Finding[]): void;
+            deleteAI(uri: vscode.Uri): void;
+        }
     ) {
         this.status.name = 'Allyproof AI Review';
         void this.showIdle();
@@ -29,6 +34,8 @@ export class AIReview implements vscode.Disposable {
     /** Reflects whether a model is available; call when the models change. */
     async showIdle(): Promise<void> {
         if (this.running) return;
+        // Editors without the language model API (some VS Code forks) cannot set up an AI Review at all
+        if (typeof vscode.lm?.registerTool !== 'function') return this.status.hide();
         if (await selectCopilotModel()) {
             this.show('$(sparkle) AI Review', 'Start AI Review of the current file', 'allyproof.startAIReview');
         } else {
@@ -59,7 +66,9 @@ export class AIReview implements vscode.Disposable {
                     cache: this.cache,
                     signal: running.signal,
                     onFindings: found => {
-                        if (!document.isClosed && document.version === version) this.collection.set(document.uri, found.map(f => toDiagnostic(document, f)));
+                        if (document.isClosed || document.version !== version) return;
+                        this.collection.set(document.uri, found.map(f => toDiagnostic(document, f)));
+                        this.tree.setAI(document, found);
                     }
                 }
             );
@@ -86,6 +95,7 @@ export class AIReview implements vscode.Disposable {
 
     delete(uri: vscode.Uri): void {
         this.collection.delete(uri);
+        this.tree.deleteAI(uri);
     }
 
     dispose(): void {

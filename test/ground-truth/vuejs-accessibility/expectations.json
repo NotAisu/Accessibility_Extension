@@ -1,0 +1,4424 @@
+{
+  "source": "https://github.com/vue-a11y/eslint-plugin-vuejs-accessibility/tree/1e323ea0892f4b7ed58b0f2a2a43a8daeaf1aa5c (v2.6.3)",
+  "cases": [
+    {
+      "file": "cases/alt-text-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-11.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-valid-12.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/anchor-has-content-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: anchor-has-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-props-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-props valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-props-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-props invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-role-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-role valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-role-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-role valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-role-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-role valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-role-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-role valid, interactive-supports-focus valid, media-has-caption valid, mouse-events-have-key-events valid, no-distracting-elements valid, no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-role-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-role invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-role-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-role invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-unsupported-elements-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-unsupported-elements valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-unsupported-elements-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: aria-unsupported-elements invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-11.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-12.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-13.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-14.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-15.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-16.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-17.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-18.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-19.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-20.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-21.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-22.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events valid, no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid, no-static-element-interactions invalid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid, no-static-element-interactions invalid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid, no-static-element-interactions invalid, interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-11.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-11.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-12.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-13.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-14.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-valid-15.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-invalid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-invalid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/form-control-has-label-invalid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: form-control-has-label invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: heading-has-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/iframe-has-title-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: iframe-has-title valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/iframe-has-title-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: iframe-has-title valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/iframe-has-title-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: iframe-has-title invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/iframe-has-title-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: iframe-has-title invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/iframe-has-title-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: iframe-has-title invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-11.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-12.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-13.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-14.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-15.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-16.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-17.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-18.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-19.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-20.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-21.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-22.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-23.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-24.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-25.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-26.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-27.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-28.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-29.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-30.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-31.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-32.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-33.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-34.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-35.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-36.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-37.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-38.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-39.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-40.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-41.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-42.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-43.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-11.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-12.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-13.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-14.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-15.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-16.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-17.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-18.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-19.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-20.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-21.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-22.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-23.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-24.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-25.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-26.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-27.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-28.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-29.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-30.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-31.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-32.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-33.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-34.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-35.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-36.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-37.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-38.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-39.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-40.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-41.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-42.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-43.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-44.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-45.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-46.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-47.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-48.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-49.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-50.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-51.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-52.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-53.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-54.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-55.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-56.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-57.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-58.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-59.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-60.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-61.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-62.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-63.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-64.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-65.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-66.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-67.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-68.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-69.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-70.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-71.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-72.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-73.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-74.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-75.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-76.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-77.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-78.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-79.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-80.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-81.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-82.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-83.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-84.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-85.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-86.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-87.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-88.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-89.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-90.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-91.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-92.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-93.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-94.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-95.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-96.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-97.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-98.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-99.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-100.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-invalid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-for-invalid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: label-has-for invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-valid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption valid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption invalid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption invalid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption invalid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption invalid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-invalid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption invalid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-invalid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption invalid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-invalid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption invalid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/media-has-caption-invalid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: media-has-caption invalid",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: mouse-events-have-key-events invalid, no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: mouse-events-have-key-events invalid, no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: mouse-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: mouse-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable valid, no-role-presentation-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable valid, no-role-presentation-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable valid, no-role-presentation-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-aria-hidden-on-focusable-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-aria-hidden-on-focusable invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-distracting-elements invalid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-distracting-elements invalid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-role-presentation-on-focusable-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-role-presentation-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-role-presentation-on-focusable-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-role-presentation-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-role-presentation-on-focusable-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-role-presentation-on-focusable valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-role-presentation-on-focusable-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-role-presentation-on-focusable invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-role-presentation-on-focusable-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-role-presentation-on-focusable invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-role-presentation-on-focusable-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-role-presentation-on-focusable invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-role-presentation-on-focusable-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-role-presentation-on-focusable invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-11.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-12.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-13.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-14.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-15.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-16.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-17.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-18.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-19.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-20.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-21.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-22.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-23.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-24.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-25.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-26.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-27.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-28.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-29.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-30.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-valid-31.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-5.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-6.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-7.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-8.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-9.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-10.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-11.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-12.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-13.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-14.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-15.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-16.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-17.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-18.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-19.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-20.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-21.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-22.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/no-static-element-interactions-invalid-23.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-props-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: role-has-required-aria-props valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-props-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: role-has-required-aria-props valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-props-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: role-has-required-aria-props valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-props-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: role-has-required-aria-props valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-props-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: role-has-required-aria-props invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-props-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: role-has-required-aria-props invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-props-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: role-has-required-aria-props invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/tabindex-no-positive-valid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: tabindex-no-positive valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/tabindex-no-positive-valid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: tabindex-no-positive valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/tabindex-no-positive-valid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: tabindex-no-positive valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/tabindex-no-positive-valid-4.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: tabindex-no-positive valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/tabindex-no-positive-invalid-1.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: tabindex-no-positive invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/tabindex-no-positive-invalid-2.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: tabindex-no-positive invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/tabindex-no-positive-invalid-3.vue",
+      "languageId": "vue",
+      "note": "eslint-plugin-vuejs-accessibility rule tests: tabindex-no-positive invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": true
+        }
+      ]
+    }
+  ]
+}

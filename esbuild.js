@@ -9,7 +9,7 @@ const watch = process.argv.includes('--watch');
 const TARGET = 'node24.15';
 
 // Packages of the language engines; each must stay out of the activation shell
-const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', '@typescript-eslint', 'typescript'];
+const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', 'eslint-plugin-vuejs-accessibility', 'vue-eslint-parser', '@typescript-eslint', 'typescript', 'svelte'];
 
 // Engine bundling pitfalls that only show once bundled
 const fixEnginePitfalls = {
@@ -38,6 +38,30 @@ const fixEnginePitfalls = {
             );
             if (patched === source) {
                 throw new Error('eslint-plugin-jsx-a11y-x package.json require not found; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
+        // eslint-plugin-vuejs-accessibility's eslintrc config resolves vue-eslint-parser's path at load time,
+        // which fails inside a bundle. The Check passes the parser itself and never uses that config.
+        build.onLoad({ filter: /eslint-plugin-vuejs-accessibility[\\/]dist[\\/]configs[\\/]recommended\.js$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const patched = source.replace('parser: require.resolve("vue-eslint-parser"),', 'parser: "vue-eslint-parser",');
+            if (patched === source) {
+                throw new Error('eslint-plugin-vuejs-accessibility require.resolve not found; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
+        // vue-eslint-parser prefers espree and eslint-scope from the working directory's node_modules, which
+        // would run workspace code (ADR 0002), so the bundled copies are always used. Its require("eslint")
+        // for SourceCode would bundle ESLint's Node API; only custom blocks reach it, and no rule the Check
+        // runs visits them.
+        build.onLoad({ filter: /vue-eslint-parser[\\/]dist[\\/]index\.cjs$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const patched = source
+                .replaceAll('const cwd = process.cwd();', 'throw new Error("The Check uses its bundled parser only");')
+                .replace('new (require("eslint")).SourceCode(', 'new (() => { throw new Error("The Check does not lint custom blocks"); })(');
+            if (source.split('process.cwd()').length !== 4 || patched.includes('process.cwd()') || patched.includes('require("eslint")')) {
+                throw new Error('vue-eslint-parser working-directory or eslint require not found as expected; update the esbuild stub');
             }
             return { contents: patched, loader: 'js' };
         });

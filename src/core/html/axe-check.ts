@@ -4,7 +4,8 @@ import { JSDOM, VirtualConsole } from 'jsdom';
 import * as axe from 'axe-core/axe.min.js';
 import { normalizeRuleId } from '../rule-id-normalizer';
 import { isTargetCriterion } from '../wcag';
-import type { AnalysisResult, Finding, NeedsReview, TextRange } from '../analysis';
+import { layoutNeedsReview } from '../needs-review';
+import type { AnalysisResult, Finding, TextRange } from '../analysis';
 
 const AXE_TIMEOUT_MS = 5000;
 
@@ -54,7 +55,10 @@ async function runAxe(text: string): Promise<AnalysisResult> {
             .finally(() => clearTimeout(timer));
         return {
             findings: toFindings(text, dom, results.violations),
-            needsReview: needsReview(document)
+            needsReview: layoutNeedsReview({
+                text: Boolean(document.body?.textContent?.trim()),
+                controls: document.querySelector(INTERACTIVE) !== null
+            })
         };
     } finally {
         dom.window.close();
@@ -102,15 +106,4 @@ function locate(text: string, dom: JSDOM, node: axe.NodeResult): TextRange {
     }
     const lineEnd = text.indexOf('\n');
     return { start: 0, end: lineEnd === -1 ? text.length : lineEnd };
-}
-
-function needsReview(document: Document): NeedsReview[] {
-    const entries: NeedsReview[] = [];
-    if (document.body?.textContent?.trim()) {
-        entries.push({ criterion: '1.4.3', reason: 'Text contrast depends on rendered colors.' });
-    }
-    if (document.querySelector(INTERACTIVE)) {
-        entries.push({ criterion: '2.5.8', reason: 'Target size depends on rendered layout.' });
-    }
-    return entries;
 }

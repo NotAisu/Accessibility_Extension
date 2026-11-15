@@ -60,7 +60,7 @@ describe('analyse (HTML)', () => {
     });
 
     it('returns nothing for languages without a Check yet', async () => {
-        const result = await analyse({ languageId: 'vue', text: '<template><img src="a.png"></template>' });
+        const result = await analyse({ languageId: 'plaintext', text: '<img src="a.png">' });
 
         assert.deepStrictEqual(result, { findings: [], needsReview: [] });
     });
@@ -133,6 +133,23 @@ describe('analyse (JSX/TSX)', () => {
         assert.ok(findings.some(f => f.ruleId === 'jsx-a11y-x/alt-text'));
     });
 
+    it('lists contrast and target size as Needs Review for rendered text and controls', async () => {
+        const text = 'export const Save = ({ label }) => (\n    <form>\n        <p>{label}</p>\n        <button type="submit">Save</button>\n    </form>\n);\n';
+
+        const { needsReview } = await analyse({ languageId: 'javascriptreact', text });
+
+        assert.deepStrictEqual(needsReview.map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+        assert.ok(needsReview.every(entry => entry.reason.length > 0));
+    });
+
+    it('lists no Needs Review when nothing renders text or a control', async () => {
+        const text = 'export const Logo = () => <img src="logo.png" alt="" />;\nexport const Spacer = () => <div className="gap" />;\n';
+
+        const { needsReview } = await analyse({ languageId: 'typescriptreact', text });
+
+        assert.deepStrictEqual(needsReview, []);
+    });
+
     it('fails on unparseable code instead of reporting no Findings', async () => {
         await assert.rejects(analyse({ languageId: 'javascriptreact', text: 'const a = () => <div><img src="x" /> <' }), ParseError);
     });
@@ -147,3 +164,146 @@ describe('analyse (JSX/TSX)', () => {
         }
     });
 });
+
+describe('analyse (Vue)', () => {
+    it('reports a Check Finding at the exact source range of the template element', async () => {
+        const text = '<template>\n    <img :src="chart">\n</template>\n';
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.strictEqual(findings.length, 1);
+        const [finding] = findings;
+        assert.strictEqual(text.slice(finding.range.start, finding.range.end), '<img :src="chart">');
+        assert.deepStrictEqual(finding.criteria, ['1.1.1']);
+        assert.strictEqual(finding.ruleId, 'vuejs-accessibility/alt-text');
+        assert.strictEqual(finding.layer, 'check');
+        assert.strictEqual(finding.severity, 'warning');
+        assert.match(finding.message, /alt prop/);
+        assert.strictEqual(finding.helpUrl, 'https://vue-a11y.github.io/eslint-plugin-vuejs-accessibility/rules/alt-text.html');
+    });
+
+    it('parses <script lang="ts"> with the TypeScript parser', async () => {
+        const text = [
+            '<script setup lang="ts">',
+            'const props = defineProps<{ src: string }>();',
+            'const label = (n: number): string => `#${n}`;',
+            '</script>',
+            '<template><img :src="props.src as string"></template>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(findings.map(f => [f.ruleId, text.slice(f.range.start, f.range.end)]), [
+            ['vuejs-accessibility/alt-text', '<img :src="props.src as string">']
+        ]);
+    });
+
+    it('maps each rule to its WCAG criterion, reading directives and bindings', async () => {
+        const text = [
+            '<template>',
+            '    <main>',
+            '        <a href="/home"></a>',
+            '        <div @click="open">Open</div>',
+            '        <span :tabindex="2">x</span>',
+            '        <input type="text" v-model="name">',
+            '        <img :alt="caption" :src="src">',
+            '    </main>',
+            '</template>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(findings.map(f => [f.ruleId, f.criteria]), [
+            ['vuejs-accessibility/anchor-has-content', ['2.4.4', '4.1.2']],
+            ['vuejs-accessibility/click-events-have-key-events', ['2.1.1']],
+            ['vuejs-accessibility/no-static-element-interactions', ['4.1.2']],
+            ['vuejs-accessibility/tabindex-no-positive', ['2.4.3']],
+            ['vuejs-accessibility/form-control-has-label', ['4.1.2', '1.3.1']]
+        ]);
+    });
+
+    it('lists contrast and target size as Needs Review for rendered text and controls', async () => {
+        const text = '<template>\n    <form>\n        <p>{{ label }}</p>\n        <button type="submit">Save</button>\n    </form>\n</template>\n';
+
+        const { needsReview } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(needsReview.map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+    });
+
+    it('lists no Needs Review when the template renders no text or control', async () => {
+        const text = '<script setup>\nconst label = "Save";\n</script>\n<template>\n    <img src="logo.png" alt="">\n    <div class="gap" title="Gap"></div>\n</template>\n';
+
+        const { needsReview } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(needsReview, []);
+    });
+
+    it('fails on an unparseable script instead of reporting no Findings', async () => {
+        await assert.rejects(analyse({ languageId: 'vue', text: '<script>const a = ;</script>\n<template><img src="x"></template>' }), ParseError);
+    });
+});
+
+describe('analyse (Svelte)', () => {
+    it('reports a Svelte compiler a11y warning as a Check Finding at the exact source range', async () => {
+        const text = '<script>\n    let { src } = $props();\n</script>\n\n<img {src}>\n';
+
+        const { findings } = await analyse({ languageId: 'svelte', text });
+
+        assert.strictEqual(findings.length, 1);
+        const [finding] = findings;
+        assert.strictEqual(text.slice(finding.range.start, finding.range.end), '<img {src}>');
+        assert.deepStrictEqual(finding.criteria, ['1.1.1']);
+        assert.strictEqual(finding.ruleId, 'svelte/a11y_missing_attribute');
+        assert.strictEqual(finding.layer, 'check');
+        assert.strictEqual(finding.severity, 'warning');
+        assert.strictEqual(finding.message, '`<img>` element should have an alt attribute');
+        assert.strictEqual(finding.helpUrl, 'https://svelte.dev/e/a11y_missing_attribute');
+    });
+
+    it('lists contrast and target size as Needs Review for rendered text and controls', async () => {
+        const text = '<script>\n    let { label } = $props();\n</script>\n\n{#if label}\n    <p>{label}</p>\n{/if}\n<a href="/home">Home</a>\n';
+
+        const { needsReview } = await analyse({ languageId: 'svelte', text });
+
+        assert.deepStrictEqual(needsReview.map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+    });
+
+    it('lists no Needs Review when the markup renders no text or control', async () => {
+        const text = '<script>\n    const label = "Save";\n</script>\n\n<img src="logo.png" alt="">\n<div class="gap" title="Gap"></div>\n\n<style>\n    .gap { width: 1rem; }\n</style>\n';
+
+        const { needsReview } = await analyse({ languageId: 'svelte', text });
+
+        assert.deepStrictEqual(needsReview, []);
+    });
+
+    it('fails on unparseable code instead of reporting no Findings', async () => {
+        await assert.rejects(analyse({ languageId: 'svelte', text: '<div><img src="x">{#if a}</div>' }), ParseError);
+    });
+
+    it('maps each warning to its WCAG criterion, by element where one warning covers several', async () => {
+        const text = [
+            '<html><body></body></html>',
+            '<iframe src="/map"></iframe>',
+            '<a href="/home"></a>',
+            '<h2></h2>',
+            '<div onclick={open}>Open</div>',
+            '<input type="email" autocomplete="emial">',
+            '<span tabindex="2">x</span>',
+            '<button accesskey="s">Save</button>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'svelte', text });
+
+        assert.deepStrictEqual(findings.map(f => [f.ruleId, f.criteria]), [
+            ['svelte/a11y_missing_attribute', ['3.1.1']],
+            ['svelte/a11y_missing_attribute', ['4.1.2']],
+            ['svelte/a11y_consider_explicit_label', ['2.4.4', '4.1.2']],
+            ['svelte/a11y_missing_content', ['2.4.6', '1.3.1']],
+            ['svelte/a11y_click_events_have_key_events', ['2.1.1']],
+            ['svelte/a11y_no_static_element_interactions', ['4.1.2']],
+            ['svelte/a11y_autocomplete_valid', ['1.3.5']],
+            ['svelte/a11y_positive_tabindex', ['2.4.3']]
+        ]);
+    });
+});
+

@@ -55,10 +55,18 @@ export async function analyse(document: AnalysisDocument): Promise<AnalysisResul
     if (!document.text.trim()) return { findings: [], needsReview: [] };
     if (document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact') {
         const { checkJsx } = await import('./jsx/engine');
-        return {
-            findings: sortByPosition(checkJsx(document.text, document.languageId === 'typescriptreact')),
-            needsReview: []
-        };
+        const { findings, needsReview } = checkJsx(document.text, document.languageId === 'typescriptreact');
+        return { findings: sortByPosition(findings), needsReview };
+    }
+    if (document.languageId === 'vue') {
+        const { checkVue } = await import('./vue/engine');
+        const { findings, needsReview } = checkVue(document.text);
+        return { findings: sortByPosition(findings), needsReview };
+    }
+    if (document.languageId === 'svelte') {
+        const { checkSvelte } = await import('./svelte/engine');
+        const { findings, needsReview } = checkSvelte(document.text);
+        return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId !== 'html') return { findings: [], needsReview: [] };
     const { checkHtmlWithAxe, checkHtmlWithEslint } = await import('./html/engine');

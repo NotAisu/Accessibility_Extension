@@ -52,6 +52,80 @@
         "command": "allyproof.cancelAIReview",
         "title": "Cancel AI Review",
         "category": "Allyproof"
+      },
+      {
+        "command": "allyproof.filterFindings",
+        "title": "Filter Findings",
+        "category": "Allyproof",
+        "icon": "$(filter)"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "allyproof.findings",
+          "name": "Accessibility Findings"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "allyproof.findings",
+        "contents": "No Findings in the open files."
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "allyproof.startAIReview",
+          "when": "allyproof.aiAvailable"
+        },
+        {
+          "command": "allyproof.cancelAIReview",
+          "when": "allyproof.aiAvailable"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "allyproof.filterFindings",
+          "when": "view == allyproof.findings",
+          "group": "navigation"
+        }
+      ]
+    },
+    "languageModelTools": [
+      {
+        "name": "a11y_check",
+        "toolReferenceName": "a11y_check",
+        "displayName": "Allyproof Check",
+        "icon": "$(checklist)",
+        "canBeReferencedInPrompt": true,
+        "userDescription": "Check a file or proposed code against WCAG 2.2 AA with Allyproof's static Check.",
+        "modelDescription": "Runs Allyproof's deterministic WCAG 2.2 AA Check on frontend code and returns its Findings (1-based line, WCAG criteria, rule, severity, message, explanation, help URL) and the criteria it lists as Needs Review because the Check cannot decide them from source. Pass filePath to check a workspace file as it is open in the editor, code with languageId to check proposed code, or filePath and code to check proposed code for that file, for example to verify a fix before applying it. Call it before reviewing accessibility yourself and only review what it cannot decide.",
+        "when": "allyproof.aiAvailable",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "filePath": {
+              "type": "string",
+              "description": "Workspace-relative or absolute path of the file to check."
+            },
+            "code": {
+              "type": "string",
+              "description": "Proposed code to check instead of the file's current text."
+            },
+            "languageId": {
+              "type": "string",
+              "description": "VS Code language id of code, for example html or typescriptreact. Defaults to the language of filePath."
+            }
+          }
+        }
+      }
+    ],
+    "chatSkills": [
+      {
+        "path": "./skills/allyproof/SKILL.md",
+        "when": "allyproof.aiAvailable"
       }
     ],
     "configuration": {
@@ -99,7 +173,11 @@
     "axe-core": "4.14.0",
     "eslint": "10.15.0",
     "eslint-plugin-jsx-a11y-x": "0.2.0",
+    "eslint-plugin-vuejs-accessibility": "2.6.3",
+    "globals": "17.14.0",
     "jsdom": "26.1.0",
-    "typescript": "5.4.5"
+    "svelte": "5.57.3",
+    "typescript": "5.4.5",
+    "vue-eslint-parser": "10.4.2"
   }
 }

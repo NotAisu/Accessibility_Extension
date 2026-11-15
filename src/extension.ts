@@ -1,20 +1,27 @@
 import * as vscode from 'vscode';
 import { CheckDiagnostics } from './check-diagnostics';
 import { AIReview } from './ai-review-ui';
+import { FindingsTree } from './findings-tree';
+import { A11yCheckTool } from './a11y-check-tool';
 
 const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
 
-const check = new CheckDiagnostics();
-
 export function activate(context: vscode.ExtensionContext): void {
-    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, document => check.findingsOf(document));
+    // Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and a11y_check
+    const aiAvailable = typeof vscode.lm?.registerTool === 'function';
+    const tree = new FindingsTree(aiAvailable);
+    const check = new CheckDiagnostics(tree);
+    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, document => check.findingsOf(document), tree);
+    const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document);
 
     context.subscriptions.push(
+        tree,
         check,
         aiReview,
         vscode.languages.registerHoverProvider(SUPPORTED_LANGUAGES, check),
         vscode.commands.registerCommand('allyproof.startAIReview', () => aiReview.start()),
         vscode.commands.registerCommand('allyproof.cancelAIReview', () => aiReview.cancel()),
+        vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),
         vscode.workspace.onDidOpenTextDocument(runDiagnostics),
         vscode.workspace.onDidSaveTextDocument(async document => {
             await runDiagnostics(document);
@@ -25,16 +32,19 @@ export function activate(context: vscode.ExtensionContext): void {
             aiReview.delete(document.uri);
         })
     );
-    // Editors without the language model API (some VS Code forks) keep the "Set up AI Review" hint
-    if (typeof vscode.lm?.onDidChangeChatModels === 'function') {
-        context.subscriptions.push(vscode.lm.onDidChangeChatModels(() => void aiReview.showIdle()));
+    if (aiAvailable) {
+        void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', true);
+        context.subscriptions.push(
+            vscode.lm.onDidChangeChatModels(() => void aiReview.showIdle()),
+            vscode.lm.registerTool('a11y_check', new A11yCheckTool(SUPPORTED_LANGUAGES, document => check.checkFor(document)))
+        );
     }
 
     check.start(context.asAbsolutePath('dist/worker.mjs'));
     vscode.window.visibleTextEditors.forEach(editor => void runDiagnostics(editor.document));
 }
 
-async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
+async function checkDocument(check: CheckDiagnostics, document: vscode.TextDocument): Promise<void> {
     if (!SUPPORTED_LANGUAGES.includes(document.languageId)) return;
     try {
         await check.update(document);

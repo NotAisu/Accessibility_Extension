@@ -1,0 +1,147 @@
+import type { Finding, NeedsReview } from './core/analysis';
+import { criterionName } from './core/wcag';
+
+// The Findings tree and status bar summary as plain data; findings-tree.ts shows them in VS Code
+
+export type Filter = 'check' | 'ai-review' | 'needs-review';
+
+export interface LocatedFinding {
+    finding: Finding;
+    /** 1-based line of the Finding's start. */
+    line: number;
+}
+
+export interface FileFindings {
+    uri: string;
+    name: string;
+    /** Check and AI Review Findings. */
+    findings: LocatedFinding[];
+    needsReview: NeedsReview[];
+    /** Why the Check is paused for this file; its last Findings stay. */
+    paused?: string;
+}
+
+interface NodeText {
+    label: string;
+    description?: string;
+    /** What a screen reader announces for the node. */
+    accessibilityLabel: string;
+    children?: TreeNode[];
+    /** Starts collapsed; nodes with children start expanded otherwise. */
+    collapsed?: boolean;
+}
+
+export type TreeNode = NodeText & (
+    | { kind: 'file'; uri: string }
+    | { kind: 'criterion'; criterion: string }
+    | { kind: 'finding'; uri: string; finding: Finding; line: number }
+    | { kind: 'needs-review' }
+    | { kind: 'needs-review-entry'; entry: NeedsReview }
+    | { kind: 'paused'; reason: string }
+);
+
+export function findingsTree(files: FileFindings[], filters: ReadonlySet<Filter>): TreeNode[] {
+    return files
+        .map((file): TreeNode => {
+            const children = fileChildren(file, filters);
+            const findings = children.filter(node => node.kind === 'criterion').reduce((sum, node) => sum + node.children!.length, 0);
+            const parts = [file.name, count(findings, 'Finding')];
+            if (file.paused !== undefined) parts.push('Check paused');
+            if (filters.has('needs-review') && file.needsReview.length > 0) parts.push(`${file.needsReview.length} Needs Review`);
+            return { kind: 'file', uri: file.uri, label: file.name, accessibilityLabel: parts.join(', '), children };
+        })
+        .filter(node => node.children!.length > 0);
+}
+
+function fileChildren(file: FileFindings, filters: ReadonlySet<Filter>): TreeNode[] {
+    const findings = file.findings.filter(({ finding }) => filters.has(finding.layer));
+    const children = byCriterion(file.uri, findings);
+    // A paused Check must never read as "no Findings", so it shows whatever the filters
+    if (file.paused !== undefined) {
+        children.unshift({
+            kind: 'paused',
+            reason: file.paused,
+            label: 'Check paused',
+            description: file.paused,
+            accessibilityLabel: `Check paused: ${file.paused}. The last Findings stay.`
+        });
+    }
+    if (filters.has('needs-review') && file.needsReview.length > 0) {
+        // Collapsed and never in the editor: it lists what is left to verify, not problems
+        children.push({
+            kind: 'needs-review',
+            label: 'Needs Review',
+            collapsed: true,
+            accessibilityLabel: `Needs Review, ${count(file.needsReview.length, 'criterion', 'criteria')} the Check cannot decide`,
+            children: file.needsReview.map(entry => ({
+                kind: 'needs-review-entry',
+                entry,
+                label: `${entry.criterion} ${criterionName(entry.criterion)}`,
+                description: entry.reason,
+                accessibilityLabel: `Needs Review: WCAG ${entry.criterion} ${criterionName(entry.criterion)}. ${entry.reason}`
+            }))
+        });
+    }
+    return children;
+}
+
+function byCriterion(uri: string, located: LocatedFinding[]): TreeNode[] {
+    const groups = new Map<string, LocatedFinding[]>();
+    for (const item of located) {
+        const [criterion] = item.finding.criteria;
+        groups.set(criterion, [...groups.get(criterion) ?? [], item]);
+    }
+    return [...groups].sort(([a], [b]) => compareCriteria(a, b)).map(([criterion, findings]) => ({
+        kind: 'criterion',
+        criterion,
+        label: `${criterion} ${criterionName(criterion)}`,
+        accessibilityLabel: `WCAG ${criterion} ${criterionName(criterion)}, ${count(findings.length, 'Finding')}`,
+        children: findings.map(({ finding, line }) => ({
+            kind: 'finding',
+            uri,
+            finding,
+            line,
+            label: finding.message,
+            description: finding.layer === 'ai-review' ? `Line ${line} · AI` : `Line ${line}`,
+            accessibilityLabel: `${LAYER_NAME[finding.layer]} Finding: ${finding.message}, line ${line}`
+        }))
+    }));
+}
+
+const LAYER_NAME: Record<Finding['layer'], string> = { 'check': 'Check', 'ai-review': 'AI Review' };
+
+function count(n: number, one: string, many = `${one}s`): string {
+    return `${n} ${n === 1 ? one : many}`;
+}
+
+export interface StatusSummary {
+    /** With codicons. */
+    text: string;
+    tooltip: string;
+    accessibilityLabel: string;
+}
+
+const SHOW = 'Click to show the Findings.';
+
+/** The status bar item for the current file. */
+export function statusSummary(file: FileFindings): StatusSummary {
+    if (file.paused !== undefined) {
+        const detail = `${file.paused}. The last Findings stay.`;
+        return { text: '$(debug-pause) Check paused', tooltip: `${detail} ${SHOW}`, accessibilityLabel: `Accessibility: Check paused: ${detail}` };
+    }
+    const total = file.findings.length;
+    const check = file.findings.filter(({ finding }) => finding.layer === 'check').length;
+    const needsReview = file.needsReview.length === 0 ? '' : ` ${count(file.needsReview.length, 'criterion Needs', 'criteria Need')} Review.`;
+    const detail = (total === 0 ? 'No Findings.' : `${check} Check, ${total - check} AI Review.`) + needsReview;
+    return {
+        text: total === 0 ? '$(pass) No Findings' : `$(warning) ${count(total, 'Finding')}`,
+        tooltip: `${detail} ${SHOW}`,
+        accessibilityLabel: total === 0 ? `Accessibility: ${detail}` : `Accessibility: ${count(total, 'Finding')}, ${detail}`
+    };
+}
+
+// "1.4.10" after "1.4.3"
+function compareCriteria(a: string, b: string): number {
+    const [x, y] = [a, b].map(c => c.split('.').map(Number));
+    return x[0] - y[0] || x[1] - y[1] || x[2] - y[2];
+}
