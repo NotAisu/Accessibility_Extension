@@ -1,6 +1,7 @@
-# Ship only the bundle and the files vsce adds itself (package.json, README, LICENSE)
+# Ship only the bundle, the Skill and the files vsce adds itself (package.json, README, LICENSE)
 **
 !dist/*.mjs
 !dist/chunks/*.mjs
+!skills/**
 !README.md
 !LICENSE

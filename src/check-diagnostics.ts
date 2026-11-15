@@ -33,6 +33,10 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         this.collection.set(document.uri, reported.map(({ range, finding }) => toDiagnostic(range, finding)));
     }
 
+    findings(uri: vscode.Uri): Finding[] {
+        return (this.reported.get(uri.toString()) ?? []).map(r => r.finding);
+    }
+
     delete(uri: vscode.Uri): void {
         this.reported.delete(uri.toString());
         this.collection.delete(uri);

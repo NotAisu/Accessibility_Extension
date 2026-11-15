@@ -49,86 +49,18 @@
         "category": "Allyproof"
       },
       {
-        "command": "allyproof.fixWithAI",
-        "title": "Fix with AI",
-        "category": "Allyproof"
-      },
-      {
-        "command": "allyproof.testConnection",
-        "title": "Test AI Connection",
-        "category": "Allyproof"
-      },
-      {
-        "command": "allyproof.clearRecentAIMemory",
-        "title": "Clear Recent AI Fix Memory",
+        "command": "allyproof.cancelAIReview",
+        "title": "Cancel AI Review",
         "category": "Allyproof"
       }
     ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "allyproof.fixWithAI",
-          "when": "false"
-        }
-      ]
-    },
     "configuration": {
       "title": "Allyproof",
       "properties": {
-        "accessibility.aiProvider": {
-          "type": "string",
-          "default": "local",
-          "enum": [
-            "local",
-            "github-copilot"
-          ],
-          "description": "AI provider for accessibility fixes"
-        },
-        "accessibility.aiAnalyzer.enabled": {
+        "allyproof.aiReview.auto": {
           "type": "boolean",
           "default": false,
-          "description": "Enable AI Review for WCAG problems a Check cannot detect"
-        },
-        "accessibility.aiAnalyzer.scope": {
-          "type": "string",
-          "default": "visible",
-          "enum": [
-            "visible",
-            "document"
-          ],
-          "description": "Analysis scope: visible code only or complete document"
-        },
-        "accessibility.aiAnalyzer.recentFixSuppressionTTL": {
-          "type": "number",
-          "default": 300000,
-          "description": "TTL in ms for suppressing re-reporting of recently AI-fixed lines (set 0 to disable)"
-        },
-        "accessibility.localLLM.endpoint": {
-          "type": "string",
-          "default": "http://127.0.0.1:1234",
-          "description": "Local LLM server endpoint (LM Studio, Ollama, etc.)"
-        },
-        "accessibility.localLLM.model": {
-          "type": "string",
-          "default": "mistralai/devstral-small-2507",
-          "description": "Local LLM model identifier"
-        },
-        "accessibility.githubCopilot.model": {
-          "type": "string",
-          "default": "gpt-4o",
-          "enum": [
-            "gpt-4.1",
-            "gpt-4o",
-            "claude-3.5-sonnet",
-            "claude-3.7-sonnet",
-            "claude-3.7-sonnet-thinking",
-            "claude-4-sonnet",
-            "gemini-2.0-flash",
-            "gemini-2.5-pro",
-            "o3-mini",
-            "o4-mini"
-          ],
-          "description": "GitHub Copilot model selection"
+          "description": "Also start an AI Review of the active file when it is saved. Off by default: code is only sent to the AI provider when you start a review."
         }
       }
     }

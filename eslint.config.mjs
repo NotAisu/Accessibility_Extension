@@ -1,8 +1,5 @@
 import tseslint from 'typescript-eslint';
 
-// Pre-rebuild AI code, replaced by the AI Review module (#18); remove from this list when it goes
-const LEGACY = ['src/extension.ts', 'src/ai/**', 'src/llm/**'];
-
 export default tseslint.config(
     { ignores: ['out', 'dist', '**/*.d.ts'] },
     {
@@ -21,28 +18,13 @@ export default tseslint.config(
         }
     },
     {
-        // The analysis core runs outside VS Code: in tests, the ground-truth gate and the analysis worker
-        files: ['src/core/**/*.ts'],
+        // The analysis core runs outside VS Code: in tests, the ground-truth gate and the analysis worker.
+        // The AI Review module too: it runs against a fake model port in tests and the AI benchmark.
+        files: ['src/core/**/*.ts', 'src/review/**/*.ts'],
         rules: {
             'no-restricted-imports': ['error', {
                 paths: [{ name: 'vscode', message: 'The analysis core has no VS Code dependency; adapt in the extension layer.' }]
             }]
-        }
-    },
-    {
-        files: LEGACY,
-        rules: {
-            '@typescript-eslint/no-explicit-any': 'off',
-            '@typescript-eslint/no-unsafe-argument': 'off',
-            '@typescript-eslint/no-unsafe-assignment': 'off',
-            '@typescript-eslint/no-unsafe-call': 'off',
-            '@typescript-eslint/no-unsafe-member-access': 'off',
-            '@typescript-eslint/no-unsafe-return': 'off',
-            '@typescript-eslint/no-unused-vars': 'off',
-            '@typescript-eslint/require-await': 'off',
-            '@typescript-eslint/no-unnecessary-type-assertion': 'off',
-            '@typescript-eslint/no-require-imports': 'off',
-            '@typescript-eslint/no-misused-promises': 'off'
         }
     }
 );
