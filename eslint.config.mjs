@@ -1,7 +1,8 @@
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-    { ignores: ['out', 'dist', '**/*.d.ts'] },
+    // Ground-truth cases are checked code, not project code
+    { ignores: ['out', 'dist', '**/*.d.ts', 'test/ground-truth/*/cases'] },
     {
         files: ['**/*.ts'],
         extends: [tseslint.configs.recommendedTypeChecked],

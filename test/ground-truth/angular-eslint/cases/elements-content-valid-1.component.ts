@@ -1,0 +1,23 @@
+import { Component } from '@angular/core';
+
+@Component({
+    selector: 'app-case',
+    template: `
+    <h1>Heading Content!</h1>
+    <h2><app-content></app-content></h2>
+    <h3 [innerHtml]="dangerouslySetHTML"></h3>
+    <h4 [innerText]="text"></h4>
+    <a>Anchor Content!</a>
+    <a><app-content></app-content></a>
+    <a [innerHTML]="dangerouslySetHTML"></a>
+    <a [innerText]="text"></a>
+    <a [outerHTML]="text"></a>
+    <a [textContent]="text"></a>
+    <a aria-hidden></a>
+    <button [attr.aria-hidden]="true"></button>
+    <button [textContent]="dynamicText"></button>
+    <h5 [attr.aria-label]="text"></h5>
+    <h6 title="text"></h6>
+  `
+})
+export class CaseComponent {}

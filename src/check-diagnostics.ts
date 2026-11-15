@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { AnalysisWorker, CheckOutcome } from './analysis-worker';
-import { AnalysisDocument, Finding } from './core/analysis';
+import { AnalysisDocument, checkLanguageId, Finding } from './core/analysis';
 import { criterionName, criterionUrl } from './core/wcag';
 import type { FindingsTree } from './findings-tree';
 
@@ -37,7 +37,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         const uri = document.uri.toString();
         if (!this.worker || (document.isDirty && this.onSaveOnly.has(uri))) return;
         const version = document.version;
-        const outcome = await this.worker.check(uri, { languageId: document.languageId, text: document.getText() });
+        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() });
         // A missed deadline counts even when the document changed meanwhile
         if (outcome.status === 'paused' && outcome.deadlineExceeded) this.onSaveOnly.add(uri);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;

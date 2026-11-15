@@ -23,7 +23,8 @@
     "html",
     "react",
     "vue",
-    "svelte"
+    "svelte",
+    "angular"
   ],
   "engines": {
     "vscode": "^1.123.0"
@@ -38,7 +39,8 @@
     "onLanguage:vue",
     "onLanguage:svelte",
     "onLanguage:javascriptreact",
-    "onLanguage:typescriptreact"
+    "onLanguage:typescriptreact",
+    "onLanguage:typescript"
   ],
   "main": "./dist/extension.mjs",
   "contributes": {
@@ -116,7 +118,7 @@
             },
             "languageId": {
               "type": "string",
-              "description": "VS Code language id of code, for example html or typescriptreact. Defaults to the language of filePath."
+              "description": "Language id of code, for example html, typescriptreact or angular for an Angular component template. Defaults to the language of filePath."
             }
           }
         }
@@ -167,6 +169,8 @@
     "typescript-eslint": "8.72.2"
   },
   "dependencies": {
+    "@angular-eslint/eslint-plugin-template": "22.6.0",
+    "@angular-eslint/template-parser": "22.6.0",
     "@html-eslint/eslint-plugin": "0.68.0",
     "@html-eslint/parser": "0.68.0",
     "@typescript-eslint/parser": "8.72.2",

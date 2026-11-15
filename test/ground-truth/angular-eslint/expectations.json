@@ -1,0 +1,3753 @@
+{
+  "source": "https://github.com/angular-eslint/angular-eslint/tree/7722ad2ab4da81568f19a7a29a3951fa443bf22c (v22.6.0)",
+  "cases": [
+    {
+      "file": "cases/alt-text-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-7.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-7.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-8.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-8.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-9.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-9.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-10.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-10.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-11.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-11.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-12.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-12.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-13.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-13.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-14.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-14.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-15.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-15.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-16.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-16.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-17.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-17.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-18.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-18.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-19.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-19.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-20.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-20.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-21.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-21.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-22.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-22.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-23.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-23.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-24.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-24.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-25.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-valid-25.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text valid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/alt-text-invalid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: alt-text invalid",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-valid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-7.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-7.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-8.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-8.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-9.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-9.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-10.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-10.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-11.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-11.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-12.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-12.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: click-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: elements-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: elements-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: elements-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: elements-content valid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: elements-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "line": 2
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: elements-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "line": 6
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: elements-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "line": 2
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: elements-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "line": 6
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-invalid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: elements-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 2
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-invalid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: elements-content invalid",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 6
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-invalid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: elements-content invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/elements-content-invalid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: elements-content invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-7.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-7.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-8.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-8.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-9.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-9.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-10.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-10.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-11.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-11.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-12.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-12.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-13.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-13.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-14.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-14.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-15.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-15.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-16.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-16.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-17.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-17.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-18.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-18.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-19.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-valid-19.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-7.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-7.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-8.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-8.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-9.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-9.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-10.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-10.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-11.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-11.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-12.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-12.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-13.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/interactive-supports-focus-invalid-13.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: interactive-supports-focus invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: label-has-associated-control valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: label-has-associated-control valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: label-has-associated-control valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: label-has-associated-control valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: label-has-associated-control invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 2
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: label-has-associated-control invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 6
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: label-has-associated-control invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 2
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: label-has-associated-control invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 6
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-valid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: mouse-events-have-key-events valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: mouse-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: mouse-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: mouse-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/mouse-events-have-key-events-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: mouse-events-have-key-events invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-distracting-elements valid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-distracting-elements valid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-distracting-elements invalid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-distracting-elements invalid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-distracting-elements invalid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-distracting-elements invalid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-invalid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-distracting-elements invalid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/no-distracting-elements-invalid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-distracting-elements invalid",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-7.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-7.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-8.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-8.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-9.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-9.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-10.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-10.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-11.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-valid-11.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex valid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-invalid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: no-positive-tabindex invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/no-positive-tabindex-invalid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: no-positive-tabindex invalid",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-7.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-valid-7.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: role-has-required-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/role-has-required-aria-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: role-has-required-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-7.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-7.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-8.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-valid-8.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope valid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-invalid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: table-scope invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/table-scope-invalid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: table-scope invalid",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-5.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-5.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-6.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-6.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-7.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-7.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-8.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-8.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-9.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-9.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-10.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-10.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-11.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-11.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-12.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-12.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-13.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-13.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-14.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-14.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-15.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-15.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-16.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-16.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-17.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-17.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-18.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-18.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-19.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-19.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-20.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-20.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-21.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-21.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-22.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-22.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-23.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-valid-23.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria valid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-invalid-1.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 4
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-invalid-1.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 10
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-invalid-2.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-invalid-2.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-invalid-3.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 4
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 10
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 12
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-invalid-3.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 10
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 12
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 14
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 16
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 18
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-invalid-4.component.html",
+      "languageId": "angular",
+      "note": "@angular-eslint/eslint-plugin-template rule tests: valid-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 2
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 4
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "cases/valid-aria-invalid-4.component.ts",
+      "languageId": "typescript",
+      "note": "@angular-eslint/eslint-plugin-template rule tests, as an inline template: valid-aria invalid",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 10
+        }
+      ]
+    }
+  ]
+}

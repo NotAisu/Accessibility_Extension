@@ -1,0 +1,21 @@
+import { Component } from '@angular/core';
+
+@Component({
+    selector: 'app-case',
+    template: `
+      <div role="button" tabindex="0" (click)="onClick()"></div>
+      <div role="checkbox" tabindex="0" (click)="onClick()"></div>
+      <div role="link" tabindex="0" (click)="onClick()"></div>
+      <div role="menuitem" tabindex="0" (click)="onClick()"></div>
+      <div role="checkbox" tabindex="0" (click)="onClick()"></div>
+      <div role="menuitem" tabindex="0" (click)="onClick()"></div>
+      <div role="option" tabindex="0" (click)="onClick()"></div>
+      <div role="radio" tabindex="0" (click)="onClick()"></div>
+      <div role="spinbutton" tabindex="0" (click)="onClick()"></div>
+      <div role="switch" tabindex="0" (click)="onClick()"></div>
+      <div role="tablist" tabindex="0" (click)="onClick()"></div>
+      <div role="tab" tabindex="0" (click)="onClick()"></div>
+      <div role="textbox" tabindex="0" (click)="onClick()"></div>
+    `
+})
+export class CaseComponent {}

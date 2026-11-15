@@ -1,0 +1,21 @@
+import { Component } from '@angular/core';
+
+@Component({
+    selector: 'app-case',
+    template: `
+        <input (click)="onClick()">
+        <button (click)="onClick()"></button>
+        <textarea (click)="onClick()"></textarea>
+        <select (click)="onClick()">
+          <option (click)="onClick()"></option>
+        </select>
+        <textarea (click)="onClick()"></textarea>
+        <a href="#" (click)="onClick()"></a>
+        <a [attr.href]="href" class="anchor" (click)="onClick()"></a>
+        <a [routerLink]="'route'" (click)="onClick()"></a>
+        <div role="button" (click)="doSomething()"></div>
+        <span role="button" (click)="doSomething()"></span>
+        <p role="button" (click)="doSomething()"></p>
+      `
+})
+export class CaseComponent {}

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { AnalysisDocument, Finding } from './core/analysis';
+import { checkLanguageId, type AnalysisDocument, type Finding } from './core/analysis';
 import { criterionUrl } from './core/wcag';
 import { selectCopilotModel } from './copilot-model';
 import { GateReport, ModelError, ModelPort, ReviewCache, review } from './review/ai-review';
@@ -57,7 +57,7 @@ export class AIReview implements vscode.Disposable {
         const version = document.version;
         this.show('$(loading~spin) AI Review…', `Reviewing with ${model.name}. Click to cancel.`, 'allyproof.cancelAIReview');
         try {
-            const reviewed = { languageId: document.languageId, text: document.getText() };
+            const reviewed = { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() };
             const { findings, gate } = await review(
                 { document: reviewed, checkFindings: await this.checkFindings(reviewed) },
                 {

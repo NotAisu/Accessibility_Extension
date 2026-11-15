@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import type { CheckOutcome } from './analysis-worker';
-import type { AnalysisDocument } from './core/analysis';
+import { checkLanguageId, type AnalysisDocument } from './core/analysis';
 import { CheckToolInput, runCheckTool } from './review/check-tool';
 
 /** The Language Model Tool `a11y_check`: the Check for agents, on files or proposed code. */
@@ -22,7 +22,7 @@ export class A11yCheckTool implements vscode.LanguageModelTool<CheckToolInput> {
             languages: this.languages,
             read: async filePath => {
                 const document = await vscode.workspace.openTextDocument(resolve(filePath));
-                return { languageId: document.languageId, text: document.getText() };
+                return { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() };
             },
             check: this.check
         });

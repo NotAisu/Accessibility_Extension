@@ -9,7 +9,7 @@ const watch = process.argv.includes('--watch');
 const TARGET = 'node24.15';
 
 // Packages of the language engines; each must stay out of the activation shell
-const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', 'eslint-plugin-vuejs-accessibility', 'vue-eslint-parser', '@typescript-eslint', 'typescript', 'svelte'];
+const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', 'eslint-plugin-vuejs-accessibility', 'vue-eslint-parser', '@typescript-eslint', 'typescript', 'svelte', '@angular-eslint'];
 
 // Engine bundling pitfalls that only show once bundled
 const fixEnginePitfalls = {
@@ -62,6 +62,16 @@ const fixEnginePitfalls = {
                 .replace('new (require("eslint")).SourceCode(', 'new (() => { throw new Error("The Check does not lint custom blocks"); })(');
             if (source.split('process.cwd()').length !== 4 || patched.includes('process.cwd()') || patched.includes('require("eslint")')) {
                 throw new Error('vue-eslint-parser working-directory or eslint require not found as expected; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
+        // @typescript-eslint/utils exports TSESLint, wrappers around ESLint's Node API (ESLint, Linter,
+        // RuleTester) that would bundle its config loader. @angular-eslint's rules never use them.
+        build.onLoad({ filter: /@typescript-eslint[\\/]utils[\\/]dist[\\/]index\.js$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const patched = source.replace('exports.TSESLint = __importStar(require("./ts-eslint"));', 'exports.TSESLint = {};');
+            if (patched === source) {
+                throw new Error('@typescript-eslint/utils TSESLint export not found; update the esbuild stub');
             }
             return { contents: patched, loader: 'js' };
         });

@@ -4,7 +4,10 @@ import { AIReview } from './ai-review-ui';
 import { FindingsTree } from './findings-tree';
 import { A11yCheckTool } from './a11y-check-tool';
 
-const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
+// VS Code language ids; TypeScript files hold inline Angular templates
+const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact', 'typescript'];
+// What a11y_check accepts for proposed code: the Check's own ids, `angular` for an Angular component template
+const CHECK_LANGUAGES = [...SUPPORTED_LANGUAGES, 'angular'];
 
 export function activate(context: vscode.ExtensionContext): void {
     // Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and a11y_check
@@ -36,7 +39,7 @@ export function activate(context: vscode.ExtensionContext): void {
         void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', true);
         context.subscriptions.push(
             vscode.lm.onDidChangeChatModels(() => void aiReview.showIdle()),
-            vscode.lm.registerTool('a11y_check', new A11yCheckTool(SUPPORTED_LANGUAGES, document => check.checkFor(document)))
+            vscode.lm.registerTool('a11y_check', new A11yCheckTool(CHECK_LANGUAGES, document => check.checkFor(document)))
         );
     }
 

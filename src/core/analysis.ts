@@ -38,6 +38,14 @@ export interface AnalysisDocument {
     text: string;
 }
 
+/**
+ * The language id the Check analyses a file as. VS Code has no language for Angular component templates,
+ * which are HTML files named *.component.html; they are checked as `angular`.
+ */
+export function checkLanguageId(languageId: string, fileName: string): string {
+    return languageId === 'html' && /\.component\.html$/i.test(fileName) ? 'angular' : languageId;
+}
+
 export interface AnalysisResult {
     findings: Finding[];
     needsReview: NeedsReview[];
@@ -66,6 +74,15 @@ export async function analyse(document: AnalysisDocument): Promise<AnalysisResul
     if (document.languageId === 'svelte') {
         const { checkSvelte } = await import('./svelte/engine');
         const { findings, needsReview } = checkSvelte(document.text);
+        return { findings: sortByPosition(findings), needsReview };
+    }
+    // Angular component templates are inline in TypeScript files that call @Component(; other files never
+    // load the engine
+    if (document.languageId === 'typescript' && !document.text.includes('@Component(')) return { findings: [], needsReview: [] };
+    if (document.languageId === 'angular' || document.languageId === 'typescript') {
+        const { checkAngularTemplate, checkAngularComponents } = await import('./angular/engine');
+        const check = document.languageId === 'angular' ? checkAngularTemplate : checkAngularComponents;
+        const { findings, needsReview } = check(document.text);
         return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId !== 'html') return { findings: [], needsReview: [] };

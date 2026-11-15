@@ -18,7 +18,7 @@ function random(seed: number): () => number {
 // Ground-truth files per language; a new language gets fuzzed as soon as it has ground truth
 function samplesByLanguage(): Map<string, string[]> {
     const samples = new Map<string, string[]>();
-    for (const set of ['act', 'jsx-a11y', 'own', 'svelte']) {
+    for (const set of ['act', 'jsx-a11y', 'own', 'svelte', 'angular-eslint']) {
         const dir = path.join(GROUND_TRUTH, set);
         const { cases } = JSON.parse(fs.readFileSync(path.join(dir, 'expectations.json'), 'utf-8')) as GroundTruthSet;
         for (const testCase of cases) {
