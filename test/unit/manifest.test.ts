@@ -10,6 +10,8 @@ interface Manifest {
     license: string;
     pricing: string;
     repository?: { url?: string };
+    extensionKind?: string[];
+    capabilities?: { untrustedWorkspaces?: { supported: boolean | string; restrictedConfigurations?: string[] } };
     keywords?: string[];
     categories?: string[];
     contributes: {
@@ -17,6 +19,7 @@ interface Manifest {
         views?: Record<string, { id: string; type?: string }[]>;
         languageModelTools?: { name: string; when?: string }[];
         chatSkills?: { path: string; when?: string }[];
+        configuration: { properties: Record<string, { enum?: string[]; default?: unknown }> };
     };
 }
 
@@ -74,6 +77,21 @@ describe('manifest', () => {
             if (!file.endsWith('.ts')) continue;
             assert.doesNotMatch(fs.readFileSync(path.join(root, 'src', file), 'utf-8'), /createWebviewPanel|registerWebview/, file);
         }
+    });
+
+    it('lets AI Review use Copilot or a local model, with endpoint and model out of reach of untrusted workspaces', () => {
+        const settings = manifest.contributes.configuration.properties;
+        assert.deepStrictEqual(settings['allyproof.aiReview.provider'].enum, ['copilot', 'local']);
+        assert.strictEqual(settings['allyproof.aiReview.provider'].default, 'copilot');
+        const restricted = ['allyproof.aiReview.localEndpoint', 'allyproof.aiReview.localModel'];
+        for (const key of restricted) assert.ok(settings[key], key);
+        const trust = manifest.capabilities?.untrustedWorkspaces;
+        assert.strictEqual(trust?.supported, 'limited');
+        assert.deepStrictEqual(trust.restrictedConfigurations, restricted);
+    });
+
+    it('runs on the UI side or in the remote workspace', () => {
+        assert.deepStrictEqual(manifest.extensionKind, ['ui', 'workspace']);
     });
 
     it('carries the Marketplace identity', () => {
