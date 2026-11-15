@@ -3,6 +3,7 @@ import { CheckDiagnostics } from './check-diagnostics';
 import { AIReview } from './ai-review-ui';
 import { FindingsTree } from './findings-tree';
 import { A11yCheckTool } from './a11y-check-tool';
+import { CheckFixes } from './check-fixes';
 
 const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
 
@@ -11,6 +12,7 @@ export function activate(context: vscode.ExtensionContext): void {
     const aiAvailable = typeof vscode.lm?.registerTool === 'function';
     const tree = new FindingsTree(aiAvailable);
     const check = new CheckDiagnostics(tree);
+    const fixes = new CheckFixes(check);
     const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, document => check.findingsOf(document), tree);
     const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document);
 
@@ -19,6 +21,8 @@ export function activate(context: vscode.ExtensionContext): void {
         check,
         aiReview,
         vscode.languages.registerHoverProvider(SUPPORTED_LANGUAGES, check),
+        vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, fixes, CheckFixes.metadata),
+        vscode.workspace.onWillSaveTextDocument(event => fixes.fixOnSave(event)),
         vscode.commands.registerCommand('allyproof.startAIReview', () => aiReview.start()),
         vscode.commands.registerCommand('allyproof.cancelAIReview', () => aiReview.cancel()),
         vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),

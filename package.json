@@ -172,6 +172,11 @@
           "type": "string",
           "default": "",
           "description": "Model the local server runs AI Review with, for example qwen2.5-coder. Empty uses the first model the server lists."
+        },
+        "allyproof.check.fixOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Apply the Check's deterministic fixes (such as a missing lang) when a file is saved. Off by default: Allyproof never changes your code unless you ask. They are also available as quick fixes and under source.fixAll."
         }
       }
     }

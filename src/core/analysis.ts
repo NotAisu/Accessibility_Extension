@@ -1,3 +1,5 @@
+import { withFixes } from './fixes';
+
 /** Character offsets into the analysed text, end exclusive. */
 export interface TextRange {
     start: number;
@@ -52,6 +54,11 @@ export class ParseError extends Error {
 }
 
 export async function analyse(document: AnalysisDocument): Promise<AnalysisResult> {
+    const { findings, needsReview } = await check(document);
+    return { findings: withFixes(document.text, findings), needsReview };
+}
+
+async function check(document: AnalysisDocument): Promise<AnalysisResult> {
     if (!document.text.trim()) return { findings: [], needsReview: [] };
     if (document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact') {
         const { checkJsx } = await import('./jsx/engine');
