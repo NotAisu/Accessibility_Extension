@@ -70,7 +70,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         this.reported.delete(uri.toString());
         this.onSaveOnly.delete(uri.toString());
         this.collection.delete(uri);
-        this.tree.delete(uri);
+        this.tree.deleteCheck(uri);
     }
 
     provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.Hover | undefined {

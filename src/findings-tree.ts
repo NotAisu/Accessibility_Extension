@@ -1,14 +1,21 @@
 import * as vscode from 'vscode';
-import type { AnalysisResult, Finding } from './core/analysis';
+import type { AnalysisResult, Finding, Severity } from './core/analysis';
 import { FileFindings, Filter, findingsTree, LocatedFinding, statusSummary, TreeNode } from './findings-view';
 
 const VIEW_ID = 'allyproof.findings';
 
-const FILTERS: { filter: Filter; label: string }[] = [
+const ALL_FILTERS: { filter: Filter; label: string }[] = [
     { filter: 'check', label: 'Check' },
     { filter: 'ai-review', label: 'AI' },
     { filter: 'needs-review', label: 'Needs Review' }
 ];
+
+// The Problems panel's icons, so a Check Finding reads as the diagnostic it mirrors
+const SEVERITY_ICONS: Record<Severity, [icon: string, color: string]> = {
+    error: ['error', 'problemsErrorIcon.foreground'],
+    warning: ['warning', 'problemsWarningIcon.foreground'],
+    information: ['info', 'problemsInfoIcon.foreground']
+};
 
 interface FileState {
     name: string;
@@ -21,14 +28,18 @@ interface FileState {
 /** The Findings tree and the current file's status bar summary; Needs Review is shown only here. */
 export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.Disposable {
     private readonly files = new Map<string, FileState>();
-    private filters = new Set<Filter>(FILTERS.map(({ filter }) => filter));
+    private readonly offered: typeof ALL_FILTERS;
+    private filters: Set<Filter>;
     private readonly changed = new vscode.EventEmitter<undefined>();
     readonly onDidChangeTreeData = this.changed.event;
     private readonly view = vscode.window.createTreeView(VIEW_ID, { treeDataProvider: this, showCollapseAll: true });
     private readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
     private readonly activeEditorChange = vscode.window.onDidChangeActiveTextEditor(() => this.showStatus());
 
-    constructor() {
+    /** `aiAvailable`: whether the editor supports AI Review; without it the tree offers no AI filter. */
+    constructor(aiAvailable: boolean) {
+        this.offered = ALL_FILTERS.filter(({ filter }) => aiAvailable || filter !== 'ai-review');
+        this.filters = new Set(this.offered.map(({ filter }) => filter));
         this.status.name = 'Allyproof Findings';
         this.status.command = `${VIEW_ID}.focus`;
     }
@@ -52,19 +63,31 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
         this.refresh();
     }
 
-    delete(uri: vscode.Uri): void {
-        if (this.files.delete(uri.toString())) this.refresh();
+    /** Clears the Check's Findings and Needs Review; the AI Findings follow the AI diagnostics instead. */
+    deleteCheck(uri: vscode.Uri): void {
+        const state = this.files.get(uri.toString());
+        if (!state) return;
+        Object.assign(state, { check: [], needsReview: [], paused: undefined });
+        this.removeIfEmpty(uri, state);
+    }
+
+    /** Clears the AI Findings, whenever the AI diagnostics of the document are cleared. */
+    deleteAI(uri: vscode.Uri): void {
+        const state = this.files.get(uri.toString());
+        if (!state) return;
+        state.ai = [];
+        this.removeIfEmpty(uri, state);
     }
 
     async filter(): Promise<void> {
         const picked = await vscode.window.showQuickPick(
-            FILTERS.map(({ filter, label }) => ({ label, filter, picked: this.filters.has(filter) })),
+            this.offered.map(({ filter, label }) => ({ label, filter, picked: this.filters.has(filter) })),
             { canPickMany: true, title: 'Show in the Findings tree' }
         );
         if (!picked) return;
         this.filters = new Set(picked.map(item => item.filter));
-        const shown = FILTERS.filter(({ filter }) => this.filters.has(filter)).map(({ label }) => label);
-        this.view.description = shown.length === FILTERS.length ? undefined : `Showing: ${shown.join(', ') || 'nothing'}`;
+        const shown = this.offered.filter(({ filter }) => this.filters.has(filter)).map(({ label }) => label);
+        this.view.description = shown.length === this.offered.length ? undefined : `Showing: ${shown.join(', ') || 'nothing'}`;
         this.changed.fire(undefined);
     }
 
@@ -89,9 +112,10 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
                 break;
             case 'finding': {
                 const position = new vscode.Position(node.line - 1, 0);
-                item.iconPath = node.finding.layer === 'ai-review'
-                    ? new vscode.ThemeIcon('sparkle', new vscode.ThemeColor('list.highlightForeground'))
-                    : new vscode.ThemeIcon('warning', new vscode.ThemeColor('list.warningForeground'));
+                const [icon, color] = node.finding.layer === 'ai-review'
+                    ? ['sparkle', 'list.highlightForeground']
+                    : SEVERITY_ICONS[node.finding.severity];
+                item.iconPath = new vscode.ThemeIcon(icon, new vscode.ThemeColor(color));
                 item.tooltip = node.finding.explanation || node.finding.message;
                 item.command = {
                     title: 'Open Finding',
@@ -127,6 +151,13 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
             this.files.set(key, state);
         }
         return state;
+    }
+
+    private removeIfEmpty(uri: vscode.Uri, state: FileState): void {
+        if (!state.check.length && !state.ai.length && !state.needsReview.length && state.paused === undefined) {
+            this.files.delete(uri.toString());
+        }
+        this.refresh();
     }
 
     private refresh(): void {

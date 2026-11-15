@@ -7,9 +7,11 @@ import { A11yCheckTool } from './a11y-check-tool';
 const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
 
 export function activate(context: vscode.ExtensionContext): void {
-    const tree = new FindingsTree();
+    // Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and a11y_check
+    const aiAvailable = typeof vscode.lm?.registerTool === 'function';
+    const tree = new FindingsTree(aiAvailable);
     const check = new CheckDiagnostics(tree);
-    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, document => check.findingsOf(document), (document, findings) => tree.setAI(document, findings));
+    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, document => check.findingsOf(document), tree);
     const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document);
 
     context.subscriptions.push(
@@ -30,8 +32,7 @@ export function activate(context: vscode.ExtensionContext): void {
             aiReview.delete(document.uri);
         })
     );
-    // Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and a11y_check
-    if (typeof vscode.lm?.registerTool === 'function') {
+    if (aiAvailable) {
         void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', true);
         context.subscriptions.push(
             vscode.lm.onDidChangeChatModels(() => void aiReview.showIdle()),
