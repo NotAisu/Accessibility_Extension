@@ -60,7 +60,7 @@ describe('analyse (HTML)', () => {
     });
 
     it('returns nothing for languages without a Check yet', async () => {
-        const result = await analyse({ languageId: 'vue', text: '<template><img src="a.png"></template>' });
+        const result = await analyse({ languageId: 'plaintext', text: '<img src="a.png">' });
 
         assert.deepStrictEqual(result, { findings: [], needsReview: [] });
     });
@@ -147,3 +147,66 @@ describe('analyse (JSX/TSX)', () => {
         }
     });
 });
+
+describe('analyse (Vue)', () => {
+    it('reports a Check Finding at the exact source range of the template element', async () => {
+        const text = '<template>\n    <img :src="chart">\n</template>\n';
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.strictEqual(findings.length, 1);
+        const [finding] = findings;
+        assert.strictEqual(text.slice(finding.range.start, finding.range.end), '<img :src="chart">');
+        assert.deepStrictEqual(finding.criteria, ['1.1.1']);
+        assert.strictEqual(finding.ruleId, 'vuejs-accessibility/alt-text');
+        assert.strictEqual(finding.layer, 'check');
+        assert.strictEqual(finding.severity, 'warning');
+        assert.match(finding.message, /alt prop/);
+        assert.strictEqual(finding.helpUrl, 'https://vue-a11y.github.io/eslint-plugin-vuejs-accessibility/rules/alt-text.html');
+    });
+
+    it('parses <script lang="ts"> with the TypeScript parser', async () => {
+        const text = [
+            '<script setup lang="ts">',
+            'const props = defineProps<{ src: string }>();',
+            'const label = (n: number): string => `#${n}`;',
+            '</script>',
+            '<template><img :src="props.src as string"></template>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(findings.map(f => [f.ruleId, text.slice(f.range.start, f.range.end)]), [
+            ['vuejs-accessibility/alt-text', '<img :src="props.src as string">']
+        ]);
+    });
+
+    it('maps each rule to its WCAG criterion, reading directives and bindings', async () => {
+        const text = [
+            '<template>',
+            '    <main>',
+            '        <a href="/home"></a>',
+            '        <div @click="open">Open</div>',
+            '        <span :tabindex="2">x</span>',
+            '        <input type="text" v-model="name">',
+            '        <img :alt="caption" :src="src">',
+            '    </main>',
+            '</template>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(findings.map(f => [f.ruleId, f.criteria]), [
+            ['vuejs-accessibility/anchor-has-content', ['2.4.4', '4.1.2']],
+            ['vuejs-accessibility/click-events-have-key-events', ['2.1.1']],
+            ['vuejs-accessibility/no-static-element-interactions', ['4.1.2']],
+            ['vuejs-accessibility/tabindex-no-positive', ['2.4.3']],
+            ['vuejs-accessibility/form-control-has-label', ['4.1.2', '1.3.1']]
+        ]);
+    });
+
+    it('fails on an unparseable script instead of reporting no Findings', async () => {
+        await assert.rejects(analyse({ languageId: 'vue', text: '<script>const a = ;</script>\n<template><img src="x"></template>' }), ParseError);
+    });
+});
+

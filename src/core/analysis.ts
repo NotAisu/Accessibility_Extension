@@ -60,6 +60,10 @@ export async function analyse(document: AnalysisDocument): Promise<AnalysisResul
             needsReview: []
         };
     }
+    if (document.languageId === 'vue') {
+        const { checkVue } = await import('./vue/engine');
+        return { findings: sortByPosition(checkVue(document.text)), needsReview: [] };
+    }
     if (document.languageId !== 'html') return { findings: [], needsReview: [] };
     const { checkHtmlWithAxe, checkHtmlWithEslint } = await import('./html/engine');
     const axe = await checkHtmlWithAxe(document.text);

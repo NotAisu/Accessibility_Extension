@@ -1,0 +1,1 @@
+<template><div @click='void 0' aria-hidden='true'/></template>
