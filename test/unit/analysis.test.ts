@@ -222,6 +222,22 @@ describe('analyse (Vue)', () => {
         ]);
     });
 
+    it('lists contrast and target size as Needs Review for rendered text and controls', async () => {
+        const text = '<template>\n    <form>\n        <p>{{ label }}</p>\n        <button type="submit">Save</button>\n    </form>\n</template>\n';
+
+        const { needsReview } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(needsReview.map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+    });
+
+    it('lists no Needs Review when the template renders no text or control', async () => {
+        const text = '<script setup>\nconst label = "Save";\n</script>\n<template>\n    <img src="logo.png" alt="">\n    <div class="gap" title="Gap"></div>\n</template>\n';
+
+        const { needsReview } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(needsReview, []);
+    });
+
     it('fails on an unparseable script instead of reporting no Findings', async () => {
         await assert.rejects(analyse({ languageId: 'vue', text: '<script>const a = ;</script>\n<template><img src="x"></template>' }), ParseError);
     });
@@ -242,6 +258,22 @@ describe('analyse (Svelte)', () => {
         assert.strictEqual(finding.severity, 'warning');
         assert.strictEqual(finding.message, '`<img>` element should have an alt attribute');
         assert.strictEqual(finding.helpUrl, 'https://svelte.dev/e/a11y_missing_attribute');
+    });
+
+    it('lists contrast and target size as Needs Review for rendered text and controls', async () => {
+        const text = '<script>\n    let { label } = $props();\n</script>\n\n{#if label}\n    <p>{label}</p>\n{/if}\n<a href="/home">Home</a>\n';
+
+        const { needsReview } = await analyse({ languageId: 'svelte', text });
+
+        assert.deepStrictEqual(needsReview.map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+    });
+
+    it('lists no Needs Review when the markup renders no text or control', async () => {
+        const text = '<script>\n    const label = "Save";\n</script>\n\n<img src="logo.png" alt="">\n<div class="gap" title="Gap"></div>\n\n<style>\n    .gap { width: 1rem; }\n</style>\n';
+
+        const { needsReview } = await analyse({ languageId: 'svelte', text });
+
+        assert.deepStrictEqual(needsReview, []);
     });
 
     it('fails on unparseable code instead of reporting no Findings', async () => {

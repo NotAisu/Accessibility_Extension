@@ -1,5 +1,6 @@
-import { compile, type Warning } from 'svelte/compiler';
-import { Finding, ParseError } from '../analysis';
+import { compile, type AST, type Warning } from 'svelte/compiler';
+import { AnalysisResult, Finding, ParseError } from '../analysis';
+import { isControl, layoutNeedsReview, RenderedContent } from '../needs-review';
 
 // The Svelte engine as one chunk, loaded on the first Svelte document.
 
@@ -66,8 +67,8 @@ export function criteriaOf(code: string, message: string): string[] | undefined 
 
 const PREFIX = 'svelte/';
 
-export function checkSvelte(text: string): Finding[] {
-    const warnings = compileWarnings(text);
+export function checkSvelte(text: string): AnalysisResult {
+    const { warnings, ast } = compileComponent(text);
     const findings: Finding[] = [];
     for (const warning of warnings) {
         const criteria = criteriaOf(warning.code, warning.message);
@@ -85,13 +86,50 @@ export function checkSvelte(text: string): Finding[] {
             helpUrl: helpUrl ?? `https://svelte.dev/e/${warning.code}`
         });
     }
-    return findings;
+    return { findings, needsReview: layoutNeedsReview(renderedContent(ast)) };
 }
 
-function compileWarnings(text: string): Warning[] {
+interface SvelteNode {
+    type: string;
+    [key: string]: unknown;
+}
+
+// Text and expression tags in the markup and intrinsic controls; components are opaque until Component Mapping.
+// Only fragments are walked, so attribute values, the script and the style never count as rendered text
+function renderedContent(ast: AST.Root): RenderedContent {
+    const content = { text: false, controls: false };
+    const visit = (node: SvelteNode) => {
+        if (node.type === 'Text' && typeof node.data === 'string' && node.data.trim()) content.text = true;
+        if (node.type === 'ExpressionTag' || node.type === 'HtmlTag') content.text = true;
+        if (node.type === 'RegularElement' && isControl(node.name as string, attributesOf(node))) content.controls = true;
+        if (node.type === 'Fragment') (node.nodes as SvelteNode[]).forEach(visit);
+        // Blocks and elements hold their children in fragments (fragment, consequent, body, then, …)
+        for (const value of Object.values(node)) {
+            if (value && typeof value === 'object' && (value as SvelteNode).type === 'Fragment') visit(value as SvelteNode);
+        }
+    };
+    visit(ast.fragment as unknown as SvelteNode);
+    return content;
+}
+
+// A value only when it is plain text; an expression or a directive counts as present
+function attributesOf(element: SvelteNode): Map<string, string | true> {
+    const attributes = new Map<string, string | true>();
+    for (const attribute of element.attributes as SvelteNode[]) {
+        if (attribute.type !== 'Attribute') continue;
+        const value = attribute.value;
+        const [only] = Array.isArray(value) ? value as SvelteNode[] : [];
+        const literal = Array.isArray(value) && value.length === 1 && only.type === 'Text' ? only.data as string : true;
+        attributes.set((attribute.name as string).toLowerCase(), literal);
+    }
+    return attributes;
+}
+
+function compileComponent(text: string): { warnings: Warning[]; ast: AST.Root } {
     try {
         // generate: false analyses the component without producing code; nothing in it runs
-        return compile(text, { generate: false }).warnings;
+        const { warnings, ast } = compile(text, { generate: false, modernAst: true }) as { warnings: Warning[]; ast: AST.Root };
+        return { warnings, ast };
     } catch (error) {
         // Invalid components must not read as clean files; the compiler names every such error CompileError
         if ((error as Error).name !== 'CompileError') throw error;

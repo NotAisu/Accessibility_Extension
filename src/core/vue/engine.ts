@@ -2,8 +2,9 @@ import { Linter } from 'eslint/universal';
 import vueA11y from 'eslint-plugin-vuejs-accessibility';
 import * as vueParser from 'vue-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
-import { Finding, ParseError } from '../analysis';
+import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
+import { isControl, layoutNeedsReview, RenderedContent } from '../needs-review';
 
 // The Vue engine as one chunk, loaded on the first Vue document.
 
@@ -60,7 +61,7 @@ function config(skip: Set<string>): Linter.Config[] {
 
 const linter = new Linter({ configType: 'flat' });
 
-export function checkVue(text: string): Finding[] {
+export function checkVue(text: string): AnalysisResult {
     const offsets = lineOffsets(text);
     const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
@@ -83,7 +84,47 @@ export function checkVue(text: string): Finding[] {
             helpUrl: docs?.url ?? `https://vue-a11y.github.io/eslint-plugin-vuejs-accessibility/rules/${rule}.html`
         });
     }
-    return findings;
+    const ast = linter.getSourceCode().ast as { templateBody?: VueNode };
+    return { findings, needsReview: layoutNeedsReview(renderedContent(ast.templateBody)) };
+}
+
+interface VueNode {
+    type: string;
+    [key: string]: unknown;
+}
+
+// Text and mustaches in the template and intrinsic controls; components are opaque until Component Mapping
+function renderedContent(template: VueNode | undefined): RenderedContent {
+    const content = { text: false, controls: false };
+    const visit = (node: VueNode) => {
+        if (node.type === 'VText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
+        if (node.type === 'VExpressionContainer') content.text = true;
+        if (node.type === 'VElement') {
+            if (isControl(node.name as string, attributesOf(node))) content.controls = true;
+            (node.children as VueNode[]).forEach(visit);
+        }
+    };
+    // The <template> element itself renders nothing; its children do
+    for (const child of (template?.children ?? []) as VueNode[]) visit(child);
+    return content;
+}
+
+// A value only for a static attribute; a binding (:href, v-bind:role) counts as present
+function attributesOf(element: VueNode): Map<string, string | true> {
+    const attributes = new Map<string, string | true>();
+    for (const attribute of (element.startTag as { attributes: VueNode[] }).attributes) {
+        const key = attribute.key as VueNode;
+        if (!attribute.directive) {
+            const value = attribute.value as { value: string } | null;
+            attributes.set((key.name as string).toLowerCase(), value ? value.value : true);
+            continue;
+        }
+        const argument = key.argument as VueNode | null;
+        if ((key.name as VueNode).name === 'bind' && argument?.type === 'VIdentifier') {
+            attributes.set((argument.name as string).toLowerCase(), true);
+        }
+    }
+    return attributes;
 }
 
 // A rule that throws on unusual code would cost every other rule's Findings, so the document is

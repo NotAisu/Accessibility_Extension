@@ -60,11 +60,13 @@ export async function analyse(document: AnalysisDocument): Promise<AnalysisResul
     }
     if (document.languageId === 'vue') {
         const { checkVue } = await import('./vue/engine');
-        return { findings: sortByPosition(checkVue(document.text)), needsReview: [] };
+        const { findings, needsReview } = checkVue(document.text);
+        return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId === 'svelte') {
         const { checkSvelte } = await import('./svelte/engine');
-        return { findings: sortByPosition(checkSvelte(document.text)), needsReview: [] };
+        const { findings, needsReview } = checkSvelte(document.text);
+        return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId !== 'html') return { findings: [], needsReview: [] };
     const { checkHtmlWithAxe, checkHtmlWithEslint } = await import('./html/engine');
