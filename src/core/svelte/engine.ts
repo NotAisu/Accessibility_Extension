@@ -1,0 +1,106 @@
+import { compile, type Warning } from 'svelte/compiler';
+import { Finding, ParseError } from '../analysis';
+
+// The Svelte engine as one chunk, loaded on the first Svelte document.
+
+// Svelte compiler a11y warnings whose failure maps to a WCAG 2.2 A/AA criterion, primary criterion first,
+// mapped like the JSX engine's equivalent rules. Best-practice warnings without a WCAG
+// failure (a11y_accesskey, a11y_autofocus, a11y_hidden, a11y_no_noninteractive_tabindex,
+// a11y_no_redundant_roles) are left out.
+export const WARNING_CRITERIA: Record<string, string[]> = {
+    'a11y_aria_activedescendant_has_tabindex': ['2.1.1'],
+    'a11y_aria_attributes': ['4.1.2'],
+    'a11y_autocomplete_valid': ['1.3.5'],
+    'a11y_click_events_have_key_events': ['2.1.1'],
+    'a11y_consider_explicit_label': ['2.4.4', '4.1.2'],
+    'a11y_distracting_elements': ['2.2.2'],
+    'a11y_figcaption_index': ['1.3.1'],
+    'a11y_figcaption_parent': ['1.3.1'],
+    'a11y_img_redundant_alt': ['1.1.1'],
+    'a11y_incorrect_aria_attribute_type': ['4.1.2'],
+    'a11y_incorrect_aria_attribute_type_boolean': ['4.1.2'],
+    'a11y_incorrect_aria_attribute_type_id': ['4.1.2'],
+    'a11y_incorrect_aria_attribute_type_idlist': ['4.1.2'],
+    'a11y_incorrect_aria_attribute_type_integer': ['4.1.2'],
+    'a11y_incorrect_aria_attribute_type_token': ['4.1.2'],
+    'a11y_incorrect_aria_attribute_type_tokenlist': ['4.1.2'],
+    'a11y_incorrect_aria_attribute_type_tristate': ['4.1.2'],
+    'a11y_interactive_supports_focus': ['2.1.1'],
+    'a11y_invalid_attribute': ['2.1.1'],
+    'a11y_label_has_associated_control': ['1.3.1', '4.1.2'],
+    'a11y_media_has_caption': ['1.2.2'],
+    'a11y_misplaced_role': ['4.1.2'],
+    'a11y_misplaced_scope': ['1.3.1'],
+    'a11y_missing_content': ['2.4.6', '1.3.1'],
+    'a11y_mouse_events_have_key_events': ['2.1.1'],
+    'a11y_no_abstract_role': ['4.1.2'],
+    'a11y_no_interactive_element_to_noninteractive_role': ['4.1.2'],
+    'a11y_no_noninteractive_element_interactions': ['4.1.2'],
+    'a11y_no_noninteractive_element_to_interactive_role': ['4.1.2'],
+    'a11y_no_static_element_interactions': ['4.1.2'],
+    'a11y_positive_tabindex': ['2.4.3'],
+    'a11y_role_has_required_aria_props': ['4.1.2'],
+    'a11y_role_supports_aria_props': ['4.1.2'],
+    'a11y_role_supports_aria_props_implicit': ['4.1.2'],
+    'a11y_unknown_aria_attribute': ['4.1.2'],
+    'a11y_unknown_role': ['4.1.2']
+};
+
+// a11y_missing_attribute covers several elements; its message names the element
+export const MISSING_ATTRIBUTE_CRITERIA: Record<string, string[]> = {
+    'a': ['2.1.1'],
+    'area': ['1.1.1'],
+    'html': ['3.1.1'],
+    'iframe': ['4.1.2'],
+    'img': ['1.1.1'],
+    'input': ['1.1.1'],
+    'object': ['1.1.1']
+};
+
+/** The criteria a warning fails, or undefined when it has no WCAG failure. */
+export function criteriaOf(code: string, message: string): string[] | undefined {
+    if (code !== 'a11y_missing_attribute') return WARNING_CRITERIA[code];
+    const element = /^`<([a-z]+)/.exec(message)?.[1];
+    return element ? MISSING_ATTRIBUTE_CRITERIA[element] : undefined;
+}
+
+const PREFIX = 'svelte/';
+
+export function checkSvelte(text: string): Finding[] {
+    const warnings = compileWarnings(text);
+    const findings: Finding[] = [];
+    for (const warning of warnings) {
+        const criteria = criteriaOf(warning.code, warning.message);
+        if (!criteria || !warning.position) continue;
+        // The message ends in a link to the warning's documentation
+        const [message, helpUrl] = splitLink(warning.message);
+        findings.push({
+            range: { start: warning.position[0], end: warning.position[1] },
+            criteria,
+            ruleId: PREFIX + warning.code,
+            layer: 'check',
+            severity: 'warning',
+            message,
+            explanation: message,
+            helpUrl: helpUrl ?? `https://svelte.dev/e/${warning.code}`
+        });
+    }
+    return findings;
+}
+
+function compileWarnings(text: string): Warning[] {
+    try {
+        // generate: false analyses the component without producing code; nothing in it runs
+        return compile(text, { generate: false }).warnings;
+    } catch (error) {
+        // Invalid components must not read as clean files; the compiler names every such error CompileError
+        if ((error as Error).name !== 'CompileError') throw error;
+        const { start, message } = error as { start?: { line: number; column: number }; message: string };
+        throw new ParseError(`Parse error${start ? ` at ${start.line}:${start.column + 1}` : ''}: ${splitLink(message)[0]}`);
+    }
+}
+
+function splitLink(message: string): [string, string | undefined] {
+    const index = message.lastIndexOf('\nhttps://');
+    return index === -1 ? [message, undefined] : [message.slice(0, index), message.slice(index + 1)];
+}

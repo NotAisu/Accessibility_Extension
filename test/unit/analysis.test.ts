@@ -227,3 +227,51 @@ describe('analyse (Vue)', () => {
     });
 });
 
+describe('analyse (Svelte)', () => {
+    it('reports a Svelte compiler a11y warning as a Check Finding at the exact source range', async () => {
+        const text = '<script>\n    let { src } = $props();\n</script>\n\n<img {src}>\n';
+
+        const { findings } = await analyse({ languageId: 'svelte', text });
+
+        assert.strictEqual(findings.length, 1);
+        const [finding] = findings;
+        assert.strictEqual(text.slice(finding.range.start, finding.range.end), '<img {src}>');
+        assert.deepStrictEqual(finding.criteria, ['1.1.1']);
+        assert.strictEqual(finding.ruleId, 'svelte/a11y_missing_attribute');
+        assert.strictEqual(finding.layer, 'check');
+        assert.strictEqual(finding.severity, 'warning');
+        assert.strictEqual(finding.message, '`<img>` element should have an alt attribute');
+        assert.strictEqual(finding.helpUrl, 'https://svelte.dev/e/a11y_missing_attribute');
+    });
+
+    it('fails on unparseable code instead of reporting no Findings', async () => {
+        await assert.rejects(analyse({ languageId: 'svelte', text: '<div><img src="x">{#if a}</div>' }), ParseError);
+    });
+
+    it('maps each warning to its WCAG criterion, by element where one warning covers several', async () => {
+        const text = [
+            '<html><body></body></html>',
+            '<iframe src="/map"></iframe>',
+            '<a href="/home"></a>',
+            '<h2></h2>',
+            '<div onclick={open}>Open</div>',
+            '<input type="email" autocomplete="emial">',
+            '<span tabindex="2">x</span>',
+            '<button accesskey="s">Save</button>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'svelte', text });
+
+        assert.deepStrictEqual(findings.map(f => [f.ruleId, f.criteria]), [
+            ['svelte/a11y_missing_attribute', ['3.1.1']],
+            ['svelte/a11y_missing_attribute', ['4.1.2']],
+            ['svelte/a11y_consider_explicit_label', ['2.4.4', '4.1.2']],
+            ['svelte/a11y_missing_content', ['2.4.6', '1.3.1']],
+            ['svelte/a11y_click_events_have_key_events', ['2.1.1']],
+            ['svelte/a11y_no_static_element_interactions', ['4.1.2']],
+            ['svelte/a11y_autocomplete_valid', ['1.3.5']],
+            ['svelte/a11y_positive_tabindex', ['2.4.3']]
+        ]);
+    });
+});
+

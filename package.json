@@ -175,6 +175,7 @@
     "eslint-plugin-jsx-a11y-x": "0.2.0",
     "eslint-plugin-vuejs-accessibility": "2.6.3",
     "jsdom": "26.1.0",
+    "svelte": "5.57.3",
     "typescript": "5.4.5",
     "vue-eslint-parser": "10.4.2"
   }

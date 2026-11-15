@@ -9,7 +9,7 @@ const watch = process.argv.includes('--watch');
 const TARGET = 'node24.15';
 
 // Packages of the language engines; each must stay out of the activation shell
-const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', 'eslint-plugin-vuejs-accessibility', 'vue-eslint-parser', '@typescript-eslint', 'typescript'];
+const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', 'eslint-plugin-vuejs-accessibility', 'vue-eslint-parser', '@typescript-eslint', 'typescript', 'svelte'];
 
 // Engine bundling pitfalls that only show once bundled
 const fixEnginePitfalls = {
