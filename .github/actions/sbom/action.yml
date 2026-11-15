@@ -1,0 +1,17 @@
+name: CycloneDX SBOM
+description: Writes a CycloneDX SBOM of the shipped (non-dev) dependencies; the release workflow (#27) attaches it to the release
+inputs:
+  path:
+    description: File to write the SBOM to
+    default: allyproof.cdx.json
+outputs:
+  path:
+    description: The written SBOM file
+    value: ${{ inputs.path }}
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        SBOM_PATH: ${{ inputs.path }}
+      run: npm sbom --omit=dev --sbom-format cyclonedx > "$SBOM_PATH"
