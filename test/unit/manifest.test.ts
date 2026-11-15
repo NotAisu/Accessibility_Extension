@@ -15,6 +15,8 @@ interface Manifest {
     contributes: {
         commands: { command: string; category: string }[];
         views?: Record<string, { id: string; type?: string }[]>;
+        languageModelTools?: { name: string; when?: string }[];
+        chatSkills?: { path: string; when?: string }[];
     };
 }
 
@@ -26,11 +28,36 @@ function registeredCommands(): string[] {
     return ids.sort();
 }
 
+function sourceOf(file: string): string {
+    return fs.readFileSync(path.join(root, 'src', file), 'utf-8');
+}
+
 describe('manifest', () => {
     it('declares exactly the commands the extension registers', () => {
         const declared = manifest.contributes.commands.map(c => c.command).sort();
         assert.ok(declared.length > 0);
         assert.deepStrictEqual(declared, registeredCommands());
+    });
+
+    it('declares exactly the language model tools the extension registers', () => {
+        const declared = (manifest.contributes.languageModelTools ?? []).map(t => t.name).sort();
+        const registered = [...sourceOf('extension.ts').matchAll(/registerTool\(\s*'([^']+)'/g)].map(m => m[1]).sort();
+        assert.deepStrictEqual(declared, ['a11y_check']);
+        assert.deepStrictEqual(registered, declared);
+    });
+
+    it('contributes the Skill the AI Review loads', () => {
+        const [skill, ...others] = manifest.contributes.chatSkills ?? [];
+        assert.strictEqual(others.length, 0);
+        assert.strictEqual(path.normalize(skill.path), path.join('skills', 'allyproof', 'SKILL.md'));
+        const name = /^name: (.+)$/m.exec(fs.readFileSync(path.join(root, skill.path), 'utf-8'))?.[1];
+        assert.strictEqual(name, path.basename(path.dirname(skill.path)), 'the Skill name must match its directory');
+        assert.match(sourceOf('ai-review-ui.ts'), /SKILL_PATH = \['skills', 'allyproof', 'SKILL\.md'\]/);
+    });
+
+    it('shows AI contributions only where the language model API exists', () => {
+        const ai = [...(manifest.contributes.languageModelTools ?? []), ...(manifest.contributes.chatSkills ?? [])];
+        for (const contribution of ai) assert.strictEqual(contribution.when, 'allyproof.aiAvailable');
     });
 
     it('puts every command under the Allyproof category', () => {

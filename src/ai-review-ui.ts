@@ -31,6 +31,8 @@ export class AIReview implements vscode.Disposable {
     /** Reflects whether a model is available; call when the models change. */
     async showIdle(): Promise<void> {
         if (this.running) return;
+        // Editors without the language model API (some VS Code forks) cannot set up an AI Review at all
+        if (typeof vscode.lm?.registerTool !== 'function') return this.status.hide();
         if (await selectCopilotModel()) {
             this.show('$(sparkle) AI Review', 'Start AI Review of the current file', 'allyproof.startAIReview');
         } else {

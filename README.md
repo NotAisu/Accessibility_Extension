@@ -15,6 +15,15 @@ AI Review uses your GitHub Copilot models (including models you added to Copilot
 
 The review instructions are the Allyproof Skill in `skills/allyproof/SKILL.md`.
 
+## Use the Skill in your own agent
+
+The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md`](skills/allyproof/SKILL.md).
+
+- **GitHub Copilot in VS Code**: the extension contributes the Skill and the `a11y_check` tool, so chat and agent mode can use them without any setup. Ask for example "make this component accessible" or reference the tool with `#a11y_check`.
+- **Claude Code, Cursor and other agents**: copy the `skills/allyproof` folder into your project's skills folder, for example `.claude/skills/allyproof/` (Claude Code) or `.agents/skills/allyproof/`, or your user-level skills folder. These agents use your own subscription.
+
+`a11y_check` runs the Check on a file (`filePath`), on proposed code (`code` and `languageId`), or on proposed code for a file (`filePath` and `code`), so an agent can verify its fix before applying it. It returns the Findings with their line and the criteria that Need Review; the Skill calls it first and reviews only what the Check cannot decide. Outside VS Code with the extension the tool is not available, and the agent reviews only the semantic problems the Skill lists. Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and the tool.
+
 ## Commands
 
 All commands are in the Command Palette under **Allyproof**:
