@@ -28,6 +28,8 @@ export interface Finding {
     explanation: string;
     helpUrl: string;
     fix?: FixEdit[];
+    /** The fix guesses part of its edit, so it is only offered as a quick fix, never applied by source.fixAll or on save. */
+    quickFixOnly?: true;
 }
 
 /** A criterion relevant to the document that the Check cannot decide from source. */
@@ -47,6 +49,11 @@ export interface AnalysisDocument {
  */
 export function checkLanguageId(languageId: string, fileName: string): string {
     return languageId === 'html' && /\.component\.html$/i.test(fileName) ? 'angular' : languageId;
+}
+
+/** Whether the Check analyses the document at all: TypeScript files only for the inline templates of Angular components. */
+export function isChecked(document: AnalysisDocument): boolean {
+    return document.languageId !== 'typescript' || document.text.includes('@Component(');
 }
 
 /** A rule turned off, or the severity its Findings are reported with. */
@@ -107,7 +114,7 @@ async function check(document: AnalysisDocument): Promise<AnalysisResult> {
     }
     // Angular component templates are inline in TypeScript files that call @Component(; other files never
     // load the engine
-    if (document.languageId === 'typescript' && !document.text.includes('@Component(')) return { findings: [], needsReview: [] };
+    if (!isChecked(document)) return { findings: [], needsReview: [] };
     if (document.languageId === 'angular' || document.languageId === 'typescript') {
         const { checkAngularTemplate, checkAngularComponents } = await import('./angular/engine');
         const checkAngular = document.languageId === 'angular' ? checkAngularTemplate : checkAngularComponents;

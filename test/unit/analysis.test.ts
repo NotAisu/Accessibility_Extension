@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { analyse, checkLanguageId, ParseError } from '../../src/core/analysis';
+import { analyse, checkLanguageId, isChecked, ParseError } from '../../src/core/analysis';
 
 const page = (body: string) => [
     '<!DOCTYPE html>',
@@ -506,11 +506,23 @@ describe('analyse (Angular)', () => {
         await assert.rejects(analyse({ languageId: 'typescript', text: component }), ParseError);
     });
 
+    it('fails on an unparseable component file instead of reporting no Findings', async () => {
+        const component = "@Component({\n    selector: 'app-a',\n    <!-- a comment outside the template -->\n    template: '<img src=\"x\">'\n})\nexport class A {}\n";
+
+        await assert.rejects(analyse({ languageId: 'typescript', text: component }), ParseError);
+    });
+
     it('checks HTML files named *.component.html as Angular templates', () => {
         assert.strictEqual(checkLanguageId('html', '/app/src/nav/nav.component.html'), 'angular');
         assert.strictEqual(checkLanguageId('html', 'C:\\app\\Nav.Component.HTML'), 'angular');
         assert.strictEqual(checkLanguageId('html', '/site/index.html'), 'html');
         assert.strictEqual(checkLanguageId('typescript', '/app/src/nav/nav.component.ts'), 'typescript');
+    });
+
+    it('checks TypeScript files only while they hold an Angular component', () => {
+        assert.strictEqual(isChecked({ languageId: 'typescript', text: "@Component({ template: '<p>Hi</p>' })\nexport class A {}" }), true);
+        assert.strictEqual(isChecked({ languageId: 'typescript', text: 'export const answer = 42;' }), false);
+        assert.strictEqual(isChecked({ languageId: 'html', text: '<p>Hi</p>' }), true);
     });
 
     it('ignores a Finding in an inline template with a markup comment on the line above', async () => {

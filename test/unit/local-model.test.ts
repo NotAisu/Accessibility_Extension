@@ -16,8 +16,11 @@ interface Received {
 
 type Handler = (received: Received, response: http.ServerResponse) => void;
 
-/** An OpenAI-compatible server as LM Studio and Ollama run it, listing `models` and answering chat completions with `chat`. */
-async function localServer(models: string[], chat: Handler) {
+/**
+ * An OpenAI-compatible server as LM Studio and Ollama run it, listing `models` (or answering the listing with a handler)
+ * and answering chat completions with `chat`. Other paths get Ollama's plain-text 404.
+ */
+async function localServer(models: string[] | Handler, chat: Handler) {
     const received: Received[] = [];
     const server = http.createServer((request, response) => {
         let data = '';
@@ -25,9 +28,12 @@ async function localServer(models: string[], chat: Handler) {
         request.on('end', () => {
             const entry = { method: request.method, url: request.url, body: data ? JSON.parse(data) as Record<string, unknown> : {} };
             received.push(entry);
-            if (request.url === '/v1/models') return json(response, 200, { object: 'list', data: models.map(id => ({ id, object: 'model' })) });
+            if (request.url === '/v1/models') {
+                return typeof models === 'function' ? models(entry, response) : json(response, 200, { object: 'list', data: models.map(id => ({ id, object: 'model' })) });
+            }
             if (request.url === '/v1/chat/completions') return chat(entry, response);
-            json(response, 404, { error: { message: 'Not found' } });
+            response.writeHead(404, { 'content-type': 'text/plain' });
+            response.end('404 page not found');
         });
     });
     await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -163,5 +169,31 @@ describe('local model', () => {
 
         await assert.rejects(selectLocalModel({ endpoint: server.endpoint, model: '' }), (error: ModelError) =>
             error.code === 'NoModel' && /load|pull/i.test(error.message));
+    });
+
+    it('says to check the endpoint when the server has no OpenAI-compatible API there', async () => {
+        server = await localServer(['qwen2.5-coder'], answer('{}'));
+        const endpoint = server.endpoint.replace(/\/v1$/, '');
+
+        await assert.rejects(selectLocalModel({ endpoint, model: '' }), (error: ModelError) =>
+            error.code === 'NotFound' && error.message.includes(endpoint) && /\/v1/.test(error.message));
+    });
+
+    it('gives up listing the models of a server that misses the deadline', async () => {
+        let aborted!: () => void;
+        const closed = new Promise<void>(resolve => aborted = resolve);
+        server = await localServer((_, response) => response.on('close', aborted), answer('{}'));
+
+        await assert.rejects(selectLocalModel({ endpoint: server.endpoint, model: '' }, { deadlineMs: 50 }),
+            (error: ModelError) => error.code === 'Timeout' && error.message.includes(server!.endpoint));
+        await closed;
+    });
+
+    it('stops listing the models when the AI Review is cancelled', async () => {
+        const controller = new AbortController();
+        server = await localServer(() => controller.abort(), answer('{}'));
+
+        await assert.rejects(selectLocalModel({ endpoint: server.endpoint, model: '' }, { signal: controller.signal }),
+            (error: ModelError) => error.code === 'Cancelled');
     });
 });

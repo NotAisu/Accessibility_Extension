@@ -129,6 +129,12 @@ interface InlineTemplate {
 // templateUrl are checked in their template file
 function inlineTemplates(text: string): InlineTemplate[] {
     const source = ts.createSourceFile('component.ts', text, ts.ScriptTarget.Latest, true);
+    // Unparseable code must not read as a clean file; the parser recovers, and may lose a template doing so.
+    // parseDiagnostics is internal but the only way to get syntax errors without a program
+    const [syntaxError] = (source as unknown as { parseDiagnostics: ts.DiagnosticWithLocation[] }).parseDiagnostics;
+    if (syntaxError) {
+        throw new ParseError(`Parse error at offset ${syntaxError.start}: ${ts.flattenDiagnosticMessageText(syntaxError.messageText, ' ')}`);
+    }
     const templates: InlineTemplate[] = [];
     const visit = (node: ts.Node) => {
         if (ts.isDecorator(node) && ts.isCallExpression(node.expression) && ts.isIdentifier(node.expression.expression)

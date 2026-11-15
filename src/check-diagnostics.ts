@@ -37,7 +37,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         const uri = document.uri.toString();
         if (!this.worker || (document.isDirty && this.onSaveOnly.has(uri))) return;
         const version = document.version;
-        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() }, options());
+        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() }, options(document));
         // A missed deadline counts even when the document changed meanwhile
         if (outcome.status === 'paused' && outcome.deadlineExceeded) this.onSaveOnly.add(uri);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
@@ -53,10 +53,10 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         this.collection.set(document.uri, reported.map(({ range, finding }) => toDiagnostic(range, finding)));
     }
 
-    /** Check Findings of exactly this text, for the AI Review; none while the Check is paused. */
-    async findingsOf(document: AnalysisDocument): Promise<Finding[]> {
+    /** Check Findings of exactly this text of the file at `scope`, for the AI Review; none while the Check is paused. */
+    async findingsOf(document: AnalysisDocument, scope: vscode.Uri): Promise<Finding[]> {
         // Its own request key, so it never drops or is dropped by the document's own Check
-        const outcome = await this.worker?.check(`ai-review:${document.languageId}`, document, options());
+        const outcome = await this.worker?.check(`ai-review:${document.languageId}`, document, options(scope));
         return outcome?.status === 'done' ? outcome.result.findings : [];
     }
 
@@ -93,9 +93,14 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     }
 }
 
-// The `allyproof.rules` setting: rules turned off or reported with another severity
-function options(): AnalysisOptions {
-    return { rules: vscode.workspace.getConfiguration('allyproof').get<Record<string, RuleSetting>>('rules', {}) };
+/** The rule id of a Check diagnostic. */
+export function codeOf(diagnostic: vscode.Diagnostic): string | number | undefined {
+    return typeof diagnostic.code === 'object' ? diagnostic.code.value : diagnostic.code;
+}
+
+// The `allyproof.rules` setting of the checked file's folder: rules turned off or reported with another severity
+function options(scope?: vscode.ConfigurationScope): AnalysisOptions {
+    return { rules: vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, RuleSetting>>('rules', {}) };
 }
 
 function toDiagnostic(range: vscode.Range, finding: Finding): vscode.Diagnostic {

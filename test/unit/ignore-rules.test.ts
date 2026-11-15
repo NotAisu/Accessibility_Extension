@@ -1,6 +1,6 @@
 import * as assert from 'assert';
-import { analyse } from '../../src/core/analysis';
-import { ignoreComment } from '../../src/core/ignore';
+import { analyse, AnalysisDocument, Finding, ParseError } from '../../src/core/analysis';
+import { ignoreLine } from '../../src/core/ignore';
 
 const page = (body: string) => [
     '<!DOCTYPE html>',
@@ -71,24 +71,47 @@ describe('ignore comments', () => {
     });
 });
 
-describe('ignoreComment', () => {
-    for (const [languageId, line] of [
-        ['html', '<img src="chart.png">'],
-        ['vue', '<template>\n    <img :src="chart">\n</template>'],
-        ['svelte', '<img src={chart}>'],
-        ['typescriptreact', 'export const Chart = () => (\n    <div>\n        <img src={chart} />\n    </div>\n);']
+// The Check as the code actions use it: no Findings when the document does not parse
+async function check(document: AnalysisDocument): Promise<Finding[] | undefined> {
+    try {
+        return (await analyse(document)).findings;
+    } catch (error) {
+        if (error instanceof ParseError) return undefined;
+        throw error;
+    }
+}
+
+// The text with the ignore line for its first Finding inserted, or undefined when none is offered
+async function ignored(languageId: string, text: string): Promise<string | undefined> {
+    const [finding] = (await analyse({ languageId, text })).findings;
+    assert.ok(finding, 'a Finding to ignore');
+    const line = await ignoreLine({ languageId, text }, finding, check);
+    return line && text.slice(0, line.offset) + line.text + text.slice(line.offset);
+}
+
+describe('ignoreLine', () => {
+    for (const [languageId, text, comment] of [
+        ['html', page('<img src="chart.png">'), '<!-- allyproof-ignore image-alt -->'],
+        ['vue', '<template>\n    <img :src="chart">\n</template>', '<!-- allyproof-ignore vuejs-accessibility/alt-text -->'],
+        ['svelte', '<img src={chart}>', '<!-- allyproof-ignore svelte/a11y_missing_attribute -->'],
+        ['typescriptreact', 'export const Chart = () => (\n    <div>\n        <img src={chart} />\n    </div>\n);', '{/* allyproof-ignore jsx-a11y-x/alt-text */}'],
+        ['typescriptreact', 'export function Chart() {\n    return (\n        <img src={chart} />\n    );\n}', '/* allyproof-ignore jsx-a11y-x/alt-text */'],
+        ['javascriptreact', 'export const Save = () => (\n    <div>\n        <button\n            tabIndex={3}\n        >Save</button>\n    </div>\n);', '/* allyproof-ignore jsx-a11y-x/tabindex-no-positive */'],
+        ['typescript', "@Component({\n    selector: 'app-chart',\n    template: `\n        <img src=\"chart.png\">\n    `\n})\nexport class Chart {}", '<!-- allyproof-ignore @angular-eslint/template/alt-text -->']
     ]) {
-        it(`writes a ${languageId} comment that ignores the Finding on the line below it`, async () => {
-            const text = languageId === 'html' ? page(line) : line;
-            const [finding] = (await analyse({ languageId, text })).findings;
-            const lineStart = text.lastIndexOf('\n', finding.range.start - 1) + 1;
-            const indent = /^\s*/.exec(text.slice(lineStart))![0];
+        it(`writes a ${languageId} comment that keeps the code valid and ignores the Finding: ${comment}`, async () => {
+            const edited = await ignored(languageId, text);
 
-            const ignored = text.slice(0, lineStart) + indent + ignoreComment(languageId, finding.ruleId) + '\n' + text.slice(lineStart);
-
-            assert.deepStrictEqual((await analyse({ languageId, text: ignored })).findings, []);
+            assert.ok(edited?.includes(comment), edited);
+            assert.deepStrictEqual(await check({ languageId, text: edited! }), []);
         });
     }
+
+    it('offers no ignore line where no comment is valid, above a one-line Angular template', async () => {
+        const text = "@Component({\n    selector: 'app-chart',\n    template: '<img src=\"chart.png\">'\n})\nexport class Chart {}";
+
+        assert.strictEqual(await ignored('typescript', text), undefined);
+    });
 });
 
 describe('rule settings', () => {

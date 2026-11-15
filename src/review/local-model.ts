@@ -1,4 +1,4 @@
-import { ModelError, ModelPort, ModelRequest } from './ai-review';
+import { DEADLINE_MS, ModelError, ModelPort, ModelRequest } from './ai-review';
 
 export interface LocalModelSettings {
     /** Base URL of an OpenAI-compatible API, for example http://localhost:1234/v1 (LM Studio) or http://localhost:11434/v1 (Ollama). */
@@ -6,10 +6,33 @@ export interface LocalModelSettings {
     model: string;
 }
 
+export interface SelectOptions {
+    /** Cancels the AI Review, and with it the lookup. */
+    signal?: AbortSignal;
+    /** Defaults to the AI Review's deadline per model request. */
+    deadlineMs?: number;
+}
+
 /** A local model behind an OpenAI-compatible endpoint; rejects with an actionable `ModelError` if it is not there. */
-export async function selectLocalModel(settings: LocalModelSettings): Promise<ModelPort> {
+export async function selectLocalModel(settings: LocalModelSettings, options: SelectOptions = {}): Promise<ModelPort> {
     const endpoint = settings.endpoint.replace(/\/+$/, '');
-    const listed = await call(endpoint, '/models', { method: 'GET' }) as { data?: { id: string }[] };
+    const deadlineMs = options.deadlineMs ?? DEADLINE_MS;
+    const lookup = new AbortController();
+    const timer = setTimeout(() => lookup.abort(), deadlineMs);
+    const cancel = () => lookup.abort();
+    options.signal?.addEventListener('abort', cancel, { once: true });
+    let listed: { data?: { id: string }[] };
+    try {
+        if (options.signal?.aborted) lookup.abort();
+        listed = await call(endpoint, '/models', { method: 'GET', signal: lookup.signal }) as typeof listed;
+    } catch (error) {
+        if (options.signal?.aborted) throw new ModelError('Cancelled', 'AI Review cancelled.');
+        if (lookup.signal.aborted) throw new ModelError('Timeout', `The local model server at ${endpoint} did not answer within ${deadlineMs / 1000} s.`);
+        throw error;
+    } finally {
+        clearTimeout(timer);
+        options.signal?.removeEventListener('abort', cancel);
+    }
     const models = (listed.data ?? []).map(model => model.id);
     if (models.length === 0) {
         throw new ModelError('NoModel', `The local model server at ${endpoint} has no model. Load one in LM Studio or pull one with Ollama.`);
@@ -29,14 +52,26 @@ async function call(endpoint: string, path: string, init: RequestInit): Promise<
         if (init.signal?.aborted) throw error;
         throw new ModelError('Unreachable', `No local model server answers at ${endpoint}. Start LM Studio's server or Ollama, or correct the endpoint in the settings.`);
     }
-    const body = await response.json() as { error?: { message?: string } | string };
     if (response.status === 429) {
         throw new ModelError('Blocked', `The local model server at ${endpoint} is rate limiting requests. Try again later.`);
     }
+    // Error replies are not always JSON: Ollama answers a path it does not have with plain text
+    const text = await response.text();
+    let body: { error?: { message?: string } | string } | undefined;
+    try {
+        body = JSON.parse(text) as typeof body;
+    } catch {
+        body = undefined;
+    }
+    if (response.status === 404 && !body?.error) {
+        throw new ModelError('NotFound', `The local model server at ${endpoint} has no OpenAI-compatible API there. `
+            + 'Correct the endpoint in the settings; it usually ends in /v1.');
+    }
     if (!response.ok) {
-        const reason = typeof body.error === 'string' ? body.error : body.error?.message ?? `HTTP ${response.status}`;
+        const reason = typeof body?.error === 'string' ? body.error : body?.error?.message ?? `HTTP ${response.status}`;
         throw new ModelError('Unknown', `The local model server at ${endpoint} failed: ${reason}.`);
     }
+    if (body === undefined) throw new ModelError('Unknown', `The local model server at ${endpoint} did not answer with JSON.`);
     return body;
 }
 

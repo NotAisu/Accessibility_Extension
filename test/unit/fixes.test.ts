@@ -36,6 +36,14 @@ describe('deterministic fixes', () => {
         );
     });
 
+    it('keeps the guessed lang a quick fix only, never applied by fix all or on save', async () => {
+        const { findings } = await analyse({ languageId: 'html', text: '<html><head><title>t</title></head><body><p>Hi</p></body></html>' });
+        const lang = findings.find(f => f.criteria[0] === '3.1.1');
+
+        assert.ok(lang?.fix);
+        assert.strictEqual(lang.quickFixOnly, true);
+    });
+
     it('offers no fix for an empty lang, which needs the author\'s language', async () => {
         const { findings } = await analyse({ languageId: 'html', text: '<html lang=""><head><title>t</title></head><body><p>Hi</p></body></html>' });
 
@@ -50,5 +58,7 @@ describe('deterministic fixes', () => {
             await fixed('html', text, '1.3.1'),
             '<html lang="en"><head><title>t</title></head><body class="app"><p>Hi</p></body></html>'
         );
+        const { findings } = await analyse({ languageId: 'html', text });
+        assert.strictEqual(findings.find(f => f.criteria[0] === '1.3.1')?.quickFixOnly, undefined, 'safe to apply on save');
     });
 });

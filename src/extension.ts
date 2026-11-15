@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { isChecked } from './core/analysis';
 import { CheckDiagnostics } from './check-diagnostics';
 import { AIReview } from './ai-review-ui';
 import { FindingsTree } from './findings-tree';
@@ -12,12 +13,14 @@ const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typesc
 const CHECK_LANGUAGES = [...SUPPORTED_LANGUAGES, 'angular'];
 
 export function activate(context: vscode.ExtensionContext): void {
-    // Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and a11y_check
-    const aiAvailable = typeof vscode.lm?.registerTool === 'function';
-    const tree = new FindingsTree(aiAvailable);
+    // Editors without the language model API (some VS Code forks) hide the Skill and a11y_check, and the AI Review
+    // unless it uses a local model
+    const lmAvailable = typeof vscode.lm?.registerTool === 'function';
+    const aiAvailable = () => lmAvailable || vscode.workspace.getConfiguration('allyproof').get<string>('aiReview.provider') === 'local';
+    const tree = new FindingsTree(aiAvailable());
     const check = new CheckDiagnostics(tree);
     const fixes = new CheckFixes(check);
-    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, document => check.findingsOf(document), tree);
+    const aiReview = new AIReview(context, checked, (document, scope) => check.findingsOf(document, scope), tree);
     const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document);
 
     context.subscriptions.push(
@@ -25,7 +28,7 @@ export function activate(context: vscode.ExtensionContext): void {
         check,
         aiReview,
         vscode.languages.registerHoverProvider(SUPPORTED_LANGUAGES, check),
-        vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, new IgnoreActions(), IgnoreActions.metadata),
+        vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, new IgnoreActions(check), IgnoreActions.metadata),
         vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, fixes, CheckFixes.metadata),
         vscode.workspace.onWillSaveTextDocument(event => fixes.fixOnSave(event)),
         vscode.commands.registerCommand('allyproof.startAIReview', () => aiReview.start()),
@@ -39,20 +42,21 @@ export function activate(context: vscode.ExtensionContext): void {
         }),
         vscode.workspace.onDidChangeConfiguration(event => {
             if (event.affectsConfiguration('allyproof.rules')) vscode.workspace.textDocuments.forEach(document => void runDiagnostics(document));
+            if (event.affectsConfiguration('allyproof.aiReview')) {
+                void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', aiAvailable());
+                void aiReview.showIdle();
+            }
         }),
+        vscode.workspace.onDidGrantWorkspaceTrust(() => void aiReview.showIdle()),
         vscode.workspace.onDidCloseTextDocument(document => {
             check.delete(document.uri);
             aiReview.delete(document.uri);
         })
     );
-    if (aiAvailable) {
-        void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', true);
+    void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', aiAvailable());
+    if (lmAvailable) {
         context.subscriptions.push(
             vscode.lm.onDidChangeChatModels(() => void aiReview.showIdle()),
-            vscode.workspace.onDidGrantWorkspaceTrust(() => void aiReview.showIdle()),
-            vscode.workspace.onDidChangeConfiguration(event => {
-                if (event.affectsConfiguration('allyproof.aiReview')) void aiReview.showIdle();
-            }),
             vscode.lm.registerTool('a11y_check', new A11yCheckTool(CHECK_LANGUAGES, document => check.checkFor(document)))
         );
     }
@@ -61,8 +65,15 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.visibleTextEditors.forEach(editor => void runDiagnostics(editor.document));
 }
 
+// TypeScript files only while they hold an Angular component, as the Check's own gate decides
+function checked(document: vscode.TextDocument): boolean {
+    return SUPPORTED_LANGUAGES.includes(document.languageId) && isChecked({ languageId: document.languageId, text: document.getText() });
+}
+
 async function checkDocument(check: CheckDiagnostics, document: vscode.TextDocument): Promise<void> {
     if (!SUPPORTED_LANGUAGES.includes(document.languageId)) return;
+    // A file that no longer holds a component keeps no Findings
+    if (!checked(document)) return check.delete(document.uri);
     try {
         await check.update(document);
     } catch (error) {

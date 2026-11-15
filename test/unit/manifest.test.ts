@@ -19,7 +19,7 @@ interface Manifest {
         views?: Record<string, { id: string; type?: string }[]>;
         languageModelTools?: { name: string; when?: string }[];
         chatSkills?: { path: string; when?: string }[];
-        configuration?: { properties: Record<string, { type: string; enum?: string[]; default?: unknown }> };
+        configuration?: { properties: Record<string, { type: string; scope?: string; enum?: string[]; default?: unknown }> };
     };
 }
 
@@ -69,6 +69,11 @@ describe('manifest', () => {
         assert.match(sourceOf('check-fixes.ts'), /'check\.fixOnSave'/);
     });
 
+    it('reads the rule settings per resource, so each folder of a multi-root workspace has its own', () => {
+        assert.strictEqual(manifest.contributes.configuration?.properties['allyproof.rules'].scope, 'resource');
+        assert.match(sourceOf('check-diagnostics.ts'), /getConfiguration\('allyproof', scope\)\.get<Record<string, RuleSetting>>\('rules'/);
+    });
+
     it('puts every command under the Allyproof category', () => {
         for (const command of manifest.contributes.commands) {
             assert.strictEqual(command.category, 'Allyproof', command.command);
@@ -89,7 +94,8 @@ describe('manifest', () => {
         const settings = manifest.contributes.configuration?.properties ?? {};
         assert.deepStrictEqual(settings['allyproof.aiReview.provider'].enum, ['copilot', 'local']);
         assert.strictEqual(settings['allyproof.aiReview.provider'].default, 'copilot');
-        const restricted = ['allyproof.aiReview.localEndpoint', 'allyproof.aiReview.localModel'];
+        // The provider too, so a workspace cannot switch a local model user to Copilot
+        const restricted = ['allyproof.aiReview.provider', 'allyproof.aiReview.localEndpoint', 'allyproof.aiReview.localModel'];
         for (const key of restricted) assert.ok(settings[key], key);
         const trust = manifest.capabilities?.untrustedWorkspaces;
         assert.strictEqual(trust?.supported, 'limited');

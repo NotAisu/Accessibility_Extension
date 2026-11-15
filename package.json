@@ -52,8 +52,9 @@
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
-      "description": "In untrusted workspaces AI Review uses only GitHub Copilot, so a workspace cannot send your code to another endpoint.",
+      "description": "In untrusted workspaces AI Review uses only GitHub Copilot, so a workspace cannot send your code to another endpoint. With a local model it is disabled until you trust the workspace.",
       "restrictedConfigurations": [
+        "allyproof.aiReview.provider",
         "allyproof.aiReview.localEndpoint",
         "allyproof.aiReview.localModel"
       ]
@@ -165,6 +166,7 @@
         },
         "allyproof.rules": {
           "type": "object",
+          "scope": "resource",
           "default": {},
           "markdownDescription": "Turn Check rules off or change the severity of their Findings, by rule id, for example `{ \"image-alt\": \"off\", \"jsx-a11y-x/alt-text\": \"error\" }`. Check Findings are warnings by default. To ignore a single Finding, put `<!-- allyproof-ignore <rule id> -->` (in JSX `{/* allyproof-ignore <rule id> */}`) on the line above it.",
           "additionalProperties": {
@@ -183,7 +185,7 @@
             "A local model behind an OpenAI-compatible endpoint, such as LM Studio or Ollama. Your code stays on your machine."
           ],
           "default": "copilot",
-          "description": "Where AI Review sends the code. In untrusted workspaces AI Review always uses GitHub Copilot."
+          "description": "Where AI Review sends the code. In untrusted workspaces AI Review uses only GitHub Copilot; with a local model it is disabled until you trust the workspace, so your code never leaves your machine."
         },
         "allyproof.aiReview.localEndpoint": {
           "type": "string",
@@ -198,7 +200,7 @@
         "allyproof.check.fixOnSave": {
           "type": "boolean",
           "default": false,
-          "description": "Apply the Check's deterministic fixes (such as a missing lang) when a file is saved. Off by default: Allyproof never changes your code unless you ask. They are also available as quick fixes and under source.fixAll."
+          "description": "Apply the Check's deterministic fixes that guess nothing (such as removing aria-hidden from the body) when a file is saved. Off by default: Allyproof never changes your code unless you ask. They are also available as quick fixes and under source.fixAll; a fix that guesses, such as adding lang=\"en\", is a quick fix only."
         }
       }
     }
