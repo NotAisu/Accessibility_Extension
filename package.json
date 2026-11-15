@@ -171,7 +171,12 @@
           "markdownDescription": "Turn Check rules off or change the severity of their Findings, by rule id, for example `{ \"image-alt\": \"off\", \"jsx-a11y-x/alt-text\": \"error\" }`. Check Findings are warnings by default. To ignore a single Finding, put `<!-- allyproof-ignore <rule id> -->` (in JSX `{/* allyproof-ignore <rule id> */}`) on the line above it.",
           "additionalProperties": {
             "type": "string",
-            "enum": ["off", "error", "warning", "information"]
+            "enum": [
+              "off",
+              "error",
+              "warning",
+              "information"
+            ]
           }
         },
         "allyproof.aiReview.provider": {
@@ -212,6 +217,7 @@
     "lint": "eslint src test scripts",
     "test:gate": "ts-node test/ground-truth/gate.ts",
     "test:bundle-gate": "scripts/bundle-gate.sh",
+    "test:extension-host": "ts-node test/extension-host/run.ts",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
     "bundle": "node esbuild.js --production && ts-node scripts/third-party-notices.ts",
@@ -224,6 +230,7 @@
     "@types/mocha": "10.0.6",
     "@types/node": "24.13.6",
     "@types/vscode": "1.120.0",
+    "@vscode/test-electron": "3.1.0",
     "@vscode/vsce": "4.1.1",
     "esbuild": "0.28.2",
     "husky": "9.1.7",
