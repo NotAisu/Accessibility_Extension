@@ -82,10 +82,11 @@ export class AnalysisWorker {
         this.worker.postMessage(request.document);
     }
 
-    private finish(outcome: CheckOutcome): void {
+    // A parse error is the user's code, not the engine failing, so it never trips the circuit breaker
+    private finish(outcome: CheckOutcome, failure = outcome.status === 'paused'): void {
         if (!this.running) return;
         clearTimeout(this.running.deadline);
-        if (outcome.status === 'paused') this.recordFailure(this.running.request.document.languageId);
+        if (failure) this.recordFailure(this.running.request.document.languageId);
         this.running.request.resolve(outcome);
         this.running = undefined;
         this.next();
@@ -101,9 +102,9 @@ export class AnalysisWorker {
         const worker = new Worker(this.script, { resourceLimits: { maxOldGenerationSizeMb: MAX_HEAP_MB } });
         worker.on('message', (reply: WorkerReply) => {
             if (worker !== this.worker) return;
-            this.finish('result' in reply
-                ? { status: 'done', result: reply.result }
-                : { status: 'paused', reason: reply.error, deadlineExceeded: false });
+            if ('result' in reply) this.finish({ status: 'done', result: reply.result });
+            else if ('parseError' in reply) this.finish({ status: 'paused', reason: reply.parseError, deadlineExceeded: false }, false);
+            else this.finish({ status: 'paused', reason: reply.error, deadlineExceeded: false });
         });
         // An ended worker is replaced on the next request; one ended on purpose is no longer this.worker
         const stopped = (reason: string) => {

@@ -84,6 +84,18 @@ describe('AnalysisWorker', () => {
         assert.strictEqual(echoed(otherEngine).text, 'ok');
     });
 
+    it('pauses on a parse error without counting it against the engine', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE);
+        const parsed = await worker.check('a.html', html('parse'));
+        await worker.check('a.html', html('parse'));
+        await worker.check('a.html', html('parse'));
+
+        const outcome = await worker.check('a.html', html('ok'));
+
+        assert.deepStrictEqual(parsed, { status: 'paused', reason: 'Parse error at 1:1', deadlineExceeded: false });
+        assert.strictEqual(echoed(outcome).text, 'ok');
+    });
+
     it('keeps an engine running when its failures are spread over more than 3 minutes', async () => {
         let now = 0;
         worker = new AnalysisWorker(FAKE_ENGINE, { now: () => now });
