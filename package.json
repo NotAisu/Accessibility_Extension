@@ -137,12 +137,12 @@
     "vscode:prepublish": "npm run bundle",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src test",
+    "lint": "eslint src test scripts",
     "test:gate": "ts-node test/ground-truth/gate.ts",
     "test:bundle-gate": "scripts/bundle-gate.sh",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
-    "bundle": "node esbuild.js --production",
+    "bundle": "node esbuild.js --production && ts-node scripts/third-party-notices.ts",
     "package": "vsce package",
     "test:unit": "mocha",
     "verify": "npm run lint -- --max-warnings=0 && npm run typecheck && npm run test:unit && npm run test:gate && npm run test:bundle-gate"
@@ -158,14 +158,16 @@
     "lint-staged": "17.6.0",
     "mocha": "10.4.0",
     "ts-node": "10.9.2",
-    "typescript": "5.4.5",
     "typescript-eslint": "8.72.2"
   },
   "dependencies": {
     "@html-eslint/eslint-plugin": "0.68.0",
     "@html-eslint/parser": "0.68.0",
+    "@typescript-eslint/parser": "8.72.2",
     "axe-core": "4.14.0",
     "eslint": "10.15.0",
-    "jsdom": "26.1.0"
+    "eslint-plugin-jsx-a11y-x": "0.2.0",
+    "jsdom": "26.1.0",
+    "typescript": "5.4.5"
   }
 }

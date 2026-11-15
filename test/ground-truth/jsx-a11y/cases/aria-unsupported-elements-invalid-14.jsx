@@ -1,0 +1,1 @@
+<style role {...props} />

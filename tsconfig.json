@@ -17,10 +17,14 @@
   "include": [
     "src/**/*",
     "src/**/*.svelte",
-    "test/**/*.ts"
+    "test/**/*.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     ".vscode-test"
-  ]
+  ],
+  "ts-node": {
+    "files": true
+  }
 }

@@ -1,0 +1,1 @@
+<div aria-readonly="foobar" />

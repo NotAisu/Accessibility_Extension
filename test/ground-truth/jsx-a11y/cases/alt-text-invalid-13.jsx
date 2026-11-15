@@ -1,0 +1,1 @@
+<img aria-labelledby={undefined} />
