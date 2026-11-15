@@ -23,5 +23,8 @@ jobs:
       # of any WCAG criterion drops below the stored baseline of its language. Bundling also writes THIRD-PARTY-NOTICES
       # and fails on a bundled license outside the allowlist
       - run: npm run verify
+      # Extension-host smoke tests: the packaged VSIX in the lowest supported VS Code, in a trusted and an untrusted
+      # workspace, on a virtual display
+      - run: xvfb-run -a npm run test:extension-host
       # The release SBOM step, kept working until the release workflow (#27) attaches its output
       - uses: ./.github/actions/sbom

@@ -33,7 +33,7 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
     private readonly changed = new vscode.EventEmitter<undefined>();
     readonly onDidChangeTreeData = this.changed.event;
     private readonly view = vscode.window.createTreeView(VIEW_ID, { treeDataProvider: this, showCollapseAll: true });
-    private readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
+    readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
     private readonly activeEditorChange = vscode.window.onDidChangeActiveTextEditor(() => this.showStatus());
 
     /** `aiAvailable`: whether the editor supports AI Review; without it the tree offers no AI filter. */

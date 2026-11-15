@@ -98,9 +98,10 @@ export function codeOf(diagnostic: vscode.Diagnostic): string | number | undefin
     return typeof diagnostic.code === 'object' ? diagnostic.code.value : diagnostic.code;
 }
 
-// The `allyproof.rules` setting of the checked file's folder: rules turned off or reported with another severity
+// The `allyproof.rules` setting of the checked file's folder: rules turned off or reported with another severity.
+// Copied, since VS Code returns settings as proxies the worker's structured clone rejects
 function options(scope?: vscode.ConfigurationScope): AnalysisOptions {
-    return { rules: vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, RuleSetting>>('rules', {}) };
+    return { rules: { ...vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, RuleSetting>>('rules', {}) } };
 }
 
 function toDiagnostic(range: vscode.Range, finding: Finding): vscode.Diagnostic {
