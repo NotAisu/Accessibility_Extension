@@ -60,6 +60,10 @@ export async function analyse(document: AnalysisDocument): Promise<AnalysisResul
             needsReview: []
         };
     }
+    if (document.languageId === 'svelte') {
+        const { checkSvelte } = await import('./svelte/engine');
+        return { findings: sortByPosition(checkSvelte(document.text)), needsReview: [] };
+    }
     if (document.languageId !== 'html') return { findings: [], needsReview: [] };
     const { checkHtmlWithAxe, checkHtmlWithEslint } = await import('./html/engine');
     const axe = await checkHtmlWithAxe(document.text);
