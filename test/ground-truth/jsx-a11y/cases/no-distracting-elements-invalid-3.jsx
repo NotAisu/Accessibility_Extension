@@ -1,0 +1,1 @@
+<marquee lang={undefined} />

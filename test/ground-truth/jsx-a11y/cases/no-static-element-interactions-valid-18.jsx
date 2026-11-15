@@ -1,0 +1,1 @@
+<div role="section" onClick={() => {}} />;

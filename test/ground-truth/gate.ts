@@ -10,7 +10,7 @@ import * as path from 'path';
 import * as source from '../../src/core/analysis';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
 
-const SETS = ['act', 'own'];
+const SETS = ['act', 'jsx-a11y', 'own'];
 // One file per language, so work on different languages never touches the same baseline
 const BASELINES = path.join(__dirname, 'baseline');
 

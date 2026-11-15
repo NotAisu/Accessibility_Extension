@@ -1,0 +1,1 @@
+<MyElement onBlur={() => {}} {...props} />

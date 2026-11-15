@@ -1,0 +1,1 @@
+<HTML lang="foo" />

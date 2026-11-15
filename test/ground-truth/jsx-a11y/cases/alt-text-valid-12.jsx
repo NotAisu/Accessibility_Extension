@@ -1,0 +1,1 @@
+<div alt={function(e) {} } />

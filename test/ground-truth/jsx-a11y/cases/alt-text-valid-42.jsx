@@ -1,0 +1,1 @@
+<area aria-labelledby="id1" />

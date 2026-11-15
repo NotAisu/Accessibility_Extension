@@ -158,14 +158,16 @@
     "lint-staged": "17.6.0",
     "mocha": "10.4.0",
     "ts-node": "10.9.2",
-    "typescript": "5.4.5",
     "typescript-eslint": "8.72.2"
   },
   "dependencies": {
     "@html-eslint/eslint-plugin": "0.68.0",
     "@html-eslint/parser": "0.68.0",
+    "@typescript-eslint/parser": "8.72.2",
     "axe-core": "4.14.0",
     "eslint": "10.15.0",
-    "jsdom": "26.1.0"
+    "eslint-plugin-jsx-a11y-x": "0.2.0",
+    "jsdom": "26.1.0",
+    "typescript": "5.4.5"
   }
 }

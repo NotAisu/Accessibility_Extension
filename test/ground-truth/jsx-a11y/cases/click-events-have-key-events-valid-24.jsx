@@ -1,0 +1,1 @@
+<Footer onClick={doFoo} />
