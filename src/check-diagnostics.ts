@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { analyse, Finding } from './core/analysis';
+import { AnalysisWorker } from './analysis-worker';
+import { Finding } from './core/analysis';
 import { criterionName, criterionUrl } from './core/wcag';
 
 export const CHECK_SOURCE = 'Allyproof';
@@ -15,15 +16,38 @@ interface Reported {
     finding: Finding;
 }
 
-/** Shows Check Findings as diagnostics and explains them on hover. */
+/** Shows Check Findings as diagnostics and explains them on hover; a paused Check keeps the last ones. */
 export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable {
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof');
     private readonly reported = new Map<string, Reported[]>();
+    private worker: AnalysisWorker | undefined;
+    // Why the Check is paused, per document
+    private readonly paused = new Map<string, string>();
+    // Documents whose Check missed its deadline are checked on save only: never with unsaved changes
+    private readonly onSaveOnly = new Set<string>();
+    private readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
+    private readonly activeEditorChange = vscode.window.onDidChangeActiveTextEditor(() => this.showPaused());
+
+    /** Starts the analysis worker from its bundled script; the worker thread spawns on the first Check. */
+    start(workerScript: string): void {
+        this.worker = new AnalysisWorker(workerScript);
+    }
 
     async update(document: vscode.TextDocument): Promise<void> {
+        const uri = document.uri.toString();
+        if (!this.worker || (document.isDirty && this.onSaveOnly.has(uri))) return;
         const version = document.version;
-        const { findings } = await analyse({ languageId: document.languageId, text: document.getText() });
-        if (document.isClosed || document.version !== version) return;
+        const outcome = await this.worker.check(uri, { languageId: document.languageId, text: document.getText() });
+        if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
+        if (outcome.status === 'paused') {
+            if (outcome.deadlineExceeded) this.onSaveOnly.add(uri);
+            this.paused.set(uri, outcome.reason);
+            this.showPaused();
+            return;
+        }
+        this.paused.delete(uri);
+        this.showPaused();
+        const { findings } = outcome.result;
 
         const reported = findings.map(finding => ({
             range: new vscode.Range(document.positionAt(finding.range.start), document.positionAt(finding.range.end)),
@@ -35,7 +59,10 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
 
     delete(uri: vscode.Uri): void {
         this.reported.delete(uri.toString());
+        this.paused.delete(uri.toString());
+        this.onSaveOnly.delete(uri.toString());
         this.collection.delete(uri);
+        this.showPaused();
     }
 
     provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.Hover | undefined {
@@ -45,8 +72,22 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     }
 
     dispose(): void {
+        this.worker?.dispose();
+        this.activeEditorChange.dispose();
+        this.status.dispose();
         this.collection.dispose();
         this.reported.clear();
+    }
+
+    // A paused Check must never read as "no Findings", so the active document's pause stays visible
+    private showPaused(): void {
+        const uri = vscode.window.activeTextEditor?.document.uri.toString();
+        const reason = uri === undefined ? undefined : this.paused.get(uri);
+        if (reason === undefined) return this.status.hide();
+        this.status.text = '$(debug-pause) Check paused';
+        this.status.tooltip = reason;
+        this.status.accessibilityInformation = { label: `Check paused: ${reason}` };
+        this.status.show();
     }
 }
 
