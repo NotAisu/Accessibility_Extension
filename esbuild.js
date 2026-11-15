@@ -9,7 +9,7 @@ const watch = process.argv.includes('--watch');
 const TARGET = 'node24.15';
 
 // Packages of the language engines; each must stay out of the activation shell
-const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint'];
+const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', '@typescript-eslint', 'typescript'];
 
 // Engine bundling pitfalls that only show once bundled
 const fixEnginePitfalls = {
@@ -27,6 +27,25 @@ const fixEnginePitfalls = {
                 throw new Error('jsdom sync XHR worker line not found; update the esbuild stub');
             }
             return { contents: patched, loader: 'js' };
+        });
+        // eslint-plugin-jsx-a11y-x reads its name and version from package.json through a runtime
+        // require next to the source file, which the bundle does not ship. A static import is inlined.
+        build.onLoad({ filter: /eslint-plugin-jsx-a11y-x[\\/]lib[\\/]index\.js$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const patched = source.replace(
+                "const { name, version } = require('../package.json');",
+                "import pluginPackage from '../package.json';\nconst { name, version } = pluginPackage;"
+            );
+            if (patched === source) {
+                throw new Error('eslint-plugin-jsx-a11y-x package.json require not found; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
+        // TypeScript's node sys reads __filename and __dirname at load time, which ESM output does not
+        // define. It needs them only to find its lib files and probe case sensitivity, never to parse.
+        build.onLoad({ filter: /typescript[\\/]lib[\\/]typescript\.js$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            return { contents: `var __filename = "typescript.js", __dirname = ".";\n${source}`, loader: 'js' };
         });
     }
 };
@@ -53,8 +72,8 @@ async function main() {
     // Chunk names carry a hash, so chunks of earlier builds would otherwise ship in the VSIX
     fs.rmSync('dist', { recursive: true, force: true });
     const ctx = await esbuild.context({
-        // analysis.mjs is the core on its own, for the bundle gate (and the analysis worker, #29)
-        entryPoints: { extension: 'src/extension.ts', analysis: 'src/core/analysis.ts' },
+        // worker.mjs runs the analysis core in the analysis worker; the bundle gate measures through it
+        entryPoints: { extension: 'src/extension.ts', worker: 'src/core/worker.ts' },
         bundle: true,
         format: 'esm',
         splitting: true,
@@ -83,6 +102,8 @@ async function main() {
         const result = await ctx.rebuild();
         await ctx.dispose();
         assertShellHasNoEngine(result.metafile);
+        // The bundled inputs, for scripts/third-party-notices.ts; not shipped
+        fs.writeFileSync('dist/meta.json', JSON.stringify(result.metafile));
     }
 }
 

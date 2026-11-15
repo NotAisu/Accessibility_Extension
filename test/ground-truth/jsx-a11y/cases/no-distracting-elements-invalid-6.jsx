@@ -1,0 +1,1 @@
+<blink foo={undefined} />

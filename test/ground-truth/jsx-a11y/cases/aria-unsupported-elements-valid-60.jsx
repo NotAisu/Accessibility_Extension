@@ -1,0 +1,1 @@
+<blockquote aria-hidden />

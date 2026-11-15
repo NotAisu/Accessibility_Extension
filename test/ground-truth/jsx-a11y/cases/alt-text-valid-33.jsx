@@ -1,0 +1,1 @@
+<img aria-label="foo" />

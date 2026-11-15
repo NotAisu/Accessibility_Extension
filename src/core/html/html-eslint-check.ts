@@ -2,6 +2,7 @@ import { Linter } from 'eslint/universal';
 import * as htmlPlugin from '@html-eslint/eslint-plugin';
 import * as htmlParser from '@html-eslint/parser';
 import type { Finding } from '../analysis';
+import { lineOffsets } from '../offsets';
 
 // @html-eslint rules whose failure maps to a WCAG 2.2 A/AA criterion, primary criterion first.
 // require-img-alt, require-input-label, require-title, no-invalid-role and no-aria-hidden-on-focusable
@@ -55,12 +56,4 @@ export function checkHtmlWithEslint(text: string): Finding[] {
         });
     }
     return findings;
-}
-
-function lineOffsets(text: string): number[] {
-    const offsets = [0];
-    for (let i = 0; i < text.length; i++) {
-        if (text[i] === '\n') offsets.push(i + 1);
-    }
-    return offsets;
 }

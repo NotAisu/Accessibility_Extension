@@ -1,0 +1,1 @@
+<Foo scope="bar" {...props} />

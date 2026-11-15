@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { analyse } from './core/analysis';
 import { CheckDiagnostics } from './check-diagnostics';
 import { AIReview } from './ai-review-ui';
 
@@ -8,7 +7,7 @@ const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typesc
 const check = new CheckDiagnostics();
 
 export function activate(context: vscode.ExtensionContext): void {
-    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, async document => (await analyse(document)).findings);
+    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, document => check.findingsOf(document));
 
     context.subscriptions.push(
         check,
@@ -31,6 +30,7 @@ export function activate(context: vscode.ExtensionContext): void {
         context.subscriptions.push(vscode.lm.onDidChangeChatModels(() => void aiReview.showIdle()));
     }
 
+    check.start(context.asAbsolutePath('dist/worker.mjs'));
     vscode.window.visibleTextEditors.forEach(editor => void runDiagnostics(editor.document));
 }
 

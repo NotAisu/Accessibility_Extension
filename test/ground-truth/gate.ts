@@ -7,10 +7,11 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
+import { AnalysisWorker } from '../../src/analysis-worker';
 import * as source from '../../src/core/analysis';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
 
-const SETS = ['act', 'own'];
+const SETS = ['act', 'jsx-a11y', 'own'];
 // One file per language, so work on different languages never touches the same baseline
 const BASELINES = path.join(__dirname, 'baseline');
 
@@ -90,18 +91,25 @@ function regressions(scores: Scores, baseline: Scores): string[] {
     return problems;
 }
 
-// The bundle is ESM; Node 24 loads it through require(), which ts-node emits for import()
-async function loadAnalyse(): Promise<Analyse> {
+// The bundle is measured through the analysis worker, exactly as the extension runs it
+function loadAnalyse(): Analyse {
     const index = process.argv.indexOf('--bundle');
     if (index === -1) return source.analyse;
-    const bundle = path.resolve(process.argv[index + 1], 'dist', 'analysis.mjs');
-    console.log(`Measuring the bundle ${bundle}`);
-    return ((await import(bundle)) as typeof source).analyse;
+    const script = path.resolve(process.argv[index + 1], 'dist', 'worker.mjs');
+    console.log(`Measuring the bundle ${script}`);
+    // The gate measures what the Check finds, not how fast; a slow CI machine must not fail it
+    const worker = new AnalysisWorker(script, { deadlineMs: 30_000 });
+    let request = 0;
+    return async document => {
+        const outcome = await worker.check(String(request++), document);
+        if (outcome.status !== 'done') throw new Error(`The analysis worker did not check a case: ${JSON.stringify(outcome)}`);
+        return outcome.result;
+    };
 }
 
 async function main() {
     const silent = new Set<string>();
-    const scoresByLanguage = await measure(await loadAnalyse(), silent);
+    const scoresByLanguage = await measure(loadAnalyse(), silent);
     const update = process.argv.includes('--update');
     const problems = [...silent].map(languageId => `${languageId}: no Findings on the cases that expect one`);
     if (update && problems.length > 0) {

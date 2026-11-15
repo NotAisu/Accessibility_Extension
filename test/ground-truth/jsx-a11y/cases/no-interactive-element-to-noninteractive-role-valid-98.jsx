@@ -1,0 +1,1 @@
+<input mynamespace:role="img" />
