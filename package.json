@@ -279,6 +279,7 @@
     "test:gate": "ts-node test/ground-truth/gate.ts",
     "test:bundle-gate": "scripts/bundle-gate.sh",
     "test:extension-host": "ts-node test/extension-host/run.ts",
+    "bench": "ts-node test/bench/run.ts",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
     "bundle": "node esbuild.js --production && ts-node scripts/third-party-notices.ts",

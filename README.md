@@ -70,6 +70,20 @@ npm run package     # allyproof-<version>.vsix
 
 After an intended change in Check quality, store the new scores with `npm run test:gate -- --update` and commit the changed files in `test/ground-truth/baseline/`.
 
+### AI benchmark
+
+The Skill that ships is chosen by a local benchmark that never runs in CI, because it sends code to models and costs tokens. It reviews the AccessGuru semantic subset (fetched at bench time) and the W3C ACT cases that need judgment, wrapped into Vue and Svelte components and marked synthetic, with every Skill Variant (the shipped `skills/allyproof/SKILL.md` and each `test/bench/variants/*.md`) on every model, and reports recall, precision and tokens per Variant and model.
+
+```sh
+# Local models: load them in LM Studio, or pull them with Ollama
+npm run bench -- --local qwen2.5-coder-7b-instruct --local llama3.1:8b@http://localhost:11434/v1
+# Add Copilot: opens a VS Code window with its own profile; sign in to Copilot there on the first run
+npm run bench -- --local qwen2.5-coder-7b-instruct --copilot
+npm run bench -- --help
+```
+
+The winner has the highest recall over all models among the Variants with a precision of at least 0.8; fewer tokens break a tie. The benchmark prints the command that ships it (`cp test/bench/variants/<name>.md skills/allyproof/SKILL.md`), and writes the full results to `out/bench/results.json` for the PR that ships it.
+
 Press F5 to launch an Extension Development Host. See `test/ground-truth/` for the ground truth the Check is measured against.
 
 ## License
