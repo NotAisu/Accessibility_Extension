@@ -165,6 +165,63 @@
         "when": "allyproof.aiAvailable"
       }
     ],
+    "walkthroughs": [
+      {
+        "id": "allyproof.gettingStarted",
+        "title": "Get Started with Allyproof",
+        "description": "Check your frontend code against WCAG 2.2 AA while you write it.",
+        "steps": [
+          {
+            "id": "check",
+            "title": "Your code is already being checked",
+            "description": "Findings appear in the Problems panel as you type, with a quick fix where there is one safe edit.\n[Show Findings](command:allyproof.findings.focus)",
+            "media": {
+              "markdown": "walkthrough/check.md"
+            },
+            "completionEvents": [
+              "onView:allyproof.findings"
+            ]
+          },
+          {
+            "id": "aiReview",
+            "title": "Set up AI Review",
+            "description": "Review semantic problems with GitHub Copilot, your own keys added to Copilot, or a local model.\n[Choose a provider](command:workbench.action.openSettings?%22allyproof.aiReview.provider%22)",
+            "media": {
+              "markdown": "walkthrough/ai-review.md"
+            },
+            "when": "allyproof.aiAvailable",
+            "completionEvents": [
+              "onSettingChanged:allyproof.aiReview.provider",
+              "onCommand:allyproof.startAIReview"
+            ]
+          },
+          {
+            "id": "skill",
+            "title": "Use the Skill in your own agent",
+            "description": "Copilot chat already has the Skill and the a11y_check tool; other agents can use the same Skill.\n[Open Chat](command:workbench.action.chat.open)",
+            "media": {
+              "markdown": "walkthrough/skill.md"
+            },
+            "when": "allyproof.aiAvailable",
+            "completionEvents": [
+              "onCommand:workbench.action.chat.open"
+            ]
+          },
+          {
+            "id": "configure",
+            "title": "Ignore and configure rules",
+            "description": "Ignore single Findings, turn rules off or change their severity, and fix on save.\n[Open Allyproof settings](command:workbench.action.openSettings?%22allyproof%22)",
+            "media": {
+              "markdown": "walkthrough/configure.md"
+            },
+            "completionEvents": [
+              "onSettingChanged:allyproof.rules",
+              "onSettingChanged:allyproof.check.fixOnSave"
+            ]
+          }
+        ]
+      }
+    ],
     "configuration": {
       "title": "Allyproof",
       "properties": {
@@ -221,6 +278,7 @@
     "lint": "eslint src test scripts",
     "test:gate": "ts-node test/ground-truth/gate.ts",
     "test:bundle-gate": "scripts/bundle-gate.sh",
+    "test:extension-host": "ts-node test/extension-host/run.ts",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
     "bundle": "node esbuild.js --production && ts-node scripts/third-party-notices.ts",
@@ -233,6 +291,7 @@
     "@types/mocha": "10.0.6",
     "@types/node": "24.13.6",
     "@types/vscode": "1.120.0",
+    "@vscode/test-electron": "3.1.0",
     "@vscode/vsce": "4.1.1",
     "esbuild": "0.28.2",
     "husky": "9.1.7",

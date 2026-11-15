@@ -18,7 +18,7 @@ type Provider = 'copilot' | 'local';
 /** Runs the AI Review on user action and shows its progress, result and Findings. */
 export class AIReview implements vscode.Disposable {
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof-ai');
-    private readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     private readonly cache = storedCache(this.context.workspaceState);
     private running: AbortController | undefined;
 
