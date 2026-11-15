@@ -65,7 +65,7 @@ describe('analyse (HTML)', () => {
         const { findings, needsReview } = await analyse({ languageId: 'html', text });
 
         assert.deepStrictEqual(findings, []);
-        assert.deepStrictEqual(needsReview.map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+        assert.deepStrictEqual(needsReview.filter(entry => !entry.range).map(entry => entry.criterion), ['1.4.3', '2.5.8']);
     });
 
     it('returns nothing for languages without a Check yet', async () => {

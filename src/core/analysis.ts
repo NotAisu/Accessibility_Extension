@@ -36,6 +36,8 @@ export interface Finding {
 export interface NeedsReview {
     criterion: string;
     reason: string;
+    /** The element a likely failure points at; entries about the whole document have none. */
+    range?: TextRange;
 }
 
 export interface AnalysisDocument {

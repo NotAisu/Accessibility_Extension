@@ -4,7 +4,8 @@ import * as templateParser from '@angular-eslint/template-parser';
 import ts from 'typescript';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import { isControl, layoutNeedsReview, RenderedContent } from '../needs-review';
+import type { RenderedContent } from '../needs-review';
+import { checkOwnRules } from '../own-rules';
 
 // The Angular engine as one chunk, loaded on the first Angular template or component file.
 
@@ -68,20 +69,22 @@ const linter = new Linter({ configType: 'flat' });
 /** An external component template. */
 export function checkAngularTemplate(text: string): AnalysisResult {
     const { findings, content } = checkTemplate(text, 0);
-    return { findings, needsReview: layoutNeedsReview(content) };
+    const own = checkOwnRules(content);
+    return { findings: [...findings, ...own.findings], needsReview: own.needsReview };
 }
 
 /** The inline `template` strings of the `@Component` decorators in a TypeScript file. */
 export function checkAngularComponents(text: string): AnalysisResult {
     const findings: Finding[] = [];
-    const content = { text: false, controls: false };
+    const content: RenderedContent = { text: false, elements: [] };
     for (const template of inlineTemplates(text)) {
         const checked = checkTemplate(template.text, template.start);
         findings.push(...checked.findings);
         content.text ||= checked.content.text;
-        content.controls ||= checked.content.controls;
+        content.elements.push(...checked.content.elements);
     }
-    return { findings, needsReview: layoutNeedsReview(content) };
+    const own = checkOwnRules(content);
+    return { findings: [...findings, ...own.findings], needsReview: own.needsReview };
 }
 
 // Ranges are offsets into the template text plus `base`, its start in the checked document
@@ -90,7 +93,7 @@ function checkTemplate(text: string, base: number): { findings: Finding[]; conte
     const toOffset = (line: number, column: number) => base + Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
     const messages = verify(text);
-    const facts = messages.some(message => message.fatal) ? undefined : templateFacts(linter.getSourceCode().ast);
+    const facts = messages.some(message => message.fatal) ? undefined : templateFacts(linter.getSourceCode().ast, base);
     for (const message of messages) {
         // Unparseable code must not read as a clean file
         if (message.fatal) {
@@ -166,15 +169,16 @@ interface TemplateFacts {
 }
 
 // Text, interpolations and intrinsic controls; components are opaque until Component Mapping
-function templateFacts(ast: unknown): TemplateFacts {
-    const content = { text: false, controls: false };
+function templateFacts(ast: unknown, base: number): TemplateFacts {
+    const content: RenderedContent = { text: false, elements: [] };
     const boundEvents = new Map<number, Set<string>>();
     const visit = (node: TemplateNode) => {
         if (node.type === 'Text' && typeof node.value === 'string' && node.value.trim()) content.text = true;
         if (node.type === 'BoundText') content.text = true;
         if (node.type === 'Element') {
-            if (isControl(node.name as string, attributesOf(node))) content.controls = true;
             const start = (node.sourceSpan as { start: { offset: number } }).start.offset;
+            const end = (node.startSourceSpan as { end: { offset: number } }).end.offset;
+            content.elements.push({ tag: node.name as string, attributes: attributesOf(node), range: { start: base + start, end: base + end } });
             boundEvents.set(start, new Set((node.outputs as { name: string }[]).map(output => output.name)));
         }
         // Elements, ng-template and control flow blocks keep what they render in children; blocks keep

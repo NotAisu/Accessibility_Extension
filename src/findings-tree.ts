@@ -21,7 +21,7 @@ interface FileState {
     name: string;
     check: LocatedFinding[];
     ai: LocatedFinding[];
-    needsReview: AnalysisResult['needsReview'];
+    needsReview: FileFindings['needsReview'];
     paused?: string;
 }
 
@@ -47,7 +47,9 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
     setCheck(document: vscode.TextDocument, result: AnalysisResult): void {
         const state = this.state(document.uri);
         state.check = locate(document, result.findings);
-        state.needsReview = result.needsReview;
+        state.needsReview = result.needsReview.map(entry => entry.range
+            ? { ...entry, line: document.positionAt(entry.range.start).line + 1 }
+            : entry);
         state.paused = undefined;
         this.refresh();
     }
@@ -125,9 +127,19 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
                 break;
             }
             case 'needs-review':
-            case 'needs-review-entry':
                 item.iconPath = new vscode.ThemeIcon('eye');
                 break;
+            case 'needs-review-entry': {
+                item.iconPath = new vscode.ThemeIcon('eye');
+                if (node.line === undefined) break;
+                const position = new vscode.Position(node.line - 1, 0);
+                item.command = {
+                    title: 'Open Element',
+                    command: 'vscode.open',
+                    arguments: [vscode.Uri.parse(node.uri), { selection: new vscode.Range(position, position) }]
+                };
+                break;
+            }
             case 'paused':
                 item.iconPath = new vscode.ThemeIcon('debug-pause', new vscode.ThemeColor('list.warningForeground'));
                 item.tooltip = node.reason;

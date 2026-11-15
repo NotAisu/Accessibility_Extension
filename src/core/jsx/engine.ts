@@ -3,7 +3,8 @@ import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import { isControl, layoutNeedsReview, RenderedContent } from '../needs-review';
+import type { RenderedContent } from '../needs-review';
+import { checkOwnRules } from '../own-rules';
 
 // The JSX/TSX engine as one chunk, loaded on the first React document.
 
@@ -112,7 +113,8 @@ export function checkJsx(text: string, typescript: boolean): AnalysisResult {
             helpUrl: docs?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
-    return { findings, needsReview: layoutNeedsReview(renderedContent(linter.getSourceCode())) };
+    const own = checkOwnRules(renderedContent(linter.getSourceCode()));
+    return { findings: [...findings, ...own.findings], needsReview: own.needsReview };
 }
 
 interface JsxNode {
@@ -122,12 +124,15 @@ interface JsxNode {
 
 // Text children (literal or an expression) and intrinsic controls; components are opaque until Component Mapping
 function renderedContent(source: { ast: unknown; visitorKeys: Record<string, readonly string[] | undefined> }): RenderedContent {
-    const content = { text: false, controls: false };
+    const content: RenderedContent = { text: false, elements: [] };
     const visit = (node: JsxNode, parent?: JsxNode) => {
         if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
         if (node.type === 'JSXExpressionContainer' && (node.expression as JsxNode).type !== 'JSXEmptyExpression'
             && (parent?.type === 'JSXElement' || parent?.type === 'JSXFragment')) content.text = true;
-        if (node.type === 'JSXOpeningElement' && isControl(tagName(node), attributesOf(node))) content.controls = true;
+        if (node.type === 'JSXOpeningElement') {
+            const [start, end] = node.range as [number, number];
+            content.elements.push({ tag: tagName(node), attributes: attributesOf(node), range: { start, end } });
+        }
         for (const key of source.visitorKeys[node.type] ?? []) {
             for (const child of [node[key]].flat()) {
                 if (child && typeof (child as JsxNode).type === 'string') visit(child as JsxNode, node);

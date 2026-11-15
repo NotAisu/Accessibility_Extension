@@ -16,7 +16,8 @@ export interface FileFindings {
     name: string;
     /** Check and AI Review Findings. */
     findings: LocatedFinding[];
-    needsReview: NeedsReview[];
+    /** `line`: 1-based line of the element a likely failure points at. */
+    needsReview: (NeedsReview & { line?: number })[];
     /** Why the Check is paused for this file; its last Findings stay. */
     paused?: string;
 }
@@ -36,7 +37,7 @@ export type TreeNode = NodeText & (
     | { kind: 'criterion'; criterion: string }
     | { kind: 'finding'; uri: string; finding: Finding; line: number }
     | { kind: 'needs-review' }
-    | { kind: 'needs-review-entry'; entry: NeedsReview }
+    | { kind: 'needs-review-entry'; uri: string; entry: NeedsReview; line?: number }
     | { kind: 'paused'; reason: string }
 );
 
@@ -73,12 +74,15 @@ function fileChildren(file: FileFindings, filters: ReadonlySet<Filter>): TreeNod
             label: 'Needs Review',
             collapsed: true,
             accessibilityLabel: `Needs Review, ${count(file.needsReview.length, 'criterion', 'criteria')} the Check cannot decide`,
-            children: file.needsReview.map(entry => ({
+            children: file.needsReview.map(({ line, ...entry }) => ({
                 kind: 'needs-review-entry',
+                uri: file.uri,
                 entry,
+                line,
                 label: `${entry.criterion} ${criterionName(entry.criterion)}`,
-                description: entry.reason,
+                description: line === undefined ? entry.reason : `Line ${line} · ${entry.reason}`,
                 accessibilityLabel: `Needs Review: WCAG ${entry.criterion} ${criterionName(entry.criterion)}. ${entry.reason}`
+                    + (line === undefined ? '' : `, line ${line}`)
             }))
         });
     }

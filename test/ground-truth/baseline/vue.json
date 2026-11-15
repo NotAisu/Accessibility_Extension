@@ -55,6 +55,20 @@
     "fp": 0,
     "fn": 0
   },
+  "2.5.8": {
+    "precision": 1,
+    "recall": 1,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0
+  },
+  "3.3.8": {
+    "precision": 1,
+    "recall": 1,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0
+  },
   "4.1.2": {
     "precision": 0.926,
     "recall": 1,

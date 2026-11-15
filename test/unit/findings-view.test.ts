@@ -62,6 +62,21 @@ describe('Findings tree', () => {
         assert.strictEqual(needsReview.children![0].description, 'Text contrast depends on rendered colors.');
     });
 
+    it('points a likely failure at its line', () => {
+        const reason = 'Likely failure: <button> declares a 16×16 CSS px target, below 24×24.';
+        const tree = findingsTree([file({
+            needsReview: [
+                { criterion: '2.5.8', reason: 'Target size depends on rendered layout.' },
+                { criterion: '2.5.8', reason, range: { start: 40, end: 60 }, line: 4 }
+            ]
+        })], ALL);
+
+        const [, located] = tree[0].children![0].children!;
+        assert.deepStrictEqual(located.kind === 'needs-review-entry' && [located.uri, located.line], ['file:///app/page.html', 4]);
+        assert.strictEqual(located.description, `Line 4 · ${reason}`);
+        assert.match(located.accessibilityLabel, /line 4$/);
+    });
+
     it('shows only the layers the filters keep, and hides files left empty', () => {
         const files = [
             file({

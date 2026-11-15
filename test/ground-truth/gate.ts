@@ -28,8 +28,10 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Map<strin
         const set = JSON.parse(fs.readFileSync(path.join(dir, 'expectations.json'), 'utf-8')) as GroundTruthSet;
         for (const testCase of set.cases) {
             const text = fs.readFileSync(path.join(dir, testCase.file), 'utf-8');
-            const { findings } = await analyse({ languageId: testCase.languageId, text });
-            const reported = findings.map(f => ({ line: lineAt(text, f.range.start), criteria: f.criteria }));
+            const { findings, needsReview } = await analyse({ languageId: testCase.languageId, text });
+            // A likely failure points at its element, so it is judged like a Finding
+            const located = needsReview.flatMap(entry => entry.range ? [{ range: entry.range, criteria: [entry.criterion] }] : []);
+            const reported = [...findings, ...located].map(f => ({ line: lineAt(text, f.range.start), criteria: f.criteria }));
             if (testCase.expect.some(e => !('present' in e) || e.present)) {
                 failingCaseFindings.set(testCase.languageId, (failingCaseFindings.get(testCase.languageId) ?? 0) + findings.length);
             }
