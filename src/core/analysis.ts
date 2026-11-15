@@ -1,4 +1,5 @@
 import { withoutIgnored } from './ignore';
+import { withFixes } from './fixes';
 
 /** Character offsets into the analysed text, end exclusive. */
 export interface TextRange {
@@ -65,7 +66,7 @@ export async function analyse(document: AnalysisDocument, options: AnalysisOptio
     const { findings, needsReview } = await check(document);
     const rules = options.rules ?? {};
     return {
-        findings: withoutIgnored(document, findings).flatMap(finding => {
+        findings: withFixes(document.text, withoutIgnored(document, findings)).flatMap(finding => {
             const setting = rules[finding.ruleId];
             if (setting === 'off') return [];
             return [setting ? { ...finding, severity: setting } : finding];

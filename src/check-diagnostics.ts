@@ -12,7 +12,7 @@ const SEVERITY: Record<Finding['severity'], vscode.DiagnosticSeverity> = {
     information: vscode.DiagnosticSeverity.Information
 };
 
-interface Reported {
+export interface Reported {
     range: vscode.Range;
     finding: Finding;
 }
@@ -20,7 +20,7 @@ interface Reported {
 /** Shows Check Findings as diagnostics and explains them on hover; a paused Check keeps the last ones. */
 export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable {
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof');
-    private readonly reported = new Map<string, Reported[]>();
+    private readonly reported = new Map<string, { version: number; findings: Reported[] }>();
     private worker: AnalysisWorker | undefined;
     // Documents whose Check missed its deadline are checked on save only: never with unsaved changes
     private readonly onSaveOnly = new Set<string>();
@@ -49,7 +49,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
             range: new vscode.Range(document.positionAt(finding.range.start), document.positionAt(finding.range.end)),
             finding
         }));
-        this.reported.set(document.uri.toString(), reported);
+        this.reported.set(document.uri.toString(), { version, findings: reported });
         this.collection.set(document.uri, reported.map(({ range, finding }) => toDiagnostic(range, finding)));
     }
 
@@ -66,6 +66,13 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         return this.worker.check(`a11y-check:${++this.agentRequests}`, document, options());
     }
 
+    /** Findings with a fix, only while their offsets still match the document's text. */
+    fixable(document: vscode.TextDocument): Reported[] {
+        const reported = this.reported.get(document.uri.toString());
+        if (!reported || reported.version !== document.version) return [];
+        return reported.findings.filter(({ finding }) => finding.fix);
+    }
+
     delete(uri: vscode.Uri): void {
         this.reported.delete(uri.toString());
         this.onSaveOnly.delete(uri.toString());
@@ -74,7 +81,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     }
 
     provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.Hover | undefined {
-        const hits = (this.reported.get(document.uri.toString()) ?? []).filter(r => r.range.contains(position));
+        const hits = (this.reported.get(document.uri.toString())?.findings ?? []).filter(r => r.range.contains(position));
         if (hits.length === 0) return undefined;
         return new vscode.Hover(hits.map(({ finding }) => explain(finding)), hits[0].range);
     }
