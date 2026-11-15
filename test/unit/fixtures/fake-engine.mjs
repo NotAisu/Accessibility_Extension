@@ -1,8 +1,9 @@
-// A fake analysis worker speaking the worker protocol; the document text says how it behaves
+// A fake analysis worker speaking the worker protocol; the document text says how it behaves, `options` echoes the options
 import { parentPort, threadId } from 'worker_threads';
 import { setTimeout } from 'timers/promises';
 
-parentPort.on('message', async document => {
+parentPort.on('message', async ({ document, options }) => {
+    if (document.text === 'options') return parentPort.postMessage({ result: { findings: [], needsReview: [{ criterion: JSON.stringify(options), reason: '' }] } });
     const [behaviour, arg] = document.text.split(':');
     if (behaviour === 'hang') for (;;);
     if (behaviour === 'crash') throw new Error('engine crashed');

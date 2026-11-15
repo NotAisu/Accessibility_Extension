@@ -5,13 +5,14 @@
  *   npm run test:gate -- --update     store the current scores as the new baselines
  *   npm run test:gate -- --bundle <dir>  measure the analysis bundle in <dir>/dist instead of the source
  */
+import '../esm-only-packages';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AnalysisWorker } from '../../src/analysis-worker';
 import * as source from '../../src/core/analysis';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
 
-const SETS = ['act', 'jsx-a11y', 'vuejs-accessibility', 'own', 'svelte', 'angular-eslint'];
+const SETS = ['act', 'jsx-a11y', 'vuejs-accessibility', 'own', 'svelte', 'astro', 'angular-eslint'];
 // One file per language, so work on different languages never touches the same baseline
 const BASELINES = path.join(__dirname, 'baseline');
 

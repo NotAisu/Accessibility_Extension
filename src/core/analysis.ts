@@ -1,3 +1,6 @@
+import { withoutIgnored } from './ignore';
+import { withFixes } from './fixes';
+
 /** Character offsets into the analysed text, end exclusive. */
 export interface TextRange {
     start: number;
@@ -46,6 +49,14 @@ export function checkLanguageId(languageId: string, fileName: string): string {
     return languageId === 'html' && /\.component\.html$/i.test(fileName) ? 'angular' : languageId;
 }
 
+/** A rule turned off, or the severity its Findings are reported with. */
+export type RuleSetting = 'off' | Severity;
+
+export interface AnalysisOptions {
+    /** Per rule id; rules without a setting keep their default severity. */
+    rules?: Record<string, RuleSetting>;
+}
+
 export interface AnalysisResult {
     findings: Finding[];
     needsReview: NeedsReview[];
@@ -59,7 +70,20 @@ export class ParseError extends Error {
     }
 }
 
-export async function analyse(document: AnalysisDocument): Promise<AnalysisResult> {
+export async function analyse(document: AnalysisDocument, options: AnalysisOptions = {}): Promise<AnalysisResult> {
+    const { findings, needsReview } = await check(document);
+    const rules = options.rules ?? {};
+    return {
+        findings: withFixes(document.text, withoutIgnored(document, findings)).flatMap(finding => {
+            const setting = rules[finding.ruleId];
+            if (setting === 'off') return [];
+            return [setting ? { ...finding, severity: setting } : finding];
+        }),
+        needsReview
+    };
+}
+
+async function check(document: AnalysisDocument): Promise<AnalysisResult> {
     if (!document.text.trim()) return { findings: [], needsReview: [] };
     if (document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact') {
         const { checkJsx } = await import('./jsx/engine');
@@ -76,13 +100,18 @@ export async function analyse(document: AnalysisDocument): Promise<AnalysisResul
         const { findings, needsReview } = checkSvelte(document.text);
         return { findings: sortByPosition(findings), needsReview };
     }
+    if (document.languageId === 'astro') {
+        const { checkAstro } = await import('./astro/engine');
+        const { findings, needsReview } = checkAstro(document.text);
+        return { findings: sortByPosition(findings), needsReview };
+    }
     // Angular component templates are inline in TypeScript files that call @Component(; other files never
     // load the engine
     if (document.languageId === 'typescript' && !document.text.includes('@Component(')) return { findings: [], needsReview: [] };
     if (document.languageId === 'angular' || document.languageId === 'typescript') {
         const { checkAngularTemplate, checkAngularComponents } = await import('./angular/engine');
-        const check = document.languageId === 'angular' ? checkAngularTemplate : checkAngularComponents;
-        const { findings, needsReview } = check(document.text);
+        const checkAngular = document.languageId === 'angular' ? checkAngularTemplate : checkAngularComponents;
+        const { findings, needsReview } = checkAngular(document.text);
         return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId !== 'html') return { findings: [], needsReview: [] };

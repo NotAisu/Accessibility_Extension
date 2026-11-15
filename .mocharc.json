@@ -1,5 +1,5 @@
 {
-  "require": "ts-node/register",
+  "require": ["ts-node/register", "test/esm-only-packages.ts"],
   "extension": ["ts"],
   "node-option": ["no-experimental-strip-types"],
   "spec": "test/unit/**/*.test.ts",
