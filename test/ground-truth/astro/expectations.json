@@ -1,0 +1,102 @@
+{
+  "source": "https://github.com/ota-meshi/eslint-plugin-astro/tree/1cfdc01b0725bed3bd99cff8b5e0efefd2c47136/tests/fixtures/rules/jsx-a11y (v3.2.1)",
+  "cases": [
+    {
+      "file": "cases/aria-proptypes-invalid-test01.astro",
+      "languageId": "astro",
+      "note": "eslint-plugin-astro fixture jsx-a11y/aria-proptypes/invalid/test01-input.astro",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "file": "cases/aria-proptypes-valid-conditional-expr01.astro",
+      "languageId": "astro",
+      "note": "eslint-plugin-astro fixture jsx-a11y/aria-proptypes/valid/conditional-expr01-input.astro",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-invalid-test01.astro",
+      "languageId": "astro",
+      "note": "eslint-plugin-astro fixture jsx-a11y/heading-has-content/invalid/test01-input.astro",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "line": 4
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "file": "cases/heading-has-content-valid-set-html-text.astro",
+      "languageId": "astro",
+      "note": "eslint-plugin-astro fixture jsx-a11y/heading-has-content/valid/set-html-text-input.astro",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-invalid-test01.astro",
+      "languageId": "astro",
+      "note": "eslint-plugin-astro fixture jsx-a11y/label-has-associated-control/invalid/test01-input.astro",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 5
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-valid-issue123.astro",
+      "languageId": "astro",
+      "note": "eslint-plugin-astro fixture jsx-a11y/label-has-associated-control/valid/issue123-input.astro",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/label-has-associated-control-valid-test01.astro",
+      "languageId": "astro",
+      "note": "eslint-plugin-astro fixture jsx-a11y/label-has-associated-control/valid/test01-input.astro",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    }
+  ]
+}

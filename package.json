@@ -23,7 +23,8 @@
     "html",
     "react",
     "vue",
-    "svelte"
+    "svelte",
+    "astro"
   ],
   "engines": {
     "vscode": "^1.123.0"
@@ -38,7 +39,8 @@
     "onLanguage:vue",
     "onLanguage:svelte",
     "onLanguage:javascriptreact",
-    "onLanguage:typescriptreact"
+    "onLanguage:typescriptreact",
+    "onLanguage:astro"
   ],
   "main": "./dist/extension.mjs",
   "contributes": {
@@ -167,11 +169,16 @@
     "typescript-eslint": "8.72.2"
   },
   "dependencies": {
+    "@emnapi/core": "1.11.3",
+    "@emnapi/runtime": "1.11.3",
     "@html-eslint/eslint-plugin": "0.68.0",
     "@html-eslint/parser": "0.68.0",
+    "@napi-rs/wasm-runtime": "1.2.7",
     "@typescript-eslint/parser": "8.72.2",
+    "astro-eslint-parser": "3.2.0",
     "axe-core": "4.14.0",
     "eslint": "10.15.0",
+    "eslint-plugin-astro": "3.2.1",
     "eslint-plugin-jsx-a11y-x": "0.2.0",
     "eslint-plugin-vuejs-accessibility": "2.6.3",
     "globals": "17.14.0",

@@ -1,0 +1,16 @@
+---
+interface Props { title: string; cover: string; tags: string[] }
+const { title, cover, tags } = Astro.props as Props;
+---
+<html>
+  <body>
+    <img src={cover}>
+    <h1>{title}</h1>
+    <ul>
+      {tags.map((tag) => <li><a href={`/tags/${tag}`}></a></li>)}
+    </ul>
+    <div onclick="share()">Share</div>
+    <span tabindex="3">Skip</span>
+    <img src="/footer.png" alt="" />
+  </body>
+</html>

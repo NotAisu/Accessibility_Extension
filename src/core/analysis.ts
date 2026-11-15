@@ -68,6 +68,11 @@ export async function analyse(document: AnalysisDocument): Promise<AnalysisResul
         const { findings, needsReview } = checkSvelte(document.text);
         return { findings: sortByPosition(findings), needsReview };
     }
+    if (document.languageId === 'astro') {
+        const { checkAstro } = await import('./astro/engine');
+        const { findings, needsReview } = checkAstro(document.text);
+        return { findings: sortByPosition(findings), needsReview };
+    }
     if (document.languageId !== 'html') return { findings: [], needsReview: [] };
     const { checkHtmlWithAxe, checkHtmlWithEslint } = await import('./html/engine');
     const axe = await checkHtmlWithAxe(document.text);

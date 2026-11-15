@@ -4,7 +4,7 @@ import { AIReview } from './ai-review-ui';
 import { FindingsTree } from './findings-tree';
 import { A11yCheckTool } from './a11y-check-tool';
 
-const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
+const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact', 'astro'];
 
 export function activate(context: vscode.ExtensionContext): void {
     // Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and a11y_check
