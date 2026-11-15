@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { AnalysisWorker } from './analysis-worker';
-import { Finding } from './core/analysis';
+import { AnalysisDocument, Finding } from './core/analysis';
 import { criterionName, criterionUrl } from './core/wcag';
 
 export const CHECK_SOURCE = 'Allyproof';
@@ -56,6 +56,13 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         }));
         this.reported.set(document.uri.toString(), reported);
         this.collection.set(document.uri, reported.map(({ range, finding }) => toDiagnostic(range, finding)));
+    }
+
+    /** Check Findings of exactly this text, for the AI Review; none while the Check is paused. */
+    async findingsOf(document: AnalysisDocument): Promise<Finding[]> {
+        // Its own request key, so it never drops or is dropped by the document's own Check
+        const outcome = await this.worker?.check(`ai-review:${document.languageId}`, document);
+        return outcome?.status === 'done' ? outcome.result.findings : [];
     }
 
     delete(uri: vscode.Uri): void {
