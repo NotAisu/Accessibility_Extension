@@ -3,6 +3,7 @@ import type { AnalysisDocument, Finding } from './core/analysis';
 import { criterionUrl } from './core/wcag';
 import { selectCopilotModel } from './copilot-model';
 import { GateReport, ModelError, ModelPort, ReviewCache, review } from './review/ai-review';
+import { selectLocalModel } from './review/local-model';
 
 export const AI_SOURCE = 'Allyproof AI';
 const SKILL_PATH = ['skills', 'allyproof', 'SKILL.md'];
@@ -36,8 +37,11 @@ export class AIReview implements vscode.Disposable {
         if (this.running) return;
         // Editors without the language model API (some VS Code forks) cannot set up an AI Review at all
         if (typeof vscode.lm?.registerTool !== 'function') return this.status.hide();
-        if (await selectCopilotModel()) {
+        // A local server is only contacted when the user starts a review
+        if (usesLocalModel() || await selectCopilotModel()) {
             this.show('$(sparkle) AI Review', 'Start AI Review of the current file', 'allyproof.startAIReview');
+        } else if (!vscode.workspace.isTrusted) {
+            this.show('$(workspace-untrusted) AI Review disabled', 'Trust this workspace to enable AI Review.', 'workbench.trust.manage');
         } else {
             this.show('$(sparkle) Set up AI Review', 'AI Review uses GitHub Copilot. Install it to enable AI Review.', {
                 title: 'Set up AI Review',
@@ -49,7 +53,12 @@ export class AIReview implements vscode.Disposable {
 
     async start(document = vscode.window.activeTextEditor?.document): Promise<void> {
         if (this.running || !document || !this.languages.includes(document.languageId)) return;
-        const model = await selectCopilotModel();
+        let model: ModelPort | undefined;
+        try {
+            model = usesLocalModel() ? await selectLocalModel(localSettings()) : await selectCopilotModel();
+        } catch (error) {
+            return this.show('$(warning) AI Review failed', describe(error), 'allyproof.startAIReview');
+        }
         if (!model) return this.showIdle();
         if (!this.context.globalState.get(NOTICE_KEY) && !await this.acceptNotice(model)) return;
 
@@ -130,6 +139,20 @@ export class AIReview implements vscode.Disposable {
     }
 }
 
+// In an untrusted workspace AI Review uses only Copilot, so the workspace cannot redirect code to another endpoint
+function usesLocalModel(): boolean {
+    return vscode.workspace.isTrusted
+        && vscode.workspace.getConfiguration('allyproof').get<string>('aiReview.provider', 'copilot') === 'local';
+}
+
+function localSettings(): { endpoint: string; model: string } {
+    const settings = vscode.workspace.getConfiguration('allyproof');
+    return {
+        endpoint: settings.get<string>('aiReview.localEndpoint', 'http://localhost:1234/v1'),
+        model: settings.get<string>('aiReview.localModel', '')
+    };
+}
+
 function memoryCache(): ReviewCache {
     const entries = new Map<string, Finding[]>();
     return { get: key => entries.get(key), set: (key, findings) => void entries.set(key, findings) };
@@ -155,8 +178,9 @@ function summary(gate: GateReport, model: ModelPort): string {
     return `${reviewed} Model: ${model.name}. Click to review again.`;
 }
 
-function describe(error: unknown, model: ModelPort): string {
+function describe(error: unknown, model?: ModelPort): string {
     if (!(error instanceof ModelError)) return error instanceof Error ? error.message : String(error);
+    if (!model) return `${error.message} Click to try again.`;
     switch (error.code) {
         case 'NoPermissions': return `Allyproof may not use ${model.name}. Allow it when VS Code asks, then start AI Review again.`;
         case 'Blocked': return `${model.name} blocked the request, probably a rate limit. Try again later.`;

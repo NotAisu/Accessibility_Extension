@@ -1,6 +1,6 @@
 import { Worker } from 'worker_threads';
-import type { AnalysisDocument, AnalysisResult } from './core/analysis';
-import type { WorkerReply } from './core/worker';
+import type { AnalysisDocument, AnalysisOptions, AnalysisResult } from './core/analysis';
+import type { WorkerReply, WorkerRequest } from './core/worker';
 
 export type CheckOutcome =
     | { status: 'done'; result: AnalysisResult }
@@ -23,6 +23,7 @@ const MAX_HEAP_MB = 512;
 interface Request {
     key: string;
     document: AnalysisDocument;
+    options: AnalysisOptions;
     resolve: (outcome: CheckOutcome) => void;
 }
 
@@ -43,11 +44,11 @@ export class AnalysisWorker {
         this.now = options.now ?? Date.now;
     }
 
-    check(key: string, document: AnalysisDocument): Promise<CheckOutcome> {
+    check(key: string, document: AnalysisDocument, options: AnalysisOptions = {}): Promise<CheckOutcome> {
         return new Promise(resolve => {
             this.pending.get(key)?.resolve({ status: 'dropped' });
             this.pending.delete(key);
-            this.pending.set(key, { key, document, resolve });
+            this.pending.set(key, { key, document, options, resolve });
             this.next();
         });
     }
@@ -79,7 +80,7 @@ export class AnalysisWorker {
         }, this.deadlineMs);
         this.running = { request, deadline };
         this.worker ??= this.spawn();
-        this.worker.postMessage(request.document);
+        this.worker.postMessage({ document: request.document, options: request.options } satisfies WorkerRequest);
     }
 
     // A parse error is the user's code, not the engine failing, so it never trips the circuit breaker

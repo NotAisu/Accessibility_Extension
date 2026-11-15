@@ -1,3 +1,6 @@
+import { withoutIgnored } from './ignore';
+import { withFixes } from './fixes';
+
 /** Character offsets into the analysed text, end exclusive. */
 export interface TextRange {
     start: number;
@@ -38,6 +41,14 @@ export interface AnalysisDocument {
     text: string;
 }
 
+/** A rule turned off, or the severity its Findings are reported with. */
+export type RuleSetting = 'off' | Severity;
+
+export interface AnalysisOptions {
+    /** Per rule id; rules without a setting keep their default severity. */
+    rules?: Record<string, RuleSetting>;
+}
+
 export interface AnalysisResult {
     findings: Finding[];
     needsReview: NeedsReview[];
@@ -51,7 +62,20 @@ export class ParseError extends Error {
     }
 }
 
-export async function analyse(document: AnalysisDocument): Promise<AnalysisResult> {
+export async function analyse(document: AnalysisDocument, options: AnalysisOptions = {}): Promise<AnalysisResult> {
+    const { findings, needsReview } = await check(document);
+    const rules = options.rules ?? {};
+    return {
+        findings: withFixes(document.text, withoutIgnored(document, findings)).flatMap(finding => {
+            const setting = rules[finding.ruleId];
+            if (setting === 'off') return [];
+            return [setting ? { ...finding, severity: setting } : finding];
+        }),
+        needsReview
+    };
+}
+
+async function check(document: AnalysisDocument): Promise<AnalysisResult> {
     if (!document.text.trim()) return { findings: [], needsReview: [] };
     if (document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact') {
         const { checkJsx } = await import('./jsx/engine');

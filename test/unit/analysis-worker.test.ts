@@ -26,6 +26,14 @@ describe('AnalysisWorker', () => {
         assert.strictEqual(echoed(outcome).text, 'ok');
     });
 
+    it('passes the rule settings to the analysis', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE);
+
+        const outcome = await worker.check('a.html', html('options'), { rules: { 'image-alt': 'off' } });
+
+        assert.strictEqual(echoed(outcome).text, '{"rules":{"image-alt":"off"}}');
+    });
+
     it('drops a pending request for a document when a newer version arrives', async () => {
         worker = new AnalysisWorker(FAKE_ENGINE);
         const busy = worker.check('b.html', html('slow:100'));
