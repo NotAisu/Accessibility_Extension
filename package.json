@@ -23,7 +23,9 @@
     "html",
     "react",
     "vue",
-    "svelte"
+    "svelte",
+    "astro",
+    "angular"
   ],
   "engines": {
     "vscode": "^1.123.0"
@@ -38,9 +40,26 @@
     "onLanguage:vue",
     "onLanguage:svelte",
     "onLanguage:javascriptreact",
-    "onLanguage:typescriptreact"
+    "onLanguage:typescriptreact",
+    "onLanguage:astro",
+    "onLanguage:typescript"
   ],
   "main": "./dist/extension.mjs",
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In untrusted workspaces AI Review uses only GitHub Copilot, so a workspace cannot send your code to another endpoint. With a local model it is disabled until you trust the workspace.",
+      "restrictedConfigurations": [
+        "allyproof.aiReview.provider",
+        "allyproof.aiReview.localEndpoint",
+        "allyproof.aiReview.localModel"
+      ]
+    }
+  },
   "contributes": {
     "commands": [
       {
@@ -58,6 +77,11 @@
         "title": "Filter Findings",
         "category": "Allyproof",
         "icon": "$(filter)"
+      },
+      {
+        "command": "allyproof.disableRule",
+        "title": "Disable Rule",
+        "category": "Allyproof"
       }
     ],
     "views": {
@@ -83,6 +107,10 @@
         {
           "command": "allyproof.cancelAIReview",
           "when": "allyproof.aiAvailable"
+        },
+        {
+          "command": "allyproof.disableRule",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -116,7 +144,7 @@
             },
             "languageId": {
               "type": "string",
-              "description": "VS Code language id of code, for example html or typescriptreact. Defaults to the language of filePath."
+              "description": "Language id of code, for example html, typescriptreact or angular for an Angular component template. Defaults to the language of filePath."
             }
           }
         }
@@ -135,6 +163,44 @@
           "type": "boolean",
           "default": false,
           "description": "Also start an AI Review of the active file when it is saved. Off by default: code is only sent to the AI provider when you start a review."
+        },
+        "allyproof.rules": {
+          "type": "object",
+          "scope": "resource",
+          "default": {},
+          "markdownDescription": "Turn Check rules off or change the severity of their Findings, by rule id, for example `{ \"image-alt\": \"off\", \"jsx-a11y-x/alt-text\": \"error\" }`. Check Findings are warnings by default. To ignore a single Finding, put `<!-- allyproof-ignore <rule id> -->` (in JSX `{/* allyproof-ignore <rule id> */}`) on the line above it.",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["off", "error", "warning", "information"]
+          }
+        },
+        "allyproof.aiReview.provider": {
+          "type": "string",
+          "enum": [
+            "copilot",
+            "local"
+          ],
+          "enumDescriptions": [
+            "GitHub Copilot models, including your own keys added to Copilot.",
+            "A local model behind an OpenAI-compatible endpoint, such as LM Studio or Ollama. Your code stays on your machine."
+          ],
+          "default": "copilot",
+          "description": "Where AI Review sends the code. In untrusted workspaces AI Review uses only GitHub Copilot; with a local model it is disabled until you trust the workspace, so your code never leaves your machine."
+        },
+        "allyproof.aiReview.localEndpoint": {
+          "type": "string",
+          "default": "http://localhost:1234/v1",
+          "description": "OpenAI-compatible endpoint of the local model server: http://localhost:1234/v1 for LM Studio, http://localhost:11434/v1 for Ollama."
+        },
+        "allyproof.aiReview.localModel": {
+          "type": "string",
+          "default": "",
+          "description": "Model the local server runs AI Review with, for example qwen2.5-coder. Empty uses the first model the server lists."
+        },
+        "allyproof.check.fixOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Apply the Check's deterministic fixes that guess nothing (such as removing aria-hidden from the body) when a file is saved. Off by default: Allyproof never changes your code unless you ask. They are also available as quick fixes and under source.fixAll; a fix that guesses, such as adding lang=\"en\", is a quick fix only."
         }
       }
     }
@@ -167,11 +233,18 @@
     "typescript-eslint": "8.72.2"
   },
   "dependencies": {
+    "@angular-eslint/eslint-plugin-template": "22.6.0",
+    "@angular-eslint/template-parser": "22.6.0",
+    "@emnapi/core": "1.11.3",
+    "@emnapi/runtime": "1.11.3",
     "@html-eslint/eslint-plugin": "0.68.0",
     "@html-eslint/parser": "0.68.0",
+    "@napi-rs/wasm-runtime": "1.2.7",
     "@typescript-eslint/parser": "8.72.2",
+    "astro-eslint-parser": "3.2.0",
     "axe-core": "4.14.0",
     "eslint": "10.15.0",
+    "eslint-plugin-astro": "3.2.1",
     "eslint-plugin-jsx-a11y-x": "0.2.0",
     "eslint-plugin-vuejs-accessibility": "2.6.3",
     "globals": "17.14.0",

@@ -10,6 +10,8 @@ interface Manifest {
     license: string;
     pricing: string;
     repository?: { url?: string };
+    extensionKind?: string[];
+    capabilities?: { untrustedWorkspaces?: { supported: boolean | string; restrictedConfigurations?: string[] } };
     keywords?: string[];
     categories?: string[];
     contributes: {
@@ -17,6 +19,7 @@ interface Manifest {
         views?: Record<string, { id: string; type?: string }[]>;
         languageModelTools?: { name: string; when?: string }[];
         chatSkills?: { path: string; when?: string }[];
+        configuration?: { properties: Record<string, { type: string; scope?: string; enum?: string[]; default?: unknown }> };
     };
 }
 
@@ -60,6 +63,17 @@ describe('manifest', () => {
         for (const contribution of ai) assert.strictEqual(contribution.when, 'allyproof.aiAvailable');
     });
 
+    it('offers fixing on save as a setting that is off by default', () => {
+        const setting = manifest.contributes.configuration?.properties['allyproof.check.fixOnSave'];
+        assert.deepStrictEqual(setting && { type: setting.type, default: setting.default }, { type: 'boolean', default: false });
+        assert.match(sourceOf('check-fixes.ts'), /'check\.fixOnSave'/);
+    });
+
+    it('reads the rule settings per resource, so each folder of a multi-root workspace has its own', () => {
+        assert.strictEqual(manifest.contributes.configuration?.properties['allyproof.rules'].scope, 'resource');
+        assert.match(sourceOf('check-diagnostics.ts'), /getConfiguration\('allyproof', scope\)\.get<Record<string, RuleSetting>>\('rules'/);
+    });
+
     it('puts every command under the Allyproof category', () => {
         for (const command of manifest.contributes.commands) {
             assert.strictEqual(command.category, 'Allyproof', command.command);
@@ -74,6 +88,22 @@ describe('manifest', () => {
             if (!file.endsWith('.ts')) continue;
             assert.doesNotMatch(fs.readFileSync(path.join(root, 'src', file), 'utf-8'), /createWebviewPanel|registerWebview/, file);
         }
+    });
+
+    it('lets AI Review use Copilot or a local model, with endpoint and model out of reach of untrusted workspaces', () => {
+        const settings = manifest.contributes.configuration?.properties ?? {};
+        assert.deepStrictEqual(settings['allyproof.aiReview.provider'].enum, ['copilot', 'local']);
+        assert.strictEqual(settings['allyproof.aiReview.provider'].default, 'copilot');
+        // The provider too, so a workspace cannot switch a local model user to Copilot
+        const restricted = ['allyproof.aiReview.provider', 'allyproof.aiReview.localEndpoint', 'allyproof.aiReview.localModel'];
+        for (const key of restricted) assert.ok(settings[key], key);
+        const trust = manifest.capabilities?.untrustedWorkspaces;
+        assert.strictEqual(trust?.supported, 'limited');
+        assert.deepStrictEqual(trust.restrictedConfigurations, restricted);
+    });
+
+    it('runs on the UI side or in the remote workspace', () => {
+        assert.deepStrictEqual(manifest.extensionKind, ['ui', 'workspace']);
     });
 
     it('carries the Marketplace identity', () => {

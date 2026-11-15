@@ -72,7 +72,8 @@ export interface ReviewResult {
     gate: GateReport;
 }
 
-const DEADLINE_MS = 60_000;
+/** The default deadline per model request. */
+export const DEADLINE_MS = 60_000;
 // Only an unknown error may be transient; access, rate limits and a slow model would fail the same way again
 const RETRIED_ERRORS = new Set(['Unknown']);
 

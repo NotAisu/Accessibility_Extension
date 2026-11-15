@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { AnalysisWorker, CheckOutcome } from './analysis-worker';
-import { AnalysisDocument, Finding } from './core/analysis';
+import { AnalysisDocument, AnalysisOptions, checkLanguageId, Finding, RuleSetting } from './core/analysis';
 import { criterionName, criterionUrl } from './core/wcag';
 import type { FindingsTree } from './findings-tree';
 
@@ -12,7 +12,7 @@ const SEVERITY: Record<Finding['severity'], vscode.DiagnosticSeverity> = {
     information: vscode.DiagnosticSeverity.Information
 };
 
-interface Reported {
+export interface Reported {
     range: vscode.Range;
     finding: Finding;
 }
@@ -20,7 +20,7 @@ interface Reported {
 /** Shows Check Findings as diagnostics and explains them on hover; a paused Check keeps the last ones. */
 export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable {
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof');
-    private readonly reported = new Map<string, Reported[]>();
+    private readonly reported = new Map<string, { version: number; findings: Reported[] }>();
     private worker: AnalysisWorker | undefined;
     // Documents whose Check missed its deadline are checked on save only: never with unsaved changes
     private readonly onSaveOnly = new Set<string>();
@@ -37,7 +37,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         const uri = document.uri.toString();
         if (!this.worker || (document.isDirty && this.onSaveOnly.has(uri))) return;
         const version = document.version;
-        const outcome = await this.worker.check(uri, { languageId: document.languageId, text: document.getText() });
+        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() }, options(document));
         // A missed deadline counts even when the document changed meanwhile
         if (outcome.status === 'paused' && outcome.deadlineExceeded) this.onSaveOnly.add(uri);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
@@ -49,21 +49,28 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
             range: new vscode.Range(document.positionAt(finding.range.start), document.positionAt(finding.range.end)),
             finding
         }));
-        this.reported.set(document.uri.toString(), reported);
+        this.reported.set(document.uri.toString(), { version, findings: reported });
         this.collection.set(document.uri, reported.map(({ range, finding }) => toDiagnostic(range, finding)));
     }
 
-    /** Check Findings of exactly this text, for the AI Review; none while the Check is paused. */
-    async findingsOf(document: AnalysisDocument): Promise<Finding[]> {
+    /** Check Findings of exactly this text of the file at `scope`, for the AI Review; none while the Check is paused. */
+    async findingsOf(document: AnalysisDocument, scope: vscode.Uri): Promise<Finding[]> {
         // Its own request key, so it never drops or is dropped by the document's own Check
-        const outcome = await this.worker?.check(`ai-review:${document.languageId}`, document);
+        const outcome = await this.worker?.check(`ai-review:${document.languageId}`, document, options(scope));
         return outcome?.status === 'done' ? outcome.result.findings : [];
     }
 
     /** The Check of exactly this text for an agent; every call has its own request key, so none drops another. */
     async checkFor(document: AnalysisDocument): Promise<CheckOutcome> {
         if (!this.worker) return { status: 'paused', reason: 'The Check has not started yet', deadlineExceeded: false };
-        return this.worker.check(`a11y-check:${++this.agentRequests}`, document);
+        return this.worker.check(`a11y-check:${++this.agentRequests}`, document, options());
+    }
+
+    /** Findings with a fix, only while their offsets still match the document's text. */
+    fixable(document: vscode.TextDocument): Reported[] {
+        const reported = this.reported.get(document.uri.toString());
+        if (!reported || reported.version !== document.version) return [];
+        return reported.findings.filter(({ finding }) => finding.fix);
     }
 
     delete(uri: vscode.Uri): void {
@@ -74,7 +81,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     }
 
     provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.Hover | undefined {
-        const hits = (this.reported.get(document.uri.toString()) ?? []).filter(r => r.range.contains(position));
+        const hits = (this.reported.get(document.uri.toString())?.findings ?? []).filter(r => r.range.contains(position));
         if (hits.length === 0) return undefined;
         return new vscode.Hover(hits.map(({ finding }) => explain(finding)), hits[0].range);
     }
@@ -84,6 +91,16 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         this.collection.dispose();
         this.reported.clear();
     }
+}
+
+/** The rule id of a Check diagnostic. */
+export function codeOf(diagnostic: vscode.Diagnostic): string | number | undefined {
+    return typeof diagnostic.code === 'object' ? diagnostic.code.value : diagnostic.code;
+}
+
+// The `allyproof.rules` setting of the checked file's folder: rules turned off or reported with another severity
+function options(scope?: vscode.ConfigurationScope): AnalysisOptions {
+    return { rules: vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, RuleSetting>>('rules', {}) };
 }
 
 function toDiagnostic(range: vscode.Range, finding: Finding): vscode.Diagnostic {

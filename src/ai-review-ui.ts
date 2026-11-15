@@ -1,12 +1,16 @@
 import * as vscode from 'vscode';
-import type { AnalysisDocument, Finding } from './core/analysis';
+import { checkLanguageId, type AnalysisDocument, type Finding } from './core/analysis';
 import { criterionUrl } from './core/wcag';
 import { selectCopilotModel } from './copilot-model';
 import { GateReport, ModelError, ModelPort, ReviewCache, review } from './review/ai-review';
+import { LocalModelSettings, selectLocalModel } from './review/local-model';
 
 export const AI_SOURCE = 'Allyproof AI';
 const SKILL_PATH = ['skills', 'allyproof', 'SKILL.md'];
-const NOTICE_KEY = 'allyproof.aiReview.noticeShown';
+// Per provider, so switching to another provider shows the notice again
+const noticeKey = (provider: Provider) => `allyproof.aiReview.noticeShown.${provider}`;
+
+type Provider = 'copilot' | 'local';
 
 /** Runs the AI Review on user action and shows its progress, result and Findings. */
 export class AIReview implements vscode.Disposable {
@@ -18,9 +22,10 @@ export class AIReview implements vscode.Disposable {
 
     constructor(
         private readonly context: vscode.ExtensionContext,
-        private readonly languages: string[],
+        /** Whether the Check analyses the document, which the AI Review then reviews too. */
+        private readonly reviews: (document: vscode.TextDocument) => boolean,
         /** Check Findings of exactly the reviewed text, so their offsets match the AI Findings'. */
-        private readonly checkFindings: (document: AnalysisDocument) => Promise<Finding[]>,
+        private readonly checkFindings: (document: AnalysisDocument, scope: vscode.Uri) => Promise<Finding[]>,
         /** Mirrors the AI diagnostics in the Findings tree: shows the AI Findings beside the Check's, or clears them. */
         private readonly tree: {
             setAI(document: vscode.TextDocument, findings: Finding[]): void;
@@ -34,10 +39,14 @@ export class AIReview implements vscode.Disposable {
     /** Reflects whether a model is available; call when the models change. */
     async showIdle(): Promise<void> {
         if (this.running) return;
-        // Editors without the language model API (some VS Code forks) cannot set up an AI Review at all
-        if (typeof vscode.lm?.registerTool !== 'function') return this.status.hide();
-        if (await selectCopilotModel()) {
+        const local = provider() === 'local';
+        // Without the language model API (some VS Code forks) only a local model can review
+        if (!local && typeof vscode.lm?.registerTool !== 'function') return this.status.hide();
+        // A local server is only contacted when the user starts a review
+        if (usesLocalModel() || (!local && await selectCopilotModel())) {
             this.show('$(sparkle) AI Review', 'Start AI Review of the current file', 'allyproof.startAIReview');
+        } else if (!vscode.workspace.isTrusted) {
+            this.show('$(workspace-untrusted) AI Review disabled', 'Trust this workspace to enable AI Review.', 'workbench.trust.manage');
         } else {
             this.show('$(sparkle) Set up AI Review', 'AI Review uses GitHub Copilot. Install it to enable AI Review.', {
                 title: 'Set up AI Review',
@@ -48,18 +57,36 @@ export class AIReview implements vscode.Disposable {
     }
 
     async start(document = vscode.window.activeTextEditor?.document): Promise<void> {
-        if (this.running || !document || !this.languages.includes(document.languageId)) return;
-        const model = await selectCopilotModel();
+        if (this.running || !document || !this.reviews(document)) return;
+        const chosen = provider();
+        // An untrusted workspace never falls back to Copilot when the user chose a local model
+        if (chosen === 'local' && !usesLocalModel()) return this.showIdle();
+        let model: ModelPort | undefined;
+        if (chosen === 'local') {
+            // The lookup can be cancelled like the review itself
+            const lookup = this.running = new AbortController();
+            this.show('$(loading~spin) AI Review…', 'Connecting to the local model server. Click to cancel.', 'allyproof.cancelAIReview');
+            try {
+                model = await selectLocalModel(localSettings(), { signal: lookup.signal });
+            } catch (error) {
+                const cancelled = error instanceof ModelError && error.code === 'Cancelled';
+                return this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error), 'allyproof.startAIReview');
+            } finally {
+                this.running = undefined;
+            }
+        } else {
+            model = await selectCopilotModel();
+        }
         if (!model) return this.showIdle();
-        if (!this.context.globalState.get(NOTICE_KEY) && !await this.acceptNotice(model)) return;
+        if (!this.context.globalState.get(noticeKey(chosen)) && !await this.acceptNotice(model, chosen)) return;
 
         const running = this.running = new AbortController();
         const version = document.version;
         this.show('$(loading~spin) AI Review…', `Reviewing with ${model.name}. Click to cancel.`, 'allyproof.cancelAIReview');
         try {
-            const reviewed = { languageId: document.languageId, text: document.getText() };
+            const reviewed = { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() };
             const { findings, gate } = await review(
-                { document: reviewed, checkFindings: await this.checkFindings(reviewed) },
+                { document: reviewed, checkFindings: await this.checkFindings(reviewed, document.uri) },
                 {
                     model,
                     skill: { text: await this.readSkill() },
@@ -88,7 +115,7 @@ export class AIReview implements vscode.Disposable {
     /** Auto review is an opt-in setting and only runs after the user accepted the provider notice. */
     reviewOnSave(document: vscode.TextDocument): void {
         const auto = vscode.workspace.getConfiguration('allyproof').get<boolean>('aiReview.auto', false);
-        if (auto && this.context.globalState.get(NOTICE_KEY) && document === vscode.window.activeTextEditor?.document) {
+        if (auto && this.context.globalState.get(noticeKey(provider())) && document === vscode.window.activeTextEditor?.document) {
             void this.start(document);
         }
     }
@@ -104,15 +131,15 @@ export class AIReview implements vscode.Disposable {
         this.status.dispose();
     }
 
-    // Shown once, before any code leaves the machine for the first time
-    private async acceptNotice(model: ModelPort): Promise<boolean> {
+    // Shown once per provider, before any code goes to that provider for the first time
+    private async acceptNotice(model: ModelPort, chosen: Provider): Promise<boolean> {
         const answer = await vscode.window.showInformationMessage(
             'AI Review sends the code of the current file to the AI provider.',
             { modal: true, detail: `Provider: ${model.name}. The review only runs when you start it.` },
             'Start AI Review'
         );
         if (answer !== 'Start AI Review') return false;
-        await this.context.globalState.update(NOTICE_KEY, true);
+        await this.context.globalState.update(noticeKey(chosen), true);
         return true;
     }
 
@@ -128,6 +155,24 @@ export class AIReview implements vscode.Disposable {
         this.status.accessibilityInformation = { label: `${text.replace(/\$\([^)]*\)\s*/g, '')}. ${tooltip}` };
         this.status.show();
     }
+}
+
+function provider(): Provider {
+    return vscode.workspace.getConfiguration('allyproof').get<Provider>('aiReview.provider', 'copilot') === 'local' ? 'local' : 'copilot';
+}
+
+// An untrusted workspace cannot redirect code to another endpoint, so it gets no local model; AI Review is then
+// disabled rather than sending the code to Copilot instead
+function usesLocalModel(): boolean {
+    return vscode.workspace.isTrusted && provider() === 'local';
+}
+
+function localSettings(): LocalModelSettings {
+    const settings = vscode.workspace.getConfiguration('allyproof');
+    return {
+        endpoint: settings.get<string>('aiReview.localEndpoint', 'http://localhost:1234/v1'),
+        model: settings.get<string>('aiReview.localModel', '')
+    };
 }
 
 function memoryCache(): ReviewCache {
@@ -155,8 +200,9 @@ function summary(gate: GateReport, model: ModelPort): string {
     return `${reviewed} Model: ${model.name}. Click to review again.`;
 }
 
-function describe(error: unknown, model: ModelPort): string {
+function describe(error: unknown, model?: ModelPort): string {
     if (!(error instanceof ModelError)) return error instanceof Error ? error.message : String(error);
+    if (!model) return `${error.message} Click to try again.`;
     switch (error.code) {
         case 'NoPermissions': return `Allyproof may not use ${model.name}. Allow it when VS Code asks, then start AI Review again.`;
         case 'Blocked': return `${model.name} blocked the request, probably a rate limit. Try again later.`;

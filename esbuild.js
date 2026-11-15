@@ -1,5 +1,7 @@
 const esbuild = require('esbuild');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
+const path = require('path');
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
@@ -9,7 +11,29 @@ const watch = process.argv.includes('--watch');
 const TARGET = 'node24.15';
 
 // Packages of the language engines; each must stay out of the activation shell
-const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', 'eslint-plugin-vuejs-accessibility', 'vue-eslint-parser', '@typescript-eslint', 'typescript', 'svelte'];
+const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint', 'eslint-plugin-jsx-a11y-x', 'eslint-plugin-vuejs-accessibility', 'vue-eslint-parser', '@typescript-eslint', 'typescript', 'svelte', '@angular-eslint', 'eslint-plugin-astro', 'astro-eslint-parser', '@astrojs', '@napi-rs', '@emnapi'];
+
+// The Astro compiler's WASM/WASI build is published for cpu wasm32 only, so npm never installs it and
+// would otherwise load a native binding. It is taken from the tarball the lockfile pins, through npm so the
+// registry configuration applies, and checked against the lockfile's integrity.
+function astroWasiBinding() {
+    const name = '@astrojs/compiler-binding-wasm32-wasi';
+    const locked = JSON.parse(fs.readFileSync('package-lock.json', 'utf8')).packages[`node_modules/${name}`];
+    // Laid out as an installed package inside node_modules, so its own requires resolve to the installed runtime
+    // packages and the third-party notices find its manifest
+    const cache = path.resolve('node_modules', '.cache', 'allyproof', `astro-wasi-${locked.version}`);
+    const dir = path.join(cache, 'node_modules', name);
+    const entry = path.join(dir, 'astro.wasi.cjs');
+    if (fs.existsSync(entry)) return entry;
+    fs.rmSync(cache, { recursive: true, force: true });
+    fs.mkdirSync(dir, { recursive: true });
+    const [packed] = JSON.parse(execFileSync('npm', ['pack', `${name}@${locked.version}`, '--json', '--pack-destination', cache], { encoding: 'utf8', shell: process.platform === 'win32' }));
+    if (packed.integrity !== locked.integrity) {
+        throw new Error(`${name}@${locked.version} does not match the integrity in package-lock.json`);
+    }
+    execFileSync('tar', ['-xzf', path.join(cache, packed.filename), '-C', dir, '--strip-components=1']);
+    return entry;
+}
 
 // Engine bundling pitfalls that only show once bundled
 const fixEnginePitfalls = {
@@ -65,6 +89,66 @@ const fixEnginePitfalls = {
             }
             return { contents: patched, loader: 'js' };
         });
+        // @typescript-eslint/utils exports TSESLint, wrappers around ESLint's Node API (ESLint, Linter,
+        // RuleTester) that would bundle its config loader. @angular-eslint's rules never use them.
+        build.onLoad({ filter: /@typescript-eslint[\\/]utils[\\/]dist[\\/]index\.js$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const patched = source.replace('exports.TSESLint = __importStar(require("./ts-eslint"));', 'exports.TSESLint = {};');
+            if (patched === source) {
+                throw new Error('@typescript-eslint/utils TSESLint export not found; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
+        // The Astro compiler's WASI glue reads its .wasm next to __dirname, which the bundle does not have; the
+        // module is inlined instead. Parsing a string needs no file system, environment or threads, so the
+        // WASI instance gets none of them.
+        build.onLoad({ filter: /compiler-binding-wasm32-wasi[\\/]astro\.wasi\.cjs$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const patched = source
+                .replace(/let __wasmFilePath = [\s\S]*?\n}\n/, '')
+                .replace('__nodeFs.readFileSync(__wasmFilePath)', 'require("./astro.wasm32-wasi.wasm")')
+                .replace(/  env: process\.env,\n  preopens: {\n    \[__rootDir\]: __rootDir,\n  }\n/, '  env: {},\n  preopens: {}\n')
+                .replace(/onCreateWorker\(\) {[\s\S]*?\n  },\n  overwriteImports/, 'onCreateWorker() {\n    throw new Error("The Check parses Astro without threads")\n  },\n  overwriteImports');
+            if (patched.includes('__wasmFilePath') || patched.includes('__rootDir]') || patched.includes('new Worker(')) {
+                throw new Error('Astro compiler WASI glue not as expected; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
+        // eslint-plugin-astro looks up eslint-plugin-jsx-a11y(-x), the TypeScript parser and espree in the working
+        // directory, or espree beside an ESLint in the require cache, and style preprocessors beside the checked
+        // file. Each would run workspace code (ADR 0002), so they come from a static import map of bundled copies.
+        build.onLoad({ filter: /eslint-plugin-astro[\\/]lib[\\/]index\.mjs$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const patched = source
+                .replace(
+                    'import * as espree from "espree";',
+                    'import * as espree from "espree";\nimport * as bundledJsxA11y from "eslint-plugin-jsx-a11y-x";\nimport * as bundledTsParser from "@typescript-eslint/parser";\n'
+                    + 'const BUNDLED = { "eslint-plugin-jsx-a11y-x": bundledJsxA11y.default ?? bundledJsxA11y, "@typescript-eslint/parser": bundledTsParser, espree };'
+                )
+                .replace(/function requireUserLocal\(id\) {[\s\S]*?\n}\n/, 'function requireUserLocal(id) {\n\treturn BUNDLED[id] ?? null;\n}\n')
+                .replace(/function loadModule\(context, name\) {[\s\S]*?\n}\n/, 'function loadModule(context, name) {\n\treturn null;\n}\n')
+                .replace(/function resolveModule\(context, name\) {[\s\S]*?\n}\n/, 'function resolveModule(context, name) {\n\treturn null;\n}\n')
+                .replace(/function getEspree\(\) {[\s\S]*?\n}\n/, 'function getEspree() {\n\treturn espree;\n}\n');
+            if (/process\.cwd\(\)|context\.cwd|createRequire\(|Module\._cache/.test(patched.replace('cwd: context.cwd ?? process.cwd(),', ''))) {
+                throw new Error('eslint-plugin-astro module lookup not as expected; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
+        // astro-eslint-parser prefers eslint-scope and espree from the working directory or from an ESLint in the
+        // require cache, which would run workspace code (ADR 0002), so the bundled copies are always used. Its
+        // typescript lookups only run with parserOptions.project, which the Check never sets.
+        build.onLoad({ filter: /astro-eslint-parser[\\/]lib[\\/]index\.mjs$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const patched = source
+                .replace(/function getEslintScopeFromUser\(\) {[\s\S]*?\n}\n/, 'function getEslintScopeFromUser() {\n\treturn null;\n}\n')
+                .replace(/function getEslintScopeFromEslint\(\) {[\s\S]*?\n}\n/, 'function getEslintScopeFromEslint() {\n\treturn null;\n}\n')
+                .replace('import { parse } from "@astrojs/compiler-rs";', 'import { parse } from "@astrojs/compiler-rs";\nimport * as bundledEspree from "espree";')
+                .replace(/function getEspree\(\) {[\s\S]*?\n}\n/, 'function getEspree() {\n\treturn bundledEspree;\n}\n');
+            if (!patched.includes('bundledEspree;') || patched.includes('createRequire(linterPath)') || patched.includes('"eslint-scope")') || patched.includes('resolve("eslint/package.json")')) {
+                throw new Error('astro-eslint-parser module lookup not as expected; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
         // TypeScript's node sys reads __filename and __dirname at load time, which ESM output does not
         // define. It needs them only to find its lib files and probe case sensitivity, never to parse.
         build.onLoad({ filter: /typescript[\\/]lib[\\/]typescript\.js$/ }, async (args) => {
@@ -112,7 +196,12 @@ async function main() {
         // native and loaded in try/catch, so leaving them out keeps the VSIX universal.
         external: ['vscode', 'canvas', 'bufferutil', 'utf-8-validate'],
         // The UMD build of this @html-eslint dependency resolves its modules dynamically, which a bundle cannot follow
-        alias: { 'vscode-css-languageservice': 'vscode-css-languageservice/lib/esm/cssLanguageService.js' },
+        alias: {
+            'vscode-css-languageservice': 'vscode-css-languageservice/lib/esm/cssLanguageService.js',
+            '@astrojs/compiler-binding': astroWasiBinding()
+        },
+        // The Astro compiler's WASM module, inlined into the Astro chunk
+        loader: { '.wasm': 'binary' },
         metafile: true,
         minify: production,
         sourcemap: !production,

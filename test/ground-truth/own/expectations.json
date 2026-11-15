@@ -13,6 +13,19 @@
         { "criterion": "3.1.1", "present": false },
         { "criterion": "2.4.2", "present": false }
       ]
+    },
+    {
+      "file": "astro/blog-post.astro",
+      "languageId": "astro",
+      "note": "Astro rules without an upstream fixture: TypeScript frontmatter, a page without lang, an image without alt, an empty link in an expression, a clickable div and a positive tabindex",
+      "expect": [
+        { "criterion": "3.1.1", "line": 5 },
+        { "criterion": "1.1.1", "line": 7 },
+        { "criterion": "2.4.4", "line": 10 },
+        { "criterion": "2.1.1", "line": 12 },
+        { "criterion": "2.4.3", "line": 13 },
+        { "criterion": "2.4.6", "present": false }
+      ]
     }
   ]
 }
