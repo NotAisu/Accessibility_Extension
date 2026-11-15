@@ -15,4 +15,8 @@ if [ -n "$native" ]; then
     echo "Native binaries in the VSIX:"; echo "$native"; exit 1
 fi
 
+# The notices generated from the bundle ship with it
+grep -q "W3C Software And Document" "$dir/vsix/extension/dist/THIRD-PARTY-NOTICES.txt" \
+    || { echo "THIRD-PARTY-NOTICES.txt with the W3C notice missing from the VSIX"; exit 1; }
+
 npm run test:gate -- --bundle "$dir/vsix/extension"

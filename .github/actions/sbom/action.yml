@@ -1,0 +1,24 @@
+name: CycloneDX SBOM
+description: Writes a CycloneDX SBOM of the shipped (non-dev) dependencies; the release workflow (#27) attaches it to the release
+inputs:
+  path:
+    description: File to write the SBOM to
+    default: allyproof.cdx.json
+outputs:
+  path:
+    description: The written SBOM file
+    value: ${{ inputs.path }}
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        SBOM_PATH: ${{ inputs.path }}
+      # Not `npm sbom --omit=dev`: it drops eslint and its tree because dev packages name eslint as a peer.
+      # A production-only install lists exactly what ships.
+      run: |
+        out="$PWD/$SBOM_PATH"; dir=$(mktemp -d)
+        cp package.json package-lock.json "$dir" && cd "$dir"
+        npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+        npm pkg delete devDependencies
+        npm sbom --sbom-format cyclonedx > "$out"

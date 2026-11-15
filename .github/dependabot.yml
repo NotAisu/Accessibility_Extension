@@ -1,0 +1,31 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Version updates wait for a release to age; security updates are not delayed
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    # A package goes into the first group it matches: framework groups come before ESLint so a
+    # framework's lint plugin and parser update together with it
+    groups:
+      svelte:
+        patterns: ["svelte", "svelte-*", "@sveltejs/*", "eslint-plugin-svelte"]
+      angular:
+        patterns: ["@angular/*", "@angular-eslint/*", "angular-eslint"]
+      astro:
+        patterns: ["astro", "astro-*", "@astrojs/*", "eslint-plugin-astro"]
+      eslint:
+        patterns: ["eslint", "@eslint/*", "eslint-*", "@html-eslint/*", "typescript-eslint", "@typescript-eslint/*"]
+      typescript:
+        patterns: ["typescript", "ts-node"]
+      jsdom-and-axe:
+        patterns: ["jsdom", "@types/jsdom", "axe-core"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
