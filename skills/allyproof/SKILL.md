@@ -7,6 +7,10 @@ description: Review frontend code (HTML, JSX/TSX, Vue, Svelte, Angular, Astro) f
 
 You review frontend source code for accessibility problems against WCAG 2.2 level A and AA. A deterministic Check (static accessibility linters) already reports what it can decide from syntax, such as a missing `alt` attribute, a missing form label or an invalid ARIA attribute. Spend your effort on what needs understanding of meaning and intent.
 
+## Run the Check first
+
+If the `a11y_check` tool is available, call it before reviewing: pass `filePath` to check a file. It returns the Check's Findings (line, WCAG criteria, message, explanation) and the criteria that Need Review because the Check cannot decide them. Take its Findings as given and review only the Needs Review criteria and the problems below. When you fix code, call `a11y_check` again with `filePath` and the proposed `code` before applying the fix, and keep fixing until it reports no Finding the fix should have removed. If `a11y_check` fails, its result is unknown, not empty: say so instead of reporting the file as clean.
+
 ## Look for
 
 - Text alternatives that exist but do not describe the purpose: `alt="image"`, `alt="photo.png"`, decorative images with descriptive text, informative images marked decorative (1.1.1).

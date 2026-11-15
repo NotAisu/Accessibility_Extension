@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { AnalysisWorker } from './analysis-worker';
+import { AnalysisWorker, CheckOutcome } from './analysis-worker';
 import { AnalysisDocument, Finding } from './core/analysis';
 import { criterionName, criterionUrl } from './core/wcag';
 
@@ -26,6 +26,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     // Documents whose Check missed its deadline are checked on save only: never with unsaved changes
     private readonly onSaveOnly = new Set<string>();
     private readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 99);
+    private agentRequests = 0;
     private readonly activeEditorChange = vscode.window.onDidChangeActiveTextEditor(() => this.showPaused());
 
     /** Starts the analysis worker from its bundled script; the worker thread spawns on the first Check. */
@@ -63,6 +64,12 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         // Its own request key, so it never drops or is dropped by the document's own Check
         const outcome = await this.worker?.check(`ai-review:${document.languageId}`, document);
         return outcome?.status === 'done' ? outcome.result.findings : [];
+    }
+
+    /** The Check of exactly this text for an agent; every call has its own request key, so none drops another. */
+    async checkFor(document: AnalysisDocument): Promise<CheckOutcome> {
+        if (!this.worker) return { status: 'paused', reason: 'The Check has not started yet', deadlineExceeded: false };
+        return this.worker.check(`a11y-check:${++this.agentRequests}`, document);
     }
 
     delete(uri: vscode.Uri): void {
