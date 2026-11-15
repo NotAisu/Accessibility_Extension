@@ -40,6 +40,7 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
         vscode.workspace.onWillSaveTextDocument(event => fixes.fixOnSave(event)),
         vscode.commands.registerCommand('allyproof.startAIReview', () => aiReview.start()),
         vscode.commands.registerCommand('allyproof.cancelAIReview', () => aiReview.cancel()),
+        vscode.commands.registerCommand('allyproof.clearAIReviewCache', () => aiReview.clearCache()),
         vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),
         vscode.commands.registerCommand('allyproof.disableRule', disableRule),
         vscode.workspace.onDidOpenTextDocument(runDiagnostics),

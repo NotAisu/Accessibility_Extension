@@ -73,6 +73,11 @@
         "category": "Allyproof"
       },
       {
+        "command": "allyproof.clearAIReviewCache",
+        "title": "Clear AI Review Cache",
+        "category": "Allyproof"
+      },
+      {
         "command": "allyproof.filterFindings",
         "title": "Filter Findings",
         "category": "Allyproof",
@@ -106,6 +111,10 @@
         },
         {
           "command": "allyproof.cancelAIReview",
+          "when": "allyproof.aiAvailable"
+        },
+        {
+          "command": "allyproof.clearAIReviewCache",
           "when": "allyproof.aiAvailable"
         },
         {
