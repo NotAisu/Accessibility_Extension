@@ -38,9 +38,10 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         if (!this.worker || (document.isDirty && this.onSaveOnly.has(uri))) return;
         const version = document.version;
         const outcome = await this.worker.check(uri, { languageId: document.languageId, text: document.getText() });
+        // A missed deadline counts even when the document changed meanwhile
+        if (outcome.status === 'paused' && outcome.deadlineExceeded) this.onSaveOnly.add(uri);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
         if (outcome.status === 'paused') {
-            if (outcome.deadlineExceeded) this.onSaveOnly.add(uri);
             this.paused.set(uri, outcome.reason);
             this.showPaused();
             return;

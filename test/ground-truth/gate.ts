@@ -97,7 +97,8 @@ function loadAnalyse(): Analyse {
     if (index === -1) return source.analyse;
     const script = path.resolve(process.argv[index + 1], 'dist', 'worker.mjs');
     console.log(`Measuring the bundle ${script}`);
-    const worker = new AnalysisWorker(script);
+    // The gate measures what the Check finds, not how fast; a slow CI machine must not fail it
+    const worker = new AnalysisWorker(script, { deadlineMs: 30_000 });
     let request = 0;
     return async document => {
         const outcome = await worker.check(String(request++), document);
