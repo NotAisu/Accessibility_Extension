@@ -1,8 +1,9 @@
 import { Linter } from 'eslint/universal';
 import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import * as tsParser from '@typescript-eslint/parser';
-import { Finding, ParseError } from '../analysis';
+import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
+import { isControl, layoutNeedsReview, RenderedContent } from '../needs-review';
 
 // The JSX/TSX engine as one chunk, loaded on the first React document.
 
@@ -88,7 +89,7 @@ function config(skip: Set<string>): Linter.Config[] {
 const linter = new Linter({ configType: 'flat' });
 
 /** Plain JSX is parsed by espree, TypeScript only for `.tsx` (`typescript: true`). */
-export function checkJsx(text: string, typescript: boolean): Finding[] {
+export function checkJsx(text: string, typescript: boolean): AnalysisResult {
     const offsets = lineOffsets(text);
     const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
@@ -111,7 +112,47 @@ export function checkJsx(text: string, typescript: boolean): Finding[] {
             helpUrl: docs?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
-    return findings;
+    return { findings, needsReview: layoutNeedsReview(renderedContent(linter.getSourceCode())) };
+}
+
+interface JsxNode {
+    type: string;
+    [key: string]: unknown;
+}
+
+// Text children (literal or an expression) and intrinsic controls; components are opaque until Component Mapping
+function renderedContent(source: { ast: unknown; visitorKeys: Record<string, readonly string[] | undefined> }): RenderedContent {
+    const content = { text: false, controls: false };
+    const visit = (node: JsxNode, parent?: JsxNode) => {
+        if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
+        if (node.type === 'JSXExpressionContainer' && (node.expression as JsxNode).type !== 'JSXEmptyExpression'
+            && (parent?.type === 'JSXElement' || parent?.type === 'JSXFragment')) content.text = true;
+        if (node.type === 'JSXOpeningElement' && isControl(tagName(node), attributesOf(node))) content.controls = true;
+        for (const key of source.visitorKeys[node.type] ?? []) {
+            for (const child of [node[key]].flat()) {
+                if (child && typeof (child as JsxNode).type === 'string') visit(child as JsxNode, node);
+            }
+        }
+    };
+    visit(source.ast as JsxNode);
+    return content;
+}
+
+function tagName(element: JsxNode): string {
+    const name = element.name as JsxNode;
+    return name.type === 'JSXIdentifier' ? name.name as string : '';
+}
+
+// Attribute names lowercased (tabIndex → tabindex); a value only when it is a string literal
+function attributesOf(element: JsxNode): Map<string, string | true> {
+    const attributes = new Map<string, string | true>();
+    for (const attribute of element.attributes as JsxNode[]) {
+        if (attribute.type !== 'JSXAttribute' || (attribute.name as JsxNode).type !== 'JSXIdentifier') continue;
+        const value = attribute.value as JsxNode | null;
+        const literal = value?.type === 'Literal' && typeof value.value === 'string' ? value.value : true;
+        attributes.set(((attribute.name as JsxNode).name as string).toLowerCase(), literal);
+    }
+    return attributes;
 }
 
 // A rule that throws on unusual code (lang without a value) would cost every other rule's

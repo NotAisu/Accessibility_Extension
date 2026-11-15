@@ -133,6 +133,23 @@ describe('analyse (JSX/TSX)', () => {
         assert.ok(findings.some(f => f.ruleId === 'jsx-a11y-x/alt-text'));
     });
 
+    it('lists contrast and target size as Needs Review for rendered text and controls', async () => {
+        const text = 'export const Save = ({ label }) => (\n    <form>\n        <p>{label}</p>\n        <button type="submit">Save</button>\n    </form>\n);\n';
+
+        const { needsReview } = await analyse({ languageId: 'javascriptreact', text });
+
+        assert.deepStrictEqual(needsReview.map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+        assert.ok(needsReview.every(entry => entry.reason.length > 0));
+    });
+
+    it('lists no Needs Review when nothing renders text or a control', async () => {
+        const text = 'export const Logo = () => <img src="logo.png" alt="" />;\nexport const Spacer = () => <div className="gap" />;\n';
+
+        const { needsReview } = await analyse({ languageId: 'typescriptreact', text });
+
+        assert.deepStrictEqual(needsReview, []);
+    });
+
     it('fails on unparseable code instead of reporting no Findings', async () => {
         await assert.rejects(analyse({ languageId: 'javascriptreact', text: 'const a = () => <div><img src="x" /> <' }), ParseError);
     });
