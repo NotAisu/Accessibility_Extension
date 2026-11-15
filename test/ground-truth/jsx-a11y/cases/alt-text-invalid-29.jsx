@@ -1,0 +1,1 @@
+<area aria-label={undefined} />

@@ -1,5 +1,7 @@
 import { JSDOM, VirtualConsole } from 'jsdom';
-import * as axe from 'axe-core';
+// axe-core's teardown after a run sets its window to null, which crashes runVirtualRule in
+// eslint-plugin-jsx-a11y-x (autocomplete-valid) when both share one axe-core instance
+import * as axe from 'axe-core/axe.min.js';
 import { normalizeRuleId } from '../rule-id-normalizer';
 import { isTargetCriterion } from '../wcag';
 import type { AnalysisResult, Finding, NeedsReview, TextRange } from '../analysis';

@@ -1,0 +1,1 @@
+<input aria-hidden="true" />;

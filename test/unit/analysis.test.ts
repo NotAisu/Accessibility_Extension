@@ -66,3 +66,70 @@ describe('analyse (HTML)', () => {
     });
 });
 
+describe('analyse (JSX/TSX)', () => {
+    it('reports a Check Finding at the exact source range of the JSX element', async () => {
+        const text = 'export const Chart = () => (\n    <img src={chart} />\n);\n';
+
+        const { findings } = await analyse({ languageId: 'javascriptreact', text });
+
+        assert.strictEqual(findings.length, 1);
+        const [finding] = findings;
+        assert.strictEqual(text.slice(finding.range.start, finding.range.end), '<img src={chart} />');
+        assert.deepStrictEqual(finding.criteria, ['1.1.1']);
+        assert.strictEqual(finding.ruleId, 'jsx-a11y-x/alt-text');
+        assert.strictEqual(finding.layer, 'check');
+        assert.strictEqual(finding.severity, 'warning');
+        assert.match(finding.message, /alt prop/);
+        assert.match(finding.helpUrl, /^https:\/\/github\.com\/.*alt-text\.md$/);
+    });
+
+    it('parses TypeScript syntax in TSX', async () => {
+        const text = 'type Props = { src: string };\nexport const Chart = ({ src }: Props) => <img src={src} />;\n';
+
+        const { findings } = await analyse({ languageId: 'typescriptreact', text });
+
+        assert.deepStrictEqual(findings.map(f => [f.ruleId, text.slice(f.range.start, f.range.end)]), [
+            ['jsx-a11y-x/alt-text', '<img src={src} />']
+        ]);
+    });
+
+    it('maps each rule to its WCAG criterion', async () => {
+        const text = [
+            'export const Page = () => (',
+            '    <main>',
+            '        <a href="/home" />',
+            '        <div onClick={open}>Open</div>',
+            '        <input type="email" autoComplete="emial" />',
+            '        <span tabIndex={2}>x</span>',
+            '    </main>',
+            ');'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'javascriptreact', text });
+
+        assert.deepStrictEqual(findings.map(f => [f.ruleId, f.criteria]), [
+            ['jsx-a11y-x/anchor-has-content', ['2.4.4', '4.1.2']],
+            ['jsx-a11y-x/click-events-have-key-events', ['2.1.1']],
+            ['jsx-a11y-x/no-static-element-interactions', ['4.1.2']],
+            ['jsx-a11y-x/autocomplete-valid', ['1.3.5']],
+            ['jsx-a11y-x/tabindex-no-positive', ['2.4.3']]
+        ]);
+    });
+
+    it('still checks JSX after an HTML Check in the same process', async () => {
+        await analyse({ languageId: 'html', text: page('<input type="email" autocomplete="email">') });
+
+        const { findings } = await analyse({ languageId: 'javascriptreact', text: '<input type="email" autoComplete="emial" />;' });
+
+        assert.deepStrictEqual(findings.map(f => f.ruleId), ['jsx-a11y-x/autocomplete-valid']);
+    });
+
+    it('keeps the other rules\' Findings when one rule crashes on the document', async () => {
+        // eslint-plugin-jsx-a11y-x's lang rule throws on a lang attribute without a value
+        const text = '<html lang><img src="a.png" /></html>;';
+
+        const { findings } = await analyse({ languageId: 'javascriptreact', text });
+
+        assert.ok(findings.some(f => f.ruleId === 'jsx-a11y-x/alt-text'));
+    });
+});

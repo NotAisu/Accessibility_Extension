@@ -1,0 +1,1 @@
+<footer aria-hidden />
