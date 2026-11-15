@@ -26,6 +26,16 @@ describe('a11y_check tool', () => {
         assert.ok(image.helpUrl);
         assert.ok(Array.isArray(output.needsReview));
     });
+
+    it('counts lines as the editor does, across every line break', async () => {
+        for (const lineBreak of ['\r\n', '\r', '\u2028']) {
+            const code = ['<main>', '  <p>Sales</p>', '  <img src="chart.png">', '</main>'].join(lineBreak);
+
+            const output = await run({ code, languageId: 'html' });
+
+            assert.deepStrictEqual(output.findings.filter(f => f.criteria.includes('1.1.1')).map(f => f.line), [3], JSON.stringify(lineBreak));
+        }
+    });
 });
 
 describe('a11y_check tool on files', () => {

@@ -1,5 +1,6 @@
 import type { CheckOutcome } from '../analysis-worker';
 import type { AnalysisDocument, Finding, NeedsReview } from '../core/analysis';
+import { lineOffsets } from '../core/offsets';
 
 /** What an agent passes to `a11y_check`: a file, proposed code, or proposed code for a file. */
 export interface CheckToolInput {
@@ -36,8 +37,9 @@ export async function runCheckTool(input: CheckToolInput, ports: CheckToolPorts)
     const outcome = await ports.check(document);
     if (outcome.status === 'paused') throw new Error(`The Check is paused: ${outcome.reason}. Its result is unknown, not empty.`);
     if (outcome.status === 'dropped') throw new Error('The Check was superseded by a newer request. Call a11y_check again.');
-    const lineStarts = [...document.text.matchAll(/\n/g)].map(m => (m.index ?? 0) + 1);
-    const lineOf = (offset: number) => 1 + lineStarts.filter(start => start <= offset).length;
+    // The line breaks the editor counts, so lines agree with its diagnostics
+    const lineStarts = lineOffsets(document.text);
+    const lineOf = (offset: number) => lineStarts.filter(start => start <= offset).length;
     const output: CheckToolOutput = {
         languageId: document.languageId,
         findings: outcome.result.findings.map(f => ({
