@@ -7,6 +7,9 @@ import { LocalModelSettings, selectLocalModel } from './review/local-model';
 
 export const AI_SOURCE = 'Allyproof AI';
 const SKILL_PATH = ['skills', 'allyproof', 'SKILL.md'];
+const CACHE_KEY = 'allyproof.aiReview.cache';
+// The oldest entries go once the cache is full, so entries of an earlier Skill or model cannot pile up
+const CACHE_ENTRIES = 1000;
 // Per provider, so switching to another provider shows the notice again
 const noticeKey = (provider: Provider) => `allyproof.aiReview.noticeShown.${provider}`;
 
@@ -16,8 +19,7 @@ type Provider = 'copilot' | 'local';
 export class AIReview implements vscode.Disposable {
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof-ai');
     private readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-    // In memory for now; the persistent cache comes with the Relevance Gate (#19)
-    private readonly cache = memoryCache();
+    private readonly cache = storedCache(this.context.workspaceState);
     private running: AbortController | undefined;
 
     constructor(
@@ -44,7 +46,7 @@ export class AIReview implements vscode.Disposable {
         if (!local && typeof vscode.lm?.registerTool !== 'function') return this.status.hide();
         // A local server is only contacted when the user starts a review
         if (usesLocalModel() || (!local && await selectCopilotModel())) {
-            this.show('$(sparkle) AI Review', 'Start AI Review of the current file', 'allyproof.startAIReview');
+            this.show('$(sparkle) AI Review', 'Start AI Review of the current file or selection', 'allyproof.startAIReview');
         } else if (!vscode.workspace.isTrusted) {
             this.show('$(workspace-untrusted) AI Review disabled', 'Trust this workspace to enable AI Review.', 'workbench.trust.manage');
         } else {
@@ -82,23 +84,25 @@ export class AIReview implements vscode.Disposable {
 
         const running = this.running = new AbortController();
         const version = document.version;
+        const editor = vscode.window.activeTextEditor;
+        const selection = editor?.document === document && !editor.selection.isEmpty
+            ? { start: document.offsetAt(editor.selection.start), end: document.offsetAt(editor.selection.end) }
+            : undefined;
         this.show('$(loading~spin) AI Review…', `Reviewing with ${model.name}. Click to cancel.`, 'allyproof.cancelAIReview');
         try {
             const reviewed = { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() };
             const { findings, gate } = await review(
-                { document: reviewed, checkFindings: await this.checkFindings(reviewed, document.uri) },
+                { document: reviewed, checkFindings: await this.checkFindings(reviewed, document.uri), selection },
                 {
                     model,
                     skill: { text: await this.readSkill() },
                     cache: this.cache,
                     signal: running.signal,
-                    onFindings: found => {
-                        if (document.isClosed || document.version !== version) return;
-                        this.collection.set(document.uri, found.map(f => toDiagnostic(document, f)));
-                        this.tree.setAI(document, found);
-                    }
+                    onFindings: found => this.showFindings(document, version, found)
                 }
             );
+            // Also when every region came from the cache without Findings
+            this.showFindings(document, version, findings);
             this.show(`$(sparkle) AI: ${findings.length} ${findings.length === 1 ? 'Finding' : 'Findings'}`, summary(gate, model), 'allyproof.startAIReview');
         } catch (error) {
             const message = describe(error, model);
@@ -106,6 +110,11 @@ export class AIReview implements vscode.Disposable {
         } finally {
             this.running = undefined;
         }
+    }
+
+    async clearCache(): Promise<void> {
+        await this.cache.clear();
+        vscode.window.setStatusBarMessage('Allyproof: AI Review cache cleared.', 3000);
     }
 
     cancel(): void {
@@ -129,6 +138,12 @@ export class AIReview implements vscode.Disposable {
         this.running?.abort();
         this.collection.dispose();
         this.status.dispose();
+    }
+
+    private showFindings(document: vscode.TextDocument, version: number, findings: Finding[]): void {
+        if (document.isClosed || document.version !== version) return;
+        this.collection.set(document.uri, findings.map(f => toDiagnostic(document, f)));
+        this.tree.setAI(document, findings);
     }
 
     // Shown once per provider, before any code goes to that provider for the first time
@@ -175,9 +190,21 @@ function localSettings(): LocalModelSettings {
     };
 }
 
-function memoryCache(): ReviewCache {
-    const entries = new Map<string, Finding[]>();
-    return { get: key => entries.get(key), set: (key, findings) => void entries.set(key, findings) };
+// In workspace storage, so it survives a restart
+function storedCache(state: vscode.Memento): ReviewCache & { clear(): Thenable<void> } {
+    const entries = () => state.get<Record<string, Finding[]>>(CACHE_KEY, {});
+    return {
+        get: key => entries()[key],
+        set: (key, findings) => {
+            const kept = { ...entries() };
+            delete kept[key];
+            kept[key] = findings;
+            const keys = Object.keys(kept);
+            keys.slice(0, keys.length - CACHE_ENTRIES).forEach(old => delete kept[old]);
+            void state.update(CACHE_KEY, kept);
+        },
+        clear: () => state.update(CACHE_KEY, undefined)
+    };
 }
 
 // AI text reaches the user only as plain diagnostic text, never as Markdown or HTML
@@ -193,10 +220,15 @@ function toDiagnostic(document: vscode.TextDocument, finding: Finding): vscode.D
     return diagnostic;
 }
 
+// What the Relevance Gate sent and skipped, for example "3 of 12 regions reviewed, 9 unchanged."
 function summary(gate: GateReport, model: ModelPort): string {
-    const reviewed = gate.unchanged === gate.regions
-        ? 'Unchanged since the last review, served from it.'
-        : `${gate.reviewed} of ${gate.regions} regions reviewed, ${gate.unchanged} unchanged.`;
+    const skipped = [
+        gate.unchanged > 0 && `${gate.unchanged} unchanged`,
+        gate.noMarkup > 0 && `${gate.noMarkup} without markup`
+    ].filter(Boolean).join(', ');
+    const reviewed = gate.reviewed === 0 && gate.unchanged === 0
+        ? 'No markup to review.'
+        : `${gate.reviewed} of ${gate.regions} ${gate.regions === 1 ? 'region' : 'regions'} reviewed${skipped && `, ${skipped}`}.`;
     return `${reviewed} Model: ${model.name}. Click to review again.`;
 }
 

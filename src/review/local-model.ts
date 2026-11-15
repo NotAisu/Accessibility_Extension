@@ -75,13 +75,23 @@ async function call(endpoint: string, path: string, init: RequestInit): Promise<
     return body;
 }
 
+// OpenAI-compatible servers report neither the context length nor a tokenizer: a context most local models
+// have, and about four characters per token
+const LOCAL_INPUT_TOKENS = 8192;
+const CHARS_PER_TOKEN = 4;
+
 class LocalModel implements ModelPort {
     readonly id: string;
     readonly name: string;
+    readonly maxInputTokens = LOCAL_INPUT_TOKENS;
 
     constructor(private readonly endpoint: string, private readonly model: string) {
         this.id = `local/${endpoint}/${model}`;
         this.name = `Local model ${model} at ${endpoint}`;
+    }
+
+    countTokens(text: string): Promise<number> {
+        return Promise.resolve(Math.ceil(text.length / CHARS_PER_TOKEN));
     }
 
     async request(request: ModelRequest, signal: AbortSignal): Promise<unknown> {

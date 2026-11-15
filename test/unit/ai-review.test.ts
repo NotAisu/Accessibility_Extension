@@ -25,6 +25,8 @@ function fakeModel(...replies: unknown[]): ModelPort & { requests: ModelRequest[
     return {
         id: 'fake/model-1',
         name: 'Fake Model',
+        maxInputTokens: 100_000,
+        countTokens: text => Promise.resolve(Math.ceil(text.length / 4)),
         requests,
         request(request, signal) {
             requests.push(request);
@@ -148,8 +150,8 @@ describe('AI Review', () => {
         const second = await review({ document, checkFindings: [] }, { model, skill, cache });
 
         assert.strictEqual(model.requests.length, 1);
-        assert.deepStrictEqual(first.gate, { regions: 1, reviewed: 1, unchanged: 0 });
-        assert.deepStrictEqual(second.gate, { regions: 1, reviewed: 0, unchanged: 1 });
+        assert.deepStrictEqual(first.gate, { regions: 1, reviewed: 1, unchanged: 0, noMarkup: 0 });
+        assert.deepStrictEqual(second.gate, { regions: 1, reviewed: 0, unchanged: 1, noMarkup: 0 });
         assert.deepStrictEqual(second.findings, first.findings);
     });
 
@@ -263,5 +265,141 @@ describe('AI Review', () => {
 
         assert.deepStrictEqual(arrived, [['1.3.1']]);
         assert.strictEqual(findings.length, 1);
+    });
+
+    describe('Relevance Gate', () => {
+        const component = [
+            "import { useState } from 'react';",
+            '',
+            'function total(items: Array<number>): number {',
+            '    return items.reduce((sum, item) => sum + item, 0);',
+            '}',
+            '',
+            'export function Cart() {',
+            '    return <div onClick={() => {}}>Checkout</div>;',
+            '}'
+        ].join('\n');
+
+        it('skips regions without markup', async () => {
+            const model = fakeModel({ findings: [entry(8, '2.1.1')] });
+
+            const { findings, gate } = await review(
+                { document: { languageId: 'typescriptreact', text: component }, checkFindings: [] },
+                { model, skill, cache: memoryCache() }
+            );
+
+            assert.strictEqual(model.requests.length, 1);
+            const code = model.requests[0].messages[1];
+            assert.match(code, /^8\| +return <div/m);
+            assert.doesNotMatch(code, /useState|reduce/);
+            assert.deepStrictEqual(gate, { regions: 3, reviewed: 1, unchanged: 0, noMarkup: 2 });
+            assert.strictEqual(component.slice(findings[0].range.start, findings[0].range.end), 'return <div onClick={() => {}}>Checkout</div>;');
+        });
+
+        it('skips the script and style blocks of a single-file component', async () => {
+            const sfc = [
+                '<script setup lang="ts">',
+                "import { ref } from 'vue';",
+                '',
+                'const items = ref<Array<string>>([]);',
+                '</script>',
+                '',
+                '<template>',
+                '  <div @click="open">Open</div>',
+                '</template>',
+                '',
+                '<style>',
+                '.a > .b { color: red; }',
+                '</style>'
+            ].join('\n');
+            const model = fakeModel({ findings: [] });
+
+            const { gate } = await review({ document: { languageId: 'vue', text: sfc }, checkFindings: [] }, { model, skill, cache: memoryCache() });
+
+            assert.deepStrictEqual(gate, { regions: 3, reviewed: 1, unchanged: 0, noMarkup: 2 });
+            assert.match(model.requests[0].messages[1], /^7\| <template>$[^]*^9\| <\/template>\n<<<end \S+>>>$/m);
+        });
+
+        const page = (header: string[]) => [
+            '<header>', ...header, '</header>',
+            '',
+            '<main>', '  <a href="/p">click here</a>', '</main>',
+            '',
+            '<footer>', '  <img src="logo.png">', '</footer>'
+        ].join('\n');
+        const marked = (text: string, findings: Finding[]) => findings.map(f => text.slice(f.range.start, f.range.end));
+
+        it('sends only changed regions and serves unchanged ones from the cache where they now are', async () => {
+            const cache = memoryCache();
+            const before = page(['  <b>Shop</b>']);
+            const after = page(['  <b>Our shop</b>', '  <i>New</i>']);
+            const model = fakeModel({ findings: [entry(2, '1.3.1'), entry(6, '2.4.4'), entry(10, '1.1.1')] }, { findings: [entry(3, '1.3.1')] });
+
+            await review({ document: { languageId: 'html', text: before }, checkFindings: [] }, { model, skill, cache });
+            const { findings, gate } = await review({ document: { languageId: 'html', text: after }, checkFindings: [] }, { model, skill, cache });
+
+            assert.strictEqual(model.requests.length, 2);
+            assert.match(model.requests[1].messages[1], /^Language: html\n<<<code \S+>>>\n1\| <header>$[^]*^4\| <\/header>\n<<<end \S+>>>$/m);
+            assert.doesNotMatch(model.requests[1].messages[1], /main|footer/);
+            assert.deepStrictEqual(gate, { regions: 3, reviewed: 1, unchanged: 2, noMarkup: 0 });
+            assert.deepStrictEqual(marked(after, findings), ['<i>New</i>', '<a href="/p">click here</a>', '<img src="logo.png">']);
+        });
+
+        it('reviews a region again when its Check Findings or the language change', async () => {
+            const cache = memoryCache();
+            const text = page(['  <b>Shop</b>']);
+            const at = (snippet: string): Finding => ({
+                range: { start: text.indexOf(snippet), end: text.indexOf(snippet) + snippet.length },
+                criteria: ['1.1.1'], ruleId: 'image-alt', layer: 'check', severity: 'warning',
+                message: 'Images must have alternative text', explanation: '', helpUrl: 'https://example.com'
+            });
+            const model = fakeModel({ findings: [] }, { findings: [] }, { findings: [] });
+
+            await review({ document: { languageId: 'html', text }, checkFindings: [] }, { model, skill, cache });
+            const { gate } = await review({ document: { languageId: 'html', text }, checkFindings: [at('<img src="logo.png">')] }, { model, skill, cache });
+            await review({ document: { languageId: 'vue', text }, checkFindings: [] }, { model, skill, cache });
+
+            assert.deepStrictEqual(gate, { regions: 3, reviewed: 1, unchanged: 2, noMarkup: 0 });
+            assert.match(model.requests[1].messages[1], /<footer>/);
+            assert.doesNotMatch(model.requests[1].messages[1], /<main>/);
+            assert.strictEqual(model.requests.length, 3);
+        });
+
+        it('reviews only the lines of a selection', async () => {
+            const text = page(['  <b>Shop</b>']);
+            const model = fakeModel({ findings: [entry(6, '2.4.4'), entry(10, '1.1.1')] }, { findings: [] });
+            const selection = { start: text.indexOf('click'), end: text.indexOf('</main>') + 2 };
+
+            const { findings, gate } = await review({ document: { languageId: 'html', text }, checkFindings: [], selection }, { model, skill, cache: memoryCache() });
+
+            assert.match(model.requests[0].messages[1], />>>\n6\| {3}<a href="\/p">click here<\/a>\n7\| <\/main>\n<<<end/);
+            assert.deepStrictEqual(gate, { regions: 1, reviewed: 1, unchanged: 0, noMarkup: 0 });
+            assert.deepStrictEqual(marked(text, findings), ['<a href="/p">click here</a>']);
+        });
+
+        it('splits what exceeds the model\'s input limit into requests that fit it, counted with countTokens', async () => {
+            const list = ['<ul>', ...Array.from({ length: 40 }, (_, i) => `  <li><a href="/${i}">more</a></li>`), '</ul>'].join('\n');
+            const model = { ...fakeModel(...Array.from({ length: 10 }, () => ({ findings: [] }))), maxInputTokens: 300 };
+            const tokens = (text: string) => Math.ceil(text.length / 4);
+            let counted = 0;
+            model.countTokens = text => {
+                counted++;
+                return Promise.resolve(tokens(text));
+            };
+
+            const { gate } = await review(
+                { document: { languageId: 'html', text: list }, checkFindings: [] },
+                { model, skill: { text: 'Review the code.' }, cache: memoryCache() }
+            );
+
+            assert.ok(model.requests.length > 1, `${model.requests.length} requests`);
+            for (const request of model.requests) {
+                assert.ok(tokens(request.messages.join('\n')) <= 300);
+            }
+            const sent = model.requests.flatMap(r => [...r.messages[1].matchAll(/^(\d+)\| /gm)].map(m => Number(m[1])));
+            assert.deepStrictEqual(sent, Array.from({ length: 42 }, (_, i) => i + 1));
+            assert.ok(counted > 0);
+            assert.deepStrictEqual(gate, { regions: 1, reviewed: 1, unchanged: 0, noMarkup: 0 });
+        });
     });
 });
