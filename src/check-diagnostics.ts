@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { AnalysisWorker, CheckOutcome } from './analysis-worker';
-import { AnalysisDocument, Finding } from './core/analysis';
+import { AnalysisDocument, AnalysisOptions, Finding, RuleSetting } from './core/analysis';
 import { criterionName, criterionUrl } from './core/wcag';
 import type { FindingsTree } from './findings-tree';
 
@@ -37,7 +37,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         const uri = document.uri.toString();
         if (!this.worker || (document.isDirty && this.onSaveOnly.has(uri))) return;
         const version = document.version;
-        const outcome = await this.worker.check(uri, { languageId: document.languageId, text: document.getText() });
+        const outcome = await this.worker.check(uri, { languageId: document.languageId, text: document.getText() }, options());
         // A missed deadline counts even when the document changed meanwhile
         if (outcome.status === 'paused' && outcome.deadlineExceeded) this.onSaveOnly.add(uri);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
@@ -56,14 +56,14 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     /** Check Findings of exactly this text, for the AI Review; none while the Check is paused. */
     async findingsOf(document: AnalysisDocument): Promise<Finding[]> {
         // Its own request key, so it never drops or is dropped by the document's own Check
-        const outcome = await this.worker?.check(`ai-review:${document.languageId}`, document);
+        const outcome = await this.worker?.check(`ai-review:${document.languageId}`, document, options());
         return outcome?.status === 'done' ? outcome.result.findings : [];
     }
 
     /** The Check of exactly this text for an agent; every call has its own request key, so none drops another. */
     async checkFor(document: AnalysisDocument): Promise<CheckOutcome> {
         if (!this.worker) return { status: 'paused', reason: 'The Check has not started yet', deadlineExceeded: false };
-        return this.worker.check(`a11y-check:${++this.agentRequests}`, document);
+        return this.worker.check(`a11y-check:${++this.agentRequests}`, document, options());
     }
 
     delete(uri: vscode.Uri): void {
@@ -84,6 +84,11 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         this.collection.dispose();
         this.reported.clear();
     }
+}
+
+// The `allyproof.rules` setting: rules turned off or reported with another severity
+function options(): AnalysisOptions {
+    return { rules: vscode.workspace.getConfiguration('allyproof').get<Record<string, RuleSetting>>('rules', {}) };
 }
 
 function toDiagnostic(range: vscode.Range, finding: Finding): vscode.Diagnostic {

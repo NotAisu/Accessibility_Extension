@@ -58,6 +58,11 @@
         "title": "Filter Findings",
         "category": "Allyproof",
         "icon": "$(filter)"
+      },
+      {
+        "command": "allyproof.disableRule",
+        "title": "Disable Rule",
+        "category": "Allyproof"
       }
     ],
     "views": {
@@ -83,6 +88,10 @@
         {
           "command": "allyproof.cancelAIReview",
           "when": "allyproof.aiAvailable"
+        },
+        {
+          "command": "allyproof.disableRule",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -135,6 +144,15 @@
           "type": "boolean",
           "default": false,
           "description": "Also start an AI Review of the active file when it is saved. Off by default: code is only sent to the AI provider when you start a review."
+        },
+        "allyproof.rules": {
+          "type": "object",
+          "default": {},
+          "markdownDescription": "Turn Check rules off or change the severity of their Findings, by rule id, for example `{ \"image-alt\": \"off\", \"jsx-a11y-x/alt-text\": \"error\" }`. Check Findings are warnings by default. To ignore a single Finding, put `<!-- allyproof-ignore <rule id> -->` (in JSX `{/* allyproof-ignore <rule id> */}`) on the line above it.",
+          "additionalProperties": {
+            "type": "string",
+            "enum": ["off", "error", "warning", "information"]
+          }
         }
       }
     }

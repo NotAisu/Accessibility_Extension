@@ -3,6 +3,7 @@ import { CheckDiagnostics } from './check-diagnostics';
 import { AIReview } from './ai-review-ui';
 import { FindingsTree } from './findings-tree';
 import { A11yCheckTool } from './a11y-check-tool';
+import { disableRule, IgnoreActions } from './ignore-actions';
 
 const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact'];
 
@@ -19,13 +20,18 @@ export function activate(context: vscode.ExtensionContext): void {
         check,
         aiReview,
         vscode.languages.registerHoverProvider(SUPPORTED_LANGUAGES, check),
+        vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, new IgnoreActions(), IgnoreActions.metadata),
         vscode.commands.registerCommand('allyproof.startAIReview', () => aiReview.start()),
         vscode.commands.registerCommand('allyproof.cancelAIReview', () => aiReview.cancel()),
         vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),
+        vscode.commands.registerCommand('allyproof.disableRule', disableRule),
         vscode.workspace.onDidOpenTextDocument(runDiagnostics),
         vscode.workspace.onDidSaveTextDocument(async document => {
             await runDiagnostics(document);
             aiReview.reviewOnSave(document);
+        }),
+        vscode.workspace.onDidChangeConfiguration(event => {
+            if (event.affectsConfiguration('allyproof.rules')) vscode.workspace.textDocuments.forEach(document => void runDiagnostics(document));
         }),
         vscode.workspace.onDidCloseTextDocument(document => {
             check.delete(document.uri);
