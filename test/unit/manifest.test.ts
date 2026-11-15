@@ -3,7 +3,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const root = path.join(__dirname, '..', '..');
-const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8'));
+interface Manifest {
+    publisher: string;
+    name: string;
+    displayName: string;
+    license: string;
+    pricing: string;
+    repository?: { url?: string };
+    keywords?: string[];
+    categories?: string[];
+    contributes: { commands: { command: string; category: string }[] };
+}
+
+const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8')) as Manifest;
 
 function registeredCommands(): string[] {
     const source = fs.readFileSync(path.join(root, 'src', 'extension.ts'), 'utf-8');
@@ -13,7 +25,7 @@ function registeredCommands(): string[] {
 
 describe('manifest', () => {
     it('declares exactly the commands the extension registers', () => {
-        const declared = manifest.contributes.commands.map((c: { command: string }) => c.command).sort();
+        const declared = manifest.contributes.commands.map(c => c.command).sort();
         assert.ok(declared.length > 0);
         assert.deepStrictEqual(declared, registeredCommands());
     });

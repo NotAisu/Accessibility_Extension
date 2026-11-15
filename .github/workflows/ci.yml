@@ -16,10 +16,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run lint -- --max-warnings=0
-      - run: npm run typecheck
-      - run: npm run compile
-      - run: npm run test:unit
-      - run: npm run bundle
-      # Fails when Check precision or recall of any WCAG criterion drops below the stored baseline
-      - run: npm run test:gate
+      # Lint, typecheck, unit tests, bundle, then the gate: fails when Check precision or recall
+      # of any WCAG criterion drops below the stored baseline of its language
+      - run: npm run verify
