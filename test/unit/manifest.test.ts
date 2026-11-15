@@ -17,6 +17,7 @@ interface Manifest {
         views?: Record<string, { id: string; type?: string }[]>;
         languageModelTools?: { name: string; when?: string }[];
         chatSkills?: { path: string; when?: string }[];
+        configuration?: { properties: Record<string, { type: string; default?: unknown }> };
     };
 }
 
@@ -58,6 +59,12 @@ describe('manifest', () => {
     it('shows AI contributions only where the language model API exists', () => {
         const ai = [...(manifest.contributes.languageModelTools ?? []), ...(manifest.contributes.chatSkills ?? [])];
         for (const contribution of ai) assert.strictEqual(contribution.when, 'allyproof.aiAvailable');
+    });
+
+    it('offers fixing on save as a setting that is off by default', () => {
+        const setting = manifest.contributes.configuration?.properties['allyproof.check.fixOnSave'];
+        assert.deepStrictEqual(setting && { type: setting.type, default: setting.default }, { type: 'boolean', default: false });
+        assert.match(sourceOf('check-fixes.ts'), /'check\.fixOnSave'/);
     });
 
     it('puts every command under the Allyproof category', () => {

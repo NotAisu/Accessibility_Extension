@@ -135,6 +135,11 @@
           "type": "boolean",
           "default": false,
           "description": "Also start an AI Review of the active file when it is saved. Off by default: code is only sent to the AI provider when you start a review."
+        },
+        "allyproof.check.fixOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Apply the Check's deterministic fixes (such as a missing lang) when a file is saved. Off by default: Allyproof never changes your code unless you ask. They are also available as quick fixes and under source.fixAll."
         }
       }
     }
