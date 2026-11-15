@@ -21,10 +21,6 @@
   ],
   "exclude": [
     "node_modules",
-    ".vscode-test",
-    "test/fixtures/*.tsx",
-    "test/fixtures/*.jsx",
-    "test/fixtures/*.vue",
-    "test/fixtures/*.svelte"
+    ".vscode-test"
   ]
 }

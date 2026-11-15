@@ -1,0 +1,114 @@
+import { JSDOM, VirtualConsole } from 'jsdom';
+import * as axe from 'axe-core';
+import { normalizeRuleId } from '../rule-id-normalizer';
+import { isTargetCriterion } from '../wcag';
+import type { AnalysisResult, Finding, NeedsReview, TextRange } from '../analysis';
+
+const AXE_TIMEOUT_MS = 5000;
+
+// JSDOM has no layout, so rules that need rendering cannot be decided
+const LAYOUT_RULES = ['color-contrast', 'target-size', 'link-in-text-block', 'scrollable-region-focusable'];
+
+const AXE_OPTIONS: axe.RunOptions = {
+    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'] },
+    resultTypes: ['violations'],
+    rules: Object.fromEntries(LAYOUT_RULES.map(rule => [rule, { enabled: false }])),
+    elementRef: true,
+    preload: false
+};
+
+const INTERACTIVE = 'a[href], button, input:not([type="hidden"]), select, textarea, summary, [tabindex], [role="button"], [role="link"]';
+
+// parse5 element locations; @types/jsdom only declares the outer offsets
+interface ElementLocation {
+    startOffset: number;
+    endOffset: number;
+    startTag?: { startOffset: number; endOffset: number };
+}
+
+// axe-core refuses concurrent runs, so checks are queued
+let queue: Promise<unknown> = Promise.resolve();
+
+/**
+ * Runs axe-core over the text in a JSDOM document. JSDOM's default script handling
+ * is kept, so scripts in the checked file are parsed but never executed.
+ */
+export function checkHtmlWithAxe(text: string): Promise<AnalysisResult> {
+    const run = queue.then(() => runAxe(text));
+    queue = run.catch(() => undefined);
+    return run;
+}
+
+async function runAxe(text: string): Promise<AnalysisResult> {
+    // A silent console: JSDOM reports unimplemented APIs (canvas) that axe-core probes
+    const dom = new JSDOM(text, { includeNodeLocations: true, virtualConsole: new VirtualConsole() });
+    const { document } = dom.window;
+    try {
+        let timer: NodeJS.Timeout | undefined;
+        const timeout = new Promise<never>((_, reject) => {
+            timer = setTimeout(() => reject(new Error('axe-timeout')), AXE_TIMEOUT_MS);
+        });
+        const results = await Promise.race([axe.run(document.documentElement, AXE_OPTIONS), timeout])
+            .finally(() => clearTimeout(timer));
+        return {
+            findings: toFindings(text, dom, results.violations),
+            needsReview: needsReview(document)
+        };
+    } finally {
+        dom.window.close();
+    }
+}
+
+function toFindings(text: string, dom: JSDOM, violations: axe.Result[]): Finding[] {
+    const findings: Finding[] = [];
+    for (const violation of violations) {
+        const criteria = criteriaOf(violation);
+        if (criteria.length === 0) continue;
+        for (const node of violation.nodes) {
+            findings.push({
+                range: locate(text, dom, node),
+                criteria,
+                ruleId: violation.id,
+                layer: 'check',
+                severity: 'warning',
+                message: violation.help,
+                explanation: [violation.description, node.failureSummary].filter(Boolean).join('\n\n'),
+                helpUrl: violation.helpUrl
+            });
+        }
+    }
+    return findings;
+}
+
+// axe tags criteria as "wcag111" or "wcag1410"; the rule-id table picks the primary one
+function criteriaOf(violation: axe.Result): string[] {
+    const tagged = violation.tags
+        .map(tag => /^wcag(\d)(\d)(\d{1,2})$/.exec(tag))
+        .filter((match): match is RegExpExecArray => match !== null)
+        .map(([, principle, guideline, criterion]) => `${principle}.${guideline}.${criterion}`)
+        .filter(isTargetCriterion);
+    const primary = normalizeRuleId(violation.id);
+    return tagged.includes(primary) ? [primary, ...tagged.filter(c => c !== primary)] : tagged;
+}
+
+// The start tag of the element; elements the parser implied (no tag in the source) fall back to the first line
+function locate(text: string, dom: JSDOM, node: axe.NodeResult): TextRange {
+    const location = node.element ? dom.nodeLocation(node.element) as ElementLocation | null : null;
+    if (location) {
+        const tag = location.startTag ?? location;
+        return { start: tag.startOffset, end: tag.endOffset };
+    }
+    const lineEnd = text.indexOf('\n');
+    return { start: 0, end: lineEnd === -1 ? text.length : lineEnd };
+}
+
+function needsReview(document: Document): NeedsReview[] {
+    const entries: NeedsReview[] = [];
+    if (document.body?.textContent?.trim()) {
+        entries.push({ criterion: '1.4.3', reason: 'Text contrast depends on rendered colors.' });
+    }
+    if (document.querySelector(INTERACTIVE)) {
+        entries.push({ criterion: '2.5.8', reason: 'Target size depends on rendered layout.' });
+    }
+    return entries;
+}

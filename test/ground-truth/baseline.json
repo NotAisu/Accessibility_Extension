@@ -1,0 +1,163 @@
+{
+  "1.1.1": {
+    "precision": 1,
+    "recall": 0.647,
+    "tp": 11,
+    "fp": 0,
+    "fn": 6
+  },
+  "1.2.1": {
+    "precision": null,
+    "recall": null,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0
+  },
+  "1.3.1": {
+    "precision": 1,
+    "recall": 0.85,
+    "tp": 17,
+    "fp": 0,
+    "fn": 3
+  },
+  "1.3.3": {
+    "precision": null,
+    "recall": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 1
+  },
+  "1.3.4": {
+    "precision": null,
+    "recall": null,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0
+  },
+  "1.3.5": {
+    "precision": 1,
+    "recall": 1,
+    "tp": 10,
+    "fp": 0,
+    "fn": 0
+  },
+  "1.4.3": {
+    "precision": null,
+    "recall": null,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0
+  },
+  "1.4.4": {
+    "precision": 1,
+    "recall": 0.714,
+    "tp": 5,
+    "fp": 0,
+    "fn": 2
+  },
+  "1.4.5": {
+    "precision": null,
+    "recall": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 3
+  },
+  "2.1.2": {
+    "precision": null,
+    "recall": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 2
+  },
+  "2.2.1": {
+    "precision": 0.8,
+    "recall": 1,
+    "tp": 4,
+    "fp": 1,
+    "fn": 0
+  },
+  "2.2.2": {
+    "precision": null,
+    "recall": null,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0
+  },
+  "2.4.1": {
+    "precision": null,
+    "recall": null,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0
+  },
+  "2.4.2": {
+    "precision": 1,
+    "recall": 0.571,
+    "tp": 4,
+    "fp": 0,
+    "fn": 3
+  },
+  "2.4.4": {
+    "precision": 1,
+    "recall": 0.611,
+    "tp": 11,
+    "fp": 0,
+    "fn": 7
+  },
+  "2.4.6": {
+    "precision": null,
+    "recall": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 7
+  },
+  "2.4.7": {
+    "precision": null,
+    "recall": null,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0
+  },
+  "2.5.3": {
+    "precision": null,
+    "recall": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 16
+  },
+  "2.5.4": {
+    "precision": null,
+    "recall": null,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0
+  },
+  "3.1.1": {
+    "precision": 0.667,
+    "recall": 0.615,
+    "tp": 8,
+    "fp": 4,
+    "fn": 5
+  },
+  "3.1.2": {
+    "precision": 1,
+    "recall": 0.667,
+    "tp": 8,
+    "fp": 0,
+    "fn": 4
+  },
+  "3.3.1": {
+    "precision": null,
+    "recall": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 4
+  },
+  "4.1.2": {
+    "precision": 0.902,
+    "recall": 0.902,
+    "tp": 37,
+    "fp": 4,
+    "fn": 4
+  }
+}
