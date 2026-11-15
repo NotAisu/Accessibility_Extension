@@ -72,8 +72,8 @@ async function main() {
     // Chunk names carry a hash, so chunks of earlier builds would otherwise ship in the VSIX
     fs.rmSync('dist', { recursive: true, force: true });
     const ctx = await esbuild.context({
-        // analysis.mjs is the core on its own, for the bundle gate (and the analysis worker, #29)
-        entryPoints: { extension: 'src/extension.ts', analysis: 'src/core/analysis.ts' },
+        // worker.mjs runs the analysis core in the analysis worker; the bundle gate measures through it
+        entryPoints: { extension: 'src/extension.ts', worker: 'src/core/worker.ts' },
         bundle: true,
         format: 'esm',
         splitting: true,

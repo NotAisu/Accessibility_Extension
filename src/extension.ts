@@ -68,6 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
         )
     );
 
+    check.start(context.asAbsolutePath('dist/worker.mjs'));
     context.subscriptions.push(check, vscode.languages.registerHoverProvider(SUPPORTED_LANGUAGES, check));
     context.subscriptions.push(vscode.workspace.onDidOpenTextDocument(runDiagnostics));
     context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(runDiagnostics));
