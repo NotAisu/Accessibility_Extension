@@ -14,4 +14,11 @@ runs:
     - shell: bash
       env:
         SBOM_PATH: ${{ inputs.path }}
-      run: npm sbom --omit=dev --sbom-format cyclonedx > "$SBOM_PATH"
+      # Not `npm sbom --omit=dev`: it drops eslint and its tree because dev packages name eslint as a peer.
+      # A production-only install lists exactly what ships.
+      run: |
+        out="$PWD/$SBOM_PATH"; dir=$(mktemp -d)
+        cp package.json package-lock.json "$dir" && cd "$dir"
+        npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+        npm pkg delete devDependencies
+        npm sbom --sbom-format cyclonedx > "$out"

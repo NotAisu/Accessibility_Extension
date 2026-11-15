@@ -18,9 +18,12 @@ interface PackageNotice {
     texts: string[];
 }
 
-// An SPDX expression is allowed when one OR alternative has only allowed AND terms
+// An SPDX expression is allowed when one OR alternative has only allowed AND terms.
+// shortcut: nested brackets fail closed, parse SPDX properly once a bundled package needs them
 export function isAllowedLicense(expression: string): boolean {
-    return expression.replace(/[()]/g, '').split(/\s+OR\s+/).some(alternative =>
+    const flat = expression.trim().replace(/^\((.*)\)$/, '$1');
+    if (/[()]/.test(flat)) return false;
+    return flat.split(/\s+OR\s+/).some(alternative =>
         alternative.split(/\s+AND\s+/).every(term => ALLOWED_LICENSES.includes(term.trim())));
 }
 

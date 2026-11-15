@@ -12,6 +12,7 @@ describe('third-party notices', () => {
         assert.ok(!isAllowedLicense('GPL-3.0-only'));
         assert.ok(!isAllowedLicense('MIT AND GPL-3.0-only'));
         assert.ok(!isAllowedLicense('UNKNOWN'));
+        assert.ok(!isAllowedLicense('GPL-3.0-only AND (MIT OR ISC)'));
     });
 
     it('finds the package of each bundled file, nested and scoped', () => {
