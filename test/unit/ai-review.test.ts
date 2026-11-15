@@ -75,6 +75,7 @@ describe('AI Review', () => {
                 { line: 3, criterion: '2.4.4', message: 'No confidence.', recommendation: 'x' },
                 entry(3, '2.4.9', 'AAA criterion.'),
                 entry(3, '9.9.9', 'No such criterion.'),
+                entry(3, 'constructor', 'Inherited object key.'),
                 entry(0, '2.4.4', 'Before the first line.'),
                 entry(5, '2.4.4', 'After the last line.'),
                 'not an entry'
@@ -106,6 +107,17 @@ describe('AI Review', () => {
         const { findings } = await review({ document, checkFindings: [] }, { model, skill, cache: memoryCache() });
 
         assert.strictEqual(model.requests.length, 2);
+        assert.deepStrictEqual(findings.map(f => f.criteria[0]), ['1.3.1']);
+    });
+
+    it('keeps the valid entries when the repair request fails', async () => {
+        const model = fakeModel(
+            { findings: [entry(2, '1.3.1'), entry(9, '2.4.4')] },
+            () => Promise.reject(new ModelError('Timeout', 'slow'))
+        );
+
+        const { findings } = await review({ document, checkFindings: [] }, { model, skill, cache: memoryCache() });
+
         assert.deepStrictEqual(findings.map(f => f.criteria[0]), ['1.3.1']);
     });
 
@@ -198,6 +210,13 @@ describe('AI Review', () => {
 
         assert.strictEqual(model.requests.length, 2);
         assert.strictEqual(findings.length, 1);
+    });
+
+    it('does not retry a known model error such as a rate limit', async () => {
+        const model = fakeModel(() => Promise.reject(new ModelError('Blocked', 'rate limited')), { findings: [] });
+
+        await assert.rejects(review({ document, checkFindings: [] }, { model, skill, cache: memoryCache() }));
+        assert.strictEqual(model.requests.length, 1);
     });
 
     it('does not retry when the model refuses access', async () => {

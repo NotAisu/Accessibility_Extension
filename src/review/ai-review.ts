@@ -73,8 +73,8 @@ export interface ReviewResult {
 }
 
 const DEADLINE_MS = 60_000;
-// Access and model problems do not go away on a retry, and a slow model would only miss its deadline again
-const FINAL_ERRORS = new Set(['NoPermissions', 'Blocked', 'NotFound', 'Timeout', 'Cancelled']);
+// Only an unknown error may be transient; access, rate limits and a slow model would fail the same way again
+const RETRIED_ERRORS = new Set(['Unknown']);
 
 const REPORT_TOOL: ReportTool = {
     name: 'report_findings',
@@ -142,10 +142,15 @@ async function reviewDocument(document: AnalysisDocument, options: ReviewOptions
     const first = parse(await send({ messages, tool: REPORT_TOOL }, options), lines.length);
     let entries = first.entries;
     if (first.problem) {
-        const repair = `Your answer did not follow the contract: ${first.problem}. `
-            + `Call ${REPORT_TOOL.name} once more with the complete, corrected list.`;
-        const second = parse(await send({ messages: [...messages, repair], tool: REPORT_TOOL }, options), lines.length);
-        entries = [...entries, ...second.entries];
+        const repair = `An earlier answer did not follow the contract: ${first.problem}. `
+            + `Call ${REPORT_TOOL.name} with the complete, corrected list.`;
+        try {
+            const second = parse(await send({ messages: [...messages, repair], tool: REPORT_TOOL }, options), lines.length);
+            entries = [...entries, ...second.entries];
+        } catch (error) {
+            // A failed repair keeps the valid entries of the first answer
+            if (error instanceof ModelError && error.code === 'Cancelled') throw error;
+        }
     }
     return entries.map(e => toFinding(e, lines));
 }
@@ -166,7 +171,7 @@ async function send(request: ModelRequest, options: ReviewOptions): Promise<unkn
     try {
         return await attempt(request, options);
     } catch (error) {
-        if (error instanceof ModelError && FINAL_ERRORS.has(error.code)) throw error;
+        if (!(error instanceof ModelError) || !RETRIED_ERRORS.has(error.code)) throw error;
         return attempt(request, options);
     }
 }

@@ -60,17 +60,16 @@ const CRITERIA: Record<string, { name: string; slug: string }> = {
 
 /** True for a WCAG 2.2 level A or AA success criterion number such as "1.4.3". */
 export function isTargetCriterion(criterion: string): boolean {
-    return criterion in CRITERIA;
+    return Object.prototype.hasOwnProperty.call(CRITERIA, criterion);
 }
 
 export function criterionName(criterion: string): string {
-    return CRITERIA[criterion]?.name ?? criterion;
+    return isTargetCriterion(criterion) ? CRITERIA[criterion].name : criterion;
 }
 
 /** Link to the W3C "Understanding" page of a success criterion. */
 export function criterionUrl(criterion: string): string {
-    const slug = CRITERIA[criterion]?.slug;
-    return slug
-        ? `https://www.w3.org/WAI/WCAG22/Understanding/${slug}`
+    return isTargetCriterion(criterion)
+        ? `https://www.w3.org/WAI/WCAG22/Understanding/${CRITERIA[criterion].slug}`
         : 'https://www.w3.org/WAI/WCAG22/quickref/';
 }

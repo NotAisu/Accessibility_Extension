@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import type { Finding } from './core/analysis';
+import type { AnalysisDocument, Finding } from './core/analysis';
 import { criterionUrl } from './core/wcag';
 import { selectCopilotModel } from './copilot-model';
 import { GateReport, ModelError, ModelPort, ReviewCache, review } from './review/ai-review';
@@ -19,7 +19,8 @@ export class AIReview implements vscode.Disposable {
     constructor(
         private readonly context: vscode.ExtensionContext,
         private readonly languages: string[],
-        private readonly checkFindings: (uri: vscode.Uri) => Finding[]
+        /** Check Findings of exactly the reviewed text, so their offsets match the AI Findings'. */
+        private readonly checkFindings: (document: AnalysisDocument) => Promise<Finding[]>
     ) {
         this.status.name = 'Allyproof AI Review';
         void this.showIdle();
@@ -49,8 +50,9 @@ export class AIReview implements vscode.Disposable {
         const version = document.version;
         this.show('$(loading~spin) AI Review…', `Reviewing with ${model.name}. Click to cancel.`, 'allyproof.cancelAIReview');
         try {
+            const reviewed = { languageId: document.languageId, text: document.getText() };
             const { findings, gate } = await review(
-                { document: { languageId: document.languageId, text: document.getText() }, checkFindings: this.checkFindings(document.uri) },
+                { document: reviewed, checkFindings: await this.checkFindings(reviewed) },
                 {
                     model,
                     skill: { text: await this.readSkill() },

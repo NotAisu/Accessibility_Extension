@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { analyse } from './core/analysis';
 import { CheckDiagnostics } from './check-diagnostics';
 import { AIReview } from './ai-review-ui';
 
@@ -7,7 +8,7 @@ const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typesc
 const check = new CheckDiagnostics();
 
 export function activate(context: vscode.ExtensionContext): void {
-    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, uri => check.findings(uri));
+    const aiReview = new AIReview(context, SUPPORTED_LANGUAGES, async document => (await analyse(document)).findings);
 
     context.subscriptions.push(
         check,
@@ -47,6 +48,4 @@ async function runDiagnostics(document: vscode.TextDocument): Promise<void> {
     }
 }
 
-export function deactivate(): void {
-    check.collection.clear();
-}
+export function deactivate(): void {}
