@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { analyse } from '../../src/core/analysis';
+import { analyse, ParseError } from '../../src/core/analysis';
 
 const page = (body: string) => [
     '<!DOCTYPE html>',
@@ -131,5 +131,19 @@ describe('analyse (JSX/TSX)', () => {
         const { findings } = await analyse({ languageId: 'javascriptreact', text });
 
         assert.ok(findings.some(f => f.ruleId === 'jsx-a11y-x/alt-text'));
+    });
+
+    it('fails on unparseable code instead of reporting no Findings', async () => {
+        await assert.rejects(analyse({ languageId: 'javascriptreact', text: 'const a = () => <div><img src="x" /> <' }), ParseError);
+    });
+
+    it('places Findings after every line break ESLint counts', async () => {
+        for (const lineBreak of ['\r', '\u2028', '\u2029']) {
+            const text = `/* a${lineBreak}b */\n<img src="x" />;`;
+
+            const { findings } = await analyse({ languageId: 'javascriptreact', text });
+
+            assert.strictEqual(text.slice(findings[0].range.start, findings[0].range.end), '<img src="x" />');
+        }
     });
 });

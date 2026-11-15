@@ -1,7 +1,7 @@
 import { Linter } from 'eslint/universal';
 import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import * as tsParser from '@typescript-eslint/parser';
-import type { Finding } from '../analysis';
+import { Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
 
 // The JSX/TSX engine as one chunk, loaded on the first React document.
@@ -93,6 +93,8 @@ export function checkJsx(text: string, typescript: boolean): Finding[] {
     const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
     for (const message of verify(text, typescript ? 'document.tsx' : 'document.jsx')) {
+        // Unparseable code must not read as a clean file
+        if (message.fatal) throw new ParseError(`Parse error at ${message.line}:${message.column}: ${message.message}`);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);

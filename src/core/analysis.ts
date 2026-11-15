@@ -43,6 +43,14 @@ export interface AnalysisResult {
     needsReview: NeedsReview[];
 }
 
+/** The document cannot be parsed, so the Check cannot decide anything about it; not an engine failure. */
+export class ParseError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'ParseError';
+    }
+}
+
 export async function analyse(document: AnalysisDocument): Promise<AnalysisResult> {
     if (!document.text.trim()) return { findings: [], needsReview: [] };
     if (document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact') {

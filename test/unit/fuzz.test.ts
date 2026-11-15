@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
-import { analyse } from '../../src/core/analysis';
+import { analyse, ParseError } from '../../src/core/analysis';
 import type { GroundTruthSet } from '../ground-truth/ground-truth';
 
 const GROUND_TRUTH = path.join(__dirname, '..', 'ground-truth');
@@ -51,9 +51,12 @@ describe('analyse never crashes on random and truncated input', () => {
             this.timeout(60000);
             const next = random([...languageId].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 2 ** 31, 0));
             for (const [index, text] of fuzzedInputs(samples, next).entries()) {
-                const result = await analyse({ languageId, text }).catch((error: Error) =>
-                    assert.fail(`input ${index} (${JSON.stringify(text.slice(0, 80))}…): ${error.message}`));
-                assert.ok(Array.isArray(result.findings) && Array.isArray(result.needsReview), `input ${index}`);
+                const result = await analyse({ languageId, text }).catch((error: Error) => {
+                    // Unparseable input is a known outcome, any other error a crash
+                    if (error instanceof ParseError) return undefined;
+                    assert.fail(`input ${index} (${JSON.stringify(text.slice(0, 80))}…): ${error.message}`);
+                });
+                if (result) assert.ok(Array.isArray(result.findings) && Array.isArray(result.needsReview), `input ${index}`);
             }
         });
     }
