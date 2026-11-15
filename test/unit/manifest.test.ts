@@ -12,7 +12,10 @@ interface Manifest {
     repository?: { url?: string };
     keywords?: string[];
     categories?: string[];
-    contributes: { commands: { command: string; category: string }[] };
+    contributes: {
+        commands: { command: string; category: string }[];
+        views?: Record<string, { id: string; type?: string }[]>;
+    };
 }
 
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8')) as Manifest;
@@ -33,6 +36,16 @@ describe('manifest', () => {
     it('puts every command under the Allyproof category', () => {
         for (const command of manifest.contributes.commands) {
             assert.strictEqual(command.category, 'Allyproof', command.command);
+        }
+    });
+
+    it('shows Findings in a native tree view, with no webviews anywhere', () => {
+        const views = Object.values(manifest.contributes.views ?? {}).flat();
+        assert.ok(views.some(view => view.id === 'allyproof.findings'), 'Findings tree');
+        assert.ok(views.every(view => view.type !== 'webview'), 'no webview views');
+        for (const file of fs.readdirSync(path.join(root, 'src'), { recursive: true, encoding: 'utf-8' })) {
+            if (!file.endsWith('.ts')) continue;
+            assert.doesNotMatch(fs.readFileSync(path.join(root, 'src', file), 'utf-8'), /createWebviewPanel|registerWebview/, file);
         }
     });
 

@@ -20,7 +20,9 @@ export class AIReview implements vscode.Disposable {
         private readonly context: vscode.ExtensionContext,
         private readonly languages: string[],
         /** Check Findings of exactly the reviewed text, so their offsets match the AI Findings'. */
-        private readonly checkFindings: (document: AnalysisDocument) => Promise<Finding[]>
+        private readonly checkFindings: (document: AnalysisDocument) => Promise<Finding[]>,
+        /** Shows the AI Findings beside the Check's, in the Findings tree. */
+        private readonly showFindings: (document: vscode.TextDocument, findings: Finding[]) => void
     ) {
         this.status.name = 'Allyproof AI Review';
         void this.showIdle();
@@ -59,7 +61,9 @@ export class AIReview implements vscode.Disposable {
                     cache: this.cache,
                     signal: running.signal,
                     onFindings: found => {
-                        if (!document.isClosed && document.version === version) this.collection.set(document.uri, found.map(f => toDiagnostic(document, f)));
+                        if (document.isClosed || document.version !== version) return;
+                        this.collection.set(document.uri, found.map(f => toDiagnostic(document, f)));
+                        this.showFindings(document, found);
                     }
                 }
             );

@@ -52,8 +52,37 @@
         "command": "allyproof.cancelAIReview",
         "title": "Cancel AI Review",
         "category": "Allyproof"
+      },
+      {
+        "command": "allyproof.filterFindings",
+        "title": "Filter Findings",
+        "category": "Allyproof",
+        "icon": "$(filter)"
       }
     ],
+    "views": {
+      "explorer": [
+        {
+          "id": "allyproof.findings",
+          "name": "Accessibility Findings"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "allyproof.findings",
+        "contents": "No Findings in the open files."
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "allyproof.filterFindings",
+          "when": "view == allyproof.findings",
+          "group": "navigation"
+        }
+      ]
+    },
     "configuration": {
       "title": "Allyproof",
       "properties": {
