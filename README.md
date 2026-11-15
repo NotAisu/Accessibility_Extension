@@ -33,11 +33,14 @@ All commands are in the Command Palette under **Allyproof**:
 
 ```sh
 npm install
+npm run verify      # everything CI runs: lint, typecheck, unit tests, bundle, gate
 npm run bundle      # dist/extension.js
 npm run test:unit
-npm run test:gate   # Check precision/recall against ground truth
+npm run test:gate   # Check precision/recall per language against ground truth
 npm run package     # allyproof-<version>.vsix
 ```
+
+After an intended change in Check quality, store the new scores with `npm run test:gate -- --update` and commit the changed files in `test/ground-truth/baseline/`.
 
 Press F5 to launch an Extension Development Host. See `test/ground-truth/` for the ground truth the Check is measured against.
 
