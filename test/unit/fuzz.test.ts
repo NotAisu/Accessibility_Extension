@@ -49,7 +49,7 @@ describe('analyse never crashes on random and truncated input', () => {
     for (const [languageId, samples] of samplesByLanguage()) {
         it(languageId, async function () {
             this.timeout(60000);
-            const next = random(languageId.length);
+            const next = random([...languageId].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) % 2 ** 31, 0));
             for (const [index, text] of fuzzedInputs(samples, next).entries()) {
                 const result = await analyse({ languageId, text }).catch((error: Error) =>
                     assert.fail(`input ${index} (${JSON.stringify(text.slice(0, 80))}…): ${error.message}`));

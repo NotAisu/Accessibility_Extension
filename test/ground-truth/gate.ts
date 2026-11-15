@@ -103,7 +103,11 @@ async function main() {
     const silent = new Set<string>();
     const scoresByLanguage = await measure(await loadAnalyse(), silent);
     const update = process.argv.includes('--update');
-    const problems = [...silent].map(languageId => `${languageId}: 0 Findings on its failing cases`);
+    const problems = [...silent].map(languageId => `${languageId}: no Findings on the cases that expect one`);
+    if (update && problems.length > 0) {
+        console.error(`\nNo baseline written:\n  ${problems.join('\n  ')}`);
+        process.exit(1);
+    }
 
     for (const [languageId, scores] of scoresByLanguage) {
         console.log(`\n${languageId}\ncriterion  precision  recall    tp   fp   fn`);

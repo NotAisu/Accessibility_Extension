@@ -8,6 +8,9 @@ const watch = process.argv.includes('--watch');
 // The CI gate runs on the same version; raising it needs a recorded reason in the spec (#5).
 const TARGET = 'node24.15';
 
+// Packages of the language engines; each must stay out of the activation shell
+const ENGINE_PACKAGES = ['jsdom', 'axe-core', 'eslint', '@html-eslint'];
+
 // Engine bundling pitfalls that only show once bundled
 const fixEnginePitfalls = {
     name: 'fix-engine-pitfalls',
@@ -40,7 +43,7 @@ function assertShellHasNoEngine(metafile) {
     };
     visit(shell);
     const engines = [...seen].flatMap(file => Object.keys(outputs[file].inputs))
-        .filter(input => /node_modules[\\/](jsdom|axe-core|eslint|@html-eslint)[\\/]/.test(input));
+        .filter(input => ENGINE_PACKAGES.some(name => input.includes(`node_modules/${name}/`)));
     if (engines.length > 0) {
         throw new Error(`The activation shell statically loads engine code, import it lazily: ${engines[0]}`);
     }
