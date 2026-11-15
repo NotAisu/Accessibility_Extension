@@ -1,6 +1,3 @@
-import { checkHtmlWithAxe } from './html/axe-check';
-import { checkHtmlWithEslint } from './html/html-eslint-check';
-
 /** Character offsets into the analysed text, end exclusive. */
 export interface TextRange {
     start: number;
@@ -50,6 +47,7 @@ export async function analyse(document: AnalysisDocument): Promise<AnalysisResul
     if (document.languageId !== 'html' || !document.text.trim()) {
         return { findings: [], needsReview: [] };
     }
+    const { checkHtmlWithAxe, checkHtmlWithEslint } = await import('./html/engine');
     const axe = await checkHtmlWithAxe(document.text);
     const eslint = checkHtmlWithEslint(document.text);
     return {

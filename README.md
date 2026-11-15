@@ -32,11 +32,12 @@ All commands are in the Command Palette under **Allyproof**:
 ## Development
 
 ```sh
-npm install
-npm run verify      # everything CI runs: lint, typecheck, unit tests, bundle, gate
-npm run bundle      # dist/extension.js
+npm install         # on Node 24.15, the lowest supported runtime
+npm run verify      # everything CI runs: lint, typecheck, unit tests, gate on source and bundle
+npm run bundle      # dist/extension.mjs, dist/analysis.mjs and one chunk per language engine
 npm run test:unit
 npm run test:gate   # Check precision/recall per language against ground truth
+npm run test:bundle-gate  # the same gate against the packaged VSIX, unpacked without node_modules
 npm run package     # allyproof-<version>.vsix
 ```
 

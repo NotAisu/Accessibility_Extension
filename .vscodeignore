@@ -1,5 +1,6 @@
 # Ship only the bundle and the files vsce adds itself (package.json, README, LICENSE)
 **
-!dist/extension.js
+!dist/*.mjs
+!dist/chunks/*.mjs
 !README.md
 !LICENSE

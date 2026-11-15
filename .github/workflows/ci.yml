@@ -11,11 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # The lowest supported runtime, the same as the esbuild target
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24.15.0
           cache: npm
       - run: npm ci
-      # Lint, typecheck, unit tests, bundle, then the gate: fails when Check precision or recall
+      # Lint, typecheck, unit tests, then the gate on source and on the unpacked VSIX: fails when Check precision or recall
       # of any WCAG criterion drops below the stored baseline of its language
       - run: npm run verify

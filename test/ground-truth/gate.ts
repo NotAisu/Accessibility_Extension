@@ -3,10 +3,11 @@
  * WCAG criterion drops below the stored baseline of its language.
  *   npm run test:gate                 compare with baseline/<languageId>.json
  *   npm run test:gate -- --update     store the current scores as the new baselines
+ *   npm run test:gate -- --bundle <dir>  measure the analysis bundle in <dir>/dist instead of the source
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { analyse } from '../../src/core/analysis';
+import * as source from '../../src/core/analysis';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
 
 const SETS = ['act', 'own'];
@@ -15,8 +16,11 @@ const BASELINES = path.join(__dirname, 'baseline');
 
 type Scores = Record<string, { precision: number | null; recall: number | null } & Tally>;
 
-async function measure(): Promise<Map<string, Scores>> {
+type Analyse = typeof source.analyse;
+
+async function measure(analyse: Analyse, silent: Set<string>): Promise<Map<string, Scores>> {
     const totals = new Map<string, Map<string, Tally>>();
+    const failingCaseFindings = new Map<string, number>();
     for (const name of SETS) {
         const dir = path.join(__dirname, name);
         const set = JSON.parse(fs.readFileSync(path.join(dir, 'expectations.json'), 'utf-8')) as GroundTruthSet;
@@ -24,10 +28,15 @@ async function measure(): Promise<Map<string, Scores>> {
             const text = fs.readFileSync(path.join(dir, testCase.file), 'utf-8');
             const { findings } = await analyse({ languageId: testCase.languageId, text });
             const reported = findings.map(f => ({ line: lineAt(text, f.range.start), criteria: f.criteria }));
+            if (testCase.expect.some(e => !('present' in e) || e.present)) {
+                failingCaseFindings.set(testCase.languageId, (failingCaseFindings.get(testCase.languageId) ?? 0) + findings.length);
+            }
             if (!totals.has(testCase.languageId)) totals.set(testCase.languageId, new Map());
             addTallies(totals.get(testCase.languageId)!, scoreCase(testCase.expect, reported));
         }
     }
+    // An engine that loads badly often reports nothing at all rather than failing
+    for (const [languageId, count] of failingCaseFindings) if (count === 0) silent.add(languageId);
     const scoresByLanguage = new Map<string, Scores>();
     for (const [languageId, tallies] of totals) {
         const scores: Scores = {};
@@ -81,10 +90,20 @@ function regressions(scores: Scores, baseline: Scores): string[] {
     return problems;
 }
 
+// The bundle is ESM; Node 24 loads it through require(), which ts-node emits for import()
+async function loadAnalyse(): Promise<Analyse> {
+    const index = process.argv.indexOf('--bundle');
+    if (index === -1) return source.analyse;
+    const bundle = path.resolve(process.argv[index + 1], 'dist', 'analysis.mjs');
+    console.log(`Measuring the bundle ${bundle}`);
+    return ((await import(bundle)) as typeof source).analyse;
+}
+
 async function main() {
-    const scoresByLanguage = await measure();
+    const silent = new Set<string>();
+    const scoresByLanguage = await measure(await loadAnalyse(), silent);
     const update = process.argv.includes('--update');
-    const problems: string[] = [];
+    const problems = [...silent].map(languageId => `${languageId}: 0 Findings on its failing cases`);
 
     for (const [languageId, scores] of scoresByLanguage) {
         console.log(`\n${languageId}\ncriterion  precision  recall    tp   fp   fn`);

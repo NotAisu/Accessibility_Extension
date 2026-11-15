@@ -26,7 +26,7 @@
     "svelte"
   ],
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.123.0"
   },
   "categories": [
     "Linters",
@@ -40,7 +40,7 @@
     "onLanguage:javascriptreact",
     "onLanguage:typescriptreact"
   ],
-  "main": "./dist/extension.js",
+  "main": "./dist/extension.mjs",
   "contributes": {
     "commands": [
       {
@@ -139,24 +139,25 @@
     "watch": "tsc -watch -p ./",
     "lint": "eslint src test",
     "test:gate": "ts-node test/ground-truth/gate.ts",
+    "test:bundle-gate": "scripts/bundle-gate.sh",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
     "bundle": "node esbuild.js --production",
     "package": "vsce package",
     "test:unit": "mocha",
-    "verify": "npm run lint -- --max-warnings=0 && npm run typecheck && npm run test:unit && npm run bundle && npm run test:gate"
+    "verify": "npm run lint -- --max-warnings=0 && npm run typecheck && npm run test:unit && npm run test:gate && npm run test:bundle-gate"
   },
   "devDependencies": {
     "@types/jsdom": "21.1.7",
     "@types/mocha": "10.0.6",
-    "@types/node": "18.19.34",
-    "@types/vscode": "1.85.0",
+    "@types/node": "24.13.6",
+    "@types/vscode": "1.120.0",
     "@vscode/vsce": "4.1.1",
     "esbuild": "0.28.2",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
     "mocha": "10.4.0",
-    "ts-node": "^10.9.2",
+    "ts-node": "10.9.2",
     "typescript": "5.4.5",
     "typescript-eslint": "8.72.2"
   },
