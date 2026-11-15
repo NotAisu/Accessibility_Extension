@@ -46,6 +46,10 @@ export function activate(context: vscode.ExtensionContext): void {
         void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', true);
         context.subscriptions.push(
             vscode.lm.onDidChangeChatModels(() => void aiReview.showIdle()),
+            vscode.workspace.onDidGrantWorkspaceTrust(() => void aiReview.showIdle()),
+            vscode.workspace.onDidChangeConfiguration(event => {
+                if (event.affectsConfiguration('allyproof.aiReview')) void aiReview.showIdle();
+            }),
             vscode.lm.registerTool('a11y_check', new A11yCheckTool(SUPPORTED_LANGUAGES, document => check.checkFor(document)))
         );
     }

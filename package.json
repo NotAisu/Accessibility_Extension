@@ -41,6 +41,20 @@
     "onLanguage:typescriptreact"
   ],
   "main": "./dist/extension.mjs",
+  "extensionKind": [
+    "ui",
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In untrusted workspaces AI Review uses only GitHub Copilot, so a workspace cannot send your code to another endpoint.",
+      "restrictedConfigurations": [
+        "allyproof.aiReview.localEndpoint",
+        "allyproof.aiReview.localModel"
+      ]
+    }
+  },
   "contributes": {
     "commands": [
       {
@@ -153,6 +167,29 @@
             "type": "string",
             "enum": ["off", "error", "warning", "information"]
           }
+        },
+        "allyproof.aiReview.provider": {
+          "type": "string",
+          "enum": [
+            "copilot",
+            "local"
+          ],
+          "enumDescriptions": [
+            "GitHub Copilot models, including your own keys added to Copilot.",
+            "A local model behind an OpenAI-compatible endpoint, such as LM Studio or Ollama. Your code stays on your machine."
+          ],
+          "default": "copilot",
+          "description": "Where AI Review sends the code. In untrusted workspaces AI Review always uses GitHub Copilot."
+        },
+        "allyproof.aiReview.localEndpoint": {
+          "type": "string",
+          "default": "http://localhost:1234/v1",
+          "description": "OpenAI-compatible endpoint of the local model server: http://localhost:1234/v1 for LM Studio, http://localhost:11434/v1 for Ollama."
+        },
+        "allyproof.aiReview.localModel": {
+          "type": "string",
+          "default": "",
+          "description": "Model the local server runs AI Review with, for example qwen2.5-coder. Empty uses the first model the server lists."
         },
         "allyproof.check.fixOnSave": {
           "type": "boolean",
