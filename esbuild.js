@@ -83,6 +83,8 @@ async function main() {
         const result = await ctx.rebuild();
         await ctx.dispose();
         assertShellHasNoEngine(result.metafile);
+        // The bundled inputs, for scripts/third-party-notices.ts; not shipped
+        fs.writeFileSync('dist/meta.json', JSON.stringify(result.metafile));
     }
 }
 

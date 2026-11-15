@@ -2,5 +2,6 @@
 **
 !dist/*.mjs
 !dist/chunks/*.mjs
+!dist/THIRD-PARTY-NOTICES.txt
 !README.md
 !LICENSE
