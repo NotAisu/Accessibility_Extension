@@ -7,7 +7,8 @@ import { lineOffsets } from '../offsets';
 import { styleBlocksSetColors } from '../needs-review';
 import { hasSpread, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
 import { withOwnRules } from '../own-rules';
-import { RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
+import { jsxA11ySettings, RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
+import type { ComponentMapping } from '../components';
 
 // The Astro engine as one chunk, loaded on the first Astro document.
 // eslint-plugin-astro wraps the eslint-plugin-jsx-a11y-x rules for the template, so the rules, their
@@ -20,7 +21,7 @@ const plugin = astro as unknown as { rules: Record<string, RuleModule> };
 
 // The bundled config only; the workspace's own ESLint config is never loaded.
 // The frontmatter is TypeScript and is parsed by @typescript-eslint/parser.
-function config(skip: Set<string>): Linter.Config[] {
+function config(skip: Set<string>, components: ComponentMapping | undefined): Linter.Config[] {
     const rules: Linter.RulesRecord = Object.fromEntries(Object.keys(RULE_CRITERIA)
         .filter(rule => !skip.has(PREFIX + rule))
         .map(rule => [PREFIX + rule, ['warn', ...RULE_OPTIONS[rule]]]));
@@ -34,17 +35,18 @@ function config(skip: Set<string>): Linter.Config[] {
             // A parser object, not a name: astro-eslint-parser would require() a name at lint time
             parserOptions: { parser: tsParser }
         },
+        settings: jsxA11ySettings(components),
         rules
     }];
 }
 
 const linter = new Linter({ configType: 'flat' });
 
-export function checkAstro(text: string): AnalysisResult {
+export function checkAstro(text: string, components?: ComponentMapping): AnalysisResult {
     const offsets = lineOffsets(text);
     const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
-    for (const message of verify(text)) {
+    for (const message of verify(text, components)) {
         // Unparseable code must not read as a clean file
         if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
@@ -66,7 +68,8 @@ export function checkAstro(text: string): AnalysisResult {
     // <script> and <style> bodies are raw text that renders nothing. class:list and spread attributes can set the class or style
     const content = renderedJsxContent(linter.getSourceCode(), {
         textParents: ['JSXElement', 'JSXFragment', 'AstroFragment'],
-        bindsStyle: opening => hasSpread(opening) || (opening.attributes as JsxNode[]).some(a => (a.name as JsxNode | undefined)?.type === 'JSXNamespacedName')
+        bindsStyle: opening => hasSpread(opening) || (opening.attributes as JsxNode[]).some(a => (a.name as JsxNode | undefined)?.type === 'JSXNamespacedName'),
+        components
     });
     content.stylesheetColors = styleBlocksSetColors(text);
     return withOwnRules(findings, content);
@@ -74,11 +77,11 @@ export function checkAstro(text: string): AnalysisResult {
 
 // A rule that throws on unusual code would cost every other rule's Findings, so the document is
 // linted again without it
-function verify(text: string): Linter.LintMessage[] {
+function verify(text: string, components: ComponentMapping | undefined): Linter.LintMessage[] {
     const skip = new Set<string>();
     for (;;) {
         try {
-            return linter.verify(text, config(skip), 'document.astro');
+            return linter.verify(text, config(skip, components), 'document.astro');
         } catch (error) {
             const ruleId = (error as { ruleId?: unknown }).ruleId;
             if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;

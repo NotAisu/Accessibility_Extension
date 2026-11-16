@@ -22,6 +22,8 @@ export class AIReview implements vscode.Disposable {
     readonly status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     private readonly cache = storedCache(this.context.workspaceState);
     private running: AbortController | undefined;
+    // The text each document's AI Findings were reported on, for AI fixes
+    private readonly reported = new Map<string, { text: string; findings: Finding[] }>();
 
     constructor(
         private readonly context: vscode.ExtensionContext,
@@ -63,28 +65,24 @@ export class AIReview implements vscode.Disposable {
 
     async start(document = vscode.window.activeTextEditor?.document): Promise<void> {
         if (this.running || !document || !this.reviews(document)) return;
-        const chosen = provider();
         // An untrusted workspace never falls back to Copilot when the user chose a local model
-        if (chosen === 'local' && !usesLocalModel()) return this.showIdle();
+        if (provider() === 'local' && !usesLocalModel()) return this.showIdle();
         let model: ModelPort | undefined;
-        if (chosen === 'local') {
-            // The lookup can be cancelled like the review itself
-            const lookup = this.running = new AbortController();
+        // The lookup can be cancelled like the review itself
+        const lookup = this.running = new AbortController();
+        if (provider() === 'local') {
             this.show('$(loading~spin) AI Review…', 'Connecting to the local model server. Click to cancel.', 'allyproof.cancelAIReview');
-            try {
-                model = await selectLocalModel(localSettings(), { signal: lookup.signal });
-            } catch (error) {
-                const cancelled = isCancelled(error);
-                if (!cancelled) this.log.error(`AI Review: local model not available: ${errorText(error)}`);
-                return this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error), 'allyproof.startAIReview');
-            } finally {
-                this.running = undefined;
-            }
-        } else {
-            model = await selectCopilotModel();
+        }
+        try {
+            model = await this.model(lookup.signal);
+        } catch (error) {
+            const cancelled = isCancelled(error);
+            if (!cancelled) this.log.error(`AI Review: local model not available: ${errorText(error)}`);
+            return this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error), 'allyproof.startAIReview');
+        } finally {
+            this.running = undefined;
         }
         if (!model) return this.showIdle();
-        if (!this.context.globalState.get(noticeKey(chosen)) && !await this.acceptNotice(model, chosen)) return;
 
         const running = this.running = new AbortController();
         const version = document.version;
@@ -117,6 +115,23 @@ export class AIReview implements vscode.Disposable {
         }
     }
 
+    /**
+     * The model of the chosen provider once the user accepted its notice; undefined when there is none or the user
+     * declined. Rejects with a `ModelError` when the local model server is not there.
+     */
+    async model(signal?: AbortSignal): Promise<ModelPort | undefined> {
+        const chosen = provider();
+        if (chosen === 'local' && !usesLocalModel()) return undefined;
+        const model = chosen === 'local' ? await selectLocalModel(localSettings(), { signal }) : await selectCopilotModel();
+        if (!model || (!this.context.globalState.get(noticeKey(chosen)) && !await this.acceptNotice(model, chosen))) return undefined;
+        return model;
+    }
+
+    /** The text the document's AI Findings were reported on, and the Findings, for AI fixes. */
+    reportOf(uri: vscode.Uri): { text: string; findings: Finding[] } | undefined {
+        return this.reported.get(uri.toString());
+    }
+
     async clearCache(): Promise<void> {
         await this.cache.clear();
         vscode.window.setStatusBarMessage('Allyproof: AI Review cache cleared.', 3000);
@@ -136,6 +151,7 @@ export class AIReview implements vscode.Disposable {
 
     delete(uri: vscode.Uri): void {
         this.collection.delete(uri);
+        this.reported.delete(uri.toString());
         this.tree.deleteAI(uri);
     }
 
@@ -148,6 +164,7 @@ export class AIReview implements vscode.Disposable {
     private showFindings(document: vscode.TextDocument, version: number, findings: Finding[]): void {
         if (document.isClosed || document.version !== version) return;
         this.collection.set(document.uri, findings.map(f => toDiagnostic(document, f)));
+        this.reported.set(document.uri.toString(), { text: document.getText(), findings });
         this.tree.setAI(document, findings);
     }
 
@@ -163,7 +180,8 @@ export class AIReview implements vscode.Disposable {
         return true;
     }
 
-    private async readSkill(): Promise<string> {
+    /** The packaged Skill, for the AI Review and AI fixes. */
+    async readSkill(): Promise<string> {
         const bytes = await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this.context.extensionUri, ...SKILL_PATH));
         return new TextDecoder().decode(bytes);
     }

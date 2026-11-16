@@ -373,7 +373,8 @@ function deduplicated(findings: Finding[], checkFindings: Finding[]): Finding[] 
     return kept.sort((a, b) => a.range.start - b.range.start);
 }
 
-async function send(request: ModelRequest, options: ReviewOptions): Promise<unknown> {
+/** Sends one request within its deadline and cancellation, retrying once after an unknown error. */
+export async function send(request: ModelRequest, options: Pick<ReviewOptions, 'model' | 'signal' | 'deadlineMs'>): Promise<unknown> {
     try {
         return await attempt(request, options);
     } catch (error) {
@@ -382,7 +383,7 @@ async function send(request: ModelRequest, options: ReviewOptions): Promise<unkn
     }
 }
 
-function attempt(request: ModelRequest, options: ReviewOptions): Promise<unknown> {
+function attempt(request: ModelRequest, options: Pick<ReviewOptions, 'model' | 'signal' | 'deadlineMs'>): Promise<unknown> {
     const { model, signal } = options;
     const deadlineMs = options.deadlineMs ?? DEADLINE_MS;
     return new Promise((resolve, reject) => {

@@ -6,6 +6,7 @@ import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
 import { addText, cssSetsColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
+import { mappedElement, writtenNames, type ComponentMapping } from '../components';
 
 // The Angular engine as one chunk, loaded on the first Angular template or component file.
 
@@ -50,16 +51,42 @@ const PREFIX = '@angular-eslint/template/';
 type RuleModule = { meta?: { docs?: { description?: string; url?: string } } };
 const plugin = angularTemplate as unknown as { rules: Record<string, RuleModule> };
 
+// The rules have no Component Mapping of their own, so the parser renames each mapped component in the syntax tree
+// to the native element it renders before any rule reads it; source spans stay those of the template
+function mappingParser(components: ComponentMapping | undefined): Linter.Parser {
+    if (!components) return templateParser;
+    return {
+        ...templateParser,
+        parseForESLint(code: string, options: unknown) {
+            const result = templateParser.parseForESLint(code, options as Parameters<typeof templateParser.parseForESLint>[1]);
+            const visit = (node: TemplateNode) => {
+                if (node.type === 'Element') {
+                    const written = node.name as string;
+                    const literal = (name: string) => (node.attributes as { name: string; value: string }[]).find(a => a.name === name)?.value;
+                    const mapped = mappedElement(written, literal, components, true);
+                    if (mapped) {
+                        writtenNames.set(node, written);
+                        node.name = mapped;
+                    }
+                }
+                forEachChild(node, visit);
+            };
+            (result.ast as unknown as { templateNodes: TemplateNode[] }).templateNodes.forEach(visit);
+            return result;
+        }
+    };
+}
+
 // The bundled config only; the workspace's own ESLint config is never loaded.
 // Rules run with their default options.
-function config(skip: Set<string>): Linter.Config[] {
+function config(skip: Set<string>, components: ComponentMapping | undefined): Linter.Config[] {
     const rules: Linter.RulesRecord = Object.fromEntries(Object.keys(RULE_CRITERIA)
         .filter(rule => !skip.has(PREFIX + rule))
         .map(rule => [PREFIX + rule, 'warn']));
     return [{
         files: ['**/*.html'],
         plugins: { '@angular-eslint/template': angularTemplate as unknown as NonNullable<Linter.Config['plugins']>[string] },
-        languageOptions: { parser: templateParser },
+        languageOptions: { parser: mappingParser(components) },
         rules
     }];
 }
@@ -67,18 +94,18 @@ function config(skip: Set<string>): Linter.Config[] {
 const linter = new Linter({ configType: 'flat' });
 
 /** An external component template. */
-export function checkAngularTemplate(text: string): AnalysisResult {
-    const { findings, content } = checkTemplate(text, 0);
+export function checkAngularTemplate(text: string, components?: ComponentMapping): AnalysisResult {
+    const { findings, content } = checkTemplate(text, 0, components);
     return withOwnRules(findings, content, { inputPurpose: true });
 }
 
 /** The inline `template` strings of the `@Component` decorators in a TypeScript file. */
-export function checkAngularComponents(text: string): AnalysisResult {
+export function checkAngularComponents(text: string, mapping?: ComponentMapping): AnalysisResult {
     const findings: Finding[] = [];
     const { templates, stylesheetColors } = components(text);
     const content: RenderedContent = { text: false, elements: [], stylesheetColors };
     for (const template of templates) {
-        const checked = checkTemplate(template.text, template.start);
+        const checked = checkTemplate(template.text, template.start, mapping);
         findings.push(...checked.findings);
         content.text ||= checked.content.text;
         content.elements.push(...checked.content.elements);
@@ -87,11 +114,11 @@ export function checkAngularComponents(text: string): AnalysisResult {
 }
 
 // Ranges are offsets into the template text plus `base`, its start in the checked document
-function checkTemplate(text: string, base: number): { findings: Finding[]; content: RenderedContent } {
+function checkTemplate(text: string, base: number, components: ComponentMapping | undefined): { findings: Finding[]; content: RenderedContent } {
     const offsets = lineOffsets(text);
     const toOffset = (line: number, column: number) => base + Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
-    const messages = verify(text);
+    const messages = verify(text, components);
     const facts = messages.some(message => message.fatal) ? undefined : templateFacts(linter.getSourceCode().ast, base);
     for (const message of messages) {
         // Unparseable code must not read as a clean file
@@ -181,7 +208,8 @@ interface TemplateFacts {
     boundEvents: Map<number, Set<string>>;
 }
 
-// Text, interpolations and intrinsic controls; components are opaque until Component Mapping
+// Text, interpolations and intrinsic controls; a component counts as the native element it is mapped to and is
+// otherwise opaque
 function templateFacts(ast: unknown, base: number): TemplateFacts {
     const content: RenderedContent = { text: false, elements: [] };
     const boundEvents = new Map<number, Set<string>>();
@@ -198,6 +226,8 @@ function templateFacts(ast: unknown, base: number): TemplateFacts {
             const start = (node.sourceSpan as { start: { offset: number } }).start.offset;
             const end = (node.startSourceSpan as { end: { offset: number } }).end.offset;
             const element: SourceElement = { tag: node.name as string, attributes: attributesOf(node), range: { start: base + start, end: base + end }, parent };
+            const component = writtenNames.get(node);
+            if (component) element.component = component;
             // [class], [class.x], [style.x], [ngClass] and [ngStyle] change the class or style beyond its literal value
             if ((node.inputs as BoundInput[]).some(input => BOUND_STYLE_TYPES.includes(input.__originalType ?? -1)
                 || ['class', 'style', 'ngclass', 'ngstyle'].includes(input.name.toLowerCase()))) element.boundStyle = true;
@@ -205,16 +235,20 @@ function templateFacts(ast: unknown, base: number): TemplateFacts {
             boundEvents.set(start, new Set((node.outputs as { name: string }[]).map(output => output.name)));
             parent = element;
         }
-        // Elements, ng-template and control flow blocks keep what they render in children; blocks keep
-        // their branches, cases and @empty, @placeholder, @loading and @error parts beside them
-        for (const key of ['children', 'branches', 'groups', 'cases', 'empty', 'placeholder', 'loading', 'error']) {
-            for (const child of [node[key]].flat()) {
-                if (child && typeof child === 'object') visit(child as TemplateNode, parent);
-            }
-        }
+        forEachChild(node, child => visit(child, parent));
     };
     (ast as { templateNodes: TemplateNode[] }).templateNodes.forEach(node => visit(node));
     return { content, boundEvents };
+}
+
+// Elements, ng-template and control flow blocks keep what they render in children; blocks keep their branches,
+// cases and @empty, @placeholder, @loading and @error parts beside them
+function forEachChild(node: TemplateNode, visit: (child: TemplateNode) => void): void {
+    for (const key of ['children', 'branches', 'groups', 'cases', 'empty', 'placeholder', 'loading', 'error']) {
+        for (const child of [node[key]].flat()) {
+            if (child && typeof child === 'object') visit(child as TemplateNode);
+        }
+    }
 }
 
 // A value only for a static attribute; a binding ([href], [attr.role]) counts as present
@@ -231,11 +265,11 @@ function attributesOf(element: TemplateNode): Map<string, string | true> {
 
 // A rule that throws on unusual code would cost every other rule's Findings, so the document is
 // linted again without it
-function verify(text: string): Linter.LintMessage[] {
+function verify(text: string, components: ComponentMapping | undefined): Linter.LintMessage[] {
     const skip = new Set<string>();
     for (;;) {
         try {
-            return linter.verify(text, config(skip), 'template.html');
+            return linter.verify(text, config(skip, components), 'template.html');
         } catch (error) {
             const ruleId = (error as { ruleId?: unknown }).ruleId;
             if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;

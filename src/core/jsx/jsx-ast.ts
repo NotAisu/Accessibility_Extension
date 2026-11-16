@@ -1,4 +1,5 @@
 import { addText, type RenderedContent, type SourceElement } from '../needs-review';
+import { mappedElement, type ComponentMapping } from '../components';
 
 // What the JSX and Astro engines read from a JSX syntax tree, which both parsers produce for the markup
 
@@ -17,10 +18,12 @@ export interface JsxContentOptions {
     textParents: readonly string[];
     /** Whether an opening element sets its class or style by other means than a literal attribute. */
     bindsStyle(opening: JsxNode): boolean;
+    components?: ComponentMapping;
 }
 
 /**
- * Text children (literal or an expression) and intrinsic controls; components are opaque until Component Mapping.
+ * Text children (literal or an expression) and intrinsic controls; a component counts as the native element it is
+ * mapped to and is otherwise opaque.
  * `element` is the innermost element around the node, also across expressions ({items.map(item => <li>)}).
  */
 export function renderedJsxContent(source: JsxSource, options: JsxContentOptions): RenderedContent {
@@ -38,7 +41,11 @@ export function renderedJsxContent(source: JsxSource, options: JsxContentOptions
         if (node.type === 'JSXElement') {
             const opening = node.openingElement as JsxNode;
             const [start, end] = opening.range as [number, number];
-            element = { tag: tagName(opening), attributes: attributesOf(opening), range: { start, end }, parent: element };
+            const written = tagName(opening);
+            const attributes = attributesOf(opening);
+            const mapped = mappedElement(written, name => attributes.get(name.toLowerCase()), options.components);
+            element = { tag: mapped ?? written, attributes, range: { start, end }, parent: element };
+            if (mapped) element.component = written;
             if (options.bindsStyle(opening)) element.boundStyle = true;
             content.elements.push(element);
         }
@@ -57,9 +64,11 @@ export function hasSpread(opening: JsxNode): boolean {
     return (opening.attributes as JsxNode[]).some(attribute => attribute.type === 'JSXSpreadAttribute');
 }
 
+// UI.Button as written; namespaced names (svg:rect) are left empty
 function tagName(element: JsxNode): string {
-    const name = element.name as JsxNode;
-    return name.type === 'JSXIdentifier' ? name.name as string : '';
+    const name = (node: JsxNode): string => node.type === 'JSXIdentifier' ? node.name as string
+        : node.type === 'JSXMemberExpression' && name(node.object as JsxNode) ? `${name(node.object as JsxNode)}.${name(node.property as JsxNode)}` : '';
+    return name(element.name as JsxNode);
 }
 
 // Attribute names lowercased (tabIndex → tabindex); spread and namespaced attributes are left out

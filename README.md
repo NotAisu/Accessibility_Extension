@@ -8,6 +8,7 @@ Allyproof checks your frontend code against WCAG 2.2 A/AA while you work and can
 
 - **Check**: Findings appear in the Problems panel when you open or save an HTML, Vue, Svelte, JSX, TSX or Astro file, or an Angular component template (`*.component.html` or an inline `template`). Your file is parsed, never executed.
 - **AI Review**: `Allyproof: Start AI Review` asks GitHub Copilot to look for semantic problems the Check cannot detect. Its Findings appear as information marked "AI"; progress and the result are shown in the status bar.
+- **AI fixes**: every Finding has a "Fix with AI" quick fix, never the preferred one. The Check re-runs on the proposed edit first and discards a fix that adds Findings; the fix is then shown as a diff you apply or discard, and is refused if the code changed since the Finding was reported.
 
 ## Coverage
 
@@ -47,6 +48,7 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
 
 - **GitHub Copilot in VS Code**: the extension contributes the Skill and the `a11y_check` tool, so chat and agent mode can use them without any setup. Ask for example "make this component accessible" or reference the tool with `#a11y_check`.
 - **Claude Code, Cursor and other agents**: copy the `skills/allyproof` folder into your project's skills folder, for example `.claude/skills/allyproof/` (Claude Code) or `.agents/skills/allyproof/`, or your user-level skills folder. These agents use your own subscription.
+- **Your repository**: **Allyproof: Add Skill to Repository** writes the Skill to `.github/skills/allyproof/SKILL.md`, so Copilot code review reviews pull requests for accessibility without any CI setup. It also offers `.claude/skills` and `.agents/skills`. The written Skill carries the extension version in its `metadata`, and an existing Skill file is only replaced after you confirm. If the agent can open the rendered page in a browser, the Skill has it verify the Needs Review criteria there.
 
 `a11y_check` runs the Check on a file (`filePath`), on proposed code (`code` and `languageId`), or on proposed code for a file (`filePath` and `code`), so an agent can verify its fix before applying it. It returns the Findings with their line and the criteria that Need Review; the Skill calls it first and reviews only what the Check cannot decide. Outside VS Code with the extension the tool is not available, and the agent reviews only the semantic problems the Skill lists. Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and the tool.
 
@@ -56,6 +58,8 @@ All commands are in the Command Palette under **Allyproof**:
 
 - Start AI Review
 - Cancel AI Review
+- Add Skill to Repository
+- Check Workspace: checks every supported file that `files.exclude` and `.gitignore` leave and lists the Findings in the Findings tree; files that are not open get no diagnostics in the editor. Running it again re-checks only the files that changed.
 
 ## Development
 

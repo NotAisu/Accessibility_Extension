@@ -6,6 +6,7 @@ import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
 import { addText, styleBlocksSetColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
+import { mappedElement, writtenNames, type ComponentMapping } from '../components';
 
 // The Vue engine as one chunk, loaded on the first Vue document.
 
@@ -39,9 +40,40 @@ const PREFIX = 'vuejs-accessibility/';
 type RuleModule = { meta?: { docs?: { description?: string; url?: string } } };
 const plugin = vueA11y as unknown as { rules: Record<string, RuleModule> };
 
+// The plugin has no Component Mapping of its own, so the parser renames each mapped component in the syntax tree
+// to the native element it renders before any rule reads it; ranges stay those of the source
+function mappingParser(components: ComponentMapping | undefined): Linter.Parser {
+    if (!components) return vueParser;
+    return {
+        ...vueParser,
+        parseForESLint(code: string, options: unknown) {
+            const result = vueParser.parseForESLint(code, options as Parameters<typeof vueParser.parseForESLint>[1]);
+            const visit = (node: VueNode) => {
+                if (node.type !== 'VElement') return;
+                const written = node.rawName as string;
+                const mapped = mappedElement(written, name => staticAttribute(node, name), components, true);
+                if (mapped) {
+                    writtenNames.set(node, written);
+                    node.name = node.rawName = mapped;
+                }
+                (node.children as VueNode[]).forEach(visit);
+            };
+            ((result.ast as { templateBody?: VueNode }).templateBody?.children as VueNode[] | undefined)?.forEach(visit);
+            return result;
+        }
+    };
+}
+
+function staticAttribute(element: VueNode, name: string): string | true | undefined {
+    const attribute = (element.startTag as { attributes: VueNode[] }).attributes
+        .find(a => !a.directive && ((a.key as VueNode).name as string) === name);
+    if (!attribute) return undefined;
+    return (attribute.value as { value: string } | null)?.value ?? true;
+}
+
 // The bundled config only; the workspace's own ESLint config is never loaded.
 // Rules run with their default options, as the plugin's recommended config does.
-function config(skip: Set<string>): Linter.Config[] {
+function config(skip: Set<string>, components: ComponentMapping | undefined): Linter.Config[] {
     const rules: Linter.RulesRecord = Object.fromEntries(Object.keys(RULE_CRITERIA)
         .filter(rule => !skip.has(PREFIX + rule))
         .map(rule => [PREFIX + rule, 'warn']));
@@ -49,7 +81,7 @@ function config(skip: Set<string>): Linter.Config[] {
         files: ['**/*.vue'],
         plugins: { 'vuejs-accessibility': vueA11y as unknown as NonNullable<Linter.Config['plugins']>[string] },
         languageOptions: {
-            parser: vueParser,
+            parser: mappingParser(components),
             ecmaVersion: 'latest',
             sourceType: 'module',
             // Parser objects, not names: vue-eslint-parser would require() a name at lint time.
@@ -62,11 +94,11 @@ function config(skip: Set<string>): Linter.Config[] {
 
 const linter = new Linter({ configType: 'flat' });
 
-export function checkVue(text: string): AnalysisResult {
+export function checkVue(text: string, components?: ComponentMapping): AnalysisResult {
     const offsets = lineOffsets(text);
     const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
-    for (const message of verify(text)) {
+    for (const message of verify(text, components)) {
         // Unparseable code must not read as a clean file
         if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
@@ -96,7 +128,8 @@ interface VueNode {
     [key: string]: unknown;
 }
 
-// Text and mustaches in the template and intrinsic controls; components are opaque until Component Mapping
+// Text and mustaches in the template and intrinsic controls; a component counts as the native element it is mapped
+// to and is otherwise opaque
 function renderedContent(template: VueNode | undefined): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
     const visit = (node: VueNode, parent?: SourceElement) => {
@@ -113,6 +146,8 @@ function renderedContent(template: VueNode | undefined): RenderedContent {
             // Components keep their written name (MyButton), elements are lowercase
             const tag = (node.rawName as string | undefined) ?? node.name as string;
             const element: SourceElement = { tag: /^[A-Z]/.test(tag) ? tag : node.name as string, attributes: attributesOf(node), range: { start, end }, parent };
+            const component = writtenNames.get(node);
+            if (component) element.component = component;
             if (bindsClassOrStyle(node) || hasVShow(node)) element.boundStyle = true;
             content.elements.push(element);
             (node.children as VueNode[]).forEach(child => visit(child, element));
@@ -162,11 +197,11 @@ function directives(element: VueNode): { name: unknown; argument: VueNode | null
 
 // A rule that throws on unusual code would cost every other rule's Findings, so the document is
 // linted again without it
-function verify(text: string): Linter.LintMessage[] {
+function verify(text: string, components: ComponentMapping | undefined): Linter.LintMessage[] {
     const skip = new Set<string>();
     for (;;) {
         try {
-            return linter.verify(text, config(skip), 'document.vue');
+            return linter.verify(text, config(skip, components), 'document.vue');
         } catch (error) {
             const ruleId = (error as { ruleId?: unknown }).ruleId;
             if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;

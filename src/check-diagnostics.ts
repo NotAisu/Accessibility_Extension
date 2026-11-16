@@ -21,7 +21,7 @@ export interface Reported {
 /** Shows Check Findings as diagnostics and teaches them on hover; a paused Check keeps the last ones. */
 export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable {
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof');
-    private readonly reported = new Map<string, { version: number; findings: Reported[] }>();
+    private readonly reported = new Map<string, { version: number; text: string; findings: Reported[] }>();
     private worker: AnalysisWorker | undefined;
     private readonly schedule = new CheckSchedule();
     private agentRequests = 0;
@@ -42,7 +42,8 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         const uri = document.uri.toString();
         if (!this.worker || !this.schedule.mayCheck(uri, { unsaved: document.isDirty })) return;
         const version = document.version;
-        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() }, options(document));
+        const text = document.getText();
+        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text }, options(document));
         // How long the run took counts even when the document changed meanwhile
         this.schedule.measured(uri, outcome);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
@@ -54,7 +55,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
             range: new vscode.Range(document.positionAt(finding.range.start), document.positionAt(finding.range.end)),
             finding
         }));
-        this.reported.set(document.uri.toString(), { version, findings: reported });
+        this.reported.set(document.uri.toString(), { version, text, findings: reported });
         this.collection.set(document.uri, reported.map(({ range, finding }) => toDiagnostic(range, finding)));
     }
 
@@ -74,6 +75,30 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     async checkFor(document: AnalysisDocument): Promise<CheckOutcome> {
         if (!this.worker) return { status: 'paused', reason: 'The Check has not started yet', deadlineExceeded: false };
         return this.worker.check(`a11y-check:${++this.agentRequests}`, document, options());
+    }
+
+    /** The Check of a file that is not open, for the workspace Check; never shown as diagnostics. */
+    async checkFile(uri: vscode.Uri, document: AnalysisDocument): Promise<CheckOutcome> {
+        if (!this.worker) return { status: 'paused', reason: 'The Check has not started yet', deadlineExceeded: false };
+        return this.worker.check(`workspace:${uri.toString()}`, document, options(uri), { background: true });
+    }
+
+    /** The rule settings the file is checked with. */
+    optionsFor(uri: vscode.Uri): AnalysisOptions {
+        return options(uri);
+    }
+
+    /** The Check of exactly this text of the file at `scope`, for verifying an AI fix; undefined when it could not run. */
+    async verify(document: AnalysisDocument, scope: vscode.Uri): Promise<Finding[] | undefined> {
+        if (!this.worker) return undefined;
+        const outcome = await this.worker.check(`ai-fix:${++this.agentRequests}`, document, options(scope));
+        return outcome.status === 'done' ? outcome.result.findings : undefined;
+    }
+
+    /** The text the last Check of the file read and its Findings, for AI fixes. */
+    reportOf(uri: vscode.Uri): { text: string; findings: Finding[] } | undefined {
+        const reported = this.reported.get(uri.toString());
+        return reported && { text: reported.text, findings: reported.findings.map(({ finding }) => finding) };
     }
 
     /** Findings with a fix, only while their offsets still match the document's text. */
@@ -117,10 +142,19 @@ export function codeOf(diagnostic: vscode.Diagnostic): string | number | undefin
     return typeof diagnostic.code === 'object' ? diagnostic.code.value : diagnostic.code;
 }
 
-// The `allyproof.rules` setting of the checked file's folder: rules turned off or reported with another severity.
-// Copied, since VS Code returns settings as proxies the worker's structured clone rejects
+// The settings of the checked file's folder: `allyproof.rules` turns rules off or changes their severity,
+// `allyproof.components` and `allyproof.polymorphicPropName` are the Component Mapping. The mapping is only ever
+// read from settings, never from project files. Copied, since VS Code returns settings as proxies the worker's
+// structured clone rejects
 function options(scope?: vscode.ConfigurationScope): AnalysisOptions {
-    return { rules: { ...vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, RuleSetting>>('rules', {}) } };
+    const polymorphicPropName = vscode.workspace.getConfiguration('allyproof', scope).get<string>('polymorphicPropName', '');
+    return {
+        rules: { ...vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, RuleSetting>>('rules', {}) },
+        components: {
+            components: { ...vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, string>>('components', {}) },
+            ...polymorphicPropName ? { polymorphicPropName } : {}
+        }
+    };
 }
 
 function toDiagnostic(range: vscode.Range, finding: Finding): vscode.Diagnostic {
