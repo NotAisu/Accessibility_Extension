@@ -68,7 +68,7 @@ export function checkVue(text: string): AnalysisResult {
     const findings: Finding[] = [];
     for (const message of verify(text)) {
         // Unparseable code must not read as a clean file
-        if (message.fatal) throw new ParseError(`Parse error at ${message.line}:${message.column}: ${message.message}`);
+        if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);

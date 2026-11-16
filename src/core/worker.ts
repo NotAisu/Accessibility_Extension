@@ -6,7 +6,8 @@ export interface WorkerRequest {
     options: AnalysisOptions;
 }
 
-export type WorkerReply = { result: AnalysisResult } | { error: string } | { parseError: string };
+/** `position`: where a parse error is, which unlike its message may be logged. */
+export type WorkerReply = { result: AnalysisResult } | { error: string } | { parseError: string; position: string };
 
 // The worker entry (ADR 0003): checks one document at a time off the extension host thread
 const port = parentPort!;
@@ -14,7 +15,7 @@ port.on('message', ({ document, options }: WorkerRequest) => {
     analyse(document, options).then(
         result => port.postMessage({ result } satisfies WorkerReply),
         (error: unknown) => port.postMessage((error instanceof ParseError
-            ? { parseError: error.message }
+            ? { parseError: error.message, position: error.position }
             : { error: error instanceof Error ? error.message : String(error) }) satisfies WorkerReply)
     );
 });

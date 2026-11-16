@@ -123,7 +123,7 @@ describe('AnalysisWorker', () => {
 
         const outcome = await worker.check('a.html', html('ok'));
 
-        assert.deepStrictEqual(parsed, { status: 'paused', reason: 'Parse error at 1:1', deadlineExceeded: false });
+        assert.deepStrictEqual(parsed, { status: 'paused', reason: 'Parse error at 1:1: Unexpected token "secret"', deadlineExceeded: false });
         assert.strictEqual(echoed(outcome).text, 'ok');
     });
 
@@ -162,6 +162,20 @@ describe('AnalysisWorker', () => {
             'error html engine: The analysis worker crashed: engine crashed',
             'error html engine paused for this session after 3 failures within 3 minutes'
         ]);
+    });
+
+    it('logs a parse error by language and position only, and caps what an engine error quotes', async () => {
+        const lines: string[] = [];
+        const log = { info: (m: string) => lines.push(`info ${m}`), warn: (m: string) => lines.push(`warn ${m}`), error: (m: string) => lines.push(`error ${m}`) };
+        worker = new AnalysisWorker(FAKE_ENGINE, { log });
+
+        await worker.check('a.svelte', { languageId: 'svelte', text: 'parse' });
+        await worker.check('a.html', html('fail-quoting'));
+
+        assert.deepStrictEqual(lines.slice(1, 2), ['warn svelte Check paused: parse error at 1:1']);
+        const [, , failure] = lines;
+        assert.ok(failure.startsWith('error html engine failed: engine failed on xxx'), failure);
+        assert.ok(!failure.includes('secret') && !failure.includes('\n') && failure.length <= 250, failure);
     });
 
     it('lets the process exit while the worker is idle', () => {

@@ -97,7 +97,7 @@ function checkTemplate(text: string, base: number): { findings: Finding[]; conte
         // Unparseable code must not read as a clean file
         if (message.fatal) {
             const start = toOffset(message.line, message.column);
-            throw new ParseError(`Parse error at offset ${start}: ${message.message}`);
+            throw new ParseError(`offset ${start}`, message.message);
         }
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         const criteria = rule && criteriaOf(rule, message.message);
@@ -136,7 +136,7 @@ function components(text: string): { templates: InlineTemplate[]; stylesheetColo
     // parseDiagnostics is internal but the only way to get syntax errors without a program
     const [syntaxError] = (source as unknown as { parseDiagnostics: ts.DiagnosticWithLocation[] }).parseDiagnostics;
     if (syntaxError) {
-        throw new ParseError(`Parse error at offset ${syntaxError.start}: ${ts.flattenDiagnosticMessageText(syntaxError.messageText, ' ')}`);
+        throw new ParseError(`offset ${syntaxError.start}`, ts.flattenDiagnosticMessageText(syntaxError.messageText, ' '));
     }
     const templates: InlineTemplate[] = [];
     let stylesheetColors = false;

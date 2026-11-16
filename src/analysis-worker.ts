@@ -1,5 +1,6 @@
 import { Worker } from 'worker_threads';
 import type { AnalysisDocument, AnalysisOptions, AnalysisResult } from './core/analysis';
+import { logText } from './core/log-text';
 import type { WorkerReply, WorkerRequest } from './core/worker';
 
 export type CheckOutcome =
@@ -10,7 +11,7 @@ export type CheckOutcome =
     /** The Check could not run; the last Findings stay. */
     | { status: 'paused'; reason: string; deadlineExceeded: boolean };
 
-/** Where the worker reports what went wrong; a `LogOutputChannel` in the extension. Never given file contents. */
+/** Where the worker reports what went wrong; a `LogOutputChannel` in the extension. Never given file contents: error messages go capped to their first line. */
 export interface WorkerLog {
     info(message: string): void;
     warn(message: string): void;
@@ -140,9 +141,12 @@ export class AnalysisWorker {
             const { request, started, firstLoad } = this.running;
             this.loaded.add(request.document.languageId);
             if ('result' in reply) this.finish({ status: 'done', result: reply.result, durationMs: this.now() - started, firstLoad });
-            else if ('parseError' in reply) this.finish({ status: 'paused', reason: reply.parseError, deadlineExceeded: false }, false);
-            else {
-                this.log?.error(`${request.document.languageId} engine failed: ${reply.error}`);
+            else if ('parseError' in reply) {
+                // The user's code, so the log, where the paused state links, says where only, never what the parser quotes
+                this.log?.warn(`${request.document.languageId} Check paused: parse error at ${logText(reply.position)}`);
+                this.finish({ status: 'paused', reason: reply.parseError, deadlineExceeded: false }, false);
+            } else {
+                this.log?.error(`${request.document.languageId} engine failed: ${logText(reply.error)}`);
                 this.finish({ status: 'paused', reason: reply.error, deadlineExceeded: false });
             }
         });
@@ -150,7 +154,7 @@ export class AnalysisWorker {
         const stopped = (reason: string) => {
             if (worker !== this.worker) return;
             this.worker = undefined;
-            this.log?.error(this.running ? `${this.running.request.document.languageId} engine: ${reason}` : reason);
+            this.log?.error(logText(this.running ? `${this.running.request.document.languageId} engine: ${reason}` : reason));
             this.finish({ status: 'paused', reason, deadlineExceeded: false });
         };
         worker.on('error', (error: Error) => stopped(`The analysis worker crashed: ${error.message}`));

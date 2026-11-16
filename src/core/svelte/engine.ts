@@ -155,7 +155,7 @@ function compileComponent(text: string): { warnings: Warning[]; ast: AST.Root } 
         // Invalid components must not read as clean files; the compiler names every such error CompileError
         if ((error as Error).name !== 'CompileError') throw error;
         const { start, message } = error as { start?: { line: number; column: number }; message: string };
-        throw new ParseError(`Parse error${start ? ` at ${start.line}:${start.column + 1}` : ''}: ${splitLink(message)[0]}`);
+        throw new ParseError(start ? `${start.line}:${start.column + 1}` : 'an unknown position', splitLink(message)[0]);
     }
 }
 

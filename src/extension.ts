@@ -1,6 +1,7 @@
 import * as os from 'os';
 import * as vscode from 'vscode';
 import { isChecked } from './core/analysis';
+import { logText } from './core/log-text';
 import { CheckDiagnostics } from './check-diagnostics';
 import { AIReview } from './ai-review-ui';
 import { FindingsTree } from './findings-tree';
@@ -119,7 +120,7 @@ async function checkDocument(check: CheckDiagnostics, document: vscode.TextDocum
     try {
         await check.update(document);
     } catch (error) {
-        log.error(`Check failed: ${error instanceof Error ? error.message : String(error)}`);
+        log.error(`Check failed: ${logText(error instanceof Error ? error.message : String(error))}`);
         check.delete(document.uri);
     }
 }

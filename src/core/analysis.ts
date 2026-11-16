@@ -73,8 +73,12 @@ export interface AnalysisResult {
 
 /** The document cannot be parsed, so the Check cannot decide anything about it; not an engine failure. */
 export class ParseError extends Error {
-    constructor(message: string) {
-        super(message);
+    /**
+     * `position`: where parsing failed, such as `2:5` or `offset 37`; unlike the parser's message it never quotes
+     * the code, so it alone may be logged.
+     */
+    constructor(readonly position: string, detail: string) {
+        super(`Parse error at ${position}: ${detail}`);
         this.name = 'ParseError';
     }
 }
