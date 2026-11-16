@@ -1,3 +1,6 @@
+import { ENGINES } from './core/analysis';
+import type { EngineUsage } from './analysis-worker';
+
 /** What an issue report says about where Allyproof ran; never any code or file contents. */
 export interface IssueEnvironment {
     extension: string;
@@ -5,13 +8,17 @@ export interface IssueEnvironment {
     os: string;
     /** The remote kind, such as `ssh-remote` or `wsl`; undefined in a local window. */
     remote: string | undefined;
-    engines: { used: string[]; paused: string[] };
+    engines: EngineUsage;
 }
 
 /** A new GitHub issue in `repository`, prefilled with the environment. */
 export function issueUrl(repository: string, environment: IssueEnvironment): string {
     const { used, paused } = environment.engines;
-    const engines = used.length === 0 ? 'none yet' : used.join(', ') + (paused.length > 0 ? ` (paused: ${paused.join(', ')})` : '');
+    // Every engine, so a report also says which never loaded; a paused engine was also used
+    const engines = Object.entries(ENGINES).map(([engine, languages]) => {
+        const state = languages.some(l => paused.includes(l)) ? 'paused' : languages.some(l => used.includes(l)) ? 'used' : 'not loaded';
+        return `${engine} (${state})`;
+    }).join(', ');
     const body = [
         '## What happened',
         '',
@@ -31,7 +38,7 @@ export function issueUrl(repository: string, environment: IssueEnvironment): str
         `- Editor: ${environment.editor}`,
         `- OS: ${environment.os}`,
         `- Remote: ${environment.remote ?? 'none (local)'}`,
-        `- Engines used: ${engines}`
+        `- Engines: ${engines}`
     ].join('\n');
     const url = new URL(`${repository.replace(/\/$/, '')}/issues/new`);
     url.searchParams.set('body', body);

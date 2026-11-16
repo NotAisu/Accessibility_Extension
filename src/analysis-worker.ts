@@ -11,6 +11,12 @@ export type CheckOutcome =
     /** The Check could not run; the last Findings stay. */
     | { status: 'paused'; reason: string; deadlineExceeded: boolean };
 
+/** The language ids whose engine ran in this session, and those the circuit breaker paused. */
+export interface EngineUsage {
+    used: string[];
+    paused: string[];
+}
+
 /** Where the worker reports what went wrong; a `LogOutputChannel` in the extension. Never given file contents: error messages go capped to their first line. */
 export interface WorkerLog {
     info(message: string): void;
@@ -50,7 +56,8 @@ export class AnalysisWorker {
     private readonly failures = new Map<string, number[]>();
     // Engines that answered in the current worker; the first run of any other also loads it
     private loaded = new Set<string>();
-    private readonly used = new Set<string>();
+    // Languages checked in the worker this session, for an issue report
+    private readonly checkedLanguages = new Set<string>();
     private readonly deadlineMs: number;
     private readonly firstLoadMs: number;
     private readonly now: () => number;
@@ -64,9 +71,9 @@ export class AnalysisWorker {
     }
 
     /** The engines run in this session and those the circuit breaker paused, for an issue report. */
-    engines(): { used: string[]; paused: string[] } {
+    engines(): EngineUsage {
         return {
-            used: [...this.used].sort(),
+            used: [...this.checkedLanguages].sort(),
             paused: [...this.failures].filter(([, times]) => times.length >= MAX_FAILURES).map(([engine]) => engine).sort()
         };
     }
@@ -100,7 +107,7 @@ export class AnalysisWorker {
             return this.next();
         }
         this.worker ??= this.spawn();
-        this.used.add(engine);
+        this.checkedLanguages.add(engine);
         const firstLoad = !this.loaded.has(engine);
         const deadlineMs = firstLoad ? this.firstLoadMs : this.deadlineMs;
         const deadline = setTimeout(() => {

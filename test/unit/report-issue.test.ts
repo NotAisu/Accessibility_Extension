@@ -6,7 +6,7 @@ const environment = {
     editor: 'Visual Studio Code 1.124.0',
     os: 'darwin 25.6.0 (arm64)',
     remote: 'ssh-remote',
-    engines: { used: ['html', 'vue'], paused: ['vue'] }
+    engines: { used: ['html', 'typescriptreact', 'vue'], paused: ['vue'] }
 };
 
 describe('Report Issue', () => {
@@ -20,7 +20,7 @@ describe('Report Issue', () => {
             '- Editor: Visual Studio Code 1.124.0',
             '- OS: darwin 25.6.0 (arm64)',
             '- Remote: ssh-remote',
-            '- Engines used: html, vue (paused: vue)'
+            '- Engines: html (used), jsx (used), vue (paused), svelte (not loaded), astro (not loaded), angular (not loaded)'
         ]) assert.ok(body.includes(line), `${line} missing from:\n${body}`);
     });
 
@@ -29,7 +29,7 @@ describe('Report Issue', () => {
             .searchParams.get('body')!;
 
         assert.ok(body.includes('- Remote: none (local)'));
-        assert.ok(body.includes('- Engines used: none yet'));
+        assert.ok(body.includes('- Engines: html (not loaded), jsx (not loaded), vue (not loaded), svelte (not loaded), astro (not loaded), angular (not loaded)'));
     });
 
     it('asks for a minimal example instead of attaching code', () => {

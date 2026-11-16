@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { AnalysisWorker, CheckOutcome, WorkerLog } from './analysis-worker';
+import { AnalysisWorker, CheckOutcome, EngineUsage, WorkerLog } from './analysis-worker';
 import { CheckSchedule } from './check-schedule';
 import { AnalysisDocument, AnalysisOptions, checkLanguageId, Finding, RuleSetting } from './core/analysis';
 import type { FindingsTree } from './findings-tree';
@@ -34,7 +34,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     }
 
     /** The engines run in this session and those paused, for an issue report. */
-    engines(): { used: string[]; paused: string[] } {
+    engines(): EngineUsage {
         return this.worker?.engines() ?? { used: [], paused: [] };
     }
 

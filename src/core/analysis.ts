@@ -40,6 +40,16 @@ export interface NeedsReview {
     range?: TextRange;
 }
 
+/** The Check's engines, one per framework, and the language ids each checks. */
+export const ENGINES: Record<string, string[]> = {
+    html: ['html'],
+    jsx: ['javascriptreact', 'typescriptreact'],
+    vue: ['vue'],
+    svelte: ['svelte'],
+    astro: ['astro'],
+    angular: ['angular', 'typescript']
+};
+
 export interface AnalysisDocument {
     languageId: string;
     text: string;
