@@ -79,6 +79,12 @@
         "category": "Allyproof"
       },
       {
+        "command": "allyproof.checkWorkspace",
+        "title": "Check Workspace",
+        "category": "Allyproof",
+        "icon": "$(check-all)"
+      },
+      {
         "command": "allyproof.filterFindings",
         "title": "Filter Findings",
         "category": "Allyproof",
@@ -125,7 +131,7 @@
     "viewsWelcome": [
       {
         "view": "allyproof.findings",
-        "contents": "No Findings in the open files. Open an HTML, Vue, Svelte, JSX, TSX, Astro or Angular file to check it.\n[Get Started](command:workbench.action.openWalkthrough?%22notaisu.allyproof%23allyproof.gettingStarted%22)"
+        "contents": "No Findings in the open files. Open an HTML, Vue, Svelte, JSX, TSX, Astro or Angular file to check it.\n[Check Workspace](command:allyproof.checkWorkspace)\n[Get Started](command:workbench.action.openWalkthrough?%22notaisu.allyproof%23allyproof.gettingStarted%22)"
       }
     ],
     "menus": {
@@ -155,6 +161,11 @@
         {
           "command": "allyproof.startAIReview",
           "when": "view == allyproof.findings && allyproof.aiAvailable",
+          "group": "navigation"
+        },
+        {
+          "command": "allyproof.checkWorkspace",
+          "when": "view == allyproof.findings && workspaceFolderCount != 0",
           "group": "navigation"
         },
         {
@@ -356,6 +367,7 @@
     "eslint-plugin-jsx-a11y-x": "0.2.0",
     "eslint-plugin-vuejs-accessibility": "2.6.3",
     "globals": "17.14.0",
+    "ignore": "5.3.2",
     "jsdom": "26.1.0",
     "svelte": "5.57.3",
     "tailwindcss": "4.3.3",

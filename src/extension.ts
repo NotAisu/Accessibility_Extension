@@ -10,6 +10,7 @@ import { disableRule, IgnoreActions, ignoreFinding } from './ignore-actions';
 import { CheckFixes } from './check-fixes';
 import { issueUrl } from './report-issue';
 import type { IgnoreFindingArgument } from './learn-hover';
+import { WorkspaceCheckCommand } from './workspace-check-ui';
 
 const REPOSITORY = 'https://github.com/NotAisu/Accessibility_Extension';
 
@@ -36,10 +37,13 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
     const check = new CheckDiagnostics(tree, aiAvailable);
     const fixes = new CheckFixes(check);
     const aiReview = new AIReview(context, checked, (document, scope) => check.findingsOf(document, scope), tree, log);
+    const workspaceCheck = new WorkspaceCheckCommand(check, tree, log);
     const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document, log);
     const forget = (uri: vscode.Uri) => {
         check.delete(uri);
         aiReview.delete(uri);
+        // A file the workspace Check covers stays in the Findings tree, as its text on disk
+        void workspaceCheck.closed(uri);
     };
 
     context.subscriptions.push(
@@ -55,6 +59,7 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
         vscode.commands.registerCommand('allyproof.cancelAIReview', () => aiReview.cancel()),
         vscode.commands.registerCommand('allyproof.clearAIReviewCache', () => aiReview.clearCache()),
         vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),
+        vscode.commands.registerCommand('allyproof.checkWorkspace', () => workspaceCheck.run()),
         vscode.commands.registerCommand('allyproof.disableRule', disableRule),
         vscode.commands.registerCommand('allyproof.ignoreFinding', (argument: IgnoreFindingArgument) => ignoreFinding(check, argument)),
         vscode.commands.registerCommand('allyproof.showLog', () => log.show()),

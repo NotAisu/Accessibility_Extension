@@ -115,6 +115,19 @@ describe('AnalysisWorker', () => {
         assert.strictEqual(echoed(otherEngine).text, 'ok');
     });
 
+    it('never pauses an engine for deadline overruns of background requests, which say a file is large', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 200 });
+        for (let i = 0; i < 3; i++) {
+            const overrun = await worker.check(`workspace:${i}.html`, html('hang'), {}, { background: true });
+            assert.deepStrictEqual(overrun, { status: 'paused', reason: 'The Check took longer than 200 ms', deadlineExceeded: true });
+        }
+
+        const outcome = await worker.check('a.html', html('ok'));
+
+        assert.strictEqual(echoed(outcome).text, 'ok');
+        assert.deepStrictEqual(worker.engines().paused, []);
+    });
+
     it('pauses on a parse error without counting it against the engine', async () => {
         worker = new AnalysisWorker(FAKE_ENGINE);
         const parsed = await worker.check('a.html', html('parse'));

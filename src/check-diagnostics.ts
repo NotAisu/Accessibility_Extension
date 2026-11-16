@@ -76,6 +76,17 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         return this.worker.check(`a11y-check:${++this.agentRequests}`, document, options());
     }
 
+    /** The Check of a file that is not open, for the workspace Check; never shown as diagnostics. */
+    async checkFile(uri: vscode.Uri, document: AnalysisDocument): Promise<CheckOutcome> {
+        if (!this.worker) return { status: 'paused', reason: 'The Check has not started yet', deadlineExceeded: false };
+        return this.worker.check(`workspace:${uri.toString()}`, document, options(uri), { background: true });
+    }
+
+    /** The rule settings the file is checked with. */
+    optionsFor(uri: vscode.Uri): AnalysisOptions {
+        return options(uri);
+    }
+
     /** Findings with a fix, only while their offsets still match the document's text. */
     fixable(document: vscode.TextDocument): Reported[] {
         const reported = this.reported.get(document.uri.toString());
