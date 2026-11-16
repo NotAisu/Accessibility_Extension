@@ -35,6 +35,7 @@ export interface AnalysisWorkerOptions {
 // Circuit breaker: an engine failing this often is paused for the session
 const MAX_FAILURES = 3;
 const FAILURE_WINDOW_MS = 3 * 60_000;
+const FAILURE_WINDOW = `${FAILURE_WINDOW_MS / 60_000} minutes`;
 // A runaway engine ends its own thread instead of growing the extension host's memory
 const MAX_HEAP_MB = 512;
 
@@ -102,7 +103,7 @@ export class AnalysisWorker {
         this.pending.delete(request.key);
         const engine = request.document.languageId;
         if ((this.failures.get(engine)?.length ?? 0) >= MAX_FAILURES) {
-            const reason = `The ${engine} engine failed ${MAX_FAILURES} times within 3 minutes and is paused for this session`;
+            const reason = `The ${engine} engine failed ${MAX_FAILURES} times within ${FAILURE_WINDOW} and is paused for this session`;
             request.resolve({ status: 'paused', reason, deadlineExceeded: false });
             return this.next();
         }
@@ -135,7 +136,7 @@ export class AnalysisWorker {
         const now = this.now();
         const recent = [...(this.failures.get(engine) ?? []).filter(time => now - time <= FAILURE_WINDOW_MS), now];
         this.failures.set(engine, recent);
-        if (recent.length === MAX_FAILURES) this.log?.error(`${engine} engine paused for this session after ${MAX_FAILURES} failures within 3 minutes`);
+        if (recent.length === MAX_FAILURES) this.log?.error(`${engine} engine paused for this session after ${MAX_FAILURES} failures within ${FAILURE_WINDOW}`);
     }
 
     private spawn(): Worker {

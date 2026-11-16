@@ -8,8 +8,8 @@ export interface CheckScheduleOptions {
 }
 
 /**
- * When each document's Check runs (#17): 400 ms after the last change, or on save only for a document whose
- * last warm run took over 150 ms or missed its deadline, so typing stays responsive in large files.
+ * When each document's Check runs (#17): a debounce time after the last change, or on save only for a document
+ * whose last warm run took over the budget or missed its deadline, so typing stays responsive in large files.
  */
 export class CheckSchedule {
     private readonly timers = new Map<string, NodeJS.Timeout>();
