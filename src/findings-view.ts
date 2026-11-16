@@ -149,6 +149,12 @@ export function statusSummary(file: FileFindings): StatusSummary {
     };
 }
 
+/** The badge on the Allyproof icon: the Findings of every file, as the Problems panel counts its problems; no badge without Findings. */
+export function findingsBadge(files: FileFindings[]): { value: number; tooltip: string } | undefined {
+    const total = files.reduce((sum, file) => sum + file.findings.length, 0);
+    return total === 0 ? undefined : { value: total, tooltip: count(total, 'Finding') };
+}
+
 // "1.4.10" after "1.4.3"
 function compareCriteria(a: string, b: string): number {
     const [x, y] = [a, b].map(c => c.split('.').map(Number));

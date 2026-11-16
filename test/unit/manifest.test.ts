@@ -16,6 +16,7 @@ interface Manifest {
     categories?: string[];
     contributes: {
         commands: { command: string; category: string }[];
+        viewsContainers?: { activitybar?: { id: string; title: string; icon: string }[] };
         views?: Record<string, { id: string; type?: string }[]>;
         languageModelTools?: { name: string; when?: string }[];
         chatSkills?: { path: string; when?: string }[];
@@ -107,6 +108,12 @@ describe('manifest', () => {
         const views = Object.values(manifest.contributes.views ?? {}).flat();
         assert.ok(views.some(view => view.id === 'allyproof.findings'), 'Findings tree');
         assert.ok(views.every(view => view.type !== 'webview'), 'no webview views');
+        // Its own Activity Bar icon, shipped in the VSIX
+        const container = manifest.contributes.viewsContainers?.activitybar?.find(c => c.id === 'allyproof');
+        assert.ok(container, 'Allyproof Activity Bar container');
+        assert.ok(manifest.contributes.views?.allyproof?.some(view => view.id === 'allyproof.findings'), 'Findings tree in the container');
+        assert.ok(fs.existsSync(path.join(root, container.icon)), container.icon);
+        assert.ok(fs.readFileSync(path.join(root, '.vscodeignore'), 'utf-8').includes(`!${container.icon}`), `${container.icon} ships in the VSIX`);
         for (const file of fs.readdirSync(path.join(root, 'src'), { recursive: true, encoding: 'utf-8' })) {
             if (!file.endsWith('.ts')) continue;
             assert.doesNotMatch(fs.readFileSync(path.join(root, 'src', file), 'utf-8'), /createWebviewPanel|registerWebview/, file);

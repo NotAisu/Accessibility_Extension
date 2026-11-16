@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { AnalysisResult, Finding, Severity } from './core/analysis';
-import { FileFindings, Filter, findingsTree, LocatedFinding, statusSummary, TreeNode } from './findings-view';
+import { FileFindings, Filter, findingsBadge, findingsTree, LocatedFinding, statusSummary, TreeNode } from './findings-view';
 
 const VIEW_ID = 'allyproof.findings';
 
@@ -174,6 +174,7 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
 
     private refresh(): void {
         this.changed.fire(undefined);
+        this.view.badge = findingsBadge([...this.files].map(([uri, state]) => toFile(uri, state)));
         this.showStatus();
     }
 

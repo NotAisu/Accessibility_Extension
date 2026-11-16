@@ -65,7 +65,8 @@
       {
         "command": "allyproof.startAIReview",
         "title": "Start AI Review",
-        "category": "Allyproof"
+        "category": "Allyproof",
+        "icon": "$(sparkle)"
       },
       {
         "command": "allyproof.cancelAIReview",
@@ -89,18 +90,27 @@
         "category": "Allyproof"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "allyproof",
+          "title": "Allyproof",
+          "icon": "media/activity-bar.svg"
+        }
+      ]
+    },
     "views": {
-      "explorer": [
+      "allyproof": [
         {
           "id": "allyproof.findings",
-          "name": "Accessibility Findings"
+          "name": "Findings"
         }
       ]
     },
     "viewsWelcome": [
       {
         "view": "allyproof.findings",
-        "contents": "No Findings in the open files."
+        "contents": "No Findings in the open files. Open an HTML, Vue, Svelte, JSX, TSX, Astro or Angular file to check it.\n[Get Started](command:workbench.action.openWalkthrough?%22notaisu.allyproof%23allyproof.gettingStarted%22)"
       }
     ],
     "menus": {
@@ -123,6 +133,11 @@
         }
       ],
       "view/title": [
+        {
+          "command": "allyproof.startAIReview",
+          "when": "view == allyproof.findings && allyproof.aiAvailable",
+          "group": "navigation"
+        },
         {
           "command": "allyproof.filterFindings",
           "when": "view == allyproof.findings",
@@ -235,7 +250,12 @@
           "markdownDescription": "Turn Check rules off or change the severity of their Findings, by rule id, for example `{ \"image-alt\": \"off\", \"jsx-a11y-x/alt-text\": \"error\" }`. Check Findings are warnings by default. To ignore a single Finding, put `<!-- allyproof-ignore <rule id> -->` (in JSX `{/* allyproof-ignore <rule id> */}`) on the line above it.",
           "additionalProperties": {
             "type": "string",
-            "enum": ["off", "error", "warning", "information"]
+            "enum": [
+              "off",
+              "error",
+              "warning",
+              "information"
+            ]
           }
         },
         "allyproof.aiReview.provider": {
