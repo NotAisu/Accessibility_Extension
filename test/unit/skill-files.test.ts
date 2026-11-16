@@ -91,8 +91,10 @@ describe('Add Skill to Repository', () => {
 
     it('ships a Skill that verifies Needs Review criteria in a browser when the agent can', () => {
         const section = /^## Verify Needs Review criteria in a browser\n\n(.+)$/m.exec(shipped)?.[1] ?? '';
-        assert.match(section, /If you can open the rendered page/);
+        assert.match(section, /Only if you have a tool that opens the rendered page/);
         for (const criterion of ['1.4.3', '2.5.8']) assert.ok(section.includes(criterion), criterion);
-        assert.match(section, /Without a browser, leave these criteria/);
+        assert.match(section, /no such tool, .* leave these criteria to the developer and never estimate them/);
+        // The AI Review in the extension has no browser, so it must never report contrast or target size it guessed
+        assert.match(shipped, /^- Color contrast and target size, unless a browser tool measured the failure/m);
     });
 });
