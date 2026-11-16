@@ -329,7 +329,7 @@
     "@types/jsdom": "21.1.7",
     "@types/mocha": "10.0.6",
     "@types/node": "24.13.6",
-    "@types/vscode": "1.120.0",
+    "@types/vscode": "1.145.0",
     "@vscode/test-electron": "3.1.0",
     "@vscode/vsce": "4.1.1",
     "esbuild": "0.28.2",
