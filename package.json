@@ -95,6 +95,11 @@
         "category": "Allyproof"
       },
       {
+        "command": "allyproof.fixWithAI",
+        "title": "Fix with AI",
+        "category": "Allyproof"
+      },
+      {
         "command": "allyproof.showLog",
         "title": "Show Log",
         "category": "Allyproof"
@@ -148,6 +153,10 @@
         },
         {
           "command": "allyproof.ignoreFinding",
+          "when": "false"
+        },
+        {
+          "command": "allyproof.fixWithAI",
           "when": "false"
         }
       ],
