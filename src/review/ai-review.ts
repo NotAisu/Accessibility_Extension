@@ -1,6 +1,5 @@
 import { createHash, randomUUID } from 'crypto';
 import type { AnalysisDocument, Finding, TextRange } from '../core/analysis';
-import { lineOffsets } from '../core/offsets';
 import { criterionUrl, isTargetCriterion } from '../core/wcag';
 
 /** The packaged review instructions, the single source of truth for the AI Review. */
@@ -281,7 +280,7 @@ function regionsOf(languageId: string, lines: string[]): Region[] {
             spans[spans.length - 1].count++;
         }
     });
-    const offsets = lineOffsets(lines.join('\n'));
+    const offsets = lineStarts(lines);
     return spans.flatMap(span => {
         const regionLines = lines.slice(span.line, span.line + span.count);
         // Trailing blank lines are no part of a region, a region of blank lines none at all
@@ -295,7 +294,7 @@ function regionsOf(languageId: string, lines: string[]): Region[] {
 // The regions cut to the selected lines; a selection ending at the start of a line does not select it
 function selected(regions: Region[], languageId: string, lines: string[], selection: TextRange | undefined): Region[] {
     if (!selection) return regions;
-    const offsets = lineOffsets(lines.join('\n'));
+    const offsets = lineStarts(lines);
     const lineAt = (offset: number) => offsets.filter(start => start <= offset).length - 1;
     const first = lineAt(selection.start);
     const end = Math.max(selection.start, selection.end);
@@ -455,4 +454,15 @@ function toFinding(entry: Entry, lines: string[]): Finding {
         explanation: entry.recommendation,
         helpUrl: criterionUrl(entry.criterion)
     };
+}
+
+// Offsets of lines split on '\n' as this module splits them; core lineOffsets also breaks on \r, U+2028 and U+2029
+function lineStarts(lines: string[]): number[] {
+    const starts: number[] = [];
+    let offset = 0;
+    for (const line of lines) {
+        starts.push(offset);
+        offset += line.length + 1;
+    }
+    return starts;
 }
