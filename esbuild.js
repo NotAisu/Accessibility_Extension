@@ -43,8 +43,9 @@ const fixEnginePitfalls = {
         // Sync XHR is only reachable from page scripts, and the Check never runs those.
         build.onLoad({ filter: /jsdom[\\/]lib[\\/]jsdom[\\/]living[\\/]xhr[\\/]XMLHttpRequest-impl\.js$/ }, async (args) => {
             const source = await fs.promises.readFile(args.path, 'utf8');
+            // jsdom 30 dropped the `require.resolve ?` guard around the same call
             const patched = source.replace(
-                'const syncWorkerFile = require.resolve ? require.resolve("./xhr-sync-worker.js") : null;',
+                /const syncWorkerFile = (?:require\.resolve \? )?require\.resolve\("\.\/xhr-sync-worker\.js"\)(?: : null)?;/,
                 'const syncWorkerFile = null;'
             );
             if (patched === source) {
