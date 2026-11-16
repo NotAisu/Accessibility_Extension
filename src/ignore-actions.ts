@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { CHECK_SOURCE, CheckDiagnostics, codeOf } from './check-diagnostics';
 import { checkLanguageId, type AnalysisDocument, type RuleSetting } from './core/analysis';
 import { ignoreLine, type IgnoreLine } from './core/ignore';
+import type { IgnoreFindingArgument } from './learn-hover';
 
 /** Lightbulb actions on a Check Finding: ignore it with an inline comment where one is valid, or turn its rule off in settings. */
 export class IgnoreActions implements vscode.CodeActionProvider {
@@ -33,7 +34,7 @@ export class IgnoreActions implements vscode.CodeActionProvider {
  * Ignores the Finding of `ruleId` at `offset` of the document's `version` with a comment, as the lightbulb does; for the
  * hover. A document edited since then is left alone, since the offset may no longer be the Finding's.
  */
-export async function ignoreFinding(check: CheckDiagnostics, uri: string, ruleId: string, offset: number, version: number): Promise<void> {
+export async function ignoreFinding(check: CheckDiagnostics, { uri, ruleId, offset, version }: IgnoreFindingArgument): Promise<void> {
     const document = await vscode.workspace.openTextDocument(vscode.Uri.parse(uri));
     if (document.version !== version) {
         void vscode.window.showInformationMessage('The file changed since the hover was shown; hover the Finding again to ignore it.');

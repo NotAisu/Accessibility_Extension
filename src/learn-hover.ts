@@ -12,7 +12,15 @@ export interface HoverTarget {
     /** The document version the Finding was reported for. */
     version: number;
     /** Whether the AI Review can run, so the hover offers to start it. */
-    aiReview: boolean;
+    aiReviewAvailable: boolean;
+}
+
+/** The argument of the `allyproof.ignoreFinding` command: the Finding of `ruleId` at `offset` of the document's `version`. */
+export interface IgnoreFindingArgument {
+    uri: string;
+    ruleId: string;
+    offset: number;
+    version: number;
 }
 
 /** The diagnostic's message: the Finding's message on one line, with its criteria. */
@@ -50,9 +58,11 @@ function commands(finding: Finding, target: HoverTarget): string {
     const link = (title: string, command: string, args?: unknown[]) =>
         `[${title}](command:${command}${args ? `?${encodeURIComponent(JSON.stringify(args))}` : ''})`;
     return [
-        link('Ignore this Finding', 'allyproof.ignoreFinding', [target.uri, finding.ruleId, finding.range.start, target.version]),
+        link('Ignore this Finding', 'allyproof.ignoreFinding', [
+            { uri: target.uri, ruleId: finding.ruleId, offset: finding.range.start, version: target.version } satisfies IgnoreFindingArgument
+        ]),
         link('Disable rule', 'allyproof.disableRule', [finding.ruleId]),
-        ...target.aiReview ? [link('Start AI Review', 'allyproof.startAIReview')] : []
+        ...target.aiReviewAvailable ? [link('Start AI Review', 'allyproof.startAIReview')] : []
     ].join(' · ');
 }
 

@@ -95,7 +95,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         const hits = (reported?.findings ?? []).filter(r => r.range.contains(position));
         if (!reported || hits.length === 0) return undefined;
         const languageId = checkLanguageId(document.languageId, document.fileName);
-        const target = { uri: document.uri.toString(), version: reported.version, aiReview: this.aiAvailable() };
+        const target = { uri: document.uri.toString(), version: reported.version, aiReviewAvailable: this.aiAvailable() };
         return new vscode.Hover(hits.map(({ finding }) => {
             const markdown = new vscode.MarkdownString(learnMarkdown(finding, languageId, target));
             // Command links run only for these commands; never `true`

@@ -14,7 +14,7 @@ const finding = (overrides: Partial<Finding> = {}): Finding => ({
     ...overrides
 });
 
-const target = { uri: 'file:///app/Card.tsx', version: 3, aiReview: true };
+const target = { uri: 'file:///app/Card.tsx', version: 3, aiReviewAvailable: true };
 
 // Markdown outside fenced code blocks and code spans
 const prose = (markdown: string) => markdown.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '');
@@ -75,13 +75,13 @@ describe('learn hover', () => {
         assert.deepStrictEqual(commandsOf(markdown), ['allyproof.ignoreFinding', 'allyproof.disableRule', 'allyproof.startAIReview']);
         assert.ok(commandsOf(markdown).every(command => HOVER_COMMANDS.includes(command)));
         const ignore = /\(command:allyproof\.ignoreFinding\?([^)]+)\)/.exec(markdown)![1];
-        assert.deepStrictEqual(JSON.parse(decodeURIComponent(ignore)), ['file:///app/Card.tsx', 'jsx-a11y-x/alt-text', 10, 3]);
+        assert.deepStrictEqual(JSON.parse(decodeURIComponent(ignore)), [{ uri: 'file:///app/Card.tsx', ruleId: 'jsx-a11y-x/alt-text', offset: 10, version: 3 }]);
         const disable = /\(command:allyproof\.disableRule\?([^)]+)\)/.exec(markdown)![1];
         assert.deepStrictEqual(JSON.parse(decodeURIComponent(disable)), ['jsx-a11y-x/alt-text']);
     });
 
     it('leaves out Start AI Review where the AI Review is unavailable', () => {
-        const markdown = learnMarkdown(finding(), 'html', { ...target, aiReview: false });
+        const markdown = learnMarkdown(finding(), 'html', { ...target, aiReviewAvailable: false });
         assert.deepStrictEqual(commandsOf(markdown), ['allyproof.ignoreFinding', 'allyproof.disableRule']);
     });
 
