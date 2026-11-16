@@ -39,10 +39,19 @@ const FAILURE_WINDOW = `${FAILURE_WINDOW_MS / 60_000} minutes`;
 // A runaway engine ends its own thread instead of growing the extension host's memory
 const MAX_HEAP_MB = 512;
 
+export interface CheckRequestOptions {
+    /**
+     * A request no one is typing in, such as the workspace Check (#34): its deadline overrun says the file is large,
+     * not that the engine fails, so it never trips the circuit breaker; crashes and engine errors still do.
+     */
+    background?: boolean;
+}
+
 interface Request {
     key: string;
     document: AnalysisDocument;
     options: AnalysisOptions;
+    background: boolean;
     resolve: (outcome: CheckOutcome) => void;
 }
 
@@ -79,11 +88,11 @@ export class AnalysisWorker {
         };
     }
 
-    check(key: string, document: AnalysisDocument, options: AnalysisOptions = {}): Promise<CheckOutcome> {
+    check(key: string, document: AnalysisDocument, options: AnalysisOptions = {}, { background = false }: CheckRequestOptions = {}): Promise<CheckOutcome> {
         return new Promise(resolve => {
             this.pending.get(key)?.resolve({ status: 'dropped' });
             this.pending.delete(key);
-            this.pending.set(key, { key, document, options, resolve });
+            this.pending.set(key, { key, document, options, background, resolve });
             this.next();
         });
     }
@@ -116,7 +125,7 @@ export class AnalysisWorker {
             void this.worker?.terminate();
             this.worker = undefined;
             this.log?.warn(`${engine} Check took longer than ${deadlineMs} ms; the analysis worker is restarted`);
-            this.finish({ status: 'paused', reason: `The Check took longer than ${deadlineMs} ms`, deadlineExceeded: true });
+            this.finish({ status: 'paused', reason: `The Check took longer than ${deadlineMs} ms`, deadlineExceeded: true }, !request.background);
         }, deadlineMs);
         this.running = { request, deadline, started: this.now(), firstLoad };
         this.worker.postMessage({ document: request.document, options: request.options } satisfies WorkerRequest);

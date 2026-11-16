@@ -58,6 +58,7 @@ All commands are in the Command Palette under **Allyproof**:
 - Start AI Review
 - Cancel AI Review
 - Add Skill to Repository
+- Check Workspace: checks every supported file that `files.exclude` and `.gitignore` leave and lists the Findings in the Findings tree; files that are not open get no diagnostics in the editor. Running it again re-checks only the files that changed.
 
 ## Development
 

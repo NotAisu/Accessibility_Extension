@@ -61,6 +61,15 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
         await diagnosticsOf(document.uri, found => found.length > 0 && !found.some(d => code(d) === 'html-has-lang'));
     });
 
+    test('Check Workspace fills the Findings tree with files that are not open, without diagnostics', async () => {
+        await vscode.commands.executeCommand('allyproof.checkWorkspace');
+        const file = api.findings.getChildren().find(node => api.findings.getTreeItem(node).label === 'unopened.html');
+        assert.ok(file?.kind === 'file', 'unopened.html is not in the Findings tree');
+        assert.match(String(api.findings.getTreeItem(file).accessibilityInformation?.label), /^unopened\.html, [1-9]\d* Findings?/);
+        assert.ok(!vscode.workspace.textDocuments.some(document => document.uri.path.endsWith('/unopened.html')), 'the Check opened the file');
+        assert.deepStrictEqual(vscode.languages.getDiagnostics(vscode.Uri.parse(file.uri)), []);
+    });
+
     test(trusted ? 'AI Review contacts the local model in a trusted workspace' : 'AI Review is disabled in an untrusted workspace', async () => {
         // A local OpenAI-compatible server that lists no models, so a trusted review stops before the provider notice
         const requests: string[] = [];

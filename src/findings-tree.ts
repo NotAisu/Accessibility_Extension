@@ -17,6 +17,8 @@ const SEVERITY_ICONS: Record<Severity, [icon: string, color: string]> = {
     information: ['info', 'problemsInfoIcon.foreground']
 };
 
+type Located = Pick<vscode.TextDocument, 'uri' | 'positionAt'>;
+
 interface FileState {
     name: string;
     check: LocatedFinding[];
@@ -43,7 +45,8 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
         this.status.name = 'Allyproof Findings';
     }
 
-    setCheck(document: vscode.TextDocument, result: AnalysisResult): void {
+    /** `document`: an open document, or the text of a file that is not open, by its positions. */
+    setCheck(document: Located, result: AnalysisResult): void {
         const state = this.state(document.uri);
         state.check = locate(document, result.findings);
         state.needsReview = result.needsReview.map(entry => entry.range
@@ -199,6 +202,6 @@ function toFile(uri: string, state: FileState): FileFindings {
     return { uri, name: state.name, findings: [...state.check, ...state.ai], needsReview: state.needsReview, paused: state.paused };
 }
 
-function locate(document: vscode.TextDocument, findings: Finding[]): LocatedFinding[] {
+function locate(document: Located, findings: Finding[]): LocatedFinding[] {
     return findings.map(finding => ({ finding, line: document.positionAt(finding.range.start).line + 1 }));
 }
