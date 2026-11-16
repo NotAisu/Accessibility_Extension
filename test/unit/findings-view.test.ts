@@ -77,6 +77,17 @@ describe('Findings tree', () => {
         assert.match(located.accessibilityLabel, /line 4$/);
     });
 
+    it('counts Needs Review by criterion, not by entry', () => {
+        const needsReview = [
+            { criterion: '2.5.8', reason: 'Target size depends on rendered layout.' },
+            { criterion: '2.5.8', reason: 'Likely failure.', range: { start: 40, end: 60 }, line: 4 }
+        ];
+        const tree = findingsTree([file({ needsReview })], ALL);
+
+        assert.strictEqual(tree[0].children![0].accessibilityLabel, 'Needs Review, 1 criterion the Check cannot decide');
+        assert.match(statusSummary(file({ needsReview })).accessibilityLabel, / 1 criterion Needs Review\.$/);
+    });
+
     it('shows only the layers the filters keep, and hides files left empty', () => {
         const files = [
             file({

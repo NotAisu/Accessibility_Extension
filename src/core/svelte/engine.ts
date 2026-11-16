@@ -1,7 +1,7 @@
 import { compile, type AST, type Warning } from 'svelte/compiler';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import type { RenderedContent } from '../needs-review';
-import { checkOwnRules } from '../own-rules';
+import { withOwnRules } from '../own-rules';
 
 // The Svelte engine as one chunk, loaded on the first Svelte document.
 
@@ -87,8 +87,7 @@ export function checkSvelte(text: string): AnalysisResult {
             helpUrl: helpUrl ?? `https://svelte.dev/e/${warning.code}`
         });
     }
-    const own = checkOwnRules(renderedContent(ast));
-    return { findings: [...findings, ...own.findings], needsReview: own.needsReview };
+    return withOwnRules(findings, renderedContent(ast));
 }
 
 interface SvelteNode {

@@ -73,6 +73,24 @@
       ]
     },
     {
+      "file": "vue/contact-form.vue",
+      "languageId": "vue",
+      "note": "Own rule in Vue, which has no upstream 1.3.5 rule: autocomplete values that are no autofill token sequence (\"emal\", \"county\"), not the valid ones or a bound :autocomplete",
+      "expect": [
+        { "criterion": "1.3.5", "line": 3 },
+        { "criterion": "1.3.5", "line": 8 }
+      ]
+    },
+    {
+      "file": "angular/contact-form.component.html",
+      "languageId": "angular",
+      "note": "Own rule in an Angular template, which has no upstream 1.3.5 rule: an unknown token (\"emal\") and a contact modifier on a non-contact field (\"home name\"), not section-guest given-name, off or a bound [autocomplete]",
+      "expect": [
+        { "criterion": "1.3.5", "line": 2 },
+        { "criterion": "1.3.5", "line": 4 }
+      ]
+    },
+    {
       "file": "angular/login-form.component.html",
       "languageId": "angular",
       "note": "Own rules in an Angular template: autocomplete=\"off\" on a password field (3.3.8) and a Tailwind w-4 h-4 button as a likely failure (2.5.8, not w-24 h-10)",

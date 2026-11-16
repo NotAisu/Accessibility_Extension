@@ -19,7 +19,7 @@ interface Manifest {
         views?: Record<string, { id: string; type?: string }[]>;
         languageModelTools?: { name: string; when?: string }[];
         chatSkills?: { path: string; when?: string }[];
-        walkthroughs?: { id: string; steps: { id: string; description: string; media: { markdown?: string } }[] }[];
+        walkthroughs?: { id: string; steps: { id: string; description: string; media: { markdown?: string }; when?: string }[] }[];
         configuration?: { properties: Record<string, { type: string; scope?: string; enum?: string[]; default?: unknown }> };
     };
 }
@@ -84,6 +84,8 @@ describe('manifest', () => {
         const settings = Object.keys(manifest.contributes.configuration?.properties ?? {});
         const shipped = fs.readFileSync(path.join(root, '.vscodeignore'), 'utf-8');
         for (const step of walkthrough.steps) {
+            // allyproof.aiAvailable is set only after activation, so a when clause would hide a step on a fresh install
+            assert.strictEqual(step.when, undefined, step.id);
             const markdown = step.media.markdown ?? '';
             assert.ok(fs.existsSync(path.join(root, markdown)), markdown);
             assert.ok(shipped.includes(`!${path.dirname(markdown)}/**`), `${markdown} ships in the VSIX`);

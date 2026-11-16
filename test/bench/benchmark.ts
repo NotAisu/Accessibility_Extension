@@ -14,7 +14,7 @@ export interface BenchCase {
     synthetic: boolean;
     languageId: string;
     text: string;
-    /** The criteria the case is labelled with; a Finding with any of them counts. */
+    /** The criteria the case is labelled with; a Finding with any of them counts, one with none is a false positive. */
     criteria: string[];
     /** A failing case expects a Finding with one of the criteria, a passing case none. */
     failing: boolean;
@@ -65,6 +65,8 @@ export async function runBenchmark(cases: BenchCase[], variants: Variant[], mode
                 const hit = findings.some(f => f.criteria.some(c => testCase.criteria.includes(c)));
                 if (testCase.failing) {
                     if (hit) result.tp++; else result.fn++;
+                    // A Finding with none of the labelled criteria is wrong on a failing case too
+                    if (findings.some(f => !f.criteria.some(c => testCase.criteria.includes(c)))) result.fp++;
                 } else if (hit) {
                     result.fp++;
                 }

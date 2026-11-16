@@ -5,7 +5,7 @@ import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
 import type { RenderedContent } from '../needs-review';
-import { checkOwnRules } from '../own-rules';
+import { withOwnRules } from '../own-rules';
 import { RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
 
 // The Astro engine as one chunk, loaded on the first Astro document.
@@ -62,8 +62,7 @@ export function checkAstro(text: string): AnalysisResult {
             helpUrl: docs?.extensionRule?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
-    const own = checkOwnRules(renderedContent(linter.getSourceCode()));
-    return { findings: [...findings, ...own.findings], needsReview: own.needsReview };
+    return withOwnRules(findings, renderedContent(linter.getSourceCode()));
 }
 
 interface AstroNode {

@@ -40,9 +40,18 @@ describe('AI benchmark', () => {
 
         assert.strictEqual(result.variant, 'shipped');
         assert.strictEqual(result.model, 'fake/model-1');
-        assert.deepStrictEqual({ tp: result.tp, fp: result.fp, fn: result.fn }, { tp: 1, fp: 1, fn: 2 });
+        // The 1.3.1 Finding on the case labelled 2.4.6 misses it and is a false positive
+        assert.deepStrictEqual({ tp: result.tp, fp: result.fp, fn: result.fn }, { tp: 1, fp: 2, fn: 2 });
         assert.strictEqual(result.recall, 1 / 3);
-        assert.strictEqual(result.precision, 0.5);
+        assert.strictEqual(result.precision, 1 / 3);
+    });
+
+    it('counts a Finding outside a failing case\'s criteria as a false positive, even next to a hit', async () => {
+        const cases = [failing('found and more', '<a href="/p">click here</a> report:2.4.4 report:1.3.1', ['2.4.4'])];
+
+        const [result] = await runBenchmark(cases, [{ name: 'shipped', text: 'Review it.' }], [fakeModel()]);
+
+        assert.deepStrictEqual({ tp: result.tp, fp: result.fp, fn: result.fn }, { tp: 1, fp: 1, fn: 0 });
     });
 
     it('counts the tokens each Variant spends on each model, input and output', async () => {

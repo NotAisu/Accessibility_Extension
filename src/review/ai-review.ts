@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'crypto';
 import type { AnalysisDocument, Finding, TextRange } from '../core/analysis';
+import { lineOffsets } from '../core/offsets';
 import { criterionUrl, isTargetCriterion } from '../core/wcag';
 
 /** The packaged review instructions, the single source of truth for the AI Review. */
@@ -129,7 +130,7 @@ interface Region {
 }
 
 // Script and style blocks and Astro frontmatter hold no markup to review
-const BLOCK = /^<(script|style)\b/i;
+const BLOCK = /^\s*<(script|style)\b/i;
 const FRONTMATTER = /^---\s*$/;
 // In JavaScript and TypeScript a tag follows an operator, bracket, quote or `return`, a type argument an identifier
 const SCRIPT_LANGUAGES = new Set(['javascriptreact', 'typescriptreact', 'typescript']);
@@ -213,6 +214,19 @@ async function requests(changed: Changed[], languageId: string, options: ReviewO
     let request: Piece[] = [];
     let used = 0;
     for (const region of changed) {
+        const regionTokens = blockTokens + await model.countTokens(numbered(region.region.lines, region.region.line + 1) + '\n');
+        // A region that fits a request goes whole; only one that does not is counted line by line
+        if (regionTokens <= budget) {
+            if (used + regionTokens > budget) {
+                result.push(request);
+                request = [];
+                used = 0;
+            }
+            request.push({ of: region, line: region.region.line, lines: region.region.lines });
+            region.pieces++;
+            used += regionTokens;
+            continue;
+        }
         let piece: Piece = { of: region, line: region.region.line, lines: [] };
         let tokens = blockTokens;
         for (const [i, line] of region.region.lines.entries()) {
@@ -267,7 +281,7 @@ function regionsOf(languageId: string, lines: string[]): Region[] {
             spans[spans.length - 1].count++;
         }
     });
-    const offsets = lineOffsets(lines);
+    const offsets = lineOffsets(lines.join('\n'));
     return spans.flatMap(span => {
         const regionLines = lines.slice(span.line, span.line + span.count);
         // Trailing blank lines are no part of a region, a region of blank lines none at all
@@ -281,7 +295,7 @@ function regionsOf(languageId: string, lines: string[]): Region[] {
 // The regions cut to the selected lines; a selection ending at the start of a line does not select it
 function selected(regions: Region[], languageId: string, lines: string[], selection: TextRange | undefined): Region[] {
     if (!selection) return regions;
-    const offsets = lineOffsets(lines);
+    const offsets = lineOffsets(lines.join('\n'));
     const lineAt = (offset: number) => offsets.filter(start => start <= offset).length - 1;
     const first = lineAt(selection.start);
     const end = Math.max(selection.start, selection.end);
@@ -301,16 +315,6 @@ function shifted(finding: Finding, by: number): Finding {
 
 function hasMarkup(languageId: string, text: string): boolean {
     return SCRIPT_LANGUAGES.has(languageId) ? SCRIPT_TAG.test(text) : TAG.test(text.replace(/<!--[^]*?-->/g, ''));
-}
-
-function lineOffsets(lines: string[]): number[] {
-    const offsets: number[] = [];
-    let offset = 0;
-    for (const line of lines) {
-        offsets.push(offset);
-        offset += line.length + 1;
-    }
-    return offsets;
 }
 
 function hash(parts: string[]): string {

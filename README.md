@@ -21,10 +21,11 @@ The Check reports only what the source decides. Each language runs its own stati
 | Svelte | Svelte compiler a11y warnings | 1.1.1, 1.2.2, 1.3.1, 1.3.5, 2.1.1, 2.2.2, 2.4.3, 2.4.4, 2.4.6, 3.1.1, 4.1.2 |
 | Angular | @angular-eslint/eslint-plugin-template | 1.1.1, 1.3.1, 2.1.1, 2.2.2, 2.4.3, 2.4.4, 2.4.6, 4.1.2 |
 
-None of them checks a criterion new in WCAG 2.2. Allyproof's own rules cover those that are statically checkable, in every language, from literal values only (a bound value such as `:autocomplete="mode"` or `style={{ width: 16 }}` is never guessed):
+None of them checks a criterion new in WCAG 2.2, and the Vue and Angular engines have no rule for 1.3.5. Allyproof's own rules cover those that are statically checkable, the WCAG 2.2 ones in every language, from literal values only (a bound value such as `:autocomplete="mode"` or `style={{ width: 16 }}` is never guessed):
 
 | Criterion | Upstream | Allyproof |
 | --- | --- | --- |
+| 1.3.5 Identify Input Purpose (Vue, Angular) | – | `allyproof/autocomplete-valid`: an `autocomplete` value that is not an HTML autofill token sequence, such as `autocomplete="emal"`; the other languages' engines check 1.3.5 themselves |
 | 2.4.11 Focus Not Obscured (Minimum) | – | Not decidable from source: depends on rendered layout and sticky content |
 | 2.5.7 Dragging Movements | – | Not decidable from source: whether a single-pointer alternative exists is behaviour |
 | 2.5.8 Target Size (Minimum) | axe-core's rule needs layout, so it is off | A control whose inline style or Tailwind classes (`w-4`, `size-5`, `w-[20px]`) declare less than 24×24 CSS px is listed as a likely failure in Needs Review, pointing at the element; every other control leaves 2.5.8 in Needs Review |
@@ -32,7 +33,7 @@ None of them checks a criterion new in WCAG 2.2. Allyproof's own rules cover tho
 | 3.3.7 Redundant Entry | – | Not decidable from source: depends on the process |
 | 3.3.8 Accessible Authentication (Minimum) | – | `allyproof/password-autocomplete`: a password field with `autocomplete="off"` |
 
-Contrast (1.4.3) and target size are listed as Needs Review for any file that renders text or controls. Criteria the Check cannot decide, such as meaningful alt text or link purpose, are what AI Review is for. Vue and Angular have no upstream rule for 1.3.5 Identify Input Purpose.
+Contrast (1.4.3) and target size are listed as Needs Review for any file that renders text or controls. Criteria the Check cannot decide, such as meaningful alt text or link purpose, are what AI Review is for.
 
 ## AI Review
 

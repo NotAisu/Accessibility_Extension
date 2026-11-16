@@ -320,6 +320,16 @@ describe('AI Review', () => {
             assert.match(model.requests[0].messages[1], /^7\| <template>$[^]*^9\| <\/template>\n<<<end \S+>>>$/m);
         });
 
+        it('skips an indented script block', async () => {
+            const html = ['<main>', '  <a href="/p">click here</a>', '</main>', '  <script>', "  el.innerHTML = '<b>Hi</b>';", '  </script>'].join('\n');
+            const model = fakeModel({ findings: [] });
+
+            const { gate } = await review({ document: { languageId: 'html', text: html }, checkFindings: [] }, { model, skill, cache: memoryCache() });
+
+            assert.deepStrictEqual(gate, { regions: 2, reviewed: 1, unchanged: 0, noMarkup: 1 });
+            assert.doesNotMatch(model.requests[0].messages[1], /innerHTML/);
+        });
+
         const page = (header: string[]) => [
             '<header>', ...header, '</header>',
             '',
@@ -377,6 +387,21 @@ describe('AI Review', () => {
             assert.deepStrictEqual(marked(text, findings), ['<a href="/p">click here</a>']);
         });
 
+        it('counts the tokens of a region that fits at once, not line by line', async () => {
+            const model = fakeModel({ findings: [] });
+            let counted = 0;
+            model.countTokens = text => {
+                counted++;
+                return Promise.resolve(Math.ceil(text.length / 4));
+            };
+
+            await review({ document: { languageId: 'html', text: page(['  <b>Shop</b>']) }, checkFindings: [] }, { model, skill, cache: memoryCache() });
+
+            assert.strictEqual(model.requests.length, 1);
+            // The fixed parts of a request, then each of the three regions
+            assert.strictEqual(counted, 2 + 3);
+        });
+
         it('splits what exceeds the model\'s input limit into requests that fit it, counted with countTokens', async () => {
             const list = ['<ul>', ...Array.from({ length: 40 }, (_, i) => `  <li><a href="/${i}">more</a></li>`), '</ul>'].join('\n');
             const model = { ...fakeModel(...Array.from({ length: 10 }, () => ({ findings: [] }))), maxInputTokens: 300 };
@@ -398,7 +423,8 @@ describe('AI Review', () => {
             }
             const sent = model.requests.flatMap(r => [...r.messages[1].matchAll(/^(\d+)\| /gm)].map(m => Number(m[1])));
             assert.deepStrictEqual(sent, Array.from({ length: 42 }, (_, i) => i + 1));
-            assert.ok(counted > 0);
+            // The fixed parts, the region that does not fit, then each of its 42 lines
+            assert.strictEqual(counted, 2 + 1 + 42);
             assert.deepStrictEqual(gate, { regions: 1, reviewed: 1, unchanged: 0, noMarkup: 0 });
         });
     });

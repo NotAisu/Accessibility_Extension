@@ -4,7 +4,7 @@ import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
 import type { RenderedContent } from '../needs-review';
-import { checkOwnRules } from '../own-rules';
+import { withOwnRules } from '../own-rules';
 
 // The JSX/TSX engine as one chunk, loaded on the first React document.
 
@@ -113,8 +113,7 @@ export function checkJsx(text: string, typescript: boolean): AnalysisResult {
             helpUrl: docs?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
-    const own = checkOwnRules(renderedContent(linter.getSourceCode()));
-    return { findings: [...findings, ...own.findings], needsReview: own.needsReview };
+    return withOwnRules(findings, renderedContent(linter.getSourceCode()));
 }
 
 interface JsxNode {

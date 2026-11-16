@@ -53,6 +53,37 @@ describe('own rules', () => {
         }
     });
 
+    it('reports an autocomplete value that is no autofill token sequence where no upstream rule does (1.3.5)', async () => {
+        const inputs = [
+            '<input autocomplete="emal">',
+            '<input autocomplete="section-a shipping work email webauthn">',
+            '<input autocomplete=" Given-Name ">',
+            '<input autocomplete="off">',
+            '<input autocomplete="work name">',
+            '<select autocomplete="country"></select>',
+            '<input type="hidden" autocomplete="nonsense">',
+            '<input type="submit" autocomplete="nonsense">'
+        ];
+        const documents = [
+            { languageId: 'vue', text: `<template>\n${inputs.join('\n')}\n  <input :autocomplete="mode">\n</template>\n` },
+            { languageId: 'angular', text: `${inputs.join('\n')}\n<input [autocomplete]="mode">\n` },
+            { languageId: 'typescript', text: `@Component({ selector: 'app-form', template: '${inputs[0]}' })\nexport class Form {}\n` }
+        ];
+        for (const { languageId, text } of documents) {
+            const { findings } = await analyse({ languageId, text });
+
+            const own = findings.filter(f => f.ruleId === 'allyproof/autocomplete-valid');
+            assert.deepStrictEqual(own.map(f => slice(text, f.range)), languageId === 'typescript'
+                ? ['<input autocomplete="emal">']
+                : ['<input autocomplete="emal">', '<input autocomplete="work name">'], languageId);
+            assert.deepStrictEqual(own[0].criteria, ['1.3.5']);
+        }
+
+        // Upstream engines check 1.3.5 in the other languages, so the own rule stays out
+        const { findings } = await analyse({ languageId: 'html', text: page('<label>Mail <input autocomplete="emal"></label>') });
+        assert.deepStrictEqual(findings.filter(f => f.ruleId === 'allyproof/autocomplete-valid'), []);
+    });
+
     it('never guesses a bound value', async () => {
         const text = '<template>\n  <input type="password" :autocomplete="mode">\n  <input :type="kind" autocomplete="off">\n</template>\n';
 

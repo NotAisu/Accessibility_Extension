@@ -4,7 +4,7 @@ import { JSDOM, VirtualConsole } from 'jsdom';
 import * as axe from 'axe-core/axe.min.js';
 import { normalizeRuleId } from '../rule-id-normalizer';
 import { isTargetCriterion } from '../wcag';
-import { checkOwnRules } from '../own-rules';
+import { withOwnRules } from '../own-rules';
 import type { SourceElement } from '../needs-review';
 import type { AnalysisResult, Finding, TextRange } from '../analysis';
 
@@ -52,8 +52,7 @@ async function runAxe(text: string): Promise<AnalysisResult> {
         });
         const results = await Promise.race([axe.run(document.documentElement, AXE_OPTIONS), timeout])
             .finally(() => clearTimeout(timer));
-        const own = checkOwnRules({ text: Boolean(document.body?.textContent?.trim()), elements: sourceElements(dom) });
-        return { findings: [...toFindings(text, dom, results.violations), ...own.findings], needsReview: own.needsReview };
+        return withOwnRules(toFindings(text, dom, results.violations), { text: Boolean(document.body?.textContent?.trim()), elements: sourceElements(dom) });
     } finally {
         dom.window.close();
     }

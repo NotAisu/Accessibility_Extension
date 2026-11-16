@@ -189,7 +189,6 @@
             "media": {
               "markdown": "walkthrough/ai-review.md"
             },
-            "when": "allyproof.aiAvailable",
             "completionEvents": [
               "onSettingChanged:allyproof.aiReview.provider",
               "onCommand:allyproof.startAIReview"
@@ -198,11 +197,10 @@
           {
             "id": "skill",
             "title": "Use the Skill in your own agent",
-            "description": "Copilot chat already has the Skill and the a11y_check tool; other agents can use the same Skill.\n[Open Chat](command:workbench.action.chat.open)",
+            "description": "GitHub Copilot chat has the Skill and the a11y_check tool built in; other agents can use the same Skill.\n[Open Chat](command:workbench.action.chat.open)",
             "media": {
               "markdown": "walkthrough/skill.md"
             },
-            "when": "allyproof.aiAvailable",
             "completionEvents": [
               "onCommand:workbench.action.chat.open"
             ]

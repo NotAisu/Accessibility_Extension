@@ -7,10 +7,19 @@ import { criterionUrl } from './wcag';
 
 const PREFIX = 'allyproof/';
 
-/** Own Findings and the document's Needs Review entries. */
-export function checkOwnRules(content: RenderedContent): AnalysisResult {
+export interface OwnRuleOptions {
+    /** For languages whose upstream engine has no rule for 1.3.5. */
+    inputPurpose?: boolean;
+}
+
+/** An engine's Findings with the own Findings added, and the document's Needs Review entries. */
+export function withOwnRules(findings: Finding[], content: RenderedContent, options: OwnRuleOptions = {}): AnalysisResult {
+    const own = content.elements.flatMap(element => [
+        ...passwordAutocomplete(element),
+        ...options.inputPurpose ? invalidAutocomplete(element) : []
+    ]);
     return {
-        findings: content.elements.flatMap(passwordAutocomplete),
+        findings: [...findings, ...own],
         needsReview: [...layoutNeedsReview(content), ...content.elements.flatMap(smallTarget)]
     };
 }
@@ -33,6 +42,53 @@ function passwordAutocomplete(element: SourceElement): Finding[] {
         explanation: 'Logging in must not depend on remembering or transcribing a password. Use autocomplete="current-password" '
             + 'on a login form or autocomplete="new-password" when the password is chosen, so password managers can fill it.',
         helpUrl: criterionUrl('3.3.8')
+    }];
+}
+
+// The autofill detail tokens of the HTML standard: [section-*] [shipping|billing] [home|work|mobile|fax|pager] field [webauthn],
+// where only a contact field takes the home…pager modifier
+const FIELDS = new Set([
+    'name', 'honorific-prefix', 'given-name', 'additional-name', 'family-name', 'honorific-suffix', 'nickname', 'username',
+    'new-password', 'current-password', 'one-time-code', 'organization-title', 'organization', 'street-address',
+    'address-line1', 'address-line2', 'address-line3', 'address-level4', 'address-level3', 'address-level2', 'address-level1',
+    'country', 'country-name', 'postal-code', 'cc-name', 'cc-given-name', 'cc-additional-name', 'cc-family-name', 'cc-number',
+    'cc-exp', 'cc-exp-month', 'cc-exp-year', 'cc-csc', 'cc-type', 'transaction-currency', 'transaction-amount', 'language',
+    'bday', 'bday-day', 'bday-month', 'bday-year', 'sex', 'url', 'photo'
+]);
+const CONTACT_FIELDS = new Set([
+    'tel', 'tel-country-code', 'tel-national', 'tel-area-code', 'tel-local', 'tel-local-prefix', 'tel-local-suffix',
+    'tel-extension', 'email', 'impp'
+]);
+const CONTACT_MODIFIERS = new Set(['home', 'work', 'mobile', 'fax', 'pager']);
+// Input types that take no autofill detail tokens, as in ACT rule 73f2c2
+const NO_AUTOFILL_TYPES = new Set(['hidden', 'button', 'checkbox', 'file', 'image', 'radio', 'reset', 'submit']);
+
+function isAutofillValue(value: string): boolean {
+    if (value === 'on' || value === 'off') return true;
+    const tokens = value.split(/\s+/);
+    if (tokens[0]?.startsWith('section-')) tokens.shift();
+    if (tokens[0] === 'shipping' || tokens[0] === 'billing') tokens.shift();
+    if (tokens[tokens.length - 1] === 'webauthn') tokens.pop();
+    if (tokens.length === 2 && CONTACT_MODIFIERS.has(tokens[0])) return CONTACT_FIELDS.has(tokens[1]);
+    return tokens.length === 1 && (FIELDS.has(tokens[0]) || CONTACT_FIELDS.has(tokens[0]));
+}
+
+function invalidAutocomplete(element: SourceElement): Finding[] {
+    const value = literal(element, 'autocomplete');
+    const type = element.attributes.get('type');
+    if (!['input', 'select', 'textarea'].includes(element.tag) || !value || type === true) return [];
+    if (element.tag === 'input' && NO_AUTOFILL_TYPES.has(literal(element, 'type') ?? '')) return [];
+    if (isAutofillValue(value)) return [];
+    return [{
+        range: element.range,
+        criteria: ['1.3.5'],
+        ruleId: `${PREFIX}autocomplete-valid`,
+        layer: 'check',
+        severity: 'warning',
+        message: `autocomplete="${value}" is not a valid autofill value, so browsers and assistive technology cannot tell the field's purpose`,
+        explanation: 'Use the autofill tokens of the HTML standard, such as autocomplete="email" or "shipping postal-code", '
+            + 'so the purpose of a field that collects information about the user can be identified.',
+        helpUrl: criterionUrl('1.3.5')
     }];
 }
 

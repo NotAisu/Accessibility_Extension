@@ -5,7 +5,7 @@ import ts from 'typescript';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
 import type { RenderedContent } from '../needs-review';
-import { checkOwnRules } from '../own-rules';
+import { withOwnRules } from '../own-rules';
 
 // The Angular engine as one chunk, loaded on the first Angular template or component file.
 
@@ -69,8 +69,7 @@ const linter = new Linter({ configType: 'flat' });
 /** An external component template. */
 export function checkAngularTemplate(text: string): AnalysisResult {
     const { findings, content } = checkTemplate(text, 0);
-    const own = checkOwnRules(content);
-    return { findings: [...findings, ...own.findings], needsReview: own.needsReview };
+    return withOwnRules(findings, content, { inputPurpose: true });
 }
 
 /** The inline `template` strings of the `@Component` decorators in a TypeScript file. */
@@ -83,8 +82,7 @@ export function checkAngularComponents(text: string): AnalysisResult {
         content.text ||= checked.content.text;
         content.elements.push(...checked.content.elements);
     }
-    const own = checkOwnRules(content);
-    return { findings: [...findings, ...own.findings], needsReview: own.needsReview };
+    return withOwnRules(findings, content, { inputPurpose: true });
 }
 
 // Ranges are offsets into the template text plus `base`, its start in the checked document
