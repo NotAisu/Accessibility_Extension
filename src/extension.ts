@@ -5,7 +5,7 @@ import { CheckDiagnostics } from './check-diagnostics';
 import { AIReview } from './ai-review-ui';
 import { FindingsTree } from './findings-tree';
 import { A11yCheckTool } from './a11y-check-tool';
-import { disableRule, IgnoreActions } from './ignore-actions';
+import { disableRule, IgnoreActions, ignoreFinding } from './ignore-actions';
 import { CheckFixes } from './check-fixes';
 import { issueUrl } from './report-issue';
 
@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
     // Failures, deadlines, respawns and AI errors; never file contents or prompts
     const log = vscode.window.createOutputChannel('Allyproof', { log: true });
     const tree = new FindingsTree(aiAvailable());
-    const check = new CheckDiagnostics(tree);
+    const check = new CheckDiagnostics(tree, aiAvailable);
     const fixes = new CheckFixes(check);
     const aiReview = new AIReview(context, checked, (document, scope) => check.findingsOf(document, scope), tree, log);
     const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document, log);
@@ -54,6 +54,8 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
         vscode.commands.registerCommand('allyproof.clearAIReviewCache', () => aiReview.clearCache()),
         vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),
         vscode.commands.registerCommand('allyproof.disableRule', disableRule),
+        vscode.commands.registerCommand('allyproof.ignoreFinding', (uri: string, ruleId: string, offset: number, version: number) =>
+            ignoreFinding(check, uri, ruleId, offset, version)),
         vscode.commands.registerCommand('allyproof.showLog', () => log.show()),
         vscode.commands.registerCommand('allyproof.reportIssue', () => vscode.env.openExternal(vscode.Uri.parse(issueUrl(REPOSITORY, {
             extension: String((context.extension.packageJSON as { version: unknown }).version),

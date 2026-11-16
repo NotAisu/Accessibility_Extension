@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import { AnalysisWorker, CheckOutcome, WorkerLog } from './analysis-worker';
 import { CheckSchedule } from './check-schedule';
 import { AnalysisDocument, AnalysisOptions, checkLanguageId, Finding, RuleSetting } from './core/analysis';
-import { criterionName, criterionUrl } from './core/wcag';
 import type { FindingsTree } from './findings-tree';
+import { diagnosticMessage, HOVER_COMMANDS, learnMarkdown } from './learn-hover';
 
 export const CHECK_SOURCE = 'Allyproof';
 
@@ -18,7 +18,7 @@ export interface Reported {
     finding: Finding;
 }
 
-/** Shows Check Findings as diagnostics and explains them on hover; a paused Check keeps the last ones. */
+/** Shows Check Findings as diagnostics and teaches them on hover; a paused Check keeps the last ones. */
 export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable {
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof');
     private readonly reported = new Map<string, { version: number; findings: Reported[] }>();
@@ -26,7 +26,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     private readonly schedule = new CheckSchedule();
     private agentRequests = 0;
 
-    constructor(private readonly tree: FindingsTree) {}
+    constructor(private readonly tree: FindingsTree, private readonly aiAvailable: () => boolean) {}
 
     /** Starts the analysis worker from its bundled script; the worker thread spawns on the first Check. */
     start(workerScript: string, log: WorkerLog): void {
@@ -91,9 +91,17 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     }
 
     provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.Hover | undefined {
-        const hits = (this.reported.get(document.uri.toString())?.findings ?? []).filter(r => r.range.contains(position));
-        if (hits.length === 0) return undefined;
-        return new vscode.Hover(hits.map(({ finding }) => explain(finding)), hits[0].range);
+        const reported = this.reported.get(document.uri.toString());
+        const hits = (reported?.findings ?? []).filter(r => r.range.contains(position));
+        if (!reported || hits.length === 0) return undefined;
+        const languageId = checkLanguageId(document.languageId, document.fileName);
+        const target = { uri: document.uri.toString(), version: reported.version, aiReview: this.aiAvailable() };
+        return new vscode.Hover(hits.map(({ finding }) => {
+            const markdown = new vscode.MarkdownString(learnMarkdown(finding, languageId, target));
+            // Command links run only for these commands; never `true`
+            markdown.isTrusted = { enabledCommands: [...HOVER_COMMANDS] };
+            return markdown;
+        }), hits[0].range);
     }
 
     dispose(): void {
@@ -116,27 +124,8 @@ function options(scope?: vscode.ConfigurationScope): AnalysisOptions {
 }
 
 function toDiagnostic(range: vscode.Range, finding: Finding): vscode.Diagnostic {
-    const diagnostic = new vscode.Diagnostic(
-        range,
-        `${finding.message} (WCAG ${finding.criteria.join(', ')})`,
-        SEVERITY[finding.severity]
-    );
+    const diagnostic = new vscode.Diagnostic(range, diagnosticMessage(finding), SEVERITY[finding.severity]);
     diagnostic.source = CHECK_SOURCE;
     diagnostic.code = { value: finding.ruleId, target: vscode.Uri.parse(finding.helpUrl) };
     return diagnostic;
-}
-
-function explain(finding: Finding): vscode.MarkdownString {
-    const criteria = finding.criteria
-        .map(c => `[WCAG ${c} ${criterionName(c)}](${criterionUrl(c)})`)
-        .join(' · ');
-    const markdown = new vscode.MarkdownString();
-    markdown.appendMarkdown(`**${escape(finding.message)}**\n\n`);
-    markdown.appendText(finding.explanation);
-    markdown.appendMarkdown(`\n\n${criteria} · [Rule ${escape(finding.ruleId)}](${finding.helpUrl})`);
-    return markdown;
-}
-
-function escape(text: string): string {
-    return text.replace(/[\\`*_{}[\]()#+\-.!|<>]/g, '\\$&');
 }
