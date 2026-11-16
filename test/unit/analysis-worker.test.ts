@@ -141,6 +141,29 @@ describe('AnalysisWorker', () => {
         assert.strictEqual(echoed(outcome).text, 'ok');
     });
 
+    it('logs engine failures, deadlines, crashes and respawns, never the checked text', async () => {
+        const lines: string[] = [];
+        const log = { info: (m: string) => lines.push(`info ${m}`), warn: (m: string) => lines.push(`warn ${m}`), error: (m: string) => lines.push(`error ${m}`) };
+        worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 200, log });
+
+        await worker.check('a.html', html('fail'));
+        await worker.check('a.html', html('hang'));
+        await worker.check('a.vue', { languageId: 'vue', text: 'crash' });
+        await worker.check('a.html', html('crash'));
+        await worker.check('a.html', html('ok'));
+
+        assert.deepStrictEqual(lines, [
+            'info Analysis worker started',
+            'error html engine failed: engine failed',
+            'warn html Check took longer than 200 ms; the analysis worker is restarted',
+            'info Analysis worker started',
+            'error vue engine: The analysis worker crashed: engine crashed',
+            'info Analysis worker started',
+            'error html engine: The analysis worker crashed: engine crashed',
+            'error html engine paused for this session after 3 failures within 3 minutes'
+        ]);
+    });
+
     it('lets the process exit while the worker is idle', () => {
         worker = new AnalysisWorker(FAKE_ENGINE);
         const script = path.join(__dirname, 'fixtures', 'check-and-exit.ts');

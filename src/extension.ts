@@ -1,3 +1,4 @@
+import * as os from 'os';
 import * as vscode from 'vscode';
 import { isChecked } from './core/analysis';
 import { CheckDiagnostics } from './check-diagnostics';
@@ -6,6 +7,9 @@ import { FindingsTree } from './findings-tree';
 import { A11yCheckTool } from './a11y-check-tool';
 import { disableRule, IgnoreActions } from './ignore-actions';
 import { CheckFixes } from './check-fixes';
+import { issueUrl } from './report-issue';
+
+const REPOSITORY = 'https://github.com/NotAisu/Accessibility_Extension';
 
 // VS Code language ids; TypeScript files hold inline Angular templates
 const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typescriptreact', 'astro', 'typescript'];
@@ -24,17 +28,20 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
     // unless it uses a local model
     const lmAvailable = typeof vscode.lm?.registerTool === 'function';
     const aiAvailable = () => lmAvailable || vscode.workspace.getConfiguration('allyproof').get<string>('aiReview.provider') === 'local';
+    // Failures, deadlines, respawns and AI errors; never file contents or prompts
+    const log = vscode.window.createOutputChannel('Allyproof', { log: true });
     const tree = new FindingsTree(aiAvailable());
     const check = new CheckDiagnostics(tree);
     const fixes = new CheckFixes(check);
-    const aiReview = new AIReview(context, checked, (document, scope) => check.findingsOf(document, scope), tree);
-    const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document);
+    const aiReview = new AIReview(context, checked, (document, scope) => check.findingsOf(document, scope), tree, log);
+    const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document, log);
     const forget = (uri: vscode.Uri) => {
         check.delete(uri);
         aiReview.delete(uri);
     };
 
     context.subscriptions.push(
+        log,
         tree,
         check,
         aiReview,
@@ -47,6 +54,14 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
         vscode.commands.registerCommand('allyproof.clearAIReviewCache', () => aiReview.clearCache()),
         vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),
         vscode.commands.registerCommand('allyproof.disableRule', disableRule),
+        vscode.commands.registerCommand('allyproof.showLog', () => log.show()),
+        vscode.commands.registerCommand('allyproof.reportIssue', () => vscode.env.openExternal(vscode.Uri.parse(issueUrl(REPOSITORY, {
+            extension: String((context.extension.packageJSON as { version: unknown }).version),
+            editor: `${vscode.env.appName} ${vscode.version}`,
+            os: `${os.platform()} ${os.release()} (${os.arch()})`,
+            remote: vscode.env.remoteName,
+            engines: check.engines()
+        })))),
         vscode.workspace.onDidOpenTextDocument(runDiagnostics),
         vscode.workspace.onDidChangeTextDocument(({ document, contentChanges }) => {
             if (contentChanges.length > 0) check.changed(document, () => void runDiagnostics(document));
@@ -78,7 +93,7 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
         );
     }
 
-    check.start(context.asAbsolutePath('dist/worker.mjs'));
+    check.start(context.asAbsolutePath('dist/worker.mjs'), log);
     vscode.window.visibleTextEditors.forEach(editor => void runDiagnostics(editor.document));
     if (context.extensionMode === vscode.ExtensionMode.Test) {
         return { findings: tree, findingsStatus: tree.status, aiReviewStatus: aiReview.status };
@@ -95,18 +110,14 @@ function checked(document: vscode.TextDocument): boolean {
     return SUPPORTED_LANGUAGES.includes(document.languageId) && isChecked({ languageId: document.languageId, text: document.getText() });
 }
 
-async function checkDocument(check: CheckDiagnostics, document: vscode.TextDocument): Promise<void> {
+async function checkDocument(check: CheckDiagnostics, document: vscode.TextDocument, log: vscode.LogOutputChannel): Promise<void> {
     if (!SUPPORTED_LANGUAGES.includes(document.languageId)) return;
     // A file that no longer holds a component keeps no Findings
     if (!checked(document)) return check.delete(document.uri);
     try {
         await check.update(document);
     } catch (error) {
-        if (error instanceof Error && error.message === 'axe-timeout') {
-            console.warn('axe-core analysis aborted after timeout');
-        } else {
-            console.error('Error in accessibility analysis:', error);
-        }
+        log.error(`Check failed: ${error instanceof Error ? error.message : String(error)}`);
         check.delete(document.uri);
     }
 }

@@ -32,7 +32,9 @@ export class AIReview implements vscode.Disposable {
         private readonly tree: {
             setAI(document: vscode.TextDocument, findings: Finding[]): void;
             deleteAI(uri: vscode.Uri): void;
-        }
+        },
+        /** AI errors go to the log; prompts and code never do. */
+        private readonly log: vscode.LogOutputChannel
     ) {
         this.status.name = 'Allyproof AI Review';
         void this.showIdle();
@@ -72,6 +74,7 @@ export class AIReview implements vscode.Disposable {
                 model = await selectLocalModel(localSettings(), { signal: lookup.signal });
             } catch (error) {
                 const cancelled = error instanceof ModelError && error.code === 'Cancelled';
+                if (!cancelled) this.log.error(`AI Review: local model not available: ${errorText(error)}`);
                 return this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error), 'allyproof.startAIReview');
             } finally {
                 this.running = undefined;
@@ -106,6 +109,7 @@ export class AIReview implements vscode.Disposable {
             this.show(`$(sparkle) AI: ${findings.length} ${findings.length === 1 ? 'Finding' : 'Findings'}`, summary(gate, model), 'allyproof.startAIReview');
         } catch (error) {
             const message = describe(error, model);
+            if (!(error instanceof ModelError && error.code === 'Cancelled')) this.log.error(`AI Review with ${model.name} failed: ${errorText(error)}`);
             this.show(`$(warning) AI Review ${error instanceof ModelError && error.code === 'Cancelled' ? 'cancelled' : 'failed'}`, message, 'allyproof.startAIReview');
         } finally {
             this.running = undefined;
@@ -230,6 +234,11 @@ function summary(gate: GateReport, model: ModelPort): string {
         ? 'No markup to review.'
         : `${gate.reviewed} of ${gate.regions} ${gate.regions === 1 ? 'region' : 'regions'} reviewed${skipped && `, ${skipped}`}.`;
     return `${reviewed} Model: ${model.name}. Click to review again.`;
+}
+
+function errorText(error: unknown): string {
+    const text = error instanceof Error ? error.message : String(error);
+    return error instanceof ModelError ? `${error.code}: ${text}` : text;
 }
 
 function describe(error: unknown, model?: ModelPort): string {

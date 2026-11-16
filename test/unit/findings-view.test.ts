@@ -175,13 +175,14 @@ describe('Findings status bar summary', () => {
         });
     });
 
-    it('shows a paused Check with its reason instead of a count', () => {
+    it('shows a paused Check with its reason instead of a count, linking to the log', () => {
         const summary = statusSummary(file({ findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }], paused: 'Timed out' }));
 
         assert.deepStrictEqual(summary, {
             text: '$(debug-pause) Check paused',
-            tooltip: 'Timed out. The last Findings stay. Click to show the Findings.',
-            accessibilityLabel: 'Accessibility: Check paused: Timed out. The last Findings stay.'
+            tooltip: 'Timed out. The last Findings stay. Click to show the log.',
+            accessibilityLabel: 'Accessibility: Check paused: Timed out. The last Findings stay. Activate to show the log.',
+            showsLog: true
         });
     });
 });

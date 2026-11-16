@@ -10,11 +10,19 @@ export type CheckOutcome =
     /** The Check could not run; the last Findings stay. */
     | { status: 'paused'; reason: string; deadlineExceeded: boolean };
 
+/** Where the worker reports what went wrong; a `LogOutputChannel` in the extension. Never given file contents. */
+export interface WorkerLog {
+    info(message: string): void;
+    warn(message: string): void;
+    error(message: string): void;
+}
+
 export interface AnalysisWorkerOptions {
     deadlineMs?: number;
     /** The deadline of an engine's first run in a worker, which also loads the engine. */
     firstLoadMs?: number;
     now?: () => number;
+    log?: WorkerLog;
 }
 
 // Circuit breaker: an engine failing this often is paused for the session
@@ -41,14 +49,25 @@ export class AnalysisWorker {
     private readonly failures = new Map<string, number[]>();
     // Engines that answered in the current worker; the first run of any other also loads it
     private loaded = new Set<string>();
+    private readonly used = new Set<string>();
     private readonly deadlineMs: number;
     private readonly firstLoadMs: number;
     private readonly now: () => number;
+    private readonly log: WorkerLog | undefined;
 
     constructor(private readonly script: string, options: AnalysisWorkerOptions = {}) {
         this.deadlineMs = options.deadlineMs ?? 1000;
         this.firstLoadMs = options.firstLoadMs ?? 15_000;
         this.now = options.now ?? Date.now;
+        this.log = options.log;
+    }
+
+    /** The engines run in this session and those the circuit breaker paused, for an issue report. */
+    engines(): { used: string[]; paused: string[] } {
+        return {
+            used: [...this.used].sort(),
+            paused: [...this.failures].filter(([, times]) => times.length >= MAX_FAILURES).map(([engine]) => engine).sort()
+        };
     }
 
     check(key: string, document: AnalysisDocument, options: AnalysisOptions = {}): Promise<CheckOutcome> {
@@ -80,12 +99,14 @@ export class AnalysisWorker {
             return this.next();
         }
         this.worker ??= this.spawn();
+        this.used.add(engine);
         const firstLoad = !this.loaded.has(engine);
         const deadlineMs = firstLoad ? this.firstLoadMs : this.deadlineMs;
         const deadline = setTimeout(() => {
             // A synchronous engine cannot be interrupted, only its thread can be ended
             void this.worker?.terminate();
             this.worker = undefined;
+            this.log?.warn(`${engine} Check took longer than ${deadlineMs} ms; the analysis worker is restarted`);
             this.finish({ status: 'paused', reason: `The Check took longer than ${deadlineMs} ms`, deadlineExceeded: true });
         }, deadlineMs);
         this.running = { request, deadline, started: this.now(), firstLoad };
@@ -104,13 +125,15 @@ export class AnalysisWorker {
 
     private recordFailure(engine: string): void {
         const now = this.now();
-        const recent = (this.failures.get(engine) ?? []).filter(time => now - time <= FAILURE_WINDOW_MS);
-        this.failures.set(engine, [...recent, now]);
+        const recent = [...(this.failures.get(engine) ?? []).filter(time => now - time <= FAILURE_WINDOW_MS), now];
+        this.failures.set(engine, recent);
+        if (recent.length === MAX_FAILURES) this.log?.error(`${engine} engine paused for this session after ${MAX_FAILURES} failures within 3 minutes`);
     }
 
     private spawn(): Worker {
         const worker = new Worker(this.script, { resourceLimits: { maxOldGenerationSizeMb: MAX_HEAP_MB } });
         this.loaded = new Set();
+        this.log?.info('Analysis worker started');
         worker.on('message', (reply: WorkerReply) => {
             if (worker !== this.worker) return;
             if (!this.running) return;
@@ -118,12 +141,16 @@ export class AnalysisWorker {
             this.loaded.add(request.document.languageId);
             if ('result' in reply) this.finish({ status: 'done', result: reply.result, durationMs: this.now() - started, firstLoad });
             else if ('parseError' in reply) this.finish({ status: 'paused', reason: reply.parseError, deadlineExceeded: false }, false);
-            else this.finish({ status: 'paused', reason: reply.error, deadlineExceeded: false });
+            else {
+                this.log?.error(`${request.document.languageId} engine failed: ${reply.error}`);
+                this.finish({ status: 'paused', reason: reply.error, deadlineExceeded: false });
+            }
         });
         // An ended worker is replaced on the next request; one ended on purpose is no longer this.worker
         const stopped = (reason: string) => {
             if (worker !== this.worker) return;
             this.worker = undefined;
+            this.log?.error(this.running ? `${this.running.request.document.languageId} engine: ${reason}` : reason);
             this.finish({ status: 'paused', reason, deadlineExceeded: false });
         };
         worker.on('error', (error: Error) => stopped(`The analysis worker crashed: ${error.message}`));

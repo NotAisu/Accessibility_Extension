@@ -88,6 +88,16 @@
         "command": "allyproof.disableRule",
         "title": "Disable Rule",
         "category": "Allyproof"
+      },
+      {
+        "command": "allyproof.showLog",
+        "title": "Show Log",
+        "category": "Allyproof"
+      },
+      {
+        "command": "allyproof.reportIssue",
+        "title": "Report Issue",
+        "category": "Allyproof"
       }
     ],
     "viewsContainers": {

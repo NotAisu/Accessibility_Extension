@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { AnalysisWorker, CheckOutcome } from './analysis-worker';
+import { AnalysisWorker, CheckOutcome, WorkerLog } from './analysis-worker';
 import { CheckSchedule } from './check-schedule';
 import { AnalysisDocument, AnalysisOptions, checkLanguageId, Finding, RuleSetting } from './core/analysis';
 import { criterionName, criterionUrl } from './core/wcag';
@@ -29,8 +29,13 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     constructor(private readonly tree: FindingsTree) {}
 
     /** Starts the analysis worker from its bundled script; the worker thread spawns on the first Check. */
-    start(workerScript: string): void {
-        this.worker = new AnalysisWorker(workerScript);
+    start(workerScript: string, log: WorkerLog): void {
+        this.worker = new AnalysisWorker(workerScript, { log });
+    }
+
+    /** The engines run in this session and those paused, for an issue report. */
+    engines(): { used: string[]; paused: string[] } {
+        return this.worker?.engines() ?? { used: [], paused: [] };
     }
 
     async update(document: vscode.TextDocument): Promise<void> {
