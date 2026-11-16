@@ -3,7 +3,8 @@ import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import type { RenderedContent } from '../needs-review';
+import { addText, type RenderedContent, type SourceElement } from '../needs-review';
+import { rendersElements, styleObjectCss } from './style-object';
 import { withOwnRules } from '../own-rules';
 
 // The JSX/TSX engine as one chunk, loaded on the first React document.
@@ -121,20 +122,31 @@ interface JsxNode {
     [key: string]: unknown;
 }
 
-// Text children (literal or an expression) and intrinsic controls; components are opaque until Component Mapping
+// Text children (literal or an expression) and intrinsic controls; components are opaque until Component Mapping.
+// `element` is the innermost element around the node, also across expressions ({items.map(item => <li>)})
 function renderedContent(source: { ast: unknown; visitorKeys: Record<string, readonly string[] | undefined> }): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
-    const visit = (node: JsxNode, parent?: JsxNode) => {
-        if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
+    const visit = (node: JsxNode, parent?: JsxNode, element?: SourceElement) => {
+        if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) {
+            content.text = true;
+            addText(element, node.value);
+        }
         if (node.type === 'JSXExpressionContainer' && (node.expression as JsxNode).type !== 'JSXEmptyExpression'
-            && (parent?.type === 'JSXElement' || parent?.type === 'JSXFragment')) content.text = true;
-        if (node.type === 'JSXOpeningElement') {
-            const [start, end] = node.range as [number, number];
-            content.elements.push({ tag: tagName(node), attributes: attributesOf(node), range: { start, end } });
+            && (parent?.type === 'JSXElement' || parent?.type === 'JSXFragment')) {
+            content.text = true;
+            if (!rendersElements(node.expression)) addText(element, true);
+        }
+        if (node.type === 'JSXElement') {
+            const opening = node.openingElement as JsxNode;
+            const [start, end] = opening.range as [number, number];
+            element = { tag: tagName(opening), attributes: attributesOf(opening), range: { start, end }, parent: element };
+            // Spread attributes can set the class or style
+            if ((opening.attributes as JsxNode[]).some(attribute => attribute.type === 'JSXSpreadAttribute')) element.boundStyle = true;
+            content.elements.push(element);
         }
         for (const key of source.visitorKeys[node.type] ?? []) {
             for (const child of [node[key]].flat()) {
-                if (child && typeof (child as JsxNode).type === 'string') visit(child as JsxNode, node);
+                if (child && typeof (child as JsxNode).type === 'string') visit(child as JsxNode, node, element);
             }
         }
     };
@@ -153,10 +165,22 @@ function attributesOf(element: JsxNode): Map<string, string | true> {
     for (const attribute of element.attributes as JsxNode[]) {
         if (attribute.type !== 'JSXAttribute' || (attribute.name as JsxNode).type !== 'JSXIdentifier') continue;
         const value = attribute.value as JsxNode | null;
-        const literal = value?.type === 'Literal' && typeof value.value === 'string' ? value.value : true;
-        attributes.set(((attribute.name as JsxNode).name as string).toLowerCase(), literal);
+        const name = ((attribute.name as JsxNode).name as string).toLowerCase();
+        attributes.set(name, literalValue(name, value));
     }
     return attributes;
+}
+
+// A string literal, a template literal without expressions, or a style object of literals; otherwise bound
+export function literalValue(name: string, value: JsxNode | null): string | true {
+    if (value?.type === 'Literal' && typeof value.value === 'string') return value.value;
+    const expression = value?.type === 'JSXExpressionContainer' ? value.expression as JsxNode : undefined;
+    if (expression?.type === 'Literal' && typeof expression.value === 'string') return expression.value;
+    if (expression?.type === 'TemplateLiteral' && (expression.expressions as unknown[]).length === 0) {
+        return ((expression.quasis as { value: { cooked: string } }[])[0]).value.cooked;
+    }
+    if (name === 'style' && expression) return styleObjectCss(expression) ?? true;
+    return true;
 }
 
 // A rule that throws on unusual code (lang without a value) would cost every other rule's

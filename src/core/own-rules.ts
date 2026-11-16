@@ -1,6 +1,7 @@
 import type { AnalysisResult, Finding, NeedsReview } from './analysis';
 import { isControl, layoutNeedsReview, RenderedContent, SourceElement } from './needs-review';
 import { criterionUrl } from './wcag';
+import { contrast } from './contrast';
 
 // Allyproof's own rules for WCAG 2.2 AA criteria no upstream engine checks. They read the elements every
 // engine collects in its own syntax, so they work alike in every language; bound values are never guessed.
@@ -18,9 +19,10 @@ export function withOwnRules(findings: Finding[], content: RenderedContent, opti
         ...passwordAutocomplete(element),
         ...options.inputPurpose ? invalidAutocomplete(element) : []
     ]);
+    const contrasts = contrast(content);
     return {
-        findings: [...findings, ...own],
-        needsReview: [...layoutNeedsReview(content), ...content.elements.flatMap(smallTarget)]
+        findings: [...findings, ...own, ...contrasts.findings],
+        needsReview: [...layoutNeedsReview(content, contrasts.allTextDecided), ...contrasts.needsReview, ...content.elements.flatMap(smallTarget)]
     };
 }
 

@@ -107,6 +107,65 @@
         { "criterion": "3.3.8", "line": 6 },
         { "criterion": "2.5.8", "line": 7 }
       ]
+    },
+    {
+      "file": "html/newsletter.html",
+      "languageId": "html",
+      "note": "Static contrast; no upstream rule checks a text field's boundary: #999 text on the browser's white (1.4.3, not #767676 or a CSS variable) and a field whose #ddd border does not stand out (1.4.11, not the #767676 one)",
+      "expect": [
+        { "criterion": "1.4.3", "line": 7 },
+        { "criterion": "1.4.11", "line": 9 }
+      ]
+    },
+    {
+      "file": "jsx/newsletter.jsx",
+      "languageId": "javascriptreact",
+      "note": "Static contrast in JSX, which has no upstream contrast rule, from Tailwind classes on the element or an ancestor: text-gray-400 on bg-white (1.4.3, not text-gray-700 or a bound className) and a border-gray-200 field (1.4.11, not border-gray-500)",
+      "expect": [
+        { "criterion": "1.4.3", "line": 3 },
+        { "criterion": "1.4.11", "line": 5 }
+      ]
+    },
+    {
+      "file": "tsx/newsletter.tsx",
+      "languageId": "typescriptreact",
+      "note": "Static contrast in TSX from style objects of literals: #aaa on #fff (1.4.3, not #595959 or a style object with an expression)",
+      "expect": [
+        { "criterion": "1.4.3", "line": 3 },
+        { "criterion": "1.4.11", "present": false }
+      ]
+    },
+    {
+      "file": "vue/newsletter.vue",
+      "languageId": "vue",
+      "note": "Static contrast in Vue: text-slate-600 on bg-slate-900 (1.4.3, not text-slate-100 or a bound :class)",
+      "expect": [
+        { "criterion": "1.4.3", "line": 3 }
+      ]
+    },
+    {
+      "file": "svelte/newsletter.svelte",
+      "languageId": "svelte",
+      "note": "Static contrast in Svelte: #999 on white (1.4.3, not #777 at text-2xl, which is large text at 3:1, or a style with an expression)",
+      "expect": [
+        { "criterion": "1.4.3", "line": 6 }
+      ]
+    },
+    {
+      "file": "angular/newsletter.component.html",
+      "languageId": "angular",
+      "note": "Static contrast in an Angular template: text-zinc-400 on bg-white (1.4.3, not text-zinc-600 or a bound [class])",
+      "expect": [
+        { "criterion": "1.4.3", "line": 2 }
+      ]
+    },
+    {
+      "file": "astro/newsletter.astro",
+      "languageId": "astro",
+      "note": "Static contrast in Astro: text-neutral-400 on bg-white (1.4.3, not text-neutral-600 or a class expression)",
+      "expect": [
+        { "criterion": "1.4.3", "line": 5 }
+      ]
     }
   ]
 }

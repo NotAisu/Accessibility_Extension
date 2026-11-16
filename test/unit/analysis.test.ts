@@ -60,12 +60,12 @@ describe('analyse (HTML)', () => {
     });
 
     it('lists layout-dependent criteria as Needs Review instead of reporting them', async () => {
-        const text = page('<p style="color:#eee;background:#fff">Faint</p>\n<button style="width:8px;height:8px">x</button>');
+        const text = page('<p style="color:var(--faint);background:#fff">Faint</p>\n<button style="width:8px;height:8px">x</button>');
 
         const { findings, needsReview } = await analyse({ languageId: 'html', text });
 
         assert.deepStrictEqual(findings, []);
-        assert.deepStrictEqual(needsReview.filter(entry => !entry.range).map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+        assert.deepStrictEqual(needsReview.filter(entry => !entry.range).map(entry => entry.criterion), ['1.4.3', '2.5.8', '1.4.3']);
     });
 
     it('returns nothing for languages without a Check yet', async () => {

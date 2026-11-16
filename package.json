@@ -260,7 +260,12 @@
           "markdownDescription": "Turn Check rules off or change the severity of their Findings, by rule id, for example `{ \"image-alt\": \"off\", \"jsx-a11y-x/alt-text\": \"error\" }`. Check Findings are warnings by default. To ignore a single Finding, put `<!-- allyproof-ignore <rule id> -->` (in JSX `{/* allyproof-ignore <rule id> */}`) on the line above it.",
           "additionalProperties": {
             "type": "string",
-            "enum": ["off", "error", "warning", "information"]
+            "enum": [
+              "off",
+              "error",
+              "warning",
+              "information"
+            ]
           }
         },
         "allyproof.aiReview.provider": {
@@ -311,6 +316,7 @@
     "verify": "npm run lint -- --max-warnings=0 && npm run typecheck && npm run test:unit && npm run test:gate && npm run test:bundle-gate"
   },
   "devDependencies": {
+    "@types/culori": "4.0.1",
     "@types/jsdom": "21.1.7",
     "@types/mocha": "10.0.6",
     "@types/node": "24.13.6",
@@ -335,6 +341,7 @@
     "@typescript-eslint/parser": "8.72.2",
     "astro-eslint-parser": "3.2.0",
     "axe-core": "4.14.0",
+    "culori": "4.0.2",
     "eslint": "10.15.0",
     "eslint-plugin-astro": "3.2.1",
     "eslint-plugin-jsx-a11y-x": "0.2.0",
@@ -342,6 +349,7 @@
     "globals": "17.14.0",
     "jsdom": "26.1.0",
     "svelte": "5.57.3",
+    "tailwindcss": "4.3.3",
     "typescript": "5.4.5",
     "vue-eslint-parser": "10.4.2"
   }
