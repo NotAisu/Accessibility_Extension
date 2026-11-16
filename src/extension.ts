@@ -74,7 +74,7 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
             aiReview.reviewOnSave(document);
         }),
         vscode.workspace.onDidChangeConfiguration(event => {
-            if (event.affectsConfiguration('allyproof.rules')) vscode.workspace.textDocuments.forEach(document => void runDiagnostics(document));
+            if (['allyproof.rules', 'allyproof.components', 'allyproof.polymorphicPropName'].some(setting => event.affectsConfiguration(setting))) vscode.workspace.textDocuments.forEach(document => void runDiagnostics(document));
             if (event.affectsConfiguration('allyproof.aiReview')) {
                 void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', aiAvailable());
                 void aiReview.showIdle();

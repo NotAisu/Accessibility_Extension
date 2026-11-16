@@ -277,6 +277,23 @@
             ]
           }
         },
+        "allyproof.components": {
+          "type": "object",
+          "scope": "resource",
+          "default": {},
+          "markdownDescription": "Component Mapping: the native element each of your components renders, so the Check judges `<Button>` like a `<button>`, for example `{ \"Button\": \"button\", \"NavLink\": \"a\", \"app-avatar\": \"img\" }`. Unmapped components are not checked. In Vue and Angular templates `MyButton` also matches `<my-button>`. Your project's code is never run to find out what a component renders.",
+          "additionalProperties": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*$",
+            "patternErrorMessage": "A native element name in lowercase, such as button, a or img."
+          }
+        },
+        "allyproof.polymorphicPropName": {
+          "type": "string",
+          "scope": "resource",
+          "default": "",
+          "markdownDescription": "The prop whose literal value names the element a component renders, such as `as` for `<Link as=\"a\">`. Empty for none."
+        },
         "allyproof.aiReview.provider": {
           "type": "string",
           "enum": [

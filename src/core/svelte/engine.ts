@@ -2,6 +2,7 @@ import { compile, type AST, type Warning } from 'svelte/compiler';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { addText, cssSetsColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
+import { mappedElement, type ComponentMapping } from '../components';
 
 // The Svelte engine as one chunk, loaded on the first Svelte document.
 
@@ -68,7 +69,8 @@ export function criteriaOf(code: string, message: string): string[] | undefined 
 
 const PREFIX = 'svelte/';
 
-export function checkSvelte(text: string): AnalysisResult {
+/** The compiler's warnings know no Component Mapping; only own rules and Needs Review read it. */
+export function checkSvelte(text: string, components?: ComponentMapping): AnalysisResult {
     const { warnings, ast } = compileComponent(text);
     const findings: Finding[] = [];
     for (const warning of warnings) {
@@ -87,7 +89,7 @@ export function checkSvelte(text: string): AnalysisResult {
             helpUrl: helpUrl ?? `https://svelte.dev/e/${warning.code}`
         });
     }
-    const content = renderedContent(ast);
+    const content = renderedContent(ast, components);
     content.stylesheetColors = ast.css !== null && cssSetsColors(ast.css.content.styles);
     return withOwnRules(findings, content);
 }
@@ -100,9 +102,10 @@ interface SvelteNode {
     [key: string]: unknown;
 }
 
-// Text and expression tags in the markup and intrinsic controls; components are opaque until Component Mapping.
+// Text and expression tags in the markup and intrinsic controls; a component counts as the native element it is
+// mapped to and is otherwise opaque.
 // Only fragments are walked, so attribute values, the script and the style never count as rendered text
-function renderedContent(ast: AST.Root): RenderedContent {
+function renderedContent(ast: AST.Root, components: ComponentMapping | undefined): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
     const visit = (node: SvelteNode, parent?: SourceElement) => {
         if (node.type === 'Text' && typeof node.data === 'string' && node.data.trim()) {
@@ -116,11 +119,15 @@ function renderedContent(ast: AST.Root): RenderedContent {
         if (node.type === 'RegularElement' || OPAQUE.includes(node.type)) {
             // The AST spans the whole element, so its range is the `<name` that opens it
             const start = node.start as number;
-            const element: SourceElement = { tag: node.name as string, attributes: attributesOf(node), range: { start, end: start + 1 + (node.name as string).length }, parent };
+            const written = node.name as string;
+            const attributes = attributesOf(node);
+            const mapped = node.type === 'Component' ? mappedElement(written, name => attributes.get(name.toLowerCase()), components) : undefined;
+            const element: SourceElement = { tag: mapped ?? written, attributes, range: { start, end: start + 1 + written.length }, parent };
+            if (mapped) element.component = written;
             // class: and style: directives and spread attributes change the class or style beyond its literal value
             if ((node.attributes as SvelteNode[]).some(a => ['ClassDirective', 'StyleDirective', 'SpreadAttribute'].includes(a.type))) element.boundStyle = true;
-            // Components and dynamic elements are opaque until Component Mapping, but their children are known to be inside them
-            if (node.type === 'RegularElement') content.elements.push(element);
+            // Unmapped components and dynamic elements are opaque, but their children are known to be inside them
+            if (node.type === 'RegularElement' || mapped) content.elements.push(element);
             parent = element;
         }
         if (node.type === 'Fragment') (node.nodes as SvelteNode[]).forEach(child => visit(child, parent));

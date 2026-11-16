@@ -5,6 +5,7 @@ import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
 import { hasSpread, renderedJsxContent } from './jsx-ast';
 import { withOwnRules } from '../own-rules';
+import type { ComponentMapping } from '../components';
 
 // The JSX/TSX engine as one chunk, loaded on the first React document.
 
@@ -65,23 +66,31 @@ export const RULE_OPTIONS: Record<string, unknown[]> = Object.fromEntries(Object
     return [rule, SPELLED_OUT_DEFAULTS[rule] ?? (Array.isArray(entry) ? entry.slice(1) : [])];
 }));
 
+/** The plugin's own settings for Component Mapping, read by every rule through its element type. */
+export function jsxA11ySettings(components: ComponentMapping | undefined): Linter.Config['settings'] {
+    return { 'jsx-a11y-x': { components: components?.components ?? {}, polymorphicPropName: components?.polymorphicPropName } };
+}
+
 // The bundled config only; the workspace's own ESLint config is never loaded
-function config(skip: Set<string>): Linter.Config[] {
+function config(skip: Set<string>, components: ComponentMapping | undefined): Linter.Config[] {
     const rules: Linter.RulesRecord = Object.fromEntries(Object.keys(RULE_CRITERIA)
         .filter(rule => !skip.has(PREFIX + rule))
         .map(rule => [PREFIX + rule, ['warn', ...RULE_OPTIONS[rule]]]));
     const plugins = { 'jsx-a11y-x': jsxA11y as unknown as NonNullable<Linter.Config['plugins']>[string] };
+    const settings = jsxA11ySettings(components);
     return [
         {
             files: ['**/*.jsx'],
             plugins,
             languageOptions: { ecmaVersion: 'latest', sourceType: 'module', parserOptions: { ecmaFeatures: { jsx: true } } },
+            settings,
             rules
         },
         {
             files: ['**/*.tsx'],
             plugins,
             languageOptions: { parser: tsParser, parserOptions: { ecmaFeatures: { jsx: true } } },
+            settings,
             rules
         }
     ];
@@ -90,11 +99,11 @@ function config(skip: Set<string>): Linter.Config[] {
 const linter = new Linter({ configType: 'flat' });
 
 /** Plain JSX is parsed by espree, TypeScript only for `.tsx` (`typescript: true`). */
-export function checkJsx(text: string, typescript: boolean): AnalysisResult {
+export function checkJsx(text: string, typescript: boolean, components?: ComponentMapping): AnalysisResult {
     const offsets = lineOffsets(text);
     const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
-    for (const message of verify(text, typescript ? 'document.tsx' : 'document.jsx')) {
+    for (const message of verify(text, typescript ? 'document.tsx' : 'document.jsx', components)) {
         // Unparseable code must not read as a clean file
         if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
@@ -114,16 +123,16 @@ export function checkJsx(text: string, typescript: boolean): AnalysisResult {
         });
     }
     // Spread attributes can set the class or style
-    return withOwnRules(findings, renderedJsxContent(linter.getSourceCode(), { textParents: ['JSXElement', 'JSXFragment'], bindsStyle: hasSpread }));
+    return withOwnRules(findings, renderedJsxContent(linter.getSourceCode(), { textParents: ['JSXElement', 'JSXFragment'], bindsStyle: hasSpread, components }));
 }
 
 // A rule that throws on unusual code (lang without a value) would cost every other rule's
 // Findings, so the document is linted again without it
-function verify(text: string, filename: string): Linter.LintMessage[] {
+function verify(text: string, filename: string, components: ComponentMapping | undefined): Linter.LintMessage[] {
     const skip = new Set<string>();
     for (;;) {
         try {
-            return linter.verify(text, config(skip), filename);
+            return linter.verify(text, config(skip, components), filename);
         } catch (error) {
             const ruleId = (error as { ruleId?: unknown }).ruleId;
             if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;
