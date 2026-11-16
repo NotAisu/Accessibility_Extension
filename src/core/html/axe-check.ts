@@ -11,10 +11,13 @@ import type { AnalysisResult, Finding, TextRange } from '../analysis';
 const AXE_TIMEOUT_MS = 5000;
 
 // JSDOM has no layout, so rules that need rendering cannot be decided
-const LAYOUT_RULES = ['color-contrast', 'target-size', 'link-in-text-block', 'scrollable-region-focusable'];
+export const LAYOUT_RULES = ['color-contrast', 'target-size', 'link-in-text-block', 'scrollable-region-focusable'];
+
+// The rules axe-core runs: those tagged with a WCAG 2.x level A or AA criterion
+export const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'];
 
 const AXE_OPTIONS: axe.RunOptions = {
-    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'] },
+    runOnly: { type: 'tag', values: AXE_TAGS },
     resultTypes: ['violations'],
     rules: Object.fromEntries(LAYOUT_RULES.map(rule => [rule, { enabled: false }])),
     elementRef: true,

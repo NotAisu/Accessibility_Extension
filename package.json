@@ -90,6 +90,11 @@
         "category": "Allyproof"
       },
       {
+        "command": "allyproof.ignoreFinding",
+        "title": "Ignore This Finding",
+        "category": "Allyproof"
+      },
+      {
         "command": "allyproof.showLog",
         "title": "Show Log",
         "category": "Allyproof"
@@ -139,6 +144,10 @@
         },
         {
           "command": "allyproof.disableRule",
+          "when": "false"
+        },
+        {
+          "command": "allyproof.ignoreFinding",
           "when": "false"
         }
       ],

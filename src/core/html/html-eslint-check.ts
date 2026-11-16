@@ -8,7 +8,7 @@ import { lineOffsets } from '../offsets';
 // require-img-alt, require-input-label, require-title, no-invalid-role and no-aria-hidden-on-focusable
 // are left out: axe-core covers them and they misfire on ACT passed cases (title/role=none images,
 // doc-* roles, disabled or hidden inputs, <title> outside <head>).
-const RULE_CRITERIA: Record<string, string[]> = {
+export const RULE_CRITERIA: Record<string, string[]> = {
     'no-abstract-roles': ['4.1.2'],
     'no-aria-hidden-body': ['1.3.1', '4.1.2'],
     'no-nested-interactive': ['4.1.2'],
