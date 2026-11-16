@@ -8,6 +8,7 @@ import { FindingsTree } from './findings-tree';
 import { A11yCheckTool } from './a11y-check-tool';
 import { disableRule, IgnoreActions, ignoreFinding } from './ignore-actions';
 import { CheckFixes } from './check-fixes';
+import { AIFixes, FixWithAIArgument } from './ai-fixes';
 import { issueUrl } from './report-issue';
 import { addSkillToRepository } from './add-skill-command';
 import type { IgnoreFindingArgument } from './learn-hover';
@@ -39,6 +40,16 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
     const fixes = new CheckFixes(check);
     const aiReview = new AIReview(context, checked, (document, scope) => check.findingsOf(document, scope), tree, log);
     const workspaceCheck = new WorkspaceCheckCommand(check, tree, log);
+    const aiFixes = new AIFixes({
+        aiAvailable,
+        reviews: checked,
+        checkReport: uri => check.reportOf(uri),
+        aiReport: uri => aiReview.reportOf(uri),
+        model: signal => aiReview.model(signal),
+        skill: () => aiReview.readSkill(),
+        verify: (document, scope) => check.verify(document, scope),
+        log
+    });
     const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document, log);
     const forget = (uri: vscode.Uri) => {
         check.delete(uri);
@@ -52,9 +63,12 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
         tree,
         check,
         aiReview,
+        aiFixes,
         vscode.languages.registerHoverProvider(SUPPORTED_LANGUAGES, check),
         vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, new IgnoreActions(check), IgnoreActions.metadata),
         vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, fixes, CheckFixes.metadata),
+        vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, aiFixes, AIFixes.metadata),
+        vscode.commands.registerCommand('allyproof.fixWithAI', (argument: FixWithAIArgument) => aiFixes.fix(argument)),
         vscode.workspace.onWillSaveTextDocument(event => fixes.fixOnSave(event)),
         vscode.commands.registerCommand('allyproof.startAIReview', () => aiReview.start()),
         vscode.commands.registerCommand('allyproof.cancelAIReview', () => aiReview.cancel()),

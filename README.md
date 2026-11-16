@@ -8,6 +8,7 @@ Allyproof checks your frontend code against WCAG 2.2 A/AA while you work and can
 
 - **Check**: Findings appear in the Problems panel when you open or save an HTML, Vue, Svelte, JSX, TSX or Astro file, or an Angular component template (`*.component.html` or an inline `template`). Your file is parsed, never executed.
 - **AI Review**: `Allyproof: Start AI Review` asks GitHub Copilot to look for semantic problems the Check cannot detect. Its Findings appear as information marked "AI"; progress and the result are shown in the status bar.
+- **AI fixes**: every Finding has a "Fix with AI" quick fix, never the preferred one. The Check re-runs on the proposed edit first and discards a fix that adds Findings; the fix is then shown as a diff you apply or discard, and is refused if the code changed since the Finding was reported.
 
 ## Coverage
 
