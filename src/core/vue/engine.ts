@@ -113,7 +113,7 @@ function renderedContent(template: VueNode | undefined): RenderedContent {
             // Components keep their written name (MyButton), elements are lowercase
             const tag = (node.rawName as string | undefined) ?? node.name as string;
             const element: SourceElement = { tag: /^[A-Z]/.test(tag) ? tag : node.name as string, attributes: attributesOf(node), range: { start, end }, parent };
-            if (boundStyle(node)) element.boundStyle = true;
+            if (bindsClassOrStyle(node) || hasVShow(node)) element.boundStyle = true;
             content.elements.push(element);
             (node.children as VueNode[]).forEach(child => visit(child, element));
         }
@@ -141,15 +141,22 @@ function attributesOf(element: VueNode): Map<string, string | true> {
     return attributes;
 }
 
-// :class, :style, v-bind="object" and v-show change how the element renders beyond its literal class and style
-function boundStyle(element: VueNode): boolean {
-    return (element.startTag as { attributes: VueNode[] }).attributes.some(attribute => {
-        if (!attribute.directive) return false;
+// :class, :style and v-bind="object" set the class or style beyond its literal value
+function bindsClassOrStyle(element: VueNode): boolean {
+    return directives(element).some(({ name, argument }) =>
+        name === 'bind' && (!argument || (argument.type === 'VIdentifier' && ['class', 'style'].includes(argument.name as string))));
+}
+
+// v-show only toggles display, which sets no color. Whether the text shows depends on an expression, though, so
+// its contrast is not judged: the element counts as having a bound style, which makes its colors uncertain
+function hasVShow(element: VueNode): boolean {
+    return directives(element).some(({ name }) => name === 'show');
+}
+
+function directives(element: VueNode): { name: unknown; argument: VueNode | null }[] {
+    return (element.startTag as { attributes: VueNode[] }).attributes.filter(attribute => attribute.directive).map(attribute => {
         const key = attribute.key as VueNode;
-        const name = (key.name as VueNode).name;
-        const argument = key.argument as VueNode | null;
-        if (name === 'show') return true;
-        return name === 'bind' && (!argument || (argument.type === 'VIdentifier' && ['class', 'style'].includes(argument.name as string)));
+        return { name: (key.name as VueNode).name, argument: key.argument as VueNode | null };
     });
 }
 

@@ -4,10 +4,10 @@ import * as astroParser from 'astro-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import { addText, styleBlocksSetColors, type RenderedContent, type SourceElement } from '../needs-review';
-import { rendersElements } from '../jsx/style-object';
+import { styleBlocksSetColors } from '../needs-review';
+import { hasSpread, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
 import { withOwnRules } from '../own-rules';
-import { literalValue, RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
+import { RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
 
 // The Astro engine as one chunk, loaded on the first Astro document.
 // eslint-plugin-astro wraps the eslint-plugin-jsx-a11y-x rules for the template, so the rules, their
@@ -63,64 +63,13 @@ export function checkAstro(text: string): AnalysisResult {
             helpUrl: docs?.extensionRule?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
-    const content = renderedContent(linter.getSourceCode());
+    // <script> and <style> bodies are raw text that renders nothing. class:list and spread attributes can set the class or style
+    const content = renderedJsxContent(linter.getSourceCode(), {
+        textParents: ['JSXElement', 'JSXFragment', 'AstroFragment'],
+        bindsStyle: opening => hasSpread(opening) || (opening.attributes as JsxNode[]).some(a => (a.name as JsxNode | undefined)?.type === 'JSXNamespacedName')
+    });
     content.stylesheetColors = styleBlocksSetColors(text);
     return withOwnRules(findings, content);
-}
-
-interface AstroNode {
-    type: string;
-    [key: string]: unknown;
-}
-
-// Text and expressions in the template and intrinsic controls; <script> and <style> bodies are raw text that
-// renders nothing, and components are opaque until Component Mapping
-function renderedContent(source: { ast: unknown; visitorKeys: Record<string, readonly string[] | undefined> }): RenderedContent {
-    const content: RenderedContent = { text: false, elements: [] };
-    // `element` is the innermost element around the node, also across expressions
-    const visit = (node: AstroNode, parent?: AstroNode, element?: SourceElement) => {
-        if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) {
-            content.text = true;
-            addText(element, node.value);
-        }
-        if (node.type === 'JSXExpressionContainer' && (node.expression as AstroNode).type !== 'JSXEmptyExpression'
-            && ['JSXElement', 'JSXFragment', 'AstroFragment'].includes(parent?.type ?? '')) {
-            content.text = true;
-            if (!rendersElements(node.expression)) addText(element, true);
-        }
-        if (node.type === 'JSXElement') {
-            const opening = node.openingElement as AstroNode;
-            const [start, end] = opening.range as [number, number];
-            element = { tag: tagName(opening), attributes: attributesOf(opening), range: { start, end }, parent: element };
-            // class:list and spread attributes can set the class or style
-            if ((opening.attributes as AstroNode[]).some(a => (a.name as AstroNode | undefined)?.type === 'JSXNamespacedName' || a.type === 'JSXSpreadAttribute')) element.boundStyle = true;
-            content.elements.push(element);
-        }
-        for (const key of source.visitorKeys[node.type] ?? []) {
-            for (const child of [node[key]].flat()) {
-                if (child && typeof (child as AstroNode).type === 'string') visit(child as AstroNode, node, element);
-            }
-        }
-    };
-    visit(source.ast as AstroNode);
-    return content;
-}
-
-function tagName(element: AstroNode): string {
-    const name = element.name as AstroNode;
-    return name.type === 'JSXIdentifier' ? name.name as string : '';
-}
-
-// A value only for a string literal; an expression ({href}, href={url}) counts as present
-function attributesOf(element: AstroNode): Map<string, string | true> {
-    const attributes = new Map<string, string | true>();
-    for (const attribute of element.attributes as AstroNode[]) {
-        const name = attribute.name as AstroNode | undefined;
-        if (attribute.type === 'JSXSpreadAttribute' || name?.type !== 'JSXIdentifier') continue;
-        const lower = (name.name as string).toLowerCase();
-        attributes.set(lower, literalValue(lower, attribute.value as AstroNode | null));
-    }
-    return attributes;
 }
 
 // A rule that throws on unusual code would cost every other rule's Findings, so the document is
