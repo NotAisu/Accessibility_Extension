@@ -1,7 +1,7 @@
 import type { Finding, NeedsReview } from './core/analysis';
 import { criterionName } from './core/wcag';
 
-// The Findings tree and status bar summary as plain data; findings-tree.ts shows them in VS Code
+// The Findings tree, its badge and the status bar summary as plain data; findings-tree.ts shows them in VS Code
 
 export type Filter = 'check' | 'ai-review' | 'needs-review';
 
@@ -147,6 +147,12 @@ export function statusSummary(file: FileFindings): StatusSummary {
         tooltip: `${detail} ${SHOW}`,
         accessibilityLabel: total === 0 ? `Accessibility: ${detail}` : `Accessibility: ${count(total, 'Finding')}, ${detail}`
     };
+}
+
+/** The badge on the Allyproof icon: the Findings of every file, as the Problems panel counts its problems; no badge without Findings. */
+export function findingsBadge(files: FileFindings[]): { value: number; tooltip: string } | undefined {
+    const total = files.reduce((sum, file) => sum + file.findings.length, 0);
+    return total === 0 ? undefined : { value: total, tooltip: count(total, 'Finding') };
 }
 
 // "1.4.10" after "1.4.3"

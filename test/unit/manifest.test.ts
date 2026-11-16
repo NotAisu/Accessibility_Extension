@@ -16,6 +16,8 @@ interface Manifest {
     categories?: string[];
     contributes: {
         commands: { command: string; category: string }[];
+        viewsContainers?: { activitybar?: { id: string; title: string; icon: string }[] };
+        viewsWelcome?: { view: string; contents: string }[];
         views?: Record<string, { id: string; type?: string }[]>;
         languageModelTools?: { name: string; when?: string }[];
         chatSkills?: { path: string; when?: string }[];
@@ -111,6 +113,17 @@ describe('manifest', () => {
             if (!file.endsWith('.ts')) continue;
             assert.doesNotMatch(fs.readFileSync(path.join(root, 'src', file), 'utf-8'), /createWebviewPanel|registerWebview/, file);
         }
+    });
+
+    it('gives the Findings tree its own Activity Bar item, with an icon shipped in the VSIX', () => {
+        const container = manifest.contributes.viewsContainers?.activitybar?.find(c => c.id === 'allyproof');
+        assert.ok(container, 'Allyproof Activity Bar container');
+        assert.ok(manifest.contributes.views?.allyproof?.some(view => view.id === 'allyproof.findings'), 'Findings tree in the container');
+        assert.ok(fs.existsSync(path.join(root, container.icon)), container.icon);
+        assert.ok(fs.readFileSync(path.join(root, '.vscodeignore'), 'utf-8').includes(`!${container.icon}`), `${container.icon} ships in the VSIX`);
+        const walkthrough = `${manifest.publisher}.${manifest.name}#${manifest.contributes.walkthroughs?.[0].id}`;
+        const welcome = manifest.contributes.viewsWelcome?.find(entry => entry.view === 'allyproof.findings')?.contents ?? '';
+        assert.ok(welcome.includes(`openWalkthrough?${encodeURIComponent(JSON.stringify(walkthrough))}`), 'empty view links the walkthrough');
     });
 
     it('lets AI Review use Copilot or a local model, with endpoint and model out of reach of untrusted workspaces', () => {

@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import type { Finding, Layer } from '../../src/core/analysis';
-import { FileFindings, findingsTree, statusSummary, TreeNode } from '../../src/findings-view';
+import { FileFindings, findingsBadge, findingsTree, statusSummary, TreeNode } from '../../src/findings-view';
 
 function finding(criterion: string, message: string, layer: Layer = 'check'): Finding {
     return {
@@ -183,5 +183,20 @@ describe('Findings status bar summary', () => {
             tooltip: 'Timed out. The last Findings stay. Click to show the Findings.',
             accessibilityLabel: 'Accessibility: Check paused: Timed out. The last Findings stay.'
         });
+    });
+});
+
+describe('Findings badge', () => {
+    it('counts the Findings of every file, but not Needs Review', () => {
+        const files = [
+            file({ findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }, { finding: finding('1.1.1', 'Alt text is vague', 'ai-review'), line: 5 }] }),
+            file({ uri: 'file:///app/b.html', name: 'b.html', findings: [{ finding: finding('4.1.2', 'Button has no name'), line: 1 }] })
+        ];
+
+        assert.deepStrictEqual(findingsBadge(files), { value: 3, tooltip: '3 Findings' });
+    });
+
+    it('shows no badge without Findings', () => {
+        assert.strictEqual(findingsBadge([file({ needsReview: [{ criterion: '1.4.3', reason: 'Contrast.' }] })]), undefined);
     });
 });

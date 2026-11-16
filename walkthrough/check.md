@@ -1,6 +1,6 @@
 # Your code is already being checked
 
-Open an HTML, Vue, Svelte, JSX, TSX, Astro or Angular file. The Check runs while you type, offline and free, and reports each problem as a **Finding** in the Problems panel and in the **Accessibility Findings** view of the Explorer. Your file is parsed, never executed.
+Open an HTML, Vue, Svelte, JSX, TSX, Astro or Angular file. The Check runs while you type, offline and free, and reports each problem as a **Finding** in the Problems panel and in the **Findings** view behind the Allyproof icon in the Activity Bar. Your file is parsed, never executed.
 
 For example, this page has no language:
 
