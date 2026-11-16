@@ -1,7 +1,7 @@
 import type { Finding, NeedsReview } from './core/analysis';
 import { criterionName } from './core/wcag';
 
-// The Findings tree and status bar summary as plain data; findings-tree.ts shows them in VS Code
+// The Findings tree, its badge and the status bar summary as plain data; findings-tree.ts shows them in VS Code
 
 export type Filter = 'check' | 'ai-review' | 'needs-review';
 

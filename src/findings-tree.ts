@@ -94,7 +94,7 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
     }
 
     getChildren(node?: TreeNode): TreeNode[] {
-        return node ? node.children ?? [] : findingsTree([...this.files].map(([uri, state]) => toFile(uri, state)), this.filters);
+        return node ? node.children ?? [] : findingsTree(this.allFiles(), this.filters);
     }
 
     getTreeItem(node: TreeNode): vscode.TreeItem {
@@ -165,6 +165,10 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
         return state;
     }
 
+    private allFiles(): FileFindings[] {
+        return [...this.files].map(([uri, state]) => toFile(uri, state));
+    }
+
     private removeIfEmpty(uri: vscode.Uri, state: FileState): void {
         if (!state.check.length && !state.ai.length && !state.needsReview.length && state.paused === undefined) {
             this.files.delete(uri.toString());
@@ -174,7 +178,7 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
 
     private refresh(): void {
         this.changed.fire(undefined);
-        this.view.badge = findingsBadge([...this.files].map(([uri, state]) => toFile(uri, state)));
+        this.view.badge = findingsBadge(this.allFiles());
         this.showStatus();
     }
 

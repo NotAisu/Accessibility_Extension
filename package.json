@@ -250,12 +250,7 @@
           "markdownDescription": "Turn Check rules off or change the severity of their Findings, by rule id, for example `{ \"image-alt\": \"off\", \"jsx-a11y-x/alt-text\": \"error\" }`. Check Findings are warnings by default. To ignore a single Finding, put `<!-- allyproof-ignore <rule id> -->` (in JSX `{/* allyproof-ignore <rule id> */}`) on the line above it.",
           "additionalProperties": {
             "type": "string",
-            "enum": [
-              "off",
-              "error",
-              "warning",
-              "information"
-            ]
+            "enum": ["off", "error", "warning", "information"]
           }
         },
         "allyproof.aiReview.provider": {
