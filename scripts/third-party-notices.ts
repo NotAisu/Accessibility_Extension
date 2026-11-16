@@ -18,13 +18,38 @@ interface PackageNotice {
     texts: string[];
 }
 
-// An SPDX expression is allowed when one OR alternative has only allowed AND terms.
-// shortcut: nested brackets fail closed, parse SPDX properly once a bundled package needs them
+// An SPDX expression is allowed when one OR alternative has only allowed AND terms, at any bracket depth.
+// AND binds tighter than OR. Anything else (WITH, `+`, malformed brackets) fails closed.
 export function isAllowedLicense(expression: string): boolean {
-    const flat = expression.trim().replace(/^\((.*)\)$/, '$1');
-    if (/[()]/.test(flat)) return false;
-    return flat.split(/\s+OR\s+/).some(alternative =>
-        alternative.split(/\s+AND\s+/).every(term => ALLOWED_LICENSES.includes(term.trim())));
+    const tokens = expression.match(/[()]|[^\s()]+/g) ?? [];
+    let pos = 0;
+    const fail = (): never => { throw new Error(`Unsupported SPDX expression: ${expression}`); };
+    const term = (): boolean => {
+        const token = tokens[pos++];
+        if (token === '(') {
+            const allowed = or();
+            if (tokens[pos++] !== ')') fail();
+            return allowed;
+        }
+        if (token === undefined || token === ')' || token === 'AND' || token === 'OR') fail();
+        return ALLOWED_LICENSES.includes(token);
+    };
+    const and = (): boolean => {
+        let allowed = term();
+        while (tokens[pos] === 'AND') { pos++; allowed = term() && allowed; }
+        return allowed;
+    };
+    const or = (): boolean => {
+        let allowed = and();
+        while (tokens[pos] === 'OR') { pos++; allowed = and() || allowed; }
+        return allowed;
+    };
+    try {
+        const allowed = or();
+        return pos === tokens.length && allowed;
+    } catch {
+        return false;
+    }
 }
 
 // Package directories of bundled input files, the innermost node_modules entry of each path
