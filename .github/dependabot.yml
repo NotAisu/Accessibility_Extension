@@ -23,6 +23,12 @@ updates:
         patterns: ["typescript", "ts-node"]
       jsdom-and-axe:
         patterns: ["jsdom", "@types/jsdom", "axe-core"]
+    ignore:
+      # The runtime floor is Node 24.15, so the Node types stay on major 24
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # The VS Code types must not exceed engines.vscode (^1.123.0), or packaging fails
+      - dependency-name: "@types/vscode"
   - package-ecosystem: github-actions
     directory: /
     schedule:
