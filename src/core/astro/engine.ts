@@ -4,9 +4,10 @@ import * as astroParser from 'astro-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import type { RenderedContent } from '../needs-review';
+import { addText, type RenderedContent, type SourceElement } from '../needs-review';
+import { rendersElements } from '../jsx/style-object';
 import { withOwnRules } from '../own-rules';
-import { RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
+import { literalValue, RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
 
 // The Astro engine as one chunk, loaded on the first Astro document.
 // eslint-plugin-astro wraps the eslint-plugin-jsx-a11y-x rules for the template, so the rules, their
@@ -74,17 +75,28 @@ interface AstroNode {
 // renders nothing, and components are opaque until Component Mapping
 function renderedContent(source: { ast: unknown; visitorKeys: Record<string, readonly string[] | undefined> }): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
-    const visit = (node: AstroNode, parent?: AstroNode) => {
-        if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
+    // `element` is the innermost element around the node, also across expressions
+    const visit = (node: AstroNode, parent?: AstroNode, element?: SourceElement) => {
+        if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) {
+            content.text = true;
+            addText(element, node.value);
+        }
         if (node.type === 'JSXExpressionContainer' && (node.expression as AstroNode).type !== 'JSXEmptyExpression'
-            && ['JSXElement', 'JSXFragment', 'AstroFragment'].includes(parent?.type ?? '')) content.text = true;
-        if (node.type === 'JSXOpeningElement') {
-            const [start, end] = node.range as [number, number];
-            content.elements.push({ tag: tagName(node), attributes: attributesOf(node), range: { start, end } });
+            && ['JSXElement', 'JSXFragment', 'AstroFragment'].includes(parent?.type ?? '')) {
+            content.text = true;
+            if (!rendersElements(node.expression)) addText(element, true);
+        }
+        if (node.type === 'JSXElement') {
+            const opening = node.openingElement as AstroNode;
+            const [start, end] = opening.range as [number, number];
+            element = { tag: tagName(opening), attributes: attributesOf(opening), range: { start, end }, parent: element };
+            // class:list and spread attributes can set the class or style
+            if ((opening.attributes as AstroNode[]).some(a => (a.name as AstroNode | undefined)?.type === 'JSXNamespacedName' || a.type === 'JSXSpreadAttribute')) element.boundStyle = true;
+            content.elements.push(element);
         }
         for (const key of source.visitorKeys[node.type] ?? []) {
             for (const child of [node[key]].flat()) {
-                if (child && typeof (child as AstroNode).type === 'string') visit(child as AstroNode, node);
+                if (child && typeof (child as AstroNode).type === 'string') visit(child as AstroNode, node, element);
             }
         }
     };
@@ -103,9 +115,8 @@ function attributesOf(element: AstroNode): Map<string, string | true> {
     for (const attribute of element.attributes as AstroNode[]) {
         const name = attribute.name as AstroNode | undefined;
         if (attribute.type === 'JSXSpreadAttribute' || name?.type !== 'JSXIdentifier') continue;
-        const value = attribute.value as AstroNode | null;
-        const literal = value?.type === 'Literal' && typeof value.value === 'string' ? value.value : true;
-        attributes.set((name.name as string).toLowerCase(), literal);
+        const lower = (name.name as string).toLowerCase();
+        attributes.set(lower, literalValue(lower, attribute.value as AstroNode | null));
     }
     return attributes;
 }

@@ -27,6 +27,20 @@
     "fp": 0,
     "fn": 0
   },
+  "1.4.3": {
+    "precision": 1,
+    "recall": 1,
+    "tp": 1,
+    "fp": 0,
+    "fn": 0
+  },
+  "1.4.11": {
+    "precision": null,
+    "recall": null,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0
+  },
   "2.1.1": {
     "precision": 0.949,
     "recall": 1,

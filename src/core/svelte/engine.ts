@@ -1,6 +1,6 @@
 import { compile, type AST, type Warning } from 'svelte/compiler';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import type { RenderedContent } from '../needs-review';
+import { addText, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 
 // The Svelte engine as one chunk, loaded on the first Svelte document.
@@ -90,6 +90,9 @@ export function checkSvelte(text: string): AnalysisResult {
     return withOwnRules(findings, renderedContent(ast));
 }
 
+// Nodes that render children inside something not known from this file
+const OPAQUE = ['Component', 'SvelteComponent', 'SvelteElement', 'SvelteSelf', 'SlotElement'];
+
 interface SvelteNode {
     type: string;
     [key: string]: unknown;
@@ -99,18 +102,29 @@ interface SvelteNode {
 // Only fragments are walked, so attribute values, the script and the style never count as rendered text
 function renderedContent(ast: AST.Root): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
-    const visit = (node: SvelteNode) => {
-        if (node.type === 'Text' && typeof node.data === 'string' && node.data.trim()) content.text = true;
-        if (node.type === 'ExpressionTag' || node.type === 'HtmlTag') content.text = true;
-        if (node.type === 'RegularElement') {
+    const visit = (node: SvelteNode, parent?: SourceElement) => {
+        if (node.type === 'Text' && typeof node.data === 'string' && node.data.trim()) {
+            content.text = true;
+            addText(parent, node.data);
+        }
+        if (node.type === 'ExpressionTag' || node.type === 'HtmlTag') {
+            content.text = true;
+            addText(parent, true);
+        }
+        if (node.type === 'RegularElement' || OPAQUE.includes(node.type)) {
             // The AST spans the whole element, so its range is the `<name` that opens it
             const start = node.start as number;
-            content.elements.push({ tag: node.name as string, attributes: attributesOf(node), range: { start, end: start + 1 + (node.name as string).length } });
+            const element: SourceElement = { tag: node.name as string, attributes: attributesOf(node), range: { start, end: start + 1 + (node.name as string).length }, parent };
+            // class: and style: directives and spread attributes change the class or style beyond its literal value
+            if ((node.attributes as SvelteNode[]).some(a => ['ClassDirective', 'StyleDirective', 'SpreadAttribute'].includes(a.type))) element.boundStyle = true;
+            // Components and dynamic elements are opaque until Component Mapping, but their children are known to be inside them
+            if (node.type === 'RegularElement') content.elements.push(element);
+            parent = element;
         }
-        if (node.type === 'Fragment') (node.nodes as SvelteNode[]).forEach(visit);
+        if (node.type === 'Fragment') (node.nodes as SvelteNode[]).forEach(child => visit(child, parent));
         // Blocks and elements hold their children in fragments (fragment, consequent, body, then, …)
         for (const value of Object.values(node)) {
-            if (value && typeof value === 'object' && (value as SvelteNode).type === 'Fragment') visit(value as SvelteNode);
+            if (value && typeof value === 'object' && (value as SvelteNode).type === 'Fragment') visit(value as SvelteNode, parent);
         }
     };
     visit(ast.fragment as unknown as SvelteNode);

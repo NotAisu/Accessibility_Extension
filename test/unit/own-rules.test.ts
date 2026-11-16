@@ -117,13 +117,14 @@ describe('own rules', () => {
         assert.ok(needsReview.some(entry => entry.criterion === '2.5.8' && !entry.range));
     });
 
-    it('reads Tailwind classes in JSX and never guesses a style expression', async () => {
-        const text = 'export const Close = () => (\n    <>\n        <button className="w-4 h-4">x</button>\n        <button style={{ width: 16, height: 16 }}>x</button>\n    </>\n);\n';
+    it('reads Tailwind classes and literal style objects in JSX and never guesses a style expression', async () => {
+        const text = 'export const Close = ({ size }) => (\n    <>\n        <button className="w-4 h-4">x</button>\n        <button style={{ width: 16, height: 16 }}>x</button>\n        <button style={{ width: size, height: size }}>x</button>\n    </>\n);\n';
 
         const { needsReview } = await analyse({ languageId: 'javascriptreact', text });
 
         assert.deepStrictEqual(needsReview.filter(entry => entry.range).map(entry => slice(text, entry.range!)), [
-            '<button className="w-4 h-4">'
+            '<button className="w-4 h-4">',
+            '<button style={{ width: 16, height: 16 }}>'
         ]);
     });
 });

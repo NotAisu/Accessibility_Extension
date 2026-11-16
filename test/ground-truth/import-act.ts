@@ -6,6 +6,7 @@
  *
  * Only static examples are kept: a single HTML code block without scripts, media,
  * frames, embedded objects or CSS, because the Check analyses source and has no layout.
+ * Text contrast keeps inline styles: static contrast decides it from literal colors.
  */
 import { execFileSync } from 'child_process';
 import * as fs from 'fs';
@@ -14,6 +15,9 @@ import { isTargetCriterion } from '../../src/core/wcag';
 import type { GroundTruthSet } from './ground-truth';
 
 const NOT_STATIC = /<script|<video|<audio|<track|<object|<embed|<iframe|<frame|<canvas|<link|<style|\sstyle=|<math/i;
+const NOT_STATIC_KEEPING_INLINE_STYLES = /<script|<video|<audio|<track|<object|<embed|<iframe|<frame|<canvas|<link|<style|<math/i;
+// Rules whose examples keep inline styles: "Text has minimum contrast"
+const INLINE_STYLE_RULES = new Set(['afw4f7']);
 
 const outcomes = { Passed: 'passed', Failed: 'failed', Inapplicable: 'inapplicable' } as const;
 
@@ -39,7 +43,7 @@ function main(clone: string) {
         if (!id || !name || criteria.length === 0) continue;
 
         for (const example of examples(markdown)) {
-            if (NOT_STATIC.test(example.code)) continue;
+            if ((INLINE_STYLE_RULES.has(id) ? NOT_STATIC_KEEPING_INLINE_STYLES : NOT_STATIC).test(example.code)) continue;
             const caseFile = `${id}-${example.outcome}-${example.number}.html`;
             const title = `${name} ${example.outcome} example ${example.number}`;
             fs.writeFileSync(path.join(casesDir, caseFile), asDocument(example.code, title));

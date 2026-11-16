@@ -4,7 +4,7 @@ import * as templateParser from '@angular-eslint/template-parser';
 import ts from 'typescript';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import type { RenderedContent } from '../needs-review';
+import { addText, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 
 // The Angular engine as one chunk, loaded on the first Angular template or component file.
@@ -160,6 +160,14 @@ interface TemplateNode {
     [key: string]: unknown;
 }
 
+// The template parser keeps Angular's binding type: 2 for [class.x], 3 for [style.x]
+const BOUND_STYLE_TYPES = [2, 3];
+
+interface BoundInput {
+    name: string;
+    __originalType?: number;
+}
+
 interface TemplateFacts {
     content: RenderedContent;
     /** The events each element binds itself, by the offset of its start tag. */
@@ -170,24 +178,35 @@ interface TemplateFacts {
 function templateFacts(ast: unknown, base: number): TemplateFacts {
     const content: RenderedContent = { text: false, elements: [] };
     const boundEvents = new Map<number, Set<string>>();
-    const visit = (node: TemplateNode) => {
-        if (node.type === 'Text' && typeof node.value === 'string' && node.value.trim()) content.text = true;
-        if (node.type === 'BoundText') content.text = true;
+    const visit = (node: TemplateNode, parent?: SourceElement) => {
+        if (node.type === 'Text' && typeof node.value === 'string' && node.value.trim()) {
+            content.text = true;
+            addText(parent, node.value);
+        }
+        if (node.type === 'BoundText') {
+            content.text = true;
+            addText(parent, true);
+        }
         if (node.type === 'Element') {
             const start = (node.sourceSpan as { start: { offset: number } }).start.offset;
             const end = (node.startSourceSpan as { end: { offset: number } }).end.offset;
-            content.elements.push({ tag: node.name as string, attributes: attributesOf(node), range: { start: base + start, end: base + end } });
+            const element: SourceElement = { tag: node.name as string, attributes: attributesOf(node), range: { start: base + start, end: base + end }, parent };
+            // [class], [class.x], [style.x], [ngClass] and [ngStyle] change the class or style beyond its literal value
+            if ((node.inputs as BoundInput[]).some(input => BOUND_STYLE_TYPES.includes(input.__originalType ?? -1)
+                || ['class', 'style', 'ngclass', 'ngstyle'].includes(input.name.toLowerCase()))) element.boundStyle = true;
+            content.elements.push(element);
             boundEvents.set(start, new Set((node.outputs as { name: string }[]).map(output => output.name)));
+            parent = element;
         }
         // Elements, ng-template and control flow blocks keep what they render in children; blocks keep
         // their branches, cases and @empty, @placeholder, @loading and @error parts beside them
         for (const key of ['children', 'branches', 'groups', 'cases', 'empty', 'placeholder', 'loading', 'error']) {
             for (const child of [node[key]].flat()) {
-                if (child && typeof child === 'object') visit(child as TemplateNode);
+                if (child && typeof child === 'object') visit(child as TemplateNode, parent);
             }
         }
     };
-    (ast as { templateNodes: TemplateNode[] }).templateNodes.forEach(visit);
+    (ast as { templateNodes: TemplateNode[] }).templateNodes.forEach(node => visit(node));
     return { content, boundEvents };
 }
 

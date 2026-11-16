@@ -4,7 +4,7 @@ import * as vueParser from 'vue-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import type { RenderedContent } from '../needs-review';
+import { addText, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 
 // The Vue engine as one chunk, loaded on the first Vue document.
@@ -97,13 +97,23 @@ interface VueNode {
 // Text and mustaches in the template and intrinsic controls; components are opaque until Component Mapping
 function renderedContent(template: VueNode | undefined): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
-    const visit = (node: VueNode) => {
-        if (node.type === 'VText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
-        if (node.type === 'VExpressionContainer') content.text = true;
+    const visit = (node: VueNode, parent?: SourceElement) => {
+        if (node.type === 'VText' && typeof node.value === 'string' && node.value.trim()) {
+            content.text = true;
+            addText(parent, node.value);
+        }
+        if (node.type === 'VExpressionContainer') {
+            content.text = true;
+            addText(parent, true);
+        }
         if (node.type === 'VElement') {
             const [start, end] = (node.startTag as { range: [number, number] }).range;
-            content.elements.push({ tag: node.name as string, attributes: attributesOf(node), range: { start, end } });
-            (node.children as VueNode[]).forEach(visit);
+            // Components keep their written name (MyButton), elements are lowercase
+            const tag = (node.rawName as string | undefined) ?? node.name as string;
+            const element: SourceElement = { tag: /^[A-Z]/.test(tag) ? tag : node.name as string, attributes: attributesOf(node), range: { start, end }, parent };
+            if (boundStyle(node)) element.boundStyle = true;
+            content.elements.push(element);
+            (node.children as VueNode[]).forEach(child => visit(child, element));
         }
     };
     // The <template> element itself renders nothing; its children do
@@ -127,6 +137,18 @@ function attributesOf(element: VueNode): Map<string, string | true> {
         }
     }
     return attributes;
+}
+
+// :class, :style, v-bind="object" and v-show change how the element renders beyond its literal class and style
+function boundStyle(element: VueNode): boolean {
+    return (element.startTag as { attributes: VueNode[] }).attributes.some(attribute => {
+        if (!attribute.directive) return false;
+        const key = attribute.key as VueNode;
+        const name = (key.name as VueNode).name;
+        const argument = key.argument as VueNode | null;
+        if (name === 'show') return true;
+        return name === 'bind' && (!argument || (argument.type === 'VIdentifier' && ['class', 'style'].includes(argument.name as string)));
+    });
 }
 
 // A rule that throws on unusual code would cost every other rule's Findings, so the document is
