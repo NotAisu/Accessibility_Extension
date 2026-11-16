@@ -41,6 +41,8 @@ interface Declared {
     hidden?: boolean;
     /** Changes how everything inside it renders: opacity, filters, blending, shadows. */
     effect?: string;
+    /** The first class that is not a known Tailwind utility: a stylesheet may give it any colors. */
+    unknownClass?: string;
 }
 
 export function contrast(content: RenderedContent): ContrastResult {
@@ -78,6 +80,7 @@ type Outcome = { finding: Finding } | { pass: true } | { unknown: true } | { unc
 function textContrast(element: SourceElement, context: Context): Outcome {
     // Nothing in this file colors the text: stylesheets decide it, which the general entry already says
     if (!context.colorsDeclared(element)) return { unknown: true };
+    if (context.content.stylesheetColors) return { uncertain: `text contrast is uncertain: ${STYLESHEET_COLORS}.` };
     const effect = context.effect(element);
     const color = context.inherited(element, 'color');
     const background = context.background(element);
@@ -123,6 +126,9 @@ function nonTextContrast(element: SourceElement, context: Context): Outcome | { 
     const effect = context.effect(element);
     const resolved = [own.borderColor, surrounding, field];
     if (resolved.some(r => 'unknown' in r)) return { none: true };
+    if (context.content.stylesheetColors) return { uncertain: `${NON_TEXT}the field's boundary contrast is uncertain: ${STYLESHEET_COLORS}.` };
+    const unknownClass = context.unknownClass(element);
+    if (unknownClass) return { uncertain: `${NON_TEXT}the field's boundary contrast is uncertain: ${unknownClass}.` };
     if (effect) return { uncertain: `${NON_TEXT}the field's boundary contrast is uncertain: ${effect} changes the rendered colors.` };
     const uncertain = resolved.find((r): r is { uncertain: string } => 'uncertain' in r);
     if (uncertain) return { uncertain: `${NON_TEXT}the field's boundary contrast is uncertain: ${uncertain.uncertain}.` };
@@ -145,6 +151,8 @@ function nonTextContrast(element: SourceElement, context: Context): Outcome | { 
         }
     };
 }
+
+const STYLESHEET_COLORS = 'a <style> block or component styles in this file set colors';
 
 function isTextField({ tag, attributes }: SourceElement): boolean {
     const type = attributes.get('type');
@@ -181,7 +189,7 @@ class Context {
     // Ids an element with a disabled state names as its label
     private readonly disabledLabels = new Set<string>();
 
-    constructor(private readonly content: RenderedContent) {
+    constructor(readonly content: RenderedContent) {
         for (const element of content.elements) {
             if (!isDisabled(element)) continue;
             const labelledBy = element.attributes.get('aria-labelledby');
@@ -258,6 +266,12 @@ class Context {
         return this.rootBackground();
     }
 
+    /** Why a class on the element may set its colors; classes are inert where only the browser's styles apply. */
+    unknownClass(e: SourceElement): string | undefined {
+        const name = this.content.userAgentStylesOnly ? undefined : this.declared(e).unknownClass;
+        return name === undefined ? undefined : `class ${name} may set colors`;
+    }
+
     rootBackground(): Resolved<Rgb> {
         return this.content.userAgentStylesOnly ? { value: WHITE } : { unknown: true };
     }
@@ -306,7 +320,8 @@ class Context {
         }
         if (e !== start && isComponent(e)) return this.anyDeclared(start, e) ? { uncertain: `it is inside the component <${e.tag}>, whose styles are not known` } : { unknown: true };
         if (e === start && isComponent(e)) return { unknown: true };
-        return undefined;
+        const unknownClass = this.unknownClass(e);
+        return unknownClass ? { uncertain: unknownClass } : undefined;
     }
 
     // Whether something between the element and `until` declares a color, so the uncertainty is worth naming
@@ -447,6 +462,45 @@ const TAILWIND_BOLD: Record<string, boolean> = {
 };
 const palette = tailwindColors;
 
+// What text- and bg- utilities take besides colors and font sizes
+const TEXT_VALUES = new Set(['left', 'center', 'right', 'justify', 'start', 'end', 'ellipsis', 'clip', 'wrap', 'nowrap', 'balance', 'pretty']);
+const BG_VALUES = /^(fixed|local|scroll|auto|cover|contain|none|repeat(-x|-y|-round|-space)?|no-repeat|(left|right|top|bottom|center)(-(top|bottom|left|right))?|(clip|origin)-(border|padding|content)|blend-.+|size-.+|position-.+|\[length:.+\]|\[position:.+\]|\[size:.+\])$/;
+
+// Tailwind utilities that set no colors, as a bare name and as a prefix before `-value`. Color utilities of
+// borders, rings, outlines, shadows, decorations, carets, accents and SVG paint change no text or background color.
+const UTILITY_NAMES = new Set([
+    'block', 'inline', 'inline-block', 'flex', 'inline-flex', 'grid', 'inline-grid', 'flow-root', 'contents', 'table', 'inline-table',
+    'list-item', 'static', 'fixed', 'absolute', 'relative', 'sticky', 'visible', 'collapse', 'isolate', 'container', 'truncate',
+    'italic', 'not-italic', 'underline', 'overline', 'line-through', 'no-underline', 'uppercase', 'lowercase', 'capitalize',
+    'normal-case', 'antialiased', 'subpixel-antialiased', 'not-sr-only', 'ordinal', 'slashed-zero', 'lining-nums', 'oldstyle-nums',
+    'proportional-nums', 'tabular-nums', 'diagonal-fractions', 'stacked-fractions', 'normal-nums', 'group', 'peer', 'transform', 'transition'
+]);
+const UTILITY_PREFIXES = new Set([
+    'p', 'px', 'py', 'pt', 'pr', 'pb', 'pl', 'ps', 'pe', 'm', 'mx', 'my', 'mt', 'mr', 'mb', 'ml', 'ms', 'me', 'space-x', 'space-y',
+    'gap', 'gap-x', 'gap-y', 'w', 'h', 'min-w', 'min-h', 'max-w', 'max-h', 'size', 'inset', 'inset-x', 'inset-y', 'top', 'right',
+    'bottom', 'left', 'start', 'end', 'z', 'order', 'col', 'row', 'basis', 'flex', 'grow', 'shrink', 'grid', 'grid-cols', 'grid-rows',
+    'auto-cols', 'auto-rows', 'justify', 'items', 'content', 'self', 'place', 'rounded', 'border', 'divide', 'shadow', 'inset-shadow',
+    'ring', 'inset-ring', 'outline', 'font', 'leading', 'tracking', 'decoration', 'underline-offset', 'indent', 'align', 'whitespace',
+    'break', 'hyphens', 'list', 'line-clamp', 'aspect', 'columns', 'object', 'overflow', 'overscroll', 'cursor', 'select',
+    'pointer-events', 'resize', 'scroll', 'snap', 'touch', 'will-change', 'transition', 'duration', 'ease', 'delay', 'animate',
+    'scale', 'rotate', 'translate', 'skew', 'origin', 'transform', 'perspective', 'backface', 'fill', 'stroke', 'accent', 'caret',
+    'appearance', 'box', 'box-decoration', 'float', 'clear', 'isolation', 'table', 'border-spacing', 'caption', 'wrap', 'field-sizing',
+    'tab', 'zoom', 'from', 'via', 'to', 'display', 'forced-color-adjust', 'mask', 'text-shadow', 'drop-shadow', 'outline-offset', 'ring-offset', 'opacity'
+]);
+
+// A class Tailwind knows; the color and font-size utilities are read before this is asked
+function isUtility(name: string): boolean {
+    const bare = name.replace(/^-/, '');
+    if (UTILITY_NAMES.has(bare) || UTILITY_PREFIXES.has(bare)) return true;
+    // An arbitrary property sets what it names, so one that colors the text or background is not known
+    const property = /^\[([a-z-]+):.+\]$/.exec(bare)?.[1];
+    if (property) return !/color|background|opacity|filter|shadow|blend|scheme/.test(property);
+    for (let dash = bare.lastIndexOf('-'); dash > 0; dash = bare.lastIndexOf('-', dash - 1)) {
+        if (UTILITY_PREFIXES.has(bare.slice(0, dash))) return true;
+    }
+    return false;
+}
+
 // A Tailwind color name: `white`, `red-500`, or an arbitrary value `[#aaa]`; with an opacity modifier it is semi-transparent
 function tailwindColor(name: string): Resolved<Rgb> | 'transparent' | undefined {
     if (name === 'transparent') return 'transparent';
@@ -472,6 +526,7 @@ function tailwindColor(name: string): Resolved<Rgb> | 'transparent' | undefined 
 // Only classes without a variant: hover:, md: or dark: apply in some states only, and the base state is what is judged
 function tailwind(classList: string): Declared {
     const declared: Declared = {};
+    const unknown = (name: string) => { declared.unknownClass ??= name; };
     for (const raw of classList.split(/\s+/)) {
         const name = raw.replace(/^!|!$/g, '');
         if (!name || /^[^[]*:/.test(name)) continue;
@@ -489,10 +544,14 @@ function tailwind(classList: string): Declared {
             else {
                 const resolved = tailwindColor(value);
                 if (resolved) declared.color = resolved;
+                else if (!TEXT_VALUES.has(value)) unknown(name);
             }
         } else if (name.startsWith('bg-')) {
-            const resolved = tailwindColor(name.slice('bg-'.length));
+            const value = name.slice('bg-'.length);
+            const resolved = tailwindColor(value);
             if (resolved) declared.background = resolved;
+            else if (value === 'clip-text') declared.effect = name;
+            else if (!BG_VALUES.test(value)) unknown(name);
         } else if (name.startsWith('font-') && TAILWIND_BOLD[name.slice('font-'.length)] !== undefined) {
             declared.bold = TAILWIND_BOLD[name.slice('font-'.length)];
         } else if (/^border(-[0-9]+)?$/.test(name)) {
@@ -500,6 +559,8 @@ function tailwind(classList: string): Declared {
         } else if (name.startsWith('border-')) {
             const resolved = tailwindColor(name.slice('border-'.length));
             if (resolved) declared.borderColor = resolved === 'transparent' ? { uncertain: 'the border is transparent' } : resolved;
+        } else if (!isUtility(name)) {
+            unknown(name);
         }
     }
     return declared;

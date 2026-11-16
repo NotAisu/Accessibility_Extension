@@ -25,6 +25,21 @@ export interface RenderedContent {
      * stylesheets or scripts. Its default colors and font sizes are then known.
      */
     userAgentStylesOnly?: boolean;
+    /** A `<style>` block or the component's own styles declare colors, which any element may get. */
+    stylesheetColors?: boolean;
+}
+
+// A declaration of a text, background or border color, or of something that changes how colors render
+const COLOR_DECLARATION = /(?:^|[{;\s])(?:color|background(?:-color|-image)?|border(?:-[a-z]+)*|opacity|filter|mix-blend-mode|text-shadow)\s*:/i;
+
+/** Whether CSS declares colors. */
+export function cssSetsColors(css: string): boolean {
+    return COLOR_DECLARATION.test(css.replace(/\/\*[\s\S]*?\*\//g, ''));
+}
+
+/** Whether a `<style>` element in a template's source declares colors. */
+export function styleBlocksSetColors(source: string): boolean {
+    return [...source.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)].some(([, css]) => cssSetsColors(css));
 }
 
 /** Records text directly inside an element: literal text, or an expression that renders some. */

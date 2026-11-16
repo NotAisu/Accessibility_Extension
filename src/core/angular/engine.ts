@@ -4,7 +4,7 @@ import * as templateParser from '@angular-eslint/template-parser';
 import ts from 'typescript';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import { addText, type RenderedContent, type SourceElement } from '../needs-review';
+import { addText, cssSetsColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 
 // The Angular engine as one chunk, loaded on the first Angular template or component file.
@@ -75,8 +75,9 @@ export function checkAngularTemplate(text: string): AnalysisResult {
 /** The inline `template` strings of the `@Component` decorators in a TypeScript file. */
 export function checkAngularComponents(text: string): AnalysisResult {
     const findings: Finding[] = [];
-    const content: RenderedContent = { text: false, elements: [] };
-    for (const template of inlineTemplates(text)) {
+    const { templates, stylesheetColors } = components(text);
+    const content: RenderedContent = { text: false, elements: [], stylesheetColors };
+    for (const template of templates) {
         const checked = checkTemplate(template.text, template.start);
         findings.push(...checked.findings);
         content.text ||= checked.content.text;
@@ -127,8 +128,9 @@ interface InlineTemplate {
 }
 
 // The raw literal text is linted, so template offsets map one to one onto the file; components with a
-// templateUrl are checked in their template file
-function inlineTemplates(text: string): InlineTemplate[] {
+// templateUrl are checked in their template file. Component styles set colors when inline `styles` declare
+// some, or when they come from a file (styleUrl, styleUrls), whose colors are not known.
+function components(text: string): { templates: InlineTemplate[]; stylesheetColors: boolean } {
     const source = ts.createSourceFile('component.ts', text, ts.ScriptTarget.Latest, true);
     // Unparseable code must not read as a clean file; the parser recovers, and may lose a template doing so.
     // parseDiagnostics is internal but the only way to get syntax errors without a program
@@ -137,13 +139,18 @@ function inlineTemplates(text: string): InlineTemplate[] {
         throw new ParseError(`Parse error at offset ${syntaxError.start}: ${ts.flattenDiagnosticMessageText(syntaxError.messageText, ' ')}`);
     }
     const templates: InlineTemplate[] = [];
+    let stylesheetColors = false;
     const visit = (node: ts.Node) => {
         if (ts.isDecorator(node) && ts.isCallExpression(node.expression) && ts.isIdentifier(node.expression.expression)
             && node.expression.expression.text === 'Component') {
             const metadata = node.expression.arguments[0];
             if (metadata && ts.isObjectLiteralExpression(metadata)) {
-                const template = metadata.properties.find(p => ts.isPropertyAssignment(p) && p.name.getText(source) === 'template');
-                const initializer = template && (template as ts.PropertyAssignment).initializer;
+                const property = (name: string) => metadata.properties.find(p => ts.isPropertyAssignment(p) && p.name.getText(source) === name) as ts.PropertyAssignment | undefined;
+                const styles = property('styles')?.initializer;
+                if (styles && cssSetsColors(styles.getText(source))) stylesheetColors = true;
+                if (property('styleUrl') || property('styleUrls')) stylesheetColors = true;
+                const template = property('template');
+                const initializer = template?.initializer;
                 if (initializer && (ts.isStringLiteral(initializer) || ts.isNoSubstitutionTemplateLiteral(initializer))) {
                     const start = initializer.getStart(source) + 1;
                     templates.push({ text: text.slice(start, initializer.getEnd() - 1), start });
@@ -153,7 +160,7 @@ function inlineTemplates(text: string): InlineTemplate[] {
         ts.forEachChild(node, visit);
     };
     visit(source);
-    return templates;
+    return { templates, stylesheetColors };
 }
 
 interface TemplateNode {

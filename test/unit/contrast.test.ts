@@ -140,7 +140,22 @@ describe('static contrast: uncertain colors stay Needs Review with the reason', 
         ['a bound class in Vue', 'vue', '<template>\n    <div class="bg-white"><p :class="tone">Toned</p></div>\n</template>\n', /binds its class or style/],
         ['a component in between', 'javascriptreact', 'export const A = () => <div className="bg-black"><Card><p className="text-gray-800">Inside</p></Card></div>;\n', /component <Card>/],
         ['an unknown font size', 'javascriptreact', 'export const A = () => <p style={{ color: \'#949494\', background: \'#fff\' }}>Maybe large</p>;\n', /passes only as large text/],
-        ['the browser\'s button colors', 'vue', '<template>\n    <div style="color: #777"><button>Save</button></div>\n</template>\n', /browser's own text color of <button>/]
+        ['the browser\'s button colors', 'vue', '<template>\n    <div style="color: #777"><button>Save</button></div>\n</template>\n', /browser's own text color of <button>/],
+        ['a class on an ancestor that is not a Tailwind utility', 'javascriptreact', 'export const A = () => <div className="card-dark" style={{ background: \'#000\' }}><p className="text-gray-800">Inside</p></div>;\n', /class card-dark may set colors/],
+        ['a class on the text that is not a Tailwind utility', 'vue', '<template>\n    <p class="note text-gray-400 bg-white">Note</p>\n</template>\n', /class note may set colors/],
+        ['a Vue <style> block that sets colors', 'vue', '<template>\n    <p style="color: #777; background: #fff">Note</p>\n</template>\n<style scoped>\np { color: black; }\n</style>\n', /<style> block or component styles in this file set colors/],
+        ['a Svelte <style> block that sets colors', 'svelte', '<p style="color: #777; background: #fff">Note</p>\n<style>\n    p { background-color: black; }\n</style>\n', /<style> block or component styles in this file set colors/],
+        ['an Astro <style> block that sets colors', 'astro', '---\n---\n<p style="color: #777; background: #fff">Note</p>\n<style>p { color: #000; }</style>\n', /<style> block or component styles in this file set colors/],
+        ['Angular component styles that set colors', 'typescript', [
+            'import { Component } from \'@angular/core\';',
+            '@Component({',
+            '    selector: \'app-note\',',
+            '    template: `<p style="color: #777; background: #fff">Note</p>`,',
+            '    styles: [`p { color: black; }`]',
+            '})',
+            'export class NoteComponent {}',
+            ''
+        ].join('\n'), /<style> block or component styles in this file set colors/]
     ];
 
     for (const [name, languageId, text, reason] of cases) {
@@ -177,6 +192,22 @@ describe('static contrast: uncertain colors stay Needs Review with the reason', 
         assert.deepStrictEqual(contrastFindings(result, text), []);
         assert.ok(contrastReasons(result).some(r => /background color is not set in this file/.test(r)));
     });
+});
+
+describe('static contrast: classes and style blocks that cannot set colors', () => {
+    const failing: [string, string, string][] = [
+        ['Tailwind utilities that set no colors', 'javascriptreact', 'export const A = () => <p className="p-4 mt-2 flex items-center rounded-lg shadow w-full text-gray-300 bg-white">Optional</p>;\n'],
+        ['classes in a page with browser styles only', 'html', page('<p class="card-dark" style="color:#777">Muted text</p>')],
+        ['a <style> block that sets no colors', 'vue', '<template>\n    <p style="color: #aaa; background: #fff">Note</p>\n</template>\n<style>\np { margin: 0; }\n</style>\n']
+    ];
+
+    for (const [name, languageId, text] of failing) {
+        it(`still reports the contrast for ${name}`, async () => {
+            const result = await analyse({ languageId, text });
+
+            assert.deepStrictEqual(contrastFindings(result, text).map(([rule]) => rule), ['allyproof/text-contrast']);
+        });
+    }
 });
 
 describe('static contrast: no false positives', () => {

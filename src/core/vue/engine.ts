@@ -4,7 +4,7 @@ import * as vueParser from 'vue-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import { addText, type RenderedContent, type SourceElement } from '../needs-review';
+import { addText, styleBlocksSetColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 
 // The Vue engine as one chunk, loaded on the first Vue document.
@@ -86,7 +86,9 @@ export function checkVue(text: string): AnalysisResult {
         });
     }
     const ast = linter.getSourceCode().ast as { templateBody?: VueNode };
-    return withOwnRules(findings, renderedContent(ast.templateBody), { inputPurpose: true });
+    const content = renderedContent(ast.templateBody);
+    content.stylesheetColors = styleBlocksSetColors(text);
+    return withOwnRules(findings, content, { inputPurpose: true });
 }
 
 interface VueNode {

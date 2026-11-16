@@ -1,6 +1,6 @@
 import { compile, type AST, type Warning } from 'svelte/compiler';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import { addText, type RenderedContent, type SourceElement } from '../needs-review';
+import { addText, cssSetsColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 
 // The Svelte engine as one chunk, loaded on the first Svelte document.
@@ -87,7 +87,9 @@ export function checkSvelte(text: string): AnalysisResult {
             helpUrl: helpUrl ?? `https://svelte.dev/e/${warning.code}`
         });
     }
-    return withOwnRules(findings, renderedContent(ast));
+    const content = renderedContent(ast);
+    content.stylesheetColors = ast.css !== null && cssSetsColors(ast.css.content.styles);
+    return withOwnRules(findings, content);
 }
 
 // Nodes that render children inside something not known from this file

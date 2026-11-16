@@ -5,7 +5,7 @@ import * as axe from 'axe-core/axe.min.js';
 import { normalizeRuleId } from '../rule-id-normalizer';
 import { isTargetCriterion } from '../wcag';
 import { withOwnRules } from '../own-rules';
-import { addText, type SourceElement } from '../needs-review';
+import { addText, cssSetsColors, type SourceElement } from '../needs-review';
 import type { AnalysisResult, Finding, TextRange } from '../analysis';
 
 const AXE_TIMEOUT_MS = 5000;
@@ -59,7 +59,8 @@ async function runAxe(text: string): Promise<AnalysisResult> {
             text: Boolean(document.body?.textContent?.trim()),
             elements: sourceElements(dom),
             // Without stylesheets or scripts nothing but inline styles changes the browser's default styles
-            userAgentStylesOnly: !document.querySelector('style, link[rel~="stylesheet" i], script')
+            userAgentStylesOnly: !document.querySelector('style, link[rel~="stylesheet" i], script'),
+            stylesheetColors: [...document.querySelectorAll('style')].some(style => cssSetsColors(style.textContent ?? ''))
         });
     } finally {
         dom.window.close();

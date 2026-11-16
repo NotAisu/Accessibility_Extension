@@ -4,7 +4,7 @@ import * as astroParser from 'astro-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import { addText, type RenderedContent, type SourceElement } from '../needs-review';
+import { addText, styleBlocksSetColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { rendersElements } from '../jsx/style-object';
 import { withOwnRules } from '../own-rules';
 import { literalValue, RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
@@ -63,7 +63,9 @@ export function checkAstro(text: string): AnalysisResult {
             helpUrl: docs?.extensionRule?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
-    return withOwnRules(findings, renderedContent(linter.getSourceCode()));
+    const content = renderedContent(linter.getSourceCode());
+    content.stylesheetColors = styleBlocksSetColors(text);
+    return withOwnRules(findings, content);
 }
 
 interface AstroNode {
