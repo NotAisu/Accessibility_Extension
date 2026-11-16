@@ -23,7 +23,8 @@
   "exclude": [
     "node_modules",
     ".vscode-test",
-    "test/ground-truth/*/cases"
+    "test/ground-truth/*/cases",
+    "test/unit/fixtures/typical"
   ],
   "ts-node": {
     "files": true

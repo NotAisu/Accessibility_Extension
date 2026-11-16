@@ -88,6 +88,16 @@ describe('AnalysisWorker', () => {
         assert.strictEqual(echoed(otherEngine).text, 'slow:400');
     });
 
+    it('reports how long each run took and whether it also loaded its engine', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE);
+
+        const first = await worker.check('a.html', html('ok'));
+        const warm = await worker.check('a.html', html('slow:200'));
+
+        assert.ok(first.status === 'done' && first.firstLoad);
+        assert.ok(warm.status === 'done' && !warm.firstLoad && warm.durationMs >= 190, JSON.stringify(warm));
+    });
+
     it('pauses an engine for the session after 3 failures within 3 minutes', async () => {
         worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 200 });
         await worker.check('a.html', html('fail'));

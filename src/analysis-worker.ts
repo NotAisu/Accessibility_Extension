@@ -3,7 +3,8 @@ import type { AnalysisDocument, AnalysisOptions, AnalysisResult } from './core/a
 import type { WorkerReply, WorkerRequest } from './core/worker';
 
 export type CheckOutcome =
-    | { status: 'done'; result: AnalysisResult }
+    /** `durationMs`: how long the run took in the worker; `firstLoad`: the run also loaded its engine. */
+    | { status: 'done'; result: AnalysisResult; durationMs: number; firstLoad: boolean }
     /** A newer version of the document was requested before this one ran. */
     | { status: 'dropped' }
     /** The Check could not run; the last Findings stay. */
@@ -32,7 +33,7 @@ interface Request {
 /** Runs the Check in one long-lived worker thread (ADR 0003), one request at a time. */
 export class AnalysisWorker {
     private worker: Worker | undefined;
-    private running: { request: Request; deadline: NodeJS.Timeout } | undefined;
+    private running: { request: Request; deadline: NodeJS.Timeout; started: number; firstLoad: boolean } | undefined;
     // At most one pending request per document: the newest wins
     private readonly pending = new Map<string, Request>();
 
@@ -79,14 +80,15 @@ export class AnalysisWorker {
             return this.next();
         }
         this.worker ??= this.spawn();
-        const deadlineMs = this.loaded.has(engine) ? this.deadlineMs : this.firstLoadMs;
+        const firstLoad = !this.loaded.has(engine);
+        const deadlineMs = firstLoad ? this.firstLoadMs : this.deadlineMs;
         const deadline = setTimeout(() => {
             // A synchronous engine cannot be interrupted, only its thread can be ended
             void this.worker?.terminate();
             this.worker = undefined;
             this.finish({ status: 'paused', reason: `The Check took longer than ${deadlineMs} ms`, deadlineExceeded: true });
         }, deadlineMs);
-        this.running = { request, deadline };
+        this.running = { request, deadline, started: this.now(), firstLoad };
         this.worker.postMessage({ document: request.document, options: request.options } satisfies WorkerRequest);
     }
 
@@ -111,8 +113,10 @@ export class AnalysisWorker {
         this.loaded = new Set();
         worker.on('message', (reply: WorkerReply) => {
             if (worker !== this.worker) return;
-            if (this.running) this.loaded.add(this.running.request.document.languageId);
-            if ('result' in reply) this.finish({ status: 'done', result: reply.result });
+            if (!this.running) return;
+            const { request, started, firstLoad } = this.running;
+            this.loaded.add(request.document.languageId);
+            if ('result' in reply) this.finish({ status: 'done', result: reply.result, durationMs: this.now() - started, firstLoad });
             else if ('parseError' in reply) this.finish({ status: 'paused', reason: reply.parseError, deadlineExceeded: false }, false);
             else this.finish({ status: 'paused', reason: reply.error, deadlineExceeded: false });
         });

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Order summary – Example Shop</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a href="/" class="logo"><img src="logo.svg" alt="Example Shop"></a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="/products">Products</a></li>
+        <li><a href="/offers">Offers</a></li>
+        <li><a href="/help">Help</a></li>
+        <li><a href="/account">Account</a></li>
+      </ul>
+    </nav>
+    <form role="search" action="/search">
+      <label for="q">Search</label>
+      <input id="q" name="q" type="search">
+      <button type="submit">Go</button>
+    </form>
+  </header>
+  <main id="main">
+    <h1>Order summary</h1>
+    <section aria-labelledby="items-heading">
+      <h2 id="items-heading">Items</h2>
+      <table>
+        <caption>Items in your order</caption>
+        <thead>
+          <tr><th scope="col">Product</th><th scope="col">Quantity</th><th scope="col">Price</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Desk lamp</td><td>1</td><td>€39.00</td></tr>
+          <tr><td>Notebook, A5</td><td>3</td><td>€12.00</td></tr>
+          <tr><td>Fountain pen</td><td>1</td><td>€24.50</td></tr>
+          <tr><td>Ink cartridges</td><td>2</td><td>€6.00</td></tr>
+        </tbody>
+      </table>
+      <img src="promo.png">
+    </section>
+    <section aria-labelledby="delivery-heading">
+      <h2 id="delivery-heading">Delivery</h2>
+      <form action="/checkout" method="post">
+        <div class="field">
+          <label for="name">Full name</label>
+          <input id="name" name="name" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="street">Street address</label>
+          <input id="street" name="street" autocomplete="street-address">
+        </div>
+        <div class="field">
+          <label for="zip">Postal code</label>
+          <input id="zip" name="zip" autocomplete="postal-code">
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email">
+        </div>
+        <div class="field">
+          <input name="phone" type="tel" placeholder="Phone">
+        </div>
+        <fieldset>
+          <legend>Shipping</legend>
+          <label><input type="radio" name="ship" value="standard" checked> Standard (3–5 days)</label>
+          <label><input type="radio" name="ship" value="express"> Express (1 day)</label>
+        </fieldset>
+        <div class="field">
+          <label for="notes">Notes for the courier</label>
+          <textarea id="notes" name="notes" rows="3"></textarea>
+        </div>
+        <button type="submit" class="primary">Place order</button>
+        <div class="secondary" onclick="history.back()">Back</div>
+      </form>
+    </section>
+    <aside aria-label="Help">
+      <h2>Need help?</h2>
+      <p>Call us on <a href="tel:+4930123456">030 123456</a> or <a href="/contact">write to us</a>.</p>
+      <p style="color: #999; background-color: #fff">Opening hours: Monday to Friday, 9:00 to 17:00.</p>
+      <a href="/faq"><i class="icon-question"></i></a>
+    </aside>
+  </main>
+  <footer>
+    <p>&copy; 2026 Example Shop</p>
+    <ul>
+      <li><a href="/imprint">Imprint</a></li>
+      <li><a href="/privacy">Privacy</a></li>
+      <li><a href="/terms">Terms</a></li>
+    </ul>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -29,6 +29,10 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
     const fixes = new CheckFixes(check);
     const aiReview = new AIReview(context, checked, (document, scope) => check.findingsOf(document, scope), tree);
     const runDiagnostics = (document: vscode.TextDocument) => checkDocument(check, document);
+    const forget = (uri: vscode.Uri) => {
+        check.delete(uri);
+        aiReview.delete(uri);
+    };
 
     context.subscriptions.push(
         tree,
@@ -44,6 +48,9 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
         vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),
         vscode.commands.registerCommand('allyproof.disableRule', disableRule),
         vscode.workspace.onDidOpenTextDocument(runDiagnostics),
+        vscode.workspace.onDidChangeTextDocument(({ document, contentChanges }) => {
+            if (contentChanges.length > 0) check.changed(document, () => void runDiagnostics(document));
+        }),
         vscode.workspace.onDidSaveTextDocument(async document => {
             await runDiagnostics(document);
             aiReview.reviewOnSave(document);
@@ -56,10 +63,12 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
             }
         }),
         vscode.workspace.onDidGrantWorkspaceTrust(() => void aiReview.showIdle()),
-        vscode.workspace.onDidCloseTextDocument(document => {
-            check.delete(document.uri);
-            aiReview.delete(document.uri);
-        })
+        vscode.workspace.onDidCloseTextDocument(document => forget(document.uri)),
+        // VS Code closes a document some time after its last tab, so its Findings go with the tab
+        vscode.window.tabGroups.onDidChangeTabs(({ closed }) => closed.forEach(tab => {
+            const uri = tab.input instanceof vscode.TabInputText ? tab.input.uri : undefined;
+            if (uri && !shownInTab(uri)) forget(uri);
+        }))
     );
     void vscode.commands.executeCommand('setContext', 'allyproof.aiAvailable', aiAvailable());
     if (lmAvailable) {
@@ -74,6 +83,11 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
     if (context.extensionMode === vscode.ExtensionMode.Test) {
         return { findings: tree, findingsStatus: tree.status, aiReviewStatus: aiReview.status };
     }
+}
+
+function shownInTab(uri: vscode.Uri): boolean {
+    return vscode.window.tabGroups.all.some(group => group.tabs.some(tab =>
+        tab.input instanceof vscode.TabInputText && tab.input.uri.toString() === uri.toString()));
 }
 
 // TypeScript files only while they hold an Angular component, as the Check's own gate decides

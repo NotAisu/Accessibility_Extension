@@ -1,0 +1,46 @@
+<section class="profile" *ngIf="user$ | async as user; else loading">
+  <header>
+    <img [src]="user.avatar">
+    <h1>{{ user.name }}</h1>
+    <p class="role">{{ user.role }}</p>
+  </header>
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <div class="field">
+      <label for="display-name">Display name</label>
+      <input id="display-name" formControlName="displayName" autocomplete="nickname">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input formControlName="email" type="email">
+    </div>
+    <div class="field">
+      <label for="bio">About you</label>
+      <textarea id="bio" formControlName="bio" rows="4"></textarea>
+    </div>
+    <fieldset>
+      <legend>Notifications</legend>
+      <label *ngFor="let channel of channels">
+        <input type="checkbox" [formControlName]="channel.key"> {{ channel.label }}
+      </label>
+    </fieldset>
+    <div class="actions">
+      <button type="submit" [disabled]="form.invalid">Save</button>
+      <div class="cancel" (click)="cancel()">Cancel</div>
+      <a routerLink="/settings" tabindex="2">More settings</a>
+    </div>
+  </form>
+  <section class="activity">
+    <h2>Recent activity</h2>
+    <table>
+      <tr><th>Date</th><th>Action</th></tr>
+      <tr *ngFor="let entry of user.activity">
+        <td>{{ entry.date | date }}</td>
+        <td>{{ entry.action }}</td>
+      </tr>
+    </table>
+    <button (click)="loadMore()"></button>
+  </section>
+</section>
+<ng-template #loading>
+  <p class="loading" style="color: #bbb; background-color: white">Loading…</p>
+</ng-template>

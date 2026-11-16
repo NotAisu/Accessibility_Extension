@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { AnalysisWorker, CheckOutcome } from './analysis-worker';
+import { CheckSchedule } from './check-schedule';
 import { AnalysisDocument, AnalysisOptions, checkLanguageId, Finding, RuleSetting } from './core/analysis';
 import { criterionName, criterionUrl } from './core/wcag';
 import type { FindingsTree } from './findings-tree';
@@ -22,8 +23,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof');
     private readonly reported = new Map<string, { version: number; findings: Reported[] }>();
     private worker: AnalysisWorker | undefined;
-    // Documents whose Check missed its deadline are checked on save only: never with unsaved changes
-    private readonly onSaveOnly = new Set<string>();
+    private readonly schedule = new CheckSchedule();
     private agentRequests = 0;
 
     constructor(private readonly tree: FindingsTree) {}
@@ -35,11 +35,11 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
 
     async update(document: vscode.TextDocument): Promise<void> {
         const uri = document.uri.toString();
-        if (!this.worker || (document.isDirty && this.onSaveOnly.has(uri))) return;
+        if (!this.worker || !this.schedule.mayCheck(uri, { unsaved: document.isDirty })) return;
         const version = document.version;
         const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() }, options(document));
-        // A missed deadline counts even when the document changed meanwhile
-        if (outcome.status === 'paused' && outcome.deadlineExceeded) this.onSaveOnly.add(uri);
+        // How long the run took counts even when the document changed meanwhile
+        this.schedule.measured(uri, outcome);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
         if (outcome.status === 'paused') return this.tree.setPaused(document.uri, outcome.reason);
         this.tree.setCheck(document, outcome.result);
@@ -51,6 +51,11 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         }));
         this.reported.set(document.uri.toString(), { version, findings: reported });
         this.collection.set(document.uri, reported.map(({ range, finding }) => toDiagnostic(range, finding)));
+    }
+
+    /** Runs `check` once the document stopped changing; a document whose Check is slow waits for its save. */
+    changed(document: vscode.TextDocument, check: () => void): void {
+        this.schedule.changed(document.uri.toString(), check);
     }
 
     /** Check Findings of exactly this text of the file at `scope`, for the AI Review; none while the Check is paused. */
@@ -75,7 +80,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
 
     delete(uri: vscode.Uri): void {
         this.reported.delete(uri.toString());
-        this.onSaveOnly.delete(uri.toString());
+        this.schedule.delete(uri.toString());
         this.collection.delete(uri);
         this.tree.deleteCheck(uri);
     }
@@ -87,6 +92,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     }
 
     dispose(): void {
+        this.schedule.dispose();
         this.worker?.dispose();
         this.collection.dispose();
         this.reported.clear();

@@ -1,0 +1,56 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  posts: { slug: string; title: string; date: Date; cover?: string }[];
+}
+
+const { title, description = 'A blog about the web', posts } = Astro.props;
+const year = new Date().getFullYear();
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Header />
+    <main id="main">
+      <h1>{title}</h1>
+      <p class="intro text-gray-400 bg-white">{description}</p>
+      <ul class="posts">
+        {posts.map(post => (
+          <li>
+            <a href={`/posts/${post.slug}`}>
+              {post.cover && <img src={post.cover} />}
+              <h2>{post.title}</h2>
+              <time datetime={post.date.toISOString()}>{post.date.toLocaleDateString('en')}</time>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <form action="/subscribe" method="post">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" />
+        <input name="name" placeholder="Name" />
+        <button type="submit">Subscribe</button>
+      </form>
+      <div class="share" onclick="share()">Share</div>
+      <a href="/rss.xml"></a>
+      <iframe src="https://example.com/embed"></iframe>
+    </main>
+    <Footer year={year} />
+  </body>
+</html>
+
+<style>
+  .skip-link { position: absolute; left: -999px; }
+  .skip-link:focus { left: 1rem; }
+  .posts { display: grid; gap: 2rem; }
+</style>

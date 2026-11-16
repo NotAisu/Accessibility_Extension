@@ -5,7 +5,7 @@ import { CheckToolInput, CheckToolOutput, CheckToolPorts, runCheckTool } from '.
 const ports: CheckToolPorts = {
     languages: ['html', 'javascriptreact', 'typescriptreact'],
     read: filePath => Promise.reject(new Error(`File not found: ${filePath}`)),
-    check: async document => ({ status: 'done', result: await analyse(document) })
+    check: async document => ({ status: 'done', result: await analyse(document), durationMs: 0, firstLoad: false })
 };
 
 async function run(input: CheckToolInput, withPorts = ports): Promise<CheckToolOutput> {
