@@ -11,6 +11,8 @@ export type CheckOutcome =
 
 export interface AnalysisWorkerOptions {
     deadlineMs?: number;
+    /** The deadline of an engine's first run in a worker, which also loads the engine. */
+    firstLoadMs?: number;
     now?: () => number;
 }
 
@@ -36,11 +38,15 @@ export class AnalysisWorker {
 
     // Recent failure times per engine; engines are per language (ADR 0002)
     private readonly failures = new Map<string, number[]>();
+    // Engines that answered in the current worker; the first run of any other also loads it
+    private loaded = new Set<string>();
     private readonly deadlineMs: number;
+    private readonly firstLoadMs: number;
     private readonly now: () => number;
 
     constructor(private readonly script: string, options: AnalysisWorkerOptions = {}) {
         this.deadlineMs = options.deadlineMs ?? 1000;
+        this.firstLoadMs = options.firstLoadMs ?? 15_000;
         this.now = options.now ?? Date.now;
     }
 
@@ -72,14 +78,15 @@ export class AnalysisWorker {
             request.resolve({ status: 'paused', reason, deadlineExceeded: false });
             return this.next();
         }
+        this.worker ??= this.spawn();
+        const deadlineMs = this.loaded.has(engine) ? this.deadlineMs : this.firstLoadMs;
         const deadline = setTimeout(() => {
             // A synchronous engine cannot be interrupted, only its thread can be ended
             void this.worker?.terminate();
             this.worker = undefined;
-            this.finish({ status: 'paused', reason: `The Check took longer than ${this.deadlineMs} ms`, deadlineExceeded: true });
-        }, this.deadlineMs);
+            this.finish({ status: 'paused', reason: `The Check took longer than ${deadlineMs} ms`, deadlineExceeded: true });
+        }, deadlineMs);
         this.running = { request, deadline };
-        this.worker ??= this.spawn();
         this.worker.postMessage({ document: request.document, options: request.options } satisfies WorkerRequest);
     }
 
@@ -101,8 +108,10 @@ export class AnalysisWorker {
 
     private spawn(): Worker {
         const worker = new Worker(this.script, { resourceLimits: { maxOldGenerationSizeMb: MAX_HEAP_MB } });
+        this.loaded = new Set();
         worker.on('message', (reply: WorkerReply) => {
             if (worker !== this.worker) return;
+            if (this.running) this.loaded.add(this.running.request.document.languageId);
             if ('result' in reply) this.finish({ status: 'done', result: reply.result });
             else if ('parseError' in reply) this.finish({ status: 'paused', reason: reply.parseError, deadlineExceeded: false }, false);
             else this.finish({ status: 'paused', reason: reply.error, deadlineExceeded: false });

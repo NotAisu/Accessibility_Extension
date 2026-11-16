@@ -75,8 +75,21 @@ describe('AnalysisWorker', () => {
         assert.deepStrictEqual(failed, { status: 'paused', reason: 'engine failed', deadlineExceeded: false });
     });
 
+    it('gives an engine\'s first run in a worker, which loads the engine, the longer first-load deadline', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 2000 });
+
+        const first = await worker.check('a.html', html('slow:400'));
+        const warm = await worker.check('a.html', html('slow:400'));
+        const otherEngine = await worker.check('a.vue', { languageId: 'vue', text: 'slow:400' });
+
+        assert.strictEqual(echoed(first).text, 'slow:400');
+        assert.deepStrictEqual(warm, { status: 'paused', reason: 'The Check took longer than 200 ms', deadlineExceeded: true });
+        // The deadline ended the worker, so the next engine loads in a fresh one
+        assert.strictEqual(echoed(otherEngine).text, 'slow:400');
+    });
+
     it('pauses an engine for the session after 3 failures within 3 minutes', async () => {
-        worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200 });
+        worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 200 });
         await worker.check('a.html', html('fail'));
         await worker.check('a.html', html('crash'));
         await worker.check('a.html', html('hang'));
