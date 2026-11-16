@@ -8,3 +8,4 @@ GLOSSARY.md
 out/
 dist/
 *.vsix
+.vscode-test/

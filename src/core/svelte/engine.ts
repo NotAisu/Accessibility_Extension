@@ -1,6 +1,7 @@
 import { compile, type AST, type Warning } from 'svelte/compiler';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import { isControl, layoutNeedsReview, RenderedContent } from '../needs-review';
+import type { RenderedContent } from '../needs-review';
+import { withOwnRules } from '../own-rules';
 
 // The Svelte engine as one chunk, loaded on the first Svelte document.
 
@@ -86,7 +87,7 @@ export function checkSvelte(text: string): AnalysisResult {
             helpUrl: helpUrl ?? `https://svelte.dev/e/${warning.code}`
         });
     }
-    return { findings, needsReview: layoutNeedsReview(renderedContent(ast)) };
+    return withOwnRules(findings, renderedContent(ast));
 }
 
 interface SvelteNode {
@@ -97,11 +98,15 @@ interface SvelteNode {
 // Text and expression tags in the markup and intrinsic controls; components are opaque until Component Mapping.
 // Only fragments are walked, so attribute values, the script and the style never count as rendered text
 function renderedContent(ast: AST.Root): RenderedContent {
-    const content = { text: false, controls: false };
+    const content: RenderedContent = { text: false, elements: [] };
     const visit = (node: SvelteNode) => {
         if (node.type === 'Text' && typeof node.data === 'string' && node.data.trim()) content.text = true;
         if (node.type === 'ExpressionTag' || node.type === 'HtmlTag') content.text = true;
-        if (node.type === 'RegularElement' && isControl(node.name as string, attributesOf(node))) content.controls = true;
+        if (node.type === 'RegularElement') {
+            // The AST spans the whole element, so its range is the `<name` that opens it
+            const start = node.start as number;
+            content.elements.push({ tag: node.name as string, attributes: attributesOf(node), range: { start, end: start + 1 + (node.name as string).length } });
+        }
         if (node.type === 'Fragment') (node.nodes as SvelteNode[]).forEach(visit);
         // Blocks and elements hold their children in fragments (fragment, consequent, body, then, …)
         for (const value of Object.values(node)) {

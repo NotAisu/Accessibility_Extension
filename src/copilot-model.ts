@@ -13,10 +13,16 @@ export async function selectCopilotModel(): Promise<ModelPort | undefined> {
 class CopilotModel implements ModelPort {
     readonly id: string;
     readonly name: string;
+    readonly maxInputTokens: number;
 
     constructor(private readonly model: vscode.LanguageModelChat) {
         this.id = `copilot/${model.id}/${model.version}`;
         this.name = `GitHub Copilot (${model.name})`;
+        this.maxInputTokens = model.maxInputTokens;
+    }
+
+    countTokens(text: string): Promise<number> {
+        return Promise.resolve(this.model.countTokens(text));
     }
 
     async request(request: ModelRequest, signal: AbortSignal): Promise<unknown> {

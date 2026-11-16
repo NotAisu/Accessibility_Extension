@@ -4,7 +4,8 @@ import * as vueParser from 'vue-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import { isControl, layoutNeedsReview, RenderedContent } from '../needs-review';
+import type { RenderedContent } from '../needs-review';
+import { withOwnRules } from '../own-rules';
 
 // The Vue engine as one chunk, loaded on the first Vue document.
 
@@ -85,7 +86,7 @@ export function checkVue(text: string): AnalysisResult {
         });
     }
     const ast = linter.getSourceCode().ast as { templateBody?: VueNode };
-    return { findings, needsReview: layoutNeedsReview(renderedContent(ast.templateBody)) };
+    return withOwnRules(findings, renderedContent(ast.templateBody), { inputPurpose: true });
 }
 
 interface VueNode {
@@ -95,12 +96,13 @@ interface VueNode {
 
 // Text and mustaches in the template and intrinsic controls; components are opaque until Component Mapping
 function renderedContent(template: VueNode | undefined): RenderedContent {
-    const content = { text: false, controls: false };
+    const content: RenderedContent = { text: false, elements: [] };
     const visit = (node: VueNode) => {
         if (node.type === 'VText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
         if (node.type === 'VExpressionContainer') content.text = true;
         if (node.type === 'VElement') {
-            if (isControl(node.name as string, attributesOf(node))) content.controls = true;
+            const [start, end] = (node.startTag as { range: [number, number] }).range;
+            content.elements.push({ tag: node.name as string, attributes: attributesOf(node), range: { start, end } });
             (node.children as VueNode[]).forEach(visit);
         }
     };

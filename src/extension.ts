@@ -12,7 +12,14 @@ const SUPPORTED_LANGUAGES = ['html', 'vue', 'svelte', 'javascriptreact', 'typesc
 // What a11y_check accepts for proposed code: the Check's own ids, `angular` for an Angular component template
 const CHECK_LANGUAGES = [...SUPPORTED_LANGUAGES, 'angular'];
 
-export function activate(context: vscode.ExtensionContext): void {
+/** What the extension-host smoke tests observe; only returned when VS Code runs extension tests. */
+export interface TestingApi {
+    findings: Pick<FindingsTree, 'getChildren' | 'getTreeItem'>;
+    findingsStatus: vscode.StatusBarItem;
+    aiReviewStatus: vscode.StatusBarItem;
+}
+
+export function activate(context: vscode.ExtensionContext): TestingApi | undefined {
     // Editors without the language model API (some VS Code forks) hide the Skill and a11y_check, and the AI Review
     // unless it uses a local model
     const lmAvailable = typeof vscode.lm?.registerTool === 'function';
@@ -33,6 +40,7 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.workspace.onWillSaveTextDocument(event => fixes.fixOnSave(event)),
         vscode.commands.registerCommand('allyproof.startAIReview', () => aiReview.start()),
         vscode.commands.registerCommand('allyproof.cancelAIReview', () => aiReview.cancel()),
+        vscode.commands.registerCommand('allyproof.clearAIReviewCache', () => aiReview.clearCache()),
         vscode.commands.registerCommand('allyproof.filterFindings', () => tree.filter()),
         vscode.commands.registerCommand('allyproof.disableRule', disableRule),
         vscode.workspace.onDidOpenTextDocument(runDiagnostics),
@@ -63,6 +71,9 @@ export function activate(context: vscode.ExtensionContext): void {
 
     check.start(context.asAbsolutePath('dist/worker.mjs'));
     vscode.window.visibleTextEditors.forEach(editor => void runDiagnostics(editor.document));
+    if (context.extensionMode === vscode.ExtensionMode.Test) {
+        return { findings: tree, findingsStatus: tree.status, aiReviewStatus: aiReview.status };
+    }
 }
 
 // TypeScript files only while they hold an Angular component, as the Check's own gate decides

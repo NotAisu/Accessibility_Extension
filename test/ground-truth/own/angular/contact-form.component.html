@@ -1,0 +1,8 @@
+<form (ngSubmit)="submit()">
+  <label>Email <input type="email" autocomplete="emal" name="email"></label>
+  <label>Name <input autocomplete="section-guest given-name" name="name"></label>
+  <label>Phone <input type="tel" autocomplete="home name" name="phone"></label>
+  <label>Mode <input [autocomplete]="mode" name="mode"></label>
+  <label>Off <input autocomplete="off" name="search"></label>
+  <button type="submit">Send</button>
+</form>

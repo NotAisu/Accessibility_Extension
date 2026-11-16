@@ -25,12 +25,16 @@ type RuleModule = { meta?: { docs?: { description?: string; url?: string } } };
 const plugin = htmlPlugin as unknown as { rules: Record<string, RuleModule> };
 
 // The bundled config only; the workspace's own ESLint config is never loaded
-const CONFIG: Linter.Config[] = [{
-    files: ['**/*.html'],
-    plugins: { '@html-eslint': htmlPlugin as unknown as NonNullable<Linter.Config['plugins']>[string] },
-    languageOptions: { parser: htmlParser as unknown as Linter.Parser },
-    rules: Object.fromEntries(Object.keys(RULE_CRITERIA).map(rule => [PREFIX + rule, 'warn']))
-}];
+function config(skip: Set<string>): Linter.Config[] {
+    return [{
+        files: ['**/*.html'],
+        plugins: { '@html-eslint': htmlPlugin as unknown as NonNullable<Linter.Config['plugins']>[string] },
+        languageOptions: { parser: htmlParser as unknown as Linter.Parser },
+        rules: Object.fromEntries(Object.keys(RULE_CRITERIA)
+            .filter(rule => !skip.has(PREFIX + rule))
+            .map(rule => [PREFIX + rule, 'warn']))
+    }];
+}
 
 const linter = new Linter({ configType: 'flat' });
 
@@ -38,7 +42,7 @@ export function checkHtmlWithEslint(text: string): Finding[] {
     const offsets = lineOffsets(text);
     const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
     const findings: Finding[] = [];
-    for (const message of linter.verify(text, CONFIG, 'document.html')) {
+    for (const message of verify(text)) {
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
@@ -56,4 +60,19 @@ export function checkHtmlWithEslint(text: string): Finding[] {
         });
     }
     return findings;
+}
+
+// A rule that throws on unusual code (an html start tag cut off after lang) would cost every other rule's
+// Findings, so the document is linted again without it
+function verify(text: string): Linter.LintMessage[] {
+    const skip = new Set<string>();
+    for (;;) {
+        try {
+            return linter.verify(text, config(skip), 'document.html');
+        } catch (error) {
+            const ruleId = (error as { ruleId?: unknown }).ruleId;
+            if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;
+            skip.add(ruleId);
+        }
+    }
 }

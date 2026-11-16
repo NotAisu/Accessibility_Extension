@@ -50,13 +50,22 @@ describe('analyse (HTML)', () => {
         assert.strictEqual(finding.helpUrl, 'https://html-eslint.org/docs/rules/no-positive-tabindex');
     });
 
+    it('keeps the other rules\' Findings when one @html-eslint rule crashes on the document', async () => {
+        // @html-eslint's require-lang throws on an html start tag cut off after lang, as while typing
+        const text = '<button tabindex="3">Save</button>\n<html lang';
+
+        const { findings } = await analyse({ languageId: 'html', text });
+
+        assert.ok(findings.some(f => f.ruleId === '@html-eslint/no-positive-tabindex'));
+    });
+
     it('lists layout-dependent criteria as Needs Review instead of reporting them', async () => {
         const text = page('<p style="color:#eee;background:#fff">Faint</p>\n<button style="width:8px;height:8px">x</button>');
 
         const { findings, needsReview } = await analyse({ languageId: 'html', text });
 
         assert.deepStrictEqual(findings, []);
-        assert.deepStrictEqual(needsReview.map(entry => entry.criterion), ['1.4.3', '2.5.8']);
+        assert.deepStrictEqual(needsReview.filter(entry => !entry.range).map(entry => entry.criterion), ['1.4.3', '2.5.8']);
     });
 
     it('returns nothing for languages without a Check yet', async () => {

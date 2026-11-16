@@ -16,7 +16,8 @@ export interface FileFindings {
     name: string;
     /** Check and AI Review Findings. */
     findings: LocatedFinding[];
-    needsReview: NeedsReview[];
+    /** `line`: 1-based line of the element a likely failure points at. */
+    needsReview: (NeedsReview & { line?: number })[];
     /** Why the Check is paused for this file; its last Findings stay. */
     paused?: string;
 }
@@ -36,7 +37,7 @@ export type TreeNode = NodeText & (
     | { kind: 'criterion'; criterion: string }
     | { kind: 'finding'; uri: string; finding: Finding; line: number }
     | { kind: 'needs-review' }
-    | { kind: 'needs-review-entry'; entry: NeedsReview }
+    | { kind: 'needs-review-entry'; uri: string; entry: NeedsReview; line?: number }
     | { kind: 'paused'; reason: string }
 );
 
@@ -72,13 +73,16 @@ function fileChildren(file: FileFindings, filters: ReadonlySet<Filter>): TreeNod
             kind: 'needs-review',
             label: 'Needs Review',
             collapsed: true,
-            accessibilityLabel: `Needs Review, ${count(file.needsReview.length, 'criterion', 'criteria')} the Check cannot decide`,
-            children: file.needsReview.map(entry => ({
+            accessibilityLabel: `Needs Review, ${count(criteriaCount(file), 'criterion', 'criteria')} the Check cannot decide`,
+            children: file.needsReview.map(({ line, ...entry }) => ({
                 kind: 'needs-review-entry',
+                uri: file.uri,
                 entry,
+                line,
                 label: `${entry.criterion} ${criterionName(entry.criterion)}`,
-                description: entry.reason,
+                description: line === undefined ? entry.reason : `Line ${line} · ${entry.reason}`,
                 accessibilityLabel: `Needs Review: WCAG ${entry.criterion} ${criterionName(entry.criterion)}. ${entry.reason}`
+                    + (line === undefined ? '' : `, line ${line}`)
             }))
         });
     }
@@ -110,6 +114,11 @@ function byCriterion(uri: string, located: LocatedFinding[]): TreeNode[] {
 
 const LAYER_NAME: Record<Finding['layer'], string> = { 'check': 'Check', 'ai-review': 'AI Review' };
 
+// One criterion can have several Needs Review entries, one per element
+function criteriaCount(file: FileFindings): number {
+    return new Set(file.needsReview.map(entry => entry.criterion)).size;
+}
+
 function count(n: number, one: string, many = `${one}s`): string {
     return `${n} ${n === 1 ? one : many}`;
 }
@@ -131,7 +140,7 @@ export function statusSummary(file: FileFindings): StatusSummary {
     }
     const total = file.findings.length;
     const check = file.findings.filter(({ finding }) => finding.layer === 'check').length;
-    const needsReview = file.needsReview.length === 0 ? '' : ` ${count(file.needsReview.length, 'criterion Needs', 'criteria Need')} Review.`;
+    const needsReview = file.needsReview.length === 0 ? '' : ` ${count(criteriaCount(file), 'criterion Needs', 'criteria Need')} Review.`;
     const detail = (total === 0 ? 'No Findings.' : `${check} Check, ${total - check} AI Review.`) + needsReview;
     return {
         text: total === 0 ? '$(pass) No Findings' : `$(warning) ${count(total, 'Finding')}`,

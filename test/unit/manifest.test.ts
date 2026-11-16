@@ -19,6 +19,7 @@ interface Manifest {
         views?: Record<string, { id: string; type?: string }[]>;
         languageModelTools?: { name: string; when?: string }[];
         chatSkills?: { path: string; when?: string }[];
+        walkthroughs?: { id: string; steps: { id: string; description: string; media: { markdown?: string }; when?: string }[] }[];
         configuration?: { properties: Record<string, { type: string; scope?: string; enum?: string[]; default?: unknown }> };
     };
 }
@@ -72,6 +73,28 @@ describe('manifest', () => {
     it('reads the rule settings per resource, so each folder of a multi-root workspace has its own', () => {
         assert.strictEqual(manifest.contributes.configuration?.properties['allyproof.rules'].scope, 'resource');
         assert.match(sourceOf('check-diagnostics.ts'), /getConfiguration\('allyproof', scope\)\.get<Record<string, RuleSetting>>\('rules'/);
+    });
+
+    it('walks new users through the Check, AI Review, the Skill and configuring rules', () => {
+        const [walkthrough, ...others] = manifest.contributes.walkthroughs ?? [];
+        assert.strictEqual(others.length, 0);
+        assert.deepStrictEqual(walkthrough.steps.map(step => step.id), ['check', 'aiReview', 'skill', 'configure']);
+        const views = Object.values(manifest.contributes.views ?? {}).flat().map(view => `${view.id}.focus`);
+        const commands = [...manifest.contributes.commands.map(c => c.command), ...views];
+        const settings = Object.keys(manifest.contributes.configuration?.properties ?? {});
+        const shipped = fs.readFileSync(path.join(root, '.vscodeignore'), 'utf-8');
+        for (const step of walkthrough.steps) {
+            // allyproof.aiAvailable is set only after activation, so a when clause would hide a step on a fresh install
+            assert.strictEqual(step.when, undefined, step.id);
+            const markdown = step.media.markdown ?? '';
+            assert.ok(fs.existsSync(path.join(root, markdown)), markdown);
+            assert.ok(shipped.includes(`!${path.dirname(markdown)}/**`), `${markdown} ships in the VSIX`);
+            const text = step.description + fs.readFileSync(path.join(root, markdown), 'utf-8');
+            for (const [, id] of text.matchAll(/command:(allyproof\.[\w.]+)/g)) assert.ok(commands.includes(id), id);
+            for (const [, key] of text.matchAll(/(allyproof\.[\w.]+\w)/g)) {
+                assert.ok(commands.includes(key) || settings.includes(key), key);
+            }
+        }
     });
 
     it('puts every command under the Allyproof category', () => {
