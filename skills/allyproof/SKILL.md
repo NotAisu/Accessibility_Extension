@@ -26,10 +26,14 @@ If the `a11y_check` tool is available, call it before reviewing: pass `filePath`
 - Status updates (saved, loading, results count) that are not announced, for example missing `role="status"` or `aria-live` (4.1.3).
 - Content in another language than the page without a `lang` attribute on that part (3.1.2).
 
+## Verify Needs Review criteria in a browser
+
+If you can open the rendered page, for example with a browser or Playwright tool, verify the criteria the Check lists as Needs Review there instead of leaving them open: measure the contrast of text against its actual background (1.4.3) and the size of every target a user can click or tap (2.5.8). Report only what you measured failing, with the source line that causes it. Without a browser, leave these criteria to the developer and do not guess them.
+
 ## Do not report
 
 - Problems the Check reports anyway (missing attributes, invalid ARIA syntax, positive `tabindex`), unless the meaning is wrong as well.
-- Color contrast and target size: they depend on rendered layout.
+- Color contrast and target size you have not measured in a browser: they depend on rendered layout.
 - Style preferences, performance, or best practices that no WCAG 2.2 A or AA success criterion requires.
 - Anything you are not reasonably sure about. A short, precise list is better than a long, speculative one.
 

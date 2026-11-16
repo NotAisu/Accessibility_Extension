@@ -95,6 +95,11 @@
         "category": "Allyproof"
       },
       {
+        "command": "allyproof.addSkillToRepository",
+        "title": "Add Skill to Repository",
+        "category": "Allyproof"
+      },
+      {
         "command": "allyproof.showLog",
         "title": "Show Log",
         "category": "Allyproof"
