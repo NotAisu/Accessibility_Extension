@@ -1,5 +1,6 @@
 import { withoutIgnored } from './ignore';
 import { withFixes } from './fixes';
+import type { ComponentMapping } from './components';
 
 /** Character offsets into the analysed text, end exclusive. */
 export interface TextRange {
@@ -74,6 +75,8 @@ export type RuleSetting = 'off' | Severity;
 export interface AnalysisOptions {
     /** Per rule id; rules without a setting keep their default severity. */
     rules?: Record<string, RuleSetting>;
+    /** The native elements project components render, for every engine that reads markup. */
+    components?: ComponentMapping;
 }
 
 export interface AnalysisResult {
@@ -94,7 +97,7 @@ export class ParseError extends Error {
 }
 
 export async function analyse(document: AnalysisDocument, options: AnalysisOptions = {}): Promise<AnalysisResult> {
-    const { findings, needsReview } = await check(document);
+    const { findings, needsReview } = await check(document, options.components);
     const rules = options.rules ?? {};
     return {
         findings: withFixes(document.text, withoutIgnored(document, findings)).flatMap(finding => {
@@ -106,26 +109,26 @@ export async function analyse(document: AnalysisDocument, options: AnalysisOptio
     };
 }
 
-async function check(document: AnalysisDocument): Promise<AnalysisResult> {
+async function check(document: AnalysisDocument, components?: ComponentMapping): Promise<AnalysisResult> {
     if (!document.text.trim()) return { findings: [], needsReview: [] };
     if (document.languageId === 'javascriptreact' || document.languageId === 'typescriptreact') {
         const { checkJsx } = await import('./jsx/engine');
-        const { findings, needsReview } = checkJsx(document.text, document.languageId === 'typescriptreact');
+        const { findings, needsReview } = checkJsx(document.text, document.languageId === 'typescriptreact', components);
         return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId === 'vue') {
         const { checkVue } = await import('./vue/engine');
-        const { findings, needsReview } = checkVue(document.text);
+        const { findings, needsReview } = checkVue(document.text, components);
         return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId === 'svelte') {
         const { checkSvelte } = await import('./svelte/engine');
-        const { findings, needsReview } = checkSvelte(document.text);
+        const { findings, needsReview } = checkSvelte(document.text, components);
         return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId === 'astro') {
         const { checkAstro } = await import('./astro/engine');
-        const { findings, needsReview } = checkAstro(document.text);
+        const { findings, needsReview } = checkAstro(document.text, components);
         return { findings: sortByPosition(findings), needsReview };
     }
     // Angular component templates are inline in TypeScript files that call @Component(; other files never
@@ -134,7 +137,7 @@ async function check(document: AnalysisDocument): Promise<AnalysisResult> {
     if (document.languageId === 'angular' || document.languageId === 'typescript') {
         const { checkAngularTemplate, checkAngularComponents } = await import('./angular/engine');
         const checkAngular = document.languageId === 'angular' ? checkAngularTemplate : checkAngularComponents;
-        const { findings, needsReview } = checkAngular(document.text);
+        const { findings, needsReview } = checkAngular(document.text, components);
         return { findings: sortByPosition(findings), needsReview };
     }
     if (document.languageId !== 'html') return { findings: [], needsReview: [] };

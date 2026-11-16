@@ -316,9 +316,9 @@ class Context {
     // children wherever and however it likes
     private opaque(e: SourceElement, start: SourceElement): Resolved<Rgb> | undefined {
         if (e.boundStyle || ['class', 'classname', 'style'].some(name => e.attributes.get(name) === true)) {
-            return { uncertain: `<${e.tag}> binds its class or style to an expression` };
+            return { uncertain: `<${e.component ?? e.tag}> binds its class or style to an expression` };
         }
-        if (e !== start && isComponent(e)) return this.anyDeclared(start, e) ? { uncertain: `it is inside the component <${e.tag}>, whose styles are not known` } : { unknown: true };
+        if (e !== start && isComponent(e)) return this.anyDeclared(start, e) ? { uncertain: `it is inside the component <${e.component ?? e.tag}>, whose styles are not known` } : { unknown: true };
         if (e === start && isComponent(e)) return { unknown: true };
         const unknownClass = this.unknownClass(e);
         return unknownClass ? { uncertain: unknownClass } : undefined;
@@ -341,8 +341,8 @@ function chain(element: SourceElement): SourceElement[] {
     return elements;
 }
 
-function isComponent({ tag }: SourceElement): boolean {
-    return tag === '' || /^[A-Z]/.test(tag) || /[.:-]/.test(tag);
+function isComponent({ tag, component }: SourceElement): boolean {
+    return component !== undefined || tag === '' || /^[A-Z]/.test(tag) || /[.:-]/.test(tag);
 }
 
 // Elements whose text is never rendered as page text

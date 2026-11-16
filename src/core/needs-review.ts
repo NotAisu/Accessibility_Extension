@@ -2,7 +2,10 @@ import type { NeedsReview, TextRange } from './analysis';
 
 /** An intrinsic element as written in the source; `attributes` hold literal values, `true` when bound. */
 export interface SourceElement {
+    /** The element as written, or the native element a mapped component renders. */
     tag: string;
+    /** A mapped component's name as written; its own styles stay unknown. */
+    component?: string;
     attributes: Map<string, string | true>;
     /** The start tag, or its start where the engine cannot tell its end. */
     range: TextRange;

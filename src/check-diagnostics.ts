@@ -117,10 +117,19 @@ export function codeOf(diagnostic: vscode.Diagnostic): string | number | undefin
     return typeof diagnostic.code === 'object' ? diagnostic.code.value : diagnostic.code;
 }
 
-// The `allyproof.rules` setting of the checked file's folder: rules turned off or reported with another severity.
-// Copied, since VS Code returns settings as proxies the worker's structured clone rejects
+// The settings of the checked file's folder: `allyproof.rules` turns rules off or changes their severity,
+// `allyproof.components` and `allyproof.polymorphicPropName` are the Component Mapping. The mapping is only ever
+// read from settings, never from project files. Copied, since VS Code returns settings as proxies the worker's
+// structured clone rejects
 function options(scope?: vscode.ConfigurationScope): AnalysisOptions {
-    return { rules: { ...vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, RuleSetting>>('rules', {}) } };
+    const polymorphicPropName = vscode.workspace.getConfiguration('allyproof', scope).get<string>('polymorphicPropName', '');
+    return {
+        rules: { ...vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, RuleSetting>>('rules', {}) },
+        components: {
+            components: { ...vscode.workspace.getConfiguration('allyproof', scope).get<Record<string, string>>('components', {}) },
+            ...polymorphicPropName ? { polymorphicPropName } : {}
+        }
+    };
 }
 
 function toDiagnostic(range: vscode.Range, finding: Finding): vscode.Diagnostic {
