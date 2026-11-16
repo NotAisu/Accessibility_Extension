@@ -132,7 +132,11 @@ export class WorkspaceCheck {
                 break;
             }
             run.progress(done, files.length);
-            if (run.isOpen(file.uri)) continue;
+            if (run.isOpen(file.uri)) {
+                // Its editor's Check shows it now; once the editor closes, its text on disk is checked
+                if (!this.checked.has(file.uri)) this.checked.set(file.uri, '');
+                continue;
+            }
             const outcome = await this.checkFile(file);
             if (outcome === 'unchanged') summary.unchanged++;
             else if (outcome === 'checked') summary.checked++;

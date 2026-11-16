@@ -79,6 +79,10 @@ describe('workspace Check', () => {
         await host.check.run(files(disk), { ...quiet, isOpen: uri => uri === 'file:///p/a.html' });
 
         assert.deepStrictEqual(host.reported.map(r => r.uri), ['file:///p/b.html']);
+        // Once its editor closes, the open file is checked as its text on disk
+        assert.ok(host.check.covers('file:///p/a.html'));
+        await host.check.recheck({ uri: 'file:///p/a.html', path: '/p/a.html' });
+        assert.deepStrictEqual(host.reported.map(r => r.uri), ['file:///p/b.html', 'file:///p/a.html']);
     });
 
     it('re-checks only the files that changed since the last run', async () => {
@@ -102,6 +106,20 @@ describe('workspace Check', () => {
         await host.check.run(files(disk), quiet);
 
         assert.deepStrictEqual(host.checked.map(d => d.text), ['a', 'a']);
+    });
+
+    it('re-checks every file once its Component Mapping changed', async () => {
+        const disk = { 'file:///p/a.html': 'a' };
+        const host = fakeHost(disk);
+        host.setOptions({ components: { components: { Button: 'button' } } });
+        await host.check.run(files(disk), quiet);
+        host.setOptions({ components: { components: { Button: 'button' }, polymorphicPropName: 'as' } });
+        await host.check.run(files(disk), quiet);
+        host.setOptions({ components: { components: { Button: 'a' }, polymorphicPropName: 'as' } });
+
+        await host.check.run(files(disk), quiet);
+
+        assert.deepStrictEqual(host.checked.map(d => d.text), ['a', 'a', 'a']);
     });
 
     it('re-checks a file whose engine failed, but not one too large for the deadline that did not change', async () => {
