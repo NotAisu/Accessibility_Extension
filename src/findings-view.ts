@@ -128,6 +128,8 @@ export interface StatusSummary {
     text: string;
     tooltip: string;
     accessibilityLabel: string;
+    /** Clicking shows the log, where the paused Check's cause is; otherwise the Findings. */
+    showsLog?: true;
 }
 
 const SHOW = 'Click to show the Findings.';
@@ -136,7 +138,12 @@ const SHOW = 'Click to show the Findings.';
 export function statusSummary(file: FileFindings): StatusSummary {
     if (file.paused !== undefined) {
         const detail = `${file.paused}. The last Findings stay.`;
-        return { text: '$(debug-pause) Check paused', tooltip: `${detail} ${SHOW}`, accessibilityLabel: `Accessibility: Check paused: ${detail}` };
+        return {
+            text: '$(debug-pause) Check paused',
+            tooltip: `${detail} Click to show the log.`,
+            accessibilityLabel: `Accessibility: Check paused: ${detail} Activate to show the log.`,
+            showsLog: true
+        };
     }
     const total = file.findings.length;
     const check = file.findings.filter(({ finding }) => finding.layer === 'check').length;

@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { checkLanguageId, type AnalysisDocument, type Finding } from './core/analysis';
+import { logText } from './core/log-text';
 import { criterionUrl } from './core/wcag';
 import { selectCopilotModel } from './copilot-model';
 import { GateReport, ModelError, ModelPort, ReviewCache, review } from './review/ai-review';
@@ -32,7 +33,9 @@ export class AIReview implements vscode.Disposable {
         private readonly tree: {
             setAI(document: vscode.TextDocument, findings: Finding[]): void;
             deleteAI(uri: vscode.Uri): void;
-        }
+        },
+        /** AI errors go to the log; prompts and code never do. */
+        private readonly log: vscode.LogOutputChannel
     ) {
         this.status.name = 'Allyproof AI Review';
         void this.showIdle();
@@ -71,7 +74,8 @@ export class AIReview implements vscode.Disposable {
             try {
                 model = await selectLocalModel(localSettings(), { signal: lookup.signal });
             } catch (error) {
-                const cancelled = error instanceof ModelError && error.code === 'Cancelled';
+                const cancelled = isCancelled(error);
+                if (!cancelled) this.log.error(`AI Review: local model not available: ${errorText(error)}`);
                 return this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error), 'allyproof.startAIReview');
             } finally {
                 this.running = undefined;
@@ -105,8 +109,9 @@ export class AIReview implements vscode.Disposable {
             this.showFindings(document, version, findings);
             this.show(`$(sparkle) AI: ${findings.length} ${findings.length === 1 ? 'Finding' : 'Findings'}`, summary(gate, model), 'allyproof.startAIReview');
         } catch (error) {
-            const message = describe(error, model);
-            this.show(`$(warning) AI Review ${error instanceof ModelError && error.code === 'Cancelled' ? 'cancelled' : 'failed'}`, message, 'allyproof.startAIReview');
+            const cancelled = isCancelled(error);
+            if (!cancelled) this.log.error(`AI Review with ${model.name} failed: ${errorText(error)}`);
+            this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error, model), 'allyproof.startAIReview');
         } finally {
             this.running = undefined;
         }
@@ -230,6 +235,16 @@ function summary(gate: GateReport, model: ModelPort): string {
         ? 'No markup to review.'
         : `${gate.reviewed} of ${gate.regions} ${gate.regions === 1 ? 'region' : 'regions'} reviewed${skipped && `, ${skipped}`}.`;
     return `${reviewed} Model: ${model.name}. Click to review again.`;
+}
+
+function isCancelled(error: unknown): boolean {
+    return error instanceof ModelError && error.code === 'Cancelled';
+}
+
+// For the log: a model or server error can quote the prompt, and so the code, so only its first line goes, capped
+function errorText(error: unknown): string {
+    const text = logText(error instanceof Error ? error.message : String(error));
+    return error instanceof ModelError ? `${error.code}: ${text}` : text;
 }
 
 function describe(error: unknown, model?: ModelPort): string {

@@ -5099,6 +5099,72 @@
       ]
     },
     {
+      "file": "cases/afw4f7-passed-1.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 1",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-passed-2.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 2",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-passed-4.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 4",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-passed-5.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 5",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-passed-6.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 6",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-passed-7.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 7",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
       "file": "cases/afw4f7-passed-8.html",
       "languageId": "html",
       "note": "ACT rule afw4f7 \"Text has minimum contrast\", passed example 8",
@@ -5132,6 +5198,138 @@
       ]
     },
     {
+      "file": "cases/afw4f7-failed-1.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 1",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-failed-2.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 2",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-failed-3.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 3",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-failed-4.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 4",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-failed-5.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 5",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-failed-8.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 8",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-failed-9.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 9",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-failed-10.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 10",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-failed-11.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", failed example 11",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-1.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 1",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-2.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 2",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-3.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 3",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
       "file": "cases/afw4f7-inapplicable-4.html",
       "languageId": "html",
       "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 4",
@@ -5146,6 +5344,72 @@
       "file": "cases/afw4f7-inapplicable-5.html",
       "languageId": "html",
       "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 5",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-6.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 6",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-7.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 7",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-8.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 8",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-9.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 9",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-10.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 10",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "cases/afw4f7-inapplicable-11.html",
+      "languageId": "html",
+      "note": "ACT rule afw4f7 \"Text has minimum contrast\", inapplicable example 11",
       "expect": [
         {
           "criterion": "1.4.3",

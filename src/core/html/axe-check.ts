@@ -5,16 +5,19 @@ import * as axe from 'axe-core/axe.min.js';
 import { normalizeRuleId } from '../rule-id-normalizer';
 import { isTargetCriterion } from '../wcag';
 import { withOwnRules } from '../own-rules';
-import type { SourceElement } from '../needs-review';
+import { addText, cssSetsColors, type SourceElement } from '../needs-review';
 import type { AnalysisResult, Finding, TextRange } from '../analysis';
 
 const AXE_TIMEOUT_MS = 5000;
 
 // JSDOM has no layout, so rules that need rendering cannot be decided
-const LAYOUT_RULES = ['color-contrast', 'target-size', 'link-in-text-block', 'scrollable-region-focusable'];
+export const LAYOUT_RULES = ['color-contrast', 'target-size', 'link-in-text-block', 'scrollable-region-focusable'];
+
+// The rules axe-core runs: those tagged with a WCAG 2.x level A or AA criterion
+export const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'];
 
 const AXE_OPTIONS: axe.RunOptions = {
-    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'] },
+    runOnly: { type: 'tag', values: AXE_TAGS },
     resultTypes: ['violations'],
     rules: Object.fromEntries(LAYOUT_RULES.map(rule => [rule, { enabled: false }])),
     elementRef: true,
@@ -52,7 +55,13 @@ async function runAxe(text: string): Promise<AnalysisResult> {
         });
         const results = await Promise.race([axe.run(document.documentElement, AXE_OPTIONS), timeout])
             .finally(() => clearTimeout(timer));
-        return withOwnRules(toFindings(text, dom, results.violations), { text: Boolean(document.body?.textContent?.trim()), elements: sourceElements(dom) });
+        return withOwnRules(toFindings(text, dom, results.violations), {
+            text: Boolean(document.body?.textContent?.trim()),
+            elements: sourceElements(dom),
+            // Without stylesheets or scripts nothing but inline styles changes the browser's default styles
+            userAgentStylesOnly: !document.querySelector('style, link[rel~="stylesheet" i], script'),
+            stylesheetColors: [...document.querySelectorAll('style')].some(style => cssSetsColors(style.textContent ?? ''))
+        });
     } finally {
         dom.window.close();
     }
@@ -90,18 +99,27 @@ function criteriaOf(violation: axe.Result): string[] {
     return tagged.includes(primary) ? [primary, ...tagged.filter(c => c !== primary)] : tagged;
 }
 
-// Elements the parser implied have no tag in the source and no attributes, so they are left out
+// Elements the parser implied have no tag in the source and no attributes, so they are left out; their
+// children's parent is the nearest element in the source
 function sourceElements(dom: JSDOM): SourceElement[] {
-    return [...dom.window.document.querySelectorAll('*')].flatMap(element => {
+    const { Node } = dom.window;
+    const elements = new Map<Element, SourceElement>();
+    for (const element of dom.window.document.querySelectorAll('*')) {
         const location = dom.nodeLocation(element) as ElementLocation | null;
-        if (!location) return [];
+        if (!location) continue;
         const tag = location.startTag ?? location;
-        return [{
+        let parent: SourceElement | undefined;
+        for (let ancestor = element.parentElement; ancestor && !parent; ancestor = ancestor.parentElement) parent = elements.get(ancestor);
+        const source: SourceElement = {
             tag: element.localName,
             attributes: new Map([...element.attributes].map(attribute => [attribute.name, attribute.value])),
-            range: { start: tag.startOffset, end: tag.endOffset }
-        }];
-    });
+            range: { start: tag.startOffset, end: tag.endOffset },
+            parent
+        };
+        for (const child of element.childNodes) if (child.nodeType === Node.TEXT_NODE) addText(source, child.textContent ?? '');
+        elements.set(element, source);
+    }
+    return [...elements.values()];
 }
 
 // The start tag of the element; elements the parser implied (no tag in the source) fall back to the first line

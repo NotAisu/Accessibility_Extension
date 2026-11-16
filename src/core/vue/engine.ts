@@ -4,7 +4,7 @@ import * as vueParser from 'vue-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import type { RenderedContent } from '../needs-review';
+import { addText, styleBlocksSetColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 
 // The Vue engine as one chunk, loaded on the first Vue document.
@@ -68,7 +68,7 @@ export function checkVue(text: string): AnalysisResult {
     const findings: Finding[] = [];
     for (const message of verify(text)) {
         // Unparseable code must not read as a clean file
-        if (message.fatal) throw new ParseError(`Parse error at ${message.line}:${message.column}: ${message.message}`);
+        if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
@@ -86,7 +86,9 @@ export function checkVue(text: string): AnalysisResult {
         });
     }
     const ast = linter.getSourceCode().ast as { templateBody?: VueNode };
-    return withOwnRules(findings, renderedContent(ast.templateBody), { inputPurpose: true });
+    const content = renderedContent(ast.templateBody);
+    content.stylesheetColors = styleBlocksSetColors(text);
+    return withOwnRules(findings, content, { inputPurpose: true });
 }
 
 interface VueNode {
@@ -97,13 +99,23 @@ interface VueNode {
 // Text and mustaches in the template and intrinsic controls; components are opaque until Component Mapping
 function renderedContent(template: VueNode | undefined): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
-    const visit = (node: VueNode) => {
-        if (node.type === 'VText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
-        if (node.type === 'VExpressionContainer') content.text = true;
+    const visit = (node: VueNode, parent?: SourceElement) => {
+        if (node.type === 'VText' && typeof node.value === 'string' && node.value.trim()) {
+            content.text = true;
+            addText(parent, node.value);
+        }
+        if (node.type === 'VExpressionContainer') {
+            content.text = true;
+            addText(parent, true);
+        }
         if (node.type === 'VElement') {
             const [start, end] = (node.startTag as { range: [number, number] }).range;
-            content.elements.push({ tag: node.name as string, attributes: attributesOf(node), range: { start, end } });
-            (node.children as VueNode[]).forEach(visit);
+            // Components keep their written name (MyButton), elements are lowercase
+            const tag = (node.rawName as string | undefined) ?? node.name as string;
+            const element: SourceElement = { tag: /^[A-Z]/.test(tag) ? tag : node.name as string, attributes: attributesOf(node), range: { start, end }, parent };
+            if (bindsClassOrStyle(node) || hasVShow(node)) element.boundStyle = true;
+            content.elements.push(element);
+            (node.children as VueNode[]).forEach(child => visit(child, element));
         }
     };
     // The <template> element itself renders nothing; its children do
@@ -127,6 +139,25 @@ function attributesOf(element: VueNode): Map<string, string | true> {
         }
     }
     return attributes;
+}
+
+// :class, :style and v-bind="object" set the class or style beyond its literal value
+function bindsClassOrStyle(element: VueNode): boolean {
+    return directives(element).some(({ name, argument }) =>
+        name === 'bind' && (!argument || (argument.type === 'VIdentifier' && ['class', 'style'].includes(argument.name as string))));
+}
+
+// v-show only toggles display, which sets no color. Whether the text shows depends on an expression, though, so
+// its contrast is not judged: the element counts as having a bound style, which makes its colors uncertain
+function hasVShow(element: VueNode): boolean {
+    return directives(element).some(({ name }) => name === 'show');
+}
+
+function directives(element: VueNode): { name: unknown; argument: VueNode | null }[] {
+    return (element.startTag as { attributes: VueNode[] }).attributes.filter(attribute => attribute.directive).map(attribute => {
+        const key = attribute.key as VueNode;
+        return { name: (key.name as VueNode).name, argument: key.argument as VueNode | null };
+    });
 }
 
 // A rule that throws on unusual code would cost every other rule's Findings, so the document is

@@ -4,7 +4,8 @@ import * as astroParser from 'astro-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import type { RenderedContent } from '../needs-review';
+import { styleBlocksSetColors } from '../needs-review';
+import { hasSpread, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
 import { withOwnRules } from '../own-rules';
 import { RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
 
@@ -45,7 +46,7 @@ export function checkAstro(text: string): AnalysisResult {
     const findings: Finding[] = [];
     for (const message of verify(text)) {
         // Unparseable code must not read as a clean file
-        if (message.fatal) throw new ParseError(`Parse error at ${message.line}:${message.column}: ${message.message}`);
+        if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
@@ -62,52 +63,13 @@ export function checkAstro(text: string): AnalysisResult {
             helpUrl: docs?.extensionRule?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
-    return withOwnRules(findings, renderedContent(linter.getSourceCode()));
-}
-
-interface AstroNode {
-    type: string;
-    [key: string]: unknown;
-}
-
-// Text and expressions in the template and intrinsic controls; <script> and <style> bodies are raw text that
-// renders nothing, and components are opaque until Component Mapping
-function renderedContent(source: { ast: unknown; visitorKeys: Record<string, readonly string[] | undefined> }): RenderedContent {
-    const content: RenderedContent = { text: false, elements: [] };
-    const visit = (node: AstroNode, parent?: AstroNode) => {
-        if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
-        if (node.type === 'JSXExpressionContainer' && (node.expression as AstroNode).type !== 'JSXEmptyExpression'
-            && ['JSXElement', 'JSXFragment', 'AstroFragment'].includes(parent?.type ?? '')) content.text = true;
-        if (node.type === 'JSXOpeningElement') {
-            const [start, end] = node.range as [number, number];
-            content.elements.push({ tag: tagName(node), attributes: attributesOf(node), range: { start, end } });
-        }
-        for (const key of source.visitorKeys[node.type] ?? []) {
-            for (const child of [node[key]].flat()) {
-                if (child && typeof (child as AstroNode).type === 'string') visit(child as AstroNode, node);
-            }
-        }
-    };
-    visit(source.ast as AstroNode);
-    return content;
-}
-
-function tagName(element: AstroNode): string {
-    const name = element.name as AstroNode;
-    return name.type === 'JSXIdentifier' ? name.name as string : '';
-}
-
-// A value only for a string literal; an expression ({href}, href={url}) counts as present
-function attributesOf(element: AstroNode): Map<string, string | true> {
-    const attributes = new Map<string, string | true>();
-    for (const attribute of element.attributes as AstroNode[]) {
-        const name = attribute.name as AstroNode | undefined;
-        if (attribute.type === 'JSXSpreadAttribute' || name?.type !== 'JSXIdentifier') continue;
-        const value = attribute.value as AstroNode | null;
-        const literal = value?.type === 'Literal' && typeof value.value === 'string' ? value.value : true;
-        attributes.set((name.name as string).toLowerCase(), literal);
-    }
-    return attributes;
+    // <script> and <style> bodies are raw text that renders nothing. class:list and spread attributes can set the class or style
+    const content = renderedJsxContent(linter.getSourceCode(), {
+        textParents: ['JSXElement', 'JSXFragment', 'AstroFragment'],
+        bindsStyle: opening => hasSpread(opening) || (opening.attributes as JsxNode[]).some(a => (a.name as JsxNode | undefined)?.type === 'JSXNamespacedName')
+    });
+    content.stylesheetColors = styleBlocksSetColors(text);
+    return withOwnRules(findings, content);
 }
 
 // A rule that throws on unusual code would cost every other rule's Findings, so the document is

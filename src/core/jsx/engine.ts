@@ -3,7 +3,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import type { RenderedContent } from '../needs-review';
+import { hasSpread, renderedJsxContent } from './jsx-ast';
 import { withOwnRules } from '../own-rules';
 
 // The JSX/TSX engine as one chunk, loaded on the first React document.
@@ -96,7 +96,7 @@ export function checkJsx(text: string, typescript: boolean): AnalysisResult {
     const findings: Finding[] = [];
     for (const message of verify(text, typescript ? 'document.tsx' : 'document.jsx')) {
         // Unparseable code must not read as a clean file
-        if (message.fatal) throw new ParseError(`Parse error at ${message.line}:${message.column}: ${message.message}`);
+        if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
@@ -113,50 +113,8 @@ export function checkJsx(text: string, typescript: boolean): AnalysisResult {
             helpUrl: docs?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
-    return withOwnRules(findings, renderedContent(linter.getSourceCode()));
-}
-
-interface JsxNode {
-    type: string;
-    [key: string]: unknown;
-}
-
-// Text children (literal or an expression) and intrinsic controls; components are opaque until Component Mapping
-function renderedContent(source: { ast: unknown; visitorKeys: Record<string, readonly string[] | undefined> }): RenderedContent {
-    const content: RenderedContent = { text: false, elements: [] };
-    const visit = (node: JsxNode, parent?: JsxNode) => {
-        if (node.type === 'JSXText' && typeof node.value === 'string' && node.value.trim()) content.text = true;
-        if (node.type === 'JSXExpressionContainer' && (node.expression as JsxNode).type !== 'JSXEmptyExpression'
-            && (parent?.type === 'JSXElement' || parent?.type === 'JSXFragment')) content.text = true;
-        if (node.type === 'JSXOpeningElement') {
-            const [start, end] = node.range as [number, number];
-            content.elements.push({ tag: tagName(node), attributes: attributesOf(node), range: { start, end } });
-        }
-        for (const key of source.visitorKeys[node.type] ?? []) {
-            for (const child of [node[key]].flat()) {
-                if (child && typeof (child as JsxNode).type === 'string') visit(child as JsxNode, node);
-            }
-        }
-    };
-    visit(source.ast as JsxNode);
-    return content;
-}
-
-function tagName(element: JsxNode): string {
-    const name = element.name as JsxNode;
-    return name.type === 'JSXIdentifier' ? name.name as string : '';
-}
-
-// Attribute names lowercased (tabIndex → tabindex); a value only when it is a string literal
-function attributesOf(element: JsxNode): Map<string, string | true> {
-    const attributes = new Map<string, string | true>();
-    for (const attribute of element.attributes as JsxNode[]) {
-        if (attribute.type !== 'JSXAttribute' || (attribute.name as JsxNode).type !== 'JSXIdentifier') continue;
-        const value = attribute.value as JsxNode | null;
-        const literal = value?.type === 'Literal' && typeof value.value === 'string' ? value.value : true;
-        attributes.set(((attribute.name as JsxNode).name as string).toLowerCase(), literal);
-    }
-    return attributes;
+    // Spread attributes can set the class or style
+    return withOwnRules(findings, renderedJsxContent(linter.getSourceCode(), { textParents: ['JSXElement', 'JSXFragment'], bindsStyle: hasSpread }));
 }
 
 // A rule that throws on unusual code (lang without a value) would cost every other rule's

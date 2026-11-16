@@ -41,7 +41,6 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
         this.offered = ALL_FILTERS.filter(({ filter }) => aiAvailable || filter !== 'ai-review');
         this.filters = new Set(this.offered.map(({ filter }) => filter));
         this.status.name = 'Allyproof Findings';
-        this.status.command = `${VIEW_ID}.focus`;
     }
 
     setCheck(document: vscode.TextDocument, result: AnalysisResult): void {
@@ -142,7 +141,8 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
             }
             case 'paused':
                 item.iconPath = new vscode.ThemeIcon('debug-pause', new vscode.ThemeColor('list.warningForeground'));
-                item.tooltip = node.reason;
+                item.tooltip = `${node.reason}. Click to show the log.`;
+                item.command = { title: 'Show Log', command: 'allyproof.showLog' };
                 break;
         }
         return item;
@@ -190,6 +190,7 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
         this.status.text = summary.text;
         this.status.tooltip = summary.tooltip;
         this.status.accessibilityInformation = { label: summary.accessibilityLabel };
+        this.status.command = summary.showsLog ? 'allyproof.showLog' : `${VIEW_ID}.focus`;
         this.status.show();
     }
 }

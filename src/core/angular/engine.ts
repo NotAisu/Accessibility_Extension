@@ -4,7 +4,7 @@ import * as templateParser from '@angular-eslint/template-parser';
 import ts from 'typescript';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { lineOffsets } from '../offsets';
-import type { RenderedContent } from '../needs-review';
+import { addText, cssSetsColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 
 // The Angular engine as one chunk, loaded on the first Angular template or component file.
@@ -75,8 +75,9 @@ export function checkAngularTemplate(text: string): AnalysisResult {
 /** The inline `template` strings of the `@Component` decorators in a TypeScript file. */
 export function checkAngularComponents(text: string): AnalysisResult {
     const findings: Finding[] = [];
-    const content: RenderedContent = { text: false, elements: [] };
-    for (const template of inlineTemplates(text)) {
+    const { templates, stylesheetColors } = components(text);
+    const content: RenderedContent = { text: false, elements: [], stylesheetColors };
+    for (const template of templates) {
         const checked = checkTemplate(template.text, template.start);
         findings.push(...checked.findings);
         content.text ||= checked.content.text;
@@ -96,7 +97,7 @@ function checkTemplate(text: string, base: number): { findings: Finding[]; conte
         // Unparseable code must not read as a clean file
         if (message.fatal) {
             const start = toOffset(message.line, message.column);
-            throw new ParseError(`Parse error at offset ${start}: ${message.message}`);
+            throw new ParseError(`offset ${start}`, message.message);
         }
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         const criteria = rule && criteriaOf(rule, message.message);
@@ -127,23 +128,29 @@ interface InlineTemplate {
 }
 
 // The raw literal text is linted, so template offsets map one to one onto the file; components with a
-// templateUrl are checked in their template file
-function inlineTemplates(text: string): InlineTemplate[] {
+// templateUrl are checked in their template file. Component styles set colors when inline `styles` declare
+// some, or when they come from a file (styleUrl, styleUrls), whose colors are not known.
+function components(text: string): { templates: InlineTemplate[]; stylesheetColors: boolean } {
     const source = ts.createSourceFile('component.ts', text, ts.ScriptTarget.Latest, true);
     // Unparseable code must not read as a clean file; the parser recovers, and may lose a template doing so.
     // parseDiagnostics is internal but the only way to get syntax errors without a program
     const [syntaxError] = (source as unknown as { parseDiagnostics: ts.DiagnosticWithLocation[] }).parseDiagnostics;
     if (syntaxError) {
-        throw new ParseError(`Parse error at offset ${syntaxError.start}: ${ts.flattenDiagnosticMessageText(syntaxError.messageText, ' ')}`);
+        throw new ParseError(`offset ${syntaxError.start}`, ts.flattenDiagnosticMessageText(syntaxError.messageText, ' '));
     }
     const templates: InlineTemplate[] = [];
+    let stylesheetColors = false;
     const visit = (node: ts.Node) => {
         if (ts.isDecorator(node) && ts.isCallExpression(node.expression) && ts.isIdentifier(node.expression.expression)
             && node.expression.expression.text === 'Component') {
             const metadata = node.expression.arguments[0];
             if (metadata && ts.isObjectLiteralExpression(metadata)) {
-                const template = metadata.properties.find(p => ts.isPropertyAssignment(p) && p.name.getText(source) === 'template');
-                const initializer = template && (template as ts.PropertyAssignment).initializer;
+                const property = (name: string) => metadata.properties.find(p => ts.isPropertyAssignment(p) && p.name.getText(source) === name) as ts.PropertyAssignment | undefined;
+                const styles = property('styles')?.initializer;
+                if (styles && cssSetsColors(styles.getText(source))) stylesheetColors = true;
+                if (property('styleUrl') || property('styleUrls')) stylesheetColors = true;
+                const template = property('template');
+                const initializer = template?.initializer;
                 if (initializer && (ts.isStringLiteral(initializer) || ts.isNoSubstitutionTemplateLiteral(initializer))) {
                     const start = initializer.getStart(source) + 1;
                     templates.push({ text: text.slice(start, initializer.getEnd() - 1), start });
@@ -153,11 +160,19 @@ function inlineTemplates(text: string): InlineTemplate[] {
         ts.forEachChild(node, visit);
     };
     visit(source);
-    return templates;
+    return { templates, stylesheetColors };
 }
 
 interface TemplateNode {
     [key: string]: unknown;
+}
+
+// The template parser keeps Angular's binding type: 2 for [class.x], 3 for [style.x]
+const BOUND_STYLE_TYPES = [2, 3];
+
+interface BoundInput {
+    name: string;
+    __originalType?: number;
 }
 
 interface TemplateFacts {
@@ -170,24 +185,35 @@ interface TemplateFacts {
 function templateFacts(ast: unknown, base: number): TemplateFacts {
     const content: RenderedContent = { text: false, elements: [] };
     const boundEvents = new Map<number, Set<string>>();
-    const visit = (node: TemplateNode) => {
-        if (node.type === 'Text' && typeof node.value === 'string' && node.value.trim()) content.text = true;
-        if (node.type === 'BoundText') content.text = true;
+    const visit = (node: TemplateNode, parent?: SourceElement) => {
+        if (node.type === 'Text' && typeof node.value === 'string' && node.value.trim()) {
+            content.text = true;
+            addText(parent, node.value);
+        }
+        if (node.type === 'BoundText') {
+            content.text = true;
+            addText(parent, true);
+        }
         if (node.type === 'Element') {
             const start = (node.sourceSpan as { start: { offset: number } }).start.offset;
             const end = (node.startSourceSpan as { end: { offset: number } }).end.offset;
-            content.elements.push({ tag: node.name as string, attributes: attributesOf(node), range: { start: base + start, end: base + end } });
+            const element: SourceElement = { tag: node.name as string, attributes: attributesOf(node), range: { start: base + start, end: base + end }, parent };
+            // [class], [class.x], [style.x], [ngClass] and [ngStyle] change the class or style beyond its literal value
+            if ((node.inputs as BoundInput[]).some(input => BOUND_STYLE_TYPES.includes(input.__originalType ?? -1)
+                || ['class', 'style', 'ngclass', 'ngstyle'].includes(input.name.toLowerCase()))) element.boundStyle = true;
+            content.elements.push(element);
             boundEvents.set(start, new Set((node.outputs as { name: string }[]).map(output => output.name)));
+            parent = element;
         }
         // Elements, ng-template and control flow blocks keep what they render in children; blocks keep
         // their branches, cases and @empty, @placeholder, @loading and @error parts beside them
         for (const key of ['children', 'branches', 'groups', 'cases', 'empty', 'placeholder', 'loading', 'error']) {
             for (const child of [node[key]].flat()) {
-                if (child && typeof child === 'object') visit(child as TemplateNode);
+                if (child && typeof child === 'object') visit(child as TemplateNode, parent);
             }
         }
     };
-    (ast as { templateNodes: TemplateNode[] }).templateNodes.forEach(visit);
+    (ast as { templateNodes: TemplateNode[] }).templateNodes.forEach(node => visit(node));
     return { content, boundEvents };
 }
 

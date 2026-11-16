@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
-import { AnalysisWorker, CheckOutcome } from './analysis-worker';
+import { AnalysisWorker, CheckOutcome, EngineUsage, WorkerLog } from './analysis-worker';
+import { CheckSchedule } from './check-schedule';
 import { AnalysisDocument, AnalysisOptions, checkLanguageId, Finding, RuleSetting } from './core/analysis';
-import { criterionName, criterionUrl } from './core/wcag';
 import type { FindingsTree } from './findings-tree';
+import { diagnosticMessage, HOVER_COMMANDS, learnMarkdown } from './learn-hover';
 
 export const CHECK_SOURCE = 'Allyproof';
 
@@ -17,29 +18,33 @@ export interface Reported {
     finding: Finding;
 }
 
-/** Shows Check Findings as diagnostics and explains them on hover; a paused Check keeps the last ones. */
+/** Shows Check Findings as diagnostics and teaches them on hover; a paused Check keeps the last ones. */
 export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable {
     readonly collection = vscode.languages.createDiagnosticCollection('allyproof');
     private readonly reported = new Map<string, { version: number; findings: Reported[] }>();
     private worker: AnalysisWorker | undefined;
-    // Documents whose Check missed its deadline are checked on save only: never with unsaved changes
-    private readonly onSaveOnly = new Set<string>();
+    private readonly schedule = new CheckSchedule();
     private agentRequests = 0;
 
-    constructor(private readonly tree: FindingsTree) {}
+    constructor(private readonly tree: FindingsTree, private readonly aiAvailable: () => boolean) {}
 
     /** Starts the analysis worker from its bundled script; the worker thread spawns on the first Check. */
-    start(workerScript: string): void {
-        this.worker = new AnalysisWorker(workerScript);
+    start(workerScript: string, log: WorkerLog): void {
+        this.worker = new AnalysisWorker(workerScript, { log });
+    }
+
+    /** The engines run in this session and those paused, for an issue report. */
+    engines(): EngineUsage {
+        return this.worker?.engines() ?? { used: [], paused: [] };
     }
 
     async update(document: vscode.TextDocument): Promise<void> {
         const uri = document.uri.toString();
-        if (!this.worker || (document.isDirty && this.onSaveOnly.has(uri))) return;
+        if (!this.worker || !this.schedule.mayCheck(uri, { unsaved: document.isDirty })) return;
         const version = document.version;
         const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text: document.getText() }, options(document));
-        // A missed deadline counts even when the document changed meanwhile
-        if (outcome.status === 'paused' && outcome.deadlineExceeded) this.onSaveOnly.add(uri);
+        // How long the run took counts even when the document changed meanwhile
+        this.schedule.measured(uri, outcome);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
         if (outcome.status === 'paused') return this.tree.setPaused(document.uri, outcome.reason);
         this.tree.setCheck(document, outcome.result);
@@ -51,6 +56,11 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         }));
         this.reported.set(document.uri.toString(), { version, findings: reported });
         this.collection.set(document.uri, reported.map(({ range, finding }) => toDiagnostic(range, finding)));
+    }
+
+    /** Runs `check` once the document stopped changing; a document whose Check is slow waits for its save. */
+    changed(document: vscode.TextDocument, check: () => void): void {
+        this.schedule.changed(document.uri.toString(), check);
     }
 
     /** Check Findings of exactly this text of the file at `scope`, for the AI Review; none while the Check is paused. */
@@ -75,18 +85,27 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
 
     delete(uri: vscode.Uri): void {
         this.reported.delete(uri.toString());
-        this.onSaveOnly.delete(uri.toString());
+        this.schedule.delete(uri.toString());
         this.collection.delete(uri);
         this.tree.deleteCheck(uri);
     }
 
     provideHover(document: vscode.TextDocument, position: vscode.Position): vscode.Hover | undefined {
-        const hits = (this.reported.get(document.uri.toString())?.findings ?? []).filter(r => r.range.contains(position));
-        if (hits.length === 0) return undefined;
-        return new vscode.Hover(hits.map(({ finding }) => explain(finding)), hits[0].range);
+        const reported = this.reported.get(document.uri.toString());
+        const hits = (reported?.findings ?? []).filter(r => r.range.contains(position));
+        if (!reported || hits.length === 0) return undefined;
+        const languageId = checkLanguageId(document.languageId, document.fileName);
+        const target = { uri: document.uri.toString(), version: reported.version, aiReviewAvailable: this.aiAvailable() };
+        return new vscode.Hover(hits.map(({ finding }) => {
+            const markdown = new vscode.MarkdownString(learnMarkdown(finding, languageId, target));
+            // Command links run only for these commands; never `true`
+            markdown.isTrusted = { enabledCommands: [...HOVER_COMMANDS] };
+            return markdown;
+        }), hits[0].range);
     }
 
     dispose(): void {
+        this.schedule.dispose();
         this.worker?.dispose();
         this.collection.dispose();
         this.reported.clear();
@@ -105,27 +124,8 @@ function options(scope?: vscode.ConfigurationScope): AnalysisOptions {
 }
 
 function toDiagnostic(range: vscode.Range, finding: Finding): vscode.Diagnostic {
-    const diagnostic = new vscode.Diagnostic(
-        range,
-        `${finding.message} (WCAG ${finding.criteria.join(', ')})`,
-        SEVERITY[finding.severity]
-    );
+    const diagnostic = new vscode.Diagnostic(range, diagnosticMessage(finding), SEVERITY[finding.severity]);
     diagnostic.source = CHECK_SOURCE;
     diagnostic.code = { value: finding.ruleId, target: vscode.Uri.parse(finding.helpUrl) };
     return diagnostic;
-}
-
-function explain(finding: Finding): vscode.MarkdownString {
-    const criteria = finding.criteria
-        .map(c => `[WCAG ${c} ${criterionName(c)}](${criterionUrl(c)})`)
-        .join(' · ');
-    const markdown = new vscode.MarkdownString();
-    markdown.appendMarkdown(`**${escape(finding.message)}**\n\n`);
-    markdown.appendText(finding.explanation);
-    markdown.appendMarkdown(`\n\n${criteria} · [Rule ${escape(finding.ruleId)}](${finding.helpUrl})`);
-    return markdown;
-}
-
-function escape(text: string): string {
-    return text.replace(/[\\`*_{}[\]()#+\-.!|<>]/g, '\\$&');
 }
