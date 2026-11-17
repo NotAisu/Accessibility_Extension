@@ -74,6 +74,16 @@ describe('CheckSchedule', () => {
         assert.strictEqual(schedule.mayCheck('a', { unsaved: true }), false);
     });
 
+    it('tells whether a document is checked on save only, whose Check then gets the background deadline', () => {
+        schedule = new CheckSchedule({ budgetMs: 150 });
+
+        schedule.measured('a', done(400));
+        schedule.measured('b', done(20));
+
+        assert.strictEqual(schedule.onSaveOnly('a'), true);
+        assert.strictEqual(schedule.onSaveOnly('b'), false);
+    });
+
     it('forgets a closed document: no pending check, on change again when reopened', async () => {
         schedule = new CheckSchedule({ debounceMs: 10 });
         let checks = 0;

@@ -43,7 +43,9 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         if (!this.worker || !this.schedule.mayCheck(uri, { unsaved: document.isDirty })) return;
         const version = document.version;
         const text = document.getText();
-        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text }, options(document));
+        // A file checked on save only overran the typing deadline, so its Check gets the longer background one
+        const background = this.schedule.onSaveOnly(uri);
+        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text }, options(document), { background });
         // How long the run took counts even when the document changed meanwhile
         this.schedule.measured(uri, outcome);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;

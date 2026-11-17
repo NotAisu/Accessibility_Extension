@@ -28,6 +28,8 @@ export interface AnalysisWorkerOptions {
     deadlineMs?: number;
     /** The deadline of an engine's first run in a worker, which also loads the engine. */
     firstLoadMs?: number;
+    /** The deadline of a background request, whose result no one waits for while typing. */
+    backgroundDeadlineMs?: number;
     now?: () => number;
     log?: WorkerLog;
 }
@@ -40,7 +42,7 @@ const FAILURE_WINDOW = `${FAILURE_WINDOW_MS / 60_000} minutes`;
 const MAX_HEAP_MB = 512;
 
 export interface CheckRequestOptions {
-    /** A request no one is typing in, such as the workspace Check (#34). */
+    /** A request no one is typing in, such as the Check of a file checked on save only or the workspace Check; it gets the background deadline. */
     background?: boolean;
 }
 
@@ -67,12 +69,15 @@ export class AnalysisWorker {
     private readonly checkedLanguages = new Set<string>();
     private readonly deadlineMs: number;
     private readonly firstLoadMs: number;
+    private readonly backgroundDeadlineMs: number;
     private readonly now: () => number;
     private readonly log: WorkerLog | undefined;
 
     constructor(private readonly script: string, options: AnalysisWorkerOptions = {}) {
         this.deadlineMs = options.deadlineMs ?? 1000;
         this.firstLoadMs = options.firstLoadMs ?? 15_000;
+        // Long enough for a large file's Check (a few seconds), short enough that a hung engine is still ended
+        this.backgroundDeadlineMs = options.backgroundDeadlineMs ?? 10_000;
         this.now = options.now ?? Date.now;
         this.log = options.log;
     }
@@ -116,7 +121,7 @@ export class AnalysisWorker {
         this.worker ??= this.spawn();
         this.checkedLanguages.add(engine);
         const firstLoad = !this.loaded.has(engine);
-        const deadlineMs = firstLoad ? this.firstLoadMs : this.deadlineMs;
+        const deadlineMs = firstLoad ? this.firstLoadMs : request.background ? this.backgroundDeadlineMs : this.deadlineMs;
         const deadline = setTimeout(() => {
             // A synchronous engine cannot be interrupted, only its thread can be ended
             void this.worker?.terminate();
