@@ -61,6 +61,50 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
         await diagnosticsOf(document.uri, found => found.length > 0 && !found.some(d => code(d) === 'html-has-lang'));
     });
 
+    test('the lightbulb ignores a Finding with a comment, prepared only when picked', async () => {
+        const document = await open('ignorable.html');
+        const [alt] = await diagnosticsOf(document.uri, found => found.some(d => code(d) === 'image-alt'))
+            .then(found => found.filter(d => code(d) === 'image-alt'));
+        const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+            'vscode.executeCodeActionProvider', document.uri, alt.range, vscode.CodeActionKind.QuickFix.value);
+        const ignore = actions.find(action => action.title === 'Ignore this Finding (image-alt)');
+        assert.ok(ignore?.command && !ignore.edit, actions.map(action => action.title).join('\n'));
+        assert.ok(actions.some(action => action.title === 'Disable rule image-alt'));
+        await vscode.commands.executeCommand(ignore.command.command, ...(ignore.command.arguments ?? []) as unknown[]);
+        assert.match(document.getText(), /<!-- allyproof-ignore image-alt -->\r?\n<img/);
+        await document.save();
+        await diagnosticsOf(document.uri, found => !found.some(d => code(d) === 'image-alt'));
+    });
+
+    test('a file reopened after its tab closed shows its Findings again', async () => {
+        const document = await open('index.html');
+        await diagnosticsOf(document.uri, found => found.length > 0);
+        // Its Findings go with its tab, while VS Code keeps the document open for a while, as when a preview tab is replaced
+        await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+        await until(() => vscode.languages.getDiagnostics(document.uri).length === 0, 'the closed tab kept its Findings');
+        await open('index.html');
+        await diagnosticsOf(document.uri, found => found.length > 0);
+    });
+
+    test('a read-only copy of a file, such as a diff side, gets no Findings', async () => {
+        const copies = vscode.workspace.registerTextDocumentContentProvider('allyproof-copy', {
+            provideTextDocumentContent: () => '<html><body><img src="logo.png"></body></html>'
+        });
+        try {
+            const copy = await vscode.workspace.openTextDocument(vscode.Uri.parse('allyproof-copy:/index.html'));
+            await vscode.languages.setTextDocumentLanguage(copy, 'html');
+            // Pinned, so opening the file below does not replace the copy's tab and with it its Findings
+            await vscode.window.showTextDocument(copy, { preview: false });
+            // The worker checks one document at a time, so the copy would be checked before the file opened after it
+            const document = await open('index.html');
+            await diagnosticsOf(document.uri, found => found.length > 0);
+            assert.deepStrictEqual(vscode.languages.getDiagnostics(copy.uri), []);
+            assert.ok(!api.findings.getChildren().some(node => node.kind === 'file' && node.uri === copy.uri.toString()));
+        } finally {
+            copies.dispose();
+        }
+    });
+
     test('Check Workspace fills the Findings tree with files that are not open, without diagnostics', async () => {
         await vscode.commands.executeCommand('allyproof.checkWorkspace');
         const file = api.findings.getChildren().find(node => api.findings.getTreeItem(node).label === 'unopened.html');
@@ -94,6 +138,39 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
                 assert.strictEqual(api.aiReviewStatus.accessibilityInformation?.label, 'AI Review disabled. Trust this workspace to enable AI Review.');
             }
         } finally {
+            await settings.update('aiReview.provider', undefined, vscode.ConfigurationTarget.Global);
+            await settings.update('aiReview.localEndpoint', undefined, vscode.ConfigurationTarget.Global);
+            server.close();
+        }
+    });
+
+    if (trusted) test('Cancel ends an AI Review whose model lookup is pending, and the next one starts', async () => {
+        // A local server that holds every model lookup until the test ends
+        const requests: string[] = [];
+        const held: http.ServerResponse[] = [];
+        const server = http.createServer((request, response) => {
+            requests.push(`${request.method} ${request.url}`);
+            held.push(response);
+        });
+        await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+        const settings = vscode.workspace.getConfiguration('allyproof');
+        try {
+            await settings.update('aiReview.localEndpoint', `http://127.0.0.1:${(server.address() as AddressInfo).port}/v1`, vscode.ConfigurationTarget.Global);
+            await settings.update('aiReview.provider', 'local', vscode.ConfigurationTarget.Global);
+            await open('index.html');
+            const first = vscode.commands.executeCommand('allyproof.startAIReview');
+            await until(() => requests.length === 1, 'the model lookup never reached the server');
+
+            await vscode.commands.executeCommand('allyproof.cancelAIReview');
+            await first;
+            assert.match(api.aiReviewStatus.text, /AI Review cancelled/);
+
+            const second = vscode.commands.executeCommand('allyproof.startAIReview');
+            await until(() => requests.length === 2, 'the next AI Review never started');
+            await vscode.commands.executeCommand('allyproof.cancelAIReview');
+            await second;
+        } finally {
+            held.forEach(response => response.destroy());
             await settings.update('aiReview.provider', undefined, vscode.ConfigurationTarget.Global);
             await settings.update('aiReview.localEndpoint', undefined, vscode.ConfigurationTarget.Global);
             server.close();

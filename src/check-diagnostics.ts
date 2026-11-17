@@ -43,10 +43,15 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         if (!this.worker || !this.schedule.mayCheck(uri, { unsaved: document.isDirty })) return;
         const version = document.version;
         const text = document.getText();
-        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text }, options(document));
+        // A file checked on save only overran the typing deadline, so its Check gets the longer background one
+        const background = this.schedule.onSaveOnly(uri);
+        const outcome = await this.worker.check(uri, { languageId: checkLanguageId(document.languageId, document.fileName), text }, options(document), { background });
         // How long the run took counts even when the document changed meanwhile
         this.schedule.measured(uri, outcome);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
+        this.schedule.checked(uri, version);
+        // The schedule now checks a file that overran its deadline on save only
+        if (outcome.status === 'paused' && outcome.deadlineExceeded) return this.tree.setCheckedOnSave(document.uri, outcome.reason);
         if (outcome.status === 'paused') return this.tree.setPaused(document.uri, outcome.reason);
         this.tree.setCheck(document, outcome.result);
         const { findings } = outcome.result;
@@ -99,6 +104,11 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
     reportOf(uri: vscode.Uri): { text: string; findings: Finding[] } | undefined {
         const reported = this.reported.get(uri.toString());
         return reported && { text: reported.text, findings: reported.findings.map(({ finding }) => finding) };
+    }
+
+    /** Whether the document's current text was checked: its Findings, paused or checked-on-save state are shown. */
+    isCurrent(document: vscode.TextDocument): boolean {
+        return this.schedule.isCurrent(document.uri.toString(), document.version);
     }
 
     /** Findings with a fix, only while their offsets still match the document's text. */

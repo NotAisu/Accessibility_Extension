@@ -8,8 +8,6 @@ import { withOwnRules } from '../own-rules';
 import { addText, cssSetsColors, type SourceElement } from '../needs-review';
 import type { AnalysisResult, Finding, TextRange } from '../analysis';
 
-const AXE_TIMEOUT_MS = 5000;
-
 // JSDOM has no layout, so rules that need rendering cannot be decided
 export const LAYOUT_RULES = ['color-contrast', 'target-size', 'link-in-text-block', 'scrollable-region-focusable'];
 
@@ -49,12 +47,8 @@ async function runAxe(text: string): Promise<AnalysisResult> {
     const dom = new JSDOM(text, { includeNodeLocations: true, virtualConsole: new VirtualConsole() });
     const { document } = dom.window;
     try {
-        let timer: NodeJS.Timeout | undefined;
-        const timeout = new Promise<never>((_, reject) => {
-            timer = setTimeout(() => reject(new Error('axe-timeout')), AXE_TIMEOUT_MS);
-        });
-        const results = await Promise.race([axe.run(document.documentElement, AXE_OPTIONS), timeout])
-            .finally(() => clearTimeout(timer));
+        // No timeout of its own: an unfinished axe run would overlap the next one. The analysis worker's deadline ends it
+        const results = await axe.run(document.documentElement, AXE_OPTIONS);
         return withOwnRules(toFindings(text, dom, results.violations), {
             text: Boolean(document.body?.textContent?.trim()),
             elements: sourceElements(dom),
