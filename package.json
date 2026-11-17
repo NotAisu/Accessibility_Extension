@@ -399,7 +399,7 @@
     "eslint-plugin-jsx-a11y-x": "0.2.0",
     "eslint-plugin-vuejs-accessibility": "2.6.3",
     "globals": "17.14.0",
-    "ignore": "5.3.2",
+    "ignore": "7.0.12",
     "jsdom": "26.1.0",
     "svelte": "5.57.3",
     "tailwindcss": "4.3.5",
