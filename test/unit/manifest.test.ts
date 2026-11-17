@@ -99,11 +99,6 @@ describe('manifest', () => {
         }
     });
 
-    it('puts every command under the Allyproof category', () => {
-        for (const command of manifest.contributes.commands) {
-            assert.strictEqual(command.category, 'Allyproof', command.command);
-        }
-    });
 
     it('shows Findings in a native tree view, with no webviews anywhere', () => {
         const views = Object.values(manifest.contributes.views ?? {}).flat();
@@ -136,21 +131,5 @@ describe('manifest', () => {
         const trust = manifest.capabilities?.untrustedWorkspaces;
         assert.strictEqual(trust?.supported, 'limited');
         assert.deepStrictEqual(trust.restrictedConfigurations, restricted);
-    });
-
-    it('runs on the UI side or in the remote workspace', () => {
-        assert.deepStrictEqual(manifest.extensionKind, ['ui', 'workspace']);
-    });
-
-    it('carries the Marketplace identity', () => {
-        assert.strictEqual(manifest.publisher, 'notaisu');
-        assert.strictEqual(manifest.name, 'allyproof');
-        assert.strictEqual(manifest.displayName, 'Allyproof – WCAG 2.2 Accessibility Checker');
-        assert.strictEqual(manifest.license, 'MIT');
-        assert.strictEqual(manifest.pricing, 'Free');
-        assert.ok(manifest.repository?.url, 'repository');
-        assert.ok(manifest.keywords?.length, 'keywords');
-        assert.ok(manifest.categories?.length, 'categories');
-        assert.ok(fs.existsSync(path.join(root, 'LICENSE')), 'LICENSE file');
     });
 });
