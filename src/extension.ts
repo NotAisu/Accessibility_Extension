@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
         aiReview,
         aiFixes,
         vscode.languages.registerHoverProvider(SUPPORTED_LANGUAGES, check),
-        vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, new IgnoreActions(check), IgnoreActions.metadata),
+        vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, new IgnoreActions(), IgnoreActions.metadata),
         vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, fixes, CheckFixes.metadata),
         vscode.languages.registerCodeActionsProvider(SUPPORTED_LANGUAGES, aiFixes, AIFixes.metadata),
         vscode.commands.registerCommand('allyproof.fixWithAI', (argument: FixWithAIArgument) => aiFixes.fix(argument)),
@@ -87,6 +87,10 @@ export function activate(context: vscode.ExtensionContext): TestingApi | undefin
             engines: check.engines()
         })))),
         vscode.workspace.onDidOpenTextDocument(runDiagnostics),
+        // A document reopened in a tab while VS Code still holds it is never opened again, but its Findings went with its tab
+        vscode.window.onDidChangeVisibleTextEditors(editors => editors.forEach(({ document }) => {
+            if (!check.isCurrent(document)) void runDiagnostics(document);
+        })),
         vscode.workspace.onDidChangeTextDocument(({ document, contentChanges }) => {
             if (contentChanges.length > 0) check.changed(document, () => void runDiagnostics(document));
         }),
@@ -129,9 +133,13 @@ function shownInTab(uri: vscode.Uri): boolean {
         tab.input instanceof vscode.TabInputText && tab.input.uri.toString() === uri.toString()));
 }
 
+// Files the user edits; read-only copies (a Source Control diff, an AI fix preview) would list each Finding twice
+const EDITABLE_SCHEMES = ['file', 'untitled', 'vscode-remote', 'vscode-vfs'];
+
 // TypeScript files only while they hold an Angular component, as the Check's own gate decides
 function checked(document: vscode.TextDocument): boolean {
-    return SUPPORTED_LANGUAGES.includes(document.languageId) && isChecked({ languageId: document.languageId, text: document.getText() });
+    return EDITABLE_SCHEMES.includes(document.uri.scheme) && SUPPORTED_LANGUAGES.includes(document.languageId)
+        && isChecked({ languageId: document.languageId, text: document.getText() });
 }
 
 async function checkDocument(check: CheckDiagnostics, document: vscode.TextDocument, log: vscode.LogOutputChannel): Promise<void> {

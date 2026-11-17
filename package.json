@@ -361,6 +361,7 @@
     "bench": "ts-node test/bench/run.ts",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
+    "audit": "ts-node scripts/audit.ts",
     "bundle": "node esbuild.js --production && ts-node scripts/third-party-notices.ts",
     "package": "vsce package",
     "test:unit": "mocha",
