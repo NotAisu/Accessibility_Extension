@@ -102,6 +102,11 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         return reported && { text: reported.text, findings: reported.findings.map(({ finding }) => finding) };
     }
 
+    /** Whether the Findings shown are those of the document's current text. */
+    isCurrent(document: vscode.TextDocument): boolean {
+        return this.reported.get(document.uri.toString())?.version === document.version;
+    }
+
     /** Findings with a fix, only while their offsets still match the document's text. */
     fixable(document: vscode.TextDocument): Reported[] {
         const reported = this.reported.get(document.uri.toString());
