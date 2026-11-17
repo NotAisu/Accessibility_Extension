@@ -2,7 +2,7 @@ import { Linter } from 'eslint/universal';
 import * as htmlPlugin from '@html-eslint/eslint-plugin';
 import * as htmlParser from '@html-eslint/parser';
 import type { Finding } from '../analysis';
-import { lineOffsets } from '../offsets';
+import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 
 // @html-eslint rules whose failure maps to a WCAG 2.2 A/AA criterion, primary criterion first.
 // require-img-alt, require-input-label, require-title, no-invalid-role and no-aria-hidden-on-focusable
@@ -39,10 +39,9 @@ function config(skip: Set<string>): Linter.Config[] {
 const linter = new Linter({ configType: 'flat' });
 
 export function checkHtmlWithEslint(text: string): Finding[] {
-    const offsets = lineOffsets(text);
-    const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
+    const toOffset = eslintOffsetAt(text);
     const findings: Finding[] = [];
-    for (const message of verify(text)) {
+    for (const message of lintSkippingCrashedRules(linter, text, 'document.html', config)) {
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
@@ -60,19 +59,4 @@ export function checkHtmlWithEslint(text: string): Finding[] {
         });
     }
     return findings;
-}
-
-// A rule that throws on unusual code (an html start tag cut off after lang) would cost every other rule's
-// Findings, so the document is linted again without it
-function verify(text: string): Linter.LintMessage[] {
-    const skip = new Set<string>();
-    for (;;) {
-        try {
-            return linter.verify(text, config(skip), 'document.html');
-        } catch (error) {
-            const ruleId = (error as { ruleId?: unknown }).ruleId;
-            if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;
-            skip.add(ruleId);
-        }
-    }
 }

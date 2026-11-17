@@ -8,25 +8,20 @@ import type { IgnoreFindingArgument } from './learn-hover';
 export class IgnoreActions implements vscode.CodeActionProvider {
     static readonly metadata: vscode.CodeActionProviderMetadata = { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] };
 
-    constructor(private readonly check: CheckDiagnostics) {}
-
-    async provideCodeActions(document: vscode.TextDocument, _range: vscode.Range, context: vscode.CodeActionContext): Promise<vscode.CodeAction[]> {
-        const actions = await Promise.all(context.diagnostics.filter(diagnostic => diagnostic.source === CHECK_SOURCE).map(async diagnostic => {
+    // The ignore comment is prepared only when picked, by the hover's command, since finding a valid form runs the Check
+    provideCodeActions(document: vscode.TextDocument, _range: vscode.Range, context: vscode.CodeActionContext): vscode.CodeAction[] {
+        return context.diagnostics.filter(diagnostic => diagnostic.source === CHECK_SOURCE).flatMap(diagnostic => {
             const ruleId = String(codeOf(diagnostic));
-            const line = await ignoreLineFor(this.check, document, ruleId, document.offsetAt(diagnostic.range.start));
+            const argument: IgnoreFindingArgument = { uri: document.uri.toString(), ruleId, offset: document.offsetAt(diagnostic.range.start), version: document.version };
+            const ignore = new vscode.CodeAction(`Ignore this Finding (${ruleId})`, vscode.CodeActionKind.QuickFix);
+            ignore.diagnostics = [diagnostic];
+            ignore.command = { title: ignore.title, command: 'allyproof.ignoreFinding', arguments: [argument] };
 
             const disable = new vscode.CodeAction(`Disable rule ${ruleId}`, vscode.CodeActionKind.QuickFix);
             disable.diagnostics = [diagnostic];
             disable.command = { title: disable.title, command: 'allyproof.disableRule', arguments: [ruleId] };
-            if (!line) return [disable];
-
-            const ignore = new vscode.CodeAction(`Ignore this Finding (${ruleId})`, vscode.CodeActionKind.QuickFix);
-            ignore.diagnostics = [diagnostic];
-            ignore.edit = new vscode.WorkspaceEdit();
-            ignore.edit.insert(document.uri, document.positionAt(line.offset), line.text);
             return [ignore, disable];
-        }));
-        return actions.flat();
+        });
     }
 }
 
