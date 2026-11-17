@@ -25,6 +25,7 @@ interface FileState {
     ai: LocatedFinding[];
     needsReview: FileFindings['needsReview'];
     paused?: string;
+    checkedOnSave?: string;
 }
 
 /** The Findings tree and the current file's status bar summary; Needs Review is shown only here. */
@@ -52,13 +53,19 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
         state.needsReview = result.needsReview.map(entry => entry.range
             ? { ...entry, line: document.positionAt(entry.range.start).line + 1 }
             : entry);
-        state.paused = undefined;
+        Object.assign(state, { paused: undefined, checkedOnSave: undefined });
         this.refresh();
     }
 
     /** The last Findings stay while the Check is paused. */
     setPaused(uri: vscode.Uri, reason: string): void {
-        this.state(uri).paused = reason;
+        Object.assign(this.state(uri), { paused: reason, checkedOnSave: undefined });
+        this.refresh();
+    }
+
+    /** A large file that overran its deadline: checked on save only, and its last Findings stay. */
+    setCheckedOnSave(uri: vscode.Uri, reason: string): void {
+        Object.assign(this.state(uri), { paused: undefined, checkedOnSave: reason });
         this.refresh();
     }
 
@@ -71,7 +78,7 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
     deleteCheck(uri: vscode.Uri): void {
         const state = this.files.get(uri.toString());
         if (!state) return;
-        Object.assign(state, { check: [], needsReview: [], paused: undefined });
+        Object.assign(state, { check: [], needsReview: [], paused: undefined, checkedOnSave: undefined });
         this.removeIfEmpty(uri, state);
     }
 
@@ -142,6 +149,9 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
                 };
                 break;
             }
+            case 'checked-on-save':
+                item.iconPath = new vscode.ThemeIcon('save');
+                break;
             case 'paused':
                 item.iconPath = new vscode.ThemeIcon('debug-pause', new vscode.ThemeColor('list.warningForeground'));
                 item.tooltip = `${node.reason}. Click to show the log.`;
@@ -173,7 +183,7 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
     }
 
     private removeIfEmpty(uri: vscode.Uri, state: FileState): void {
-        if (!state.check.length && !state.ai.length && !state.needsReview.length && state.paused === undefined) {
+        if (!state.check.length && !state.ai.length && !state.needsReview.length && state.paused === undefined && state.checkedOnSave === undefined) {
             this.files.delete(uri.toString());
         }
         this.refresh();
@@ -199,7 +209,7 @@ export class FindingsTree implements vscode.TreeDataProvider<TreeNode>, vscode.D
 }
 
 function toFile(uri: string, state: FileState): FileFindings {
-    return { uri, name: state.name, findings: [...state.check, ...state.ai], needsReview: state.needsReview, paused: state.paused };
+    return { uri, name: state.name, findings: [...state.check, ...state.ai], needsReview: state.needsReview, paused: state.paused, checkedOnSave: state.checkedOnSave };
 }
 
 function locate(document: Located, findings: Finding[]): LocatedFinding[] {

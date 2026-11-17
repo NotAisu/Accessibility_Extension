@@ -124,6 +124,21 @@ describe('Findings tree', () => {
         })], ALL)), [['page.html', ['Check paused', ['1.1.1 Non-text Content', ['Image has no alt']]]]]);
     });
 
+    it('shows a large file as checked on save, not as a paused Check', () => {
+        const tree = findingsTree([file({
+            findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }],
+            checkedOnSave: 'The Check took longer than 1000 ms'
+        })], ALL);
+
+        assert.deepStrictEqual(tree[0].children![0], {
+            kind: 'checked-on-save',
+            label: 'Checked on save',
+            description: 'The Check took longer than 1000 ms',
+            accessibilityLabel: 'Checked on save: The Check took longer than 1000 ms, so this large file is checked when you save. The last Findings stay.'
+        });
+        assert.strictEqual(tree[0].accessibilityLabel, 'page.html, 1 Finding, checked on save');
+    });
+
     it('describes each Finding by line and layer, and gives every node a screen reader label', () => {
         const tree = findingsTree([file({
             findings: [
@@ -183,6 +198,18 @@ describe('Findings status bar summary', () => {
             tooltip: 'Timed out. The last Findings stay. Click to show the log.',
             accessibilityLabel: 'Accessibility: Check paused: Timed out. The last Findings stay. Activate to show the log.',
             showsLog: true
+        });
+    });
+    it('shows a large file as checked on save with its last Findings, linking to the Findings', () => {
+        const summary = statusSummary(file({
+            findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }],
+            checkedOnSave: 'The Check took longer than 1000 ms'
+        }));
+
+        assert.deepStrictEqual(summary, {
+            text: '$(save) Checked on save',
+            tooltip: 'The Check took longer than 1000 ms, so this large file is checked when you save. The last Findings stay. Click to show the Findings.',
+            accessibilityLabel: 'Accessibility: Checked on save: The Check took longer than 1000 ms, so this large file is checked when you save. The last Findings stay.'
         });
     });
 });
