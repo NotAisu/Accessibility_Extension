@@ -102,7 +102,7 @@ describe('AnalysisWorker', () => {
         worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 200 });
         await worker.check('a.html', html('fail'));
         await worker.check('a.html', html('crash'));
-        await worker.check('a.html', html('hang'));
+        await worker.check('a.html', html('fail'));
 
         const paused = await worker.check('a.html', html('ok'));
         const otherEngine = await worker.check('a.vue', { languageId: 'vue', text: 'ok' });
@@ -115,10 +115,10 @@ describe('AnalysisWorker', () => {
         assert.strictEqual(echoed(otherEngine).text, 'ok');
     });
 
-    it('never pauses an engine for deadline overruns of background requests, which say a file is large', async () => {
+    it('never pauses an engine for deadline overruns, which say a file is large', async () => {
         worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 200 });
         for (let i = 0; i < 3; i++) {
-            const overrun = await worker.check(`workspace:${i}.html`, html('hang'), {}, { background: true });
+            const overrun = await worker.check(`${i}.html`, html('hang'), {}, { background: i === 0 });
             assert.deepStrictEqual(overrun, { status: 'paused', reason: 'The Check took longer than 200 ms', deadlineExceeded: true });
         }
 
@@ -163,6 +163,7 @@ describe('AnalysisWorker', () => {
         await worker.check('a.html', html('hang'));
         await worker.check('a.vue', { languageId: 'vue', text: 'crash' });
         await worker.check('a.html', html('crash'));
+        await worker.check('a.html', html('fail'));
         await worker.check('a.html', html('ok'));
 
         assert.deepStrictEqual(lines, [
@@ -173,6 +174,8 @@ describe('AnalysisWorker', () => {
             'error vue engine: The analysis worker crashed: engine crashed',
             'info Analysis worker started',
             'error html engine: The analysis worker crashed: engine crashed',
+            'info Analysis worker started',
+            'error html engine failed: engine failed',
             'error html engine paused for this session after 3 failures within 3 minutes'
         ]);
     });

@@ -40,10 +40,7 @@ const FAILURE_WINDOW = `${FAILURE_WINDOW_MS / 60_000} minutes`;
 const MAX_HEAP_MB = 512;
 
 export interface CheckRequestOptions {
-    /**
-     * A request no one is typing in, such as the workspace Check (#34): its deadline overrun says the file is large,
-     * not that the engine fails, so it never trips the circuit breaker; crashes and engine errors still do.
-     */
+    /** A request no one is typing in, such as the workspace Check (#34). */
     background?: boolean;
 }
 
@@ -125,13 +122,14 @@ export class AnalysisWorker {
             void this.worker?.terminate();
             this.worker = undefined;
             this.log?.warn(`${engine} Check took longer than ${deadlineMs} ms; the analysis worker is restarted`);
-            this.finish({ status: 'paused', reason: `The Check took longer than ${deadlineMs} ms`, deadlineExceeded: true }, !request.background);
+            this.finish({ status: 'paused', reason: `The Check took longer than ${deadlineMs} ms`, deadlineExceeded: true }, false);
         }, deadlineMs);
         this.running = { request, deadline, started: this.now(), firstLoad };
         this.worker.postMessage({ document: request.document, options: request.options } satisfies WorkerRequest);
     }
 
-    // A parse error is the user's code, not the engine failing, so it never trips the circuit breaker
+    // A parse error is the user's code and a deadline overrun a large file, not the engine failing, so neither trips
+    // the circuit breaker; crashes and engine errors do
     private finish(outcome: CheckOutcome, failure = outcome.status === 'paused'): void {
         if (!this.running) return;
         clearTimeout(this.running.deadline);

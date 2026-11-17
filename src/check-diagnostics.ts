@@ -47,7 +47,8 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         // How long the run took counts even when the document changed meanwhile
         this.schedule.measured(uri, outcome);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
-        if (outcome.status === 'paused') return this.tree.setPaused(document.uri, outcome.reason);
+        // The schedule now checks a file that overran its deadline on save only
+        if (outcome.status === 'paused') return this.tree.setPaused(document.uri, outcome.deadlineExceeded ? `${outcome.reason}, so the file is checked on save` : outcome.reason);
         this.tree.setCheck(document, outcome.result);
         const { findings } = outcome.result;
 
