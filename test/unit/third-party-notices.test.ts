@@ -15,6 +15,23 @@ describe('third-party notices', () => {
         assert.ok(!isAllowedLicense('GPL-3.0-only AND (MIT OR ISC)'));
     });
 
+    it('reads nested brackets with AND binding tighter than OR', () => {
+        assert.ok(isAllowedLicense('(MIT OR (Apache-2.0 AND BSD-3-Clause))'));
+        assert.ok(isAllowedLicense('((MIT))'));
+        assert.ok(isAllowedLicense('GPL-3.0-only AND LGPL-2.1-only OR MIT'));
+        assert.ok(!isAllowedLicense('MIT AND (GPL-3.0-only OR (LGPL-2.1-only AND ISC))'));
+        assert.ok(!isAllowedLicense('(MIT AND GPL-3.0-only) OR (ISC AND LGPL-2.1-only)'));
+    });
+
+    it('fails closed on what it does not read', () => {
+        assert.ok(!isAllowedLicense('(MIT OR ISC'));
+        assert.ok(!isAllowedLicense('MIT OR ISC)'));
+        assert.ok(!isAllowedLicense('MIT OR'));
+        assert.ok(!isAllowedLicense(''));
+        assert.ok(!isAllowedLicense('MIT WITH LLVM-exception'));
+        assert.ok(!isAllowedLicense('Apache-2.0+'));
+    });
+
     it('finds the package of each bundled file, nested and scoped', () => {
         assert.deepStrictEqual(bundledPackageDirs([
             'src/core/analysis.ts',
