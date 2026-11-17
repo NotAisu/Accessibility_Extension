@@ -99,7 +99,6 @@ describe('manifest', () => {
         }
     });
 
-
     it('shows Findings in a native tree view, with no webviews anywhere', () => {
         const views = Object.values(manifest.contributes.views ?? {}).flat();
         assert.ok(views.some(view => view.id === 'allyproof.findings'), 'Findings tree');

@@ -3,7 +3,7 @@ import angularTemplate from '@angular-eslint/eslint-plugin-template';
 import * as templateParser from '@angular-eslint/template-parser';
 import ts from 'typescript';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import { eslintOffsets, lintSkippingCrashedRules } from '../eslint';
+import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 import { addText, cssSetsColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 import { mappedElement, writtenNames, type ComponentMapping } from '../components';
@@ -115,7 +115,7 @@ export function checkAngularComponents(text: string, mapping?: ComponentMapping)
 
 // Ranges are offsets into the template text plus `base`, its start in the checked document
 function checkTemplate(text: string, base: number, components: ComponentMapping | undefined): { findings: Finding[]; content: RenderedContent } {
-    const offsetAt = eslintOffsets(text);
+    const offsetAt = eslintOffsetAt(text);
     const toOffset = (line: number, column: number) => base + offsetAt(line, column);
     const findings: Finding[] = [];
     const messages = lintSkippingCrashedRules(linter, text, 'template.html', skip => config(skip, components));

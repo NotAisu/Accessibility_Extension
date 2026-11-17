@@ -3,7 +3,7 @@ import vueA11y from 'eslint-plugin-vuejs-accessibility';
 import * as vueParser from 'vue-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import { eslintOffsets, lintSkippingCrashedRules } from '../eslint';
+import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 import { addText, styleBlocksSetColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 import { mappedElement, writtenNames, type ComponentMapping } from '../components';
@@ -95,7 +95,7 @@ function config(skip: Set<string>, components: ComponentMapping | undefined): Li
 const linter = new Linter({ configType: 'flat' });
 
 export function checkVue(text: string, components?: ComponentMapping): AnalysisResult {
-    const toOffset = eslintOffsets(text);
+    const toOffset = eslintOffsetAt(text);
     const findings: Finding[] = [];
     for (const message of lintSkippingCrashedRules(linter, text, 'document.vue', skip => config(skip, components))) {
         // Unparseable code must not read as a clean file

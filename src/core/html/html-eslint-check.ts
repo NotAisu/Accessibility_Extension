@@ -2,7 +2,7 @@ import { Linter } from 'eslint/universal';
 import * as htmlPlugin from '@html-eslint/eslint-plugin';
 import * as htmlParser from '@html-eslint/parser';
 import type { Finding } from '../analysis';
-import { eslintOffsets, lintSkippingCrashedRules } from '../eslint';
+import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 
 // @html-eslint rules whose failure maps to a WCAG 2.2 A/AA criterion, primary criterion first.
 // require-img-alt, require-input-label, require-title, no-invalid-role and no-aria-hidden-on-focusable
@@ -39,7 +39,7 @@ function config(skip: Set<string>): Linter.Config[] {
 const linter = new Linter({ configType: 'flat' });
 
 export function checkHtmlWithEslint(text: string): Finding[] {
-    const toOffset = eslintOffsets(text);
+    const toOffset = eslintOffsetAt(text);
     const findings: Finding[] = [];
     for (const message of lintSkippingCrashedRules(linter, text, 'document.html', config)) {
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;

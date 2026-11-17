@@ -3,7 +3,7 @@ import astro from 'eslint-plugin-astro';
 import * as astroParser from 'astro-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import { eslintOffsets, lintSkippingCrashedRules } from '../eslint';
+import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 import { styleBlocksSetColors } from '../needs-review';
 import { hasSpread, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
 import { withOwnRules } from '../own-rules';
@@ -43,7 +43,7 @@ function config(skip: Set<string>, components: ComponentMapping | undefined): Li
 const linter = new Linter({ configType: 'flat' });
 
 export function checkAstro(text: string, components?: ComponentMapping): AnalysisResult {
-    const toOffset = eslintOffsets(text);
+    const toOffset = eslintOffsetAt(text);
     const findings: Finding[] = [];
     for (const message of lintSkippingCrashedRules(linter, text, 'document.astro', skip => config(skip, components))) {
         // Unparseable code must not read as a clean file

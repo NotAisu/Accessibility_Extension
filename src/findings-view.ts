@@ -18,10 +18,13 @@ export interface FileFindings {
     findings: LocatedFinding[];
     /** `line`: 1-based line of the element a likely failure points at. */
     needsReview: (NeedsReview & { line?: number })[];
-    /** Why the Check is paused for this file; its last Findings stay. */
-    paused?: string;
-    /** Why this large file is checked on save only, after its Check overran the deadline; its last Findings stay. */
-    checkedOnSave?: string;
+    /** Why the Check is paused for this file, or why this large file is checked on save only after its Check overran the deadline; its last Findings stay. */
+    status?: CheckStatus;
+}
+
+export interface CheckStatus {
+    kind: 'paused' | 'checked-on-save';
+    reason: string;
 }
 
 interface NodeText {
@@ -50,8 +53,7 @@ export function findingsTree(files: FileFindings[], filters: ReadonlySet<Filter>
             const children = fileChildren(file, filters);
             const findings = children.filter(node => node.kind === 'criterion').reduce((sum, node) => sum + node.children!.length, 0);
             const parts = [file.name, count(findings, 'Finding')];
-            if (file.paused !== undefined) parts.push('Check paused');
-            if (file.checkedOnSave !== undefined) parts.push('checked on save');
+            if (file.status) parts.push(file.status.kind === 'paused' ? 'Check paused' : 'checked on save');
             if (filters.has('needs-review') && file.needsReview.length > 0) parts.push(`${file.needsReview.length} Needs Review`);
             return { kind: 'file', uri: file.uri, label: file.name, accessibilityLabel: parts.join(', '), children };
         })
@@ -62,22 +64,24 @@ function fileChildren(file: FileFindings, filters: ReadonlySet<Filter>): TreeNod
     const findings = file.findings.filter(({ finding }) => filters.has(finding.layer));
     const children = byCriterion(file.uri, findings);
     // A paused Check must never read as "no Findings", so it shows whatever the filters
-    if (file.paused !== undefined) {
+    if (file.status?.kind === 'paused') {
+        const { reason } = file.status;
         children.unshift({
             kind: 'paused',
-            reason: file.paused,
+            reason,
             label: 'Check paused',
-            description: file.paused,
-            accessibilityLabel: `Check paused: ${file.paused}. The last Findings stay.`
+            description: reason,
+            accessibilityLabel: `Check paused: ${reason}. The last Findings stay.`
         });
     }
     // A large file is not a broken engine, so it reads as a schedule, not as a pause
-    if (file.checkedOnSave !== undefined) {
+    if (file.status?.kind === 'checked-on-save') {
+        const { reason } = file.status;
         children.unshift({
             kind: 'checked-on-save',
             label: 'Checked on save',
-            description: file.checkedOnSave,
-            accessibilityLabel: `Checked on save: ${onSaveDetail(file.checkedOnSave)}`
+            description: reason,
+            accessibilityLabel: `Checked on save: ${onSaveDetail(reason)}`
         });
     }
     if (filters.has('needs-review') && file.needsReview.length > 0) {
@@ -149,8 +153,8 @@ const SHOW = 'Click to show the Findings.';
 
 /** The status bar item for the current file. */
 export function statusSummary(file: FileFindings): StatusSummary {
-    if (file.paused !== undefined) {
-        const detail = `${file.paused}. The last Findings stay.`;
+    if (file.status?.kind === 'paused') {
+        const detail = `${file.status.reason}. The last Findings stay.`;
         return {
             text: '$(debug-pause) Check paused',
             tooltip: `${detail} Click to show the log.`,
@@ -158,8 +162,8 @@ export function statusSummary(file: FileFindings): StatusSummary {
             showsLog: true
         };
     }
-    if (file.checkedOnSave !== undefined) {
-        const detail = onSaveDetail(file.checkedOnSave);
+    if (file.status?.kind === 'checked-on-save') {
+        const detail = onSaveDetail(file.status.reason);
         return {
             text: '$(save) Checked on save',
             tooltip: `${detail} ${SHOW}`,

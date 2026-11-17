@@ -18,8 +18,8 @@ export function lintSkippingCrashedRules(linter: Linter, text: string, filename:
     }
 }
 
-/** The text offset of an ESLint 1-based line and column, capped at the end of `text`. */
-export function eslintOffsets(text: string): (line: number, column: number) => number {
+/** The function from an ESLint 1-based line and column to its text offset, capped at the end of `text`. */
+export function eslintOffsetAt(text: string): (line: number, column: number) => number {
     const offsets = lineOffsets(text);
     return (line, column) => Math.min(offsets[line - 1] + column - 1, text.length);
 }
