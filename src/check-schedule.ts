@@ -15,6 +15,8 @@ export class CheckSchedule {
     private readonly timers = new Map<string, NodeJS.Timeout>();
     // Documents never checked with unsaved changes
     private readonly saveOnly = new Set<string>();
+    // The version of each document whose Check last ran, whatever its outcome
+    private readonly checkedVersions = new Map<string, number>();
     private readonly debounceMs: number;
     private readonly budgetMs: number;
 
@@ -51,7 +53,18 @@ export class CheckSchedule {
         else this.saveOnly.delete(key);
     }
 
+    /** Records that the Check of this version of the document ran, with Findings, paused or over its deadline. */
+    checked(key: string, version: number): void {
+        this.checkedVersions.set(key, version);
+    }
+
+    /** Whether this version of the document was checked; showing it again then needs no Check, which for a large file would only overrun again. */
+    isCurrent(key: string, version: number): boolean {
+        return this.checkedVersions.get(key) === version;
+    }
+
     delete(key: string): void {
+        this.checkedVersions.delete(key);
         clearTimeout(this.timers.get(key));
         this.timers.delete(key);
         this.saveOnly.delete(key);

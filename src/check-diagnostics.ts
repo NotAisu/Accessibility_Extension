@@ -49,6 +49,7 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         // How long the run took counts even when the document changed meanwhile
         this.schedule.measured(uri, outcome);
         if (outcome.status === 'dropped' || document.isClosed || document.version !== version) return;
+        this.schedule.checked(uri, version);
         // The schedule now checks a file that overran its deadline on save only
         if (outcome.status === 'paused' && outcome.deadlineExceeded) return this.tree.setCheckedOnSave(document.uri, outcome.reason);
         if (outcome.status === 'paused') return this.tree.setPaused(document.uri, outcome.reason);
@@ -105,9 +106,9 @@ export class CheckDiagnostics implements vscode.HoverProvider, vscode.Disposable
         return reported && { text: reported.text, findings: reported.findings.map(({ finding }) => finding) };
     }
 
-    /** Whether the Findings shown are those of the document's current text. */
+    /** Whether the document's current text was checked: its Findings, paused or checked-on-save state are shown. */
     isCurrent(document: vscode.TextDocument): boolean {
-        return this.reported.get(document.uri.toString())?.version === document.version;
+        return this.schedule.isCurrent(document.uri.toString(), document.version);
     }
 
     /** Findings with a fix, only while their offsets still match the document's text. */

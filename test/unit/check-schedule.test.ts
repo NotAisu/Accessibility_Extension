@@ -84,6 +84,18 @@ describe('CheckSchedule', () => {
         assert.strictEqual(schedule.onSaveOnly('b'), false);
     });
 
+    it('knows which version of a document was checked, so showing it again does not check it again', () => {
+        schedule = new CheckSchedule();
+
+        schedule.checked('a', 3);
+
+        assert.strictEqual(schedule.isCurrent('a', 3), true);
+        assert.strictEqual(schedule.isCurrent('a', 4), false);
+        assert.strictEqual(schedule.isCurrent('b', 1), false);
+        schedule.delete('a');
+        assert.strictEqual(schedule.isCurrent('a', 3), false);
+    });
+
     it('forgets a closed document: no pending check, on change again when reopened', async () => {
         schedule = new CheckSchedule({ debounceMs: 10 });
         let checks = 0;
