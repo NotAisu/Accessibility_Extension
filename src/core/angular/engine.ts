@@ -3,7 +3,7 @@ import angularTemplate from '@angular-eslint/eslint-plugin-template';
 import * as templateParser from '@angular-eslint/template-parser';
 import ts from 'typescript';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import { lineOffsets } from '../offsets';
+import { eslintOffsets, lintSkippingCrashedRules } from '../eslint';
 import { addText, cssSetsColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 import { mappedElement, writtenNames, type ComponentMapping } from '../components';
@@ -115,10 +115,10 @@ export function checkAngularComponents(text: string, mapping?: ComponentMapping)
 
 // Ranges are offsets into the template text plus `base`, its start in the checked document
 function checkTemplate(text: string, base: number, components: ComponentMapping | undefined): { findings: Finding[]; content: RenderedContent } {
-    const offsets = lineOffsets(text);
-    const toOffset = (line: number, column: number) => base + Math.min(offsets[line - 1] + column - 1, text.length);
+    const offsetAt = eslintOffsets(text);
+    const toOffset = (line: number, column: number) => base + offsetAt(line, column);
     const findings: Finding[] = [];
-    const messages = verify(text, components);
+    const messages = lintSkippingCrashedRules(linter, text, 'template.html', skip => config(skip, components));
     const facts = messages.some(message => message.fatal) ? undefined : templateFacts(linter.getSourceCode().ast, base);
     for (const message of messages) {
         // Unparseable code must not read as a clean file
@@ -261,19 +261,4 @@ function attributesOf(element: TemplateNode): Map<string, string | true> {
         attributes.set(input.name.replace(/^attr\./, '').toLowerCase(), true);
     }
     return attributes;
-}
-
-// A rule that throws on unusual code would cost every other rule's Findings, so the document is
-// linted again without it
-function verify(text: string, components: ComponentMapping | undefined): Linter.LintMessage[] {
-    const skip = new Set<string>();
-    for (;;) {
-        try {
-            return linter.verify(text, config(skip, components), 'template.html');
-        } catch (error) {
-            const ruleId = (error as { ruleId?: unknown }).ruleId;
-            if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;
-            skip.add(ruleId);
-        }
-    }
 }

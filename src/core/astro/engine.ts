@@ -3,7 +3,7 @@ import astro from 'eslint-plugin-astro';
 import * as astroParser from 'astro-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import { lineOffsets } from '../offsets';
+import { eslintOffsets, lintSkippingCrashedRules } from '../eslint';
 import { styleBlocksSetColors } from '../needs-review';
 import { hasSpread, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
 import { withOwnRules } from '../own-rules';
@@ -43,10 +43,9 @@ function config(skip: Set<string>, components: ComponentMapping | undefined): Li
 const linter = new Linter({ configType: 'flat' });
 
 export function checkAstro(text: string, components?: ComponentMapping): AnalysisResult {
-    const offsets = lineOffsets(text);
-    const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
+    const toOffset = eslintOffsets(text);
     const findings: Finding[] = [];
-    for (const message of verify(text, components)) {
+    for (const message of lintSkippingCrashedRules(linter, text, 'document.astro', skip => config(skip, components))) {
         // Unparseable code must not read as a clean file
         if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
@@ -73,19 +72,4 @@ export function checkAstro(text: string, components?: ComponentMapping): Analysi
     });
     content.stylesheetColors = styleBlocksSetColors(text);
     return withOwnRules(findings, content);
-}
-
-// A rule that throws on unusual code would cost every other rule's Findings, so the document is
-// linted again without it
-function verify(text: string, components: ComponentMapping | undefined): Linter.LintMessage[] {
-    const skip = new Set<string>();
-    for (;;) {
-        try {
-            return linter.verify(text, config(skip, components), 'document.astro');
-        } catch (error) {
-            const ruleId = (error as { ruleId?: unknown }).ruleId;
-            if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;
-            skip.add(ruleId);
-        }
-    }
 }
