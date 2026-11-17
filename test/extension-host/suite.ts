@@ -143,6 +143,39 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
             server.close();
         }
     });
+
+    if (trusted) test('Cancel ends an AI Review whose model lookup is pending, and the next one starts', async () => {
+        // A local server that holds every model lookup until the test ends
+        const requests: string[] = [];
+        const held: http.ServerResponse[] = [];
+        const server = http.createServer((request, response) => {
+            requests.push(`${request.method} ${request.url}`);
+            held.push(response);
+        });
+        await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+        const settings = vscode.workspace.getConfiguration('allyproof');
+        try {
+            await settings.update('aiReview.localEndpoint', `http://127.0.0.1:${(server.address() as AddressInfo).port}/v1`, vscode.ConfigurationTarget.Global);
+            await settings.update('aiReview.provider', 'local', vscode.ConfigurationTarget.Global);
+            await open('index.html');
+            const first = vscode.commands.executeCommand('allyproof.startAIReview');
+            await until(() => requests.length === 1, 'the model lookup never reached the server');
+
+            await vscode.commands.executeCommand('allyproof.cancelAIReview');
+            await first;
+            assert.match(api.aiReviewStatus.text, /AI Review cancelled/);
+
+            const second = vscode.commands.executeCommand('allyproof.startAIReview');
+            await until(() => requests.length === 2, 'the next AI Review never started');
+            await vscode.commands.executeCommand('allyproof.cancelAIReview');
+            await second;
+        } finally {
+            held.forEach(response => response.destroy());
+            await settings.update('aiReview.provider', undefined, vscode.ConfigurationTarget.Global);
+            await settings.update('aiReview.localEndpoint', undefined, vscode.ConfigurationTarget.Global);
+            server.close();
+        }
+    });
 });
 
 async function open(name: string): Promise<vscode.TextDocument> {
