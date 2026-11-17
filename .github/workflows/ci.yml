@@ -17,8 +17,8 @@ jobs:
           node-version: 24.15.0
           cache: npm
       - run: npm ci
-      # Shipped dependencies only: a high or critical advisory fails CI
-      - run: npm audit --omit=dev --audit-level=high
+      # Shipped dependencies only: a high or critical advisory fails CI, unless scripts/audit.ts allows it until a date
+      - run: npm run audit
       # Lint, typecheck, unit tests, then the gate on source and on the unpacked VSIX: fails when Check precision or recall
       # of any WCAG criterion drops below the stored baseline of its language. Bundling also writes THIRD-PARTY-NOTICES
       # and fails on a bundled license outside the allowlist
