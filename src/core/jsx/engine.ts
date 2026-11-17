@@ -2,7 +2,7 @@ import { Linter } from 'eslint/universal';
 import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
-import { lineOffsets } from '../offsets';
+import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 import { hasSpread, renderedJsxContent } from './jsx-ast';
 import { withOwnRules } from '../own-rules';
 import type { ComponentMapping } from '../components';
@@ -100,10 +100,9 @@ const linter = new Linter({ configType: 'flat' });
 
 /** Plain JSX is parsed by espree, TypeScript only for `.tsx` (`typescript: true`). */
 export function checkJsx(text: string, typescript: boolean, components?: ComponentMapping): AnalysisResult {
-    const offsets = lineOffsets(text);
-    const toOffset = (line: number, column: number) => Math.min(offsets[line - 1] + column - 1, text.length);
+    const toOffset = eslintOffsetAt(text);
     const findings: Finding[] = [];
-    for (const message of verify(text, typescript ? 'document.tsx' : 'document.jsx', components)) {
+    for (const message of lintSkippingCrashedRules(linter, text, typescript ? 'document.tsx' : 'document.jsx', skip => config(skip, components))) {
         // Unparseable code must not read as a clean file
         if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
@@ -124,19 +123,4 @@ export function checkJsx(text: string, typescript: boolean, components?: Compone
     }
     // Spread attributes can set the class or style
     return withOwnRules(findings, renderedJsxContent(linter.getSourceCode(), { textParents: ['JSXElement', 'JSXFragment'], bindsStyle: hasSpread, components }));
-}
-
-// A rule that throws on unusual code (lang without a value) would cost every other rule's
-// Findings, so the document is linted again without it
-function verify(text: string, filename: string, components: ComponentMapping | undefined): Linter.LintMessage[] {
-    const skip = new Set<string>();
-    for (;;) {
-        try {
-            return linter.verify(text, config(skip, components), filename);
-        } catch (error) {
-            const ruleId = (error as { ruleId?: unknown }).ruleId;
-            if (typeof ruleId !== 'string' || skip.has(ruleId)) throw error;
-            skip.add(ruleId);
-        }
-    }
 }

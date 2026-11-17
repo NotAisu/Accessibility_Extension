@@ -67,24 +67,33 @@ export class AIReview implements vscode.Disposable {
         if (this.running || !document || !this.reviews(document)) return;
         // An untrusted workspace never falls back to Copilot when the user chose a local model
         if (provider() === 'local' && !usesLocalModel()) return this.showIdle();
-        let model: ModelPort | undefined;
-        // The lookup can be cancelled like the review itself
-        const lookup = this.running = new AbortController();
-        if (provider() === 'local') {
-            this.show('$(loading~spin) AI Review…', 'Connecting to the local model server. Click to cancel.', 'allyproof.cancelAIReview');
-        }
+        // One request from the model lookup to the result; Cancel aborts whichever part is pending
+        const running = this.running = new AbortController();
+        let reviewed = false;
         try {
-            model = await this.model(lookup.signal);
-        } catch (error) {
-            const cancelled = isCancelled(error);
-            if (!cancelled) this.log.error(`AI Review: local model not available: ${errorText(error)}`);
-            return this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error), 'allyproof.startAIReview');
+            reviewed = await this.run(document, running.signal);
         } finally {
             this.running = undefined;
         }
-        if (!model) return this.showIdle();
+        if (!reviewed) await this.showIdle();
+    }
 
-        const running = this.running = new AbortController();
+    // False when there is no model or the user declined its notice
+    private async run(document: vscode.TextDocument, signal: AbortSignal): Promise<boolean> {
+        if (provider() === 'local') {
+            this.show('$(loading~spin) AI Review…', 'Connecting to the local model server. Click to cancel.', 'allyproof.cancelAIReview');
+        }
+        let model: ModelPort | undefined;
+        try {
+            model = await this.model(signal);
+        } catch (error) {
+            const cancelled = isCancelled(error);
+            if (!cancelled) this.log.error(`AI Review: local model not available: ${errorText(error)}`);
+            this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error), 'allyproof.startAIReview');
+            return true;
+        }
+        if (!model) return false;
+
         const version = document.version;
         const editor = vscode.window.activeTextEditor;
         const selection = editor?.document === document && !editor.selection.isEmpty
@@ -99,7 +108,7 @@ export class AIReview implements vscode.Disposable {
                     model,
                     skill: { text: await this.readSkill() },
                     cache: this.cache,
-                    signal: running.signal,
+                    signal,
                     onFindings: found => this.showFindings(document, version, found)
                 }
             );
@@ -110,21 +119,24 @@ export class AIReview implements vscode.Disposable {
             const cancelled = isCancelled(error);
             if (!cancelled) this.log.error(`AI Review with ${model.name} failed: ${errorText(error)}`);
             this.show(`$(warning) AI Review ${cancelled ? 'cancelled' : 'failed'}`, describe(error, model), 'allyproof.startAIReview');
-        } finally {
-            this.running = undefined;
         }
+        return true;
     }
 
     /**
      * The model of the chosen provider once the user accepted its notice; undefined when there is none or the user
-     * declined. Rejects with a `ModelError` when the local model server is not there.
+     * declined. Rejects with a `ModelError` when the local model server is not there, or `Cancelled` once `signal`
+     * aborted, also while the lookup or the notice was pending.
      */
     async model(signal?: AbortSignal): Promise<ModelPort | undefined> {
         const chosen = provider();
         if (chosen === 'local' && !usesLocalModel()) return undefined;
         const model = chosen === 'local' ? await selectLocalModel(localSettings(), { signal }) : await selectCopilotModel();
-        if (!model || (!this.context.globalState.get(noticeKey(chosen)) && !await this.acceptNotice(model, chosen))) return undefined;
-        return model;
+        throwIfCancelled(signal);
+        if (!model) return undefined;
+        const accepted = this.context.globalState.get(noticeKey(chosen)) === true || await this.acceptNotice(model, chosen);
+        throwIfCancelled(signal);
+        return accepted ? model : undefined;
     }
 
     /** The text the document's AI Findings were reported on, and the Findings, for AI fixes. */
@@ -253,6 +265,10 @@ function summary(gate: GateReport, model: ModelPort): string {
         ? 'No markup to review.'
         : `${gate.reviewed} of ${gate.regions} ${gate.regions === 1 ? 'region' : 'regions'} reviewed${skipped && `, ${skipped}`}.`;
     return `${reviewed} Model: ${model.name}. Click to review again.`;
+}
+
+function throwIfCancelled(signal?: AbortSignal): void {
+    if (signal?.aborted) throw new ModelError('Cancelled', 'AI Review cancelled.');
 }
 
 function isCancelled(error: unknown): boolean {

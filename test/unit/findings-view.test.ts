@@ -112,7 +112,7 @@ describe('Findings tree', () => {
     it('shows a paused Check with its reason first, whatever the filters, and keeps the last Findings', () => {
         const tree = findingsTree([file({
             findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }],
-            paused: 'Parse error at 2:5: Unexpected token'
+            status: { kind: 'paused', reason: 'Parse error at 2:5: Unexpected token' }
         })], new Set(['needs-review']));
 
         assert.deepStrictEqual(tree[0].children!.map(node => [node.kind, node.label, node.description]), [
@@ -120,8 +120,23 @@ describe('Findings tree', () => {
         ]);
         assert.deepStrictEqual(labels(findingsTree([file({
             findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }],
-            paused: 'Timed out'
+            status: { kind: 'paused', reason: 'Timed out' }
         })], ALL)), [['page.html', ['Check paused', ['1.1.1 Non-text Content', ['Image has no alt']]]]]);
+    });
+
+    it('shows a large file as checked on save, not as a paused Check', () => {
+        const tree = findingsTree([file({
+            findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }],
+            status: { kind: 'checked-on-save', reason: 'The Check took longer than 1000 ms' }
+        })], ALL);
+
+        assert.deepStrictEqual(tree[0].children![0], {
+            kind: 'checked-on-save',
+            label: 'Checked on save',
+            description: 'The Check took longer than 1000 ms',
+            accessibilityLabel: 'Checked on save: The Check took longer than 1000 ms, so this large file is checked when you save. The last Findings stay.'
+        });
+        assert.strictEqual(tree[0].accessibilityLabel, 'page.html, 1 Finding, checked on save');
     });
 
     it('describes each Finding by line and layer, and gives every node a screen reader label', () => {
@@ -176,13 +191,25 @@ describe('Findings status bar summary', () => {
     });
 
     it('shows a paused Check with its reason instead of a count, linking to the log', () => {
-        const summary = statusSummary(file({ findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }], paused: 'Timed out' }));
+        const summary = statusSummary(file({ findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }], status: { kind: 'paused', reason: 'Timed out' } }));
 
         assert.deepStrictEqual(summary, {
             text: '$(debug-pause) Check paused',
             tooltip: 'Timed out. The last Findings stay. Click to show the log.',
             accessibilityLabel: 'Accessibility: Check paused: Timed out. The last Findings stay. Activate to show the log.',
             showsLog: true
+        });
+    });
+    it('shows a large file as checked on save with its last Findings, linking to the Findings', () => {
+        const summary = statusSummary(file({
+            findings: [{ finding: finding('1.1.1', 'Image has no alt'), line: 3 }],
+            status: { kind: 'checked-on-save', reason: 'The Check took longer than 1000 ms' }
+        }));
+
+        assert.deepStrictEqual(summary, {
+            text: '$(save) Checked on save',
+            tooltip: 'The Check took longer than 1000 ms, so this large file is checked when you save. The last Findings stay. Click to show the Findings.',
+            accessibilityLabel: 'Accessibility: Checked on save: The Check took longer than 1000 ms, so this large file is checked when you save. The last Findings stay.'
         });
     });
 });
