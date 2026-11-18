@@ -11,7 +11,7 @@ import { AXE_TAGS, LAYOUT_RULES } from '../../src/core/html/axe-check';
 import { isTargetCriterion } from '../../src/core/wcag';
 import { FRAMEWORKS, ruleDoc, type Framework } from '../../src/core/rule-docs';
 import { ENTRIES } from '../../src/core/rule-docs-data';
-import { analyse } from '../../src/core/analysis';
+import { analyse } from './every-rule';
 
 const union = (table: Record<string, string[]>) => [...new Set(Object.values(table).flat())];
 

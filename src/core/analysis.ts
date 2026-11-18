@@ -1,6 +1,7 @@
 import { withoutIgnored } from './ignore';
 import { withFixes } from './fixes';
 import type { ComponentMapping } from './components';
+import proofStatus from './proof-status.json';
 
 /** Character offsets into the analysed text, end exclusive. */
 export interface TextRange {
@@ -39,6 +40,8 @@ export interface NeedsReview {
     reason: string;
     /** The element a likely failure points at; entries about the whole document have none. */
     range?: TextRange;
+    /** The Unproven rule whose match this is: a likely failure the rule has not yet proven its precision on. */
+    ruleId?: string;
 }
 
 /** The Check's engines, one per framework, and the language ids each checks. */
@@ -77,6 +80,8 @@ export interface AnalysisOptions {
     rules?: Record<string, RuleSetting>;
     /** The native elements project components render, for every engine that reads markup. */
     components?: ComponentMapping;
+    /** Which rules are Proven rules; the bundled proof status unless a test of the engines checks every rule. */
+    proven?: (ruleId: string, languageId: string) => boolean;
 }
 
 export interface AnalysisResult {
@@ -96,16 +101,38 @@ export class ParseError extends Error {
     }
 }
 
+const PROOF = proofStatus.rules as Record<string, Record<string, { proven: boolean } | undefined> | undefined>;
+
+/** Whether a rule is a Proven rule in a language, by the bundled proof status the gate computes (#78). */
+export function isProven(ruleId: string, languageId: string): boolean {
+    return PROOF[ruleId]?.[languageId]?.proven === true;
+}
+
+/**
+ * Only Proven rules report Findings. An Unproven rule's match is a Needs Review entry per criterion at its element,
+ * whatever its setting says, since no setting can promote it.
+ */
 export async function analyse(document: AnalysisDocument, options: AnalysisOptions = {}): Promise<AnalysisResult> {
     const { findings, needsReview } = await check(document, options.components);
     const rules = options.rules ?? {};
+    const matches = withoutIgnored(document, findings).filter(finding => rules[finding.ruleId] !== 'off');
+    const isProvenRule = options.proven ?? isProven;
+    const proven = matches.filter(finding => isProvenRule(finding.ruleId, document.languageId));
+    const unproven = matches.filter(finding => !proven.includes(finding));
     return {
-        findings: withFixes(document.text, withoutIgnored(document, findings)).flatMap(finding => {
+        findings: withFixes(document.text, proven).map(finding => {
             const setting = rules[finding.ruleId];
-            if (setting === 'off') return [];
-            return [setting ? { ...finding, severity: setting } : finding];
+            return setting && setting !== 'off' ? { ...finding, severity: setting } : finding;
         }),
-        needsReview
+        needsReview: [
+            ...needsReview,
+            ...unproven.flatMap(finding => finding.criteria.map(criterion => ({
+                criterion,
+                reason: `Likely failure, verify: ${finding.message} (${finding.ruleId} is not yet a Proven rule)`,
+                range: finding.range,
+                ruleId: finding.ruleId
+            })))
+        ]
     };
 }
 

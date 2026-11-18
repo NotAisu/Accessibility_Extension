@@ -1,5 +1,6 @@
 import * as assert from 'assert';
-import { analyse, checkLanguageId, isChecked, ParseError } from '../../src/core/analysis';
+import { checkLanguageId, isChecked, ParseError } from '../../src/core/analysis';
+import { analyse } from './every-rule';
 
 const page = (body: string) => [
     '<!DOCTYPE html>',

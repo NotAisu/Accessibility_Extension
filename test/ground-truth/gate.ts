@@ -13,6 +13,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AnalysisWorker } from '../../src/analysis-worker';
 import * as source from '../../src/core/analysis';
+import type { NeedsReview, TextRange } from '../../src/core/analysis';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
 import { Judged, ProofStatus, addJudged, judgeMatches, proofChanges, proofStatus } from './proof';
 
@@ -34,6 +35,18 @@ interface Measured {
     proof: ProofStatus;
 }
 
+// The Needs Review entries of one Unproven rule's match, one per criterion, joined back into the match
+function demoted(needsReview: NeedsReview[]): { ruleId: string; range: TextRange; criteria: string[] }[] {
+    const byMatch = new Map<string, { ruleId: string; range: TextRange; criteria: string[] }>();
+    for (const entry of needsReview) {
+        if (!entry.ruleId || !entry.range) continue;
+        const key = `${entry.ruleId} ${entry.range.start} ${entry.range.end}`;
+        if (!byMatch.has(key)) byMatch.set(key, { ruleId: entry.ruleId, range: entry.range, criteria: [] });
+        byMatch.get(key)!.criteria.push(entry.criterion);
+    }
+    return [...byMatch.values()];
+}
+
 async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured> {
     const totals = new Map<string, Map<string, Tally>>();
     const judged = new Map<string, Map<string, Judged>>();
@@ -47,13 +60,14 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured>
             // A likely failure points at its element, so it is judged like a Finding
             const located = needsReview.flatMap(entry => entry.range ? [{ range: entry.range, criteria: [entry.criterion] }] : []);
             const reported = [...findings, ...located].map(f => ({ line: lineAt(text, f.range.start), criteria: f.criteria }));
+            // An Unproven rule's match is judged like a Finding, so the proof never depends on the proof status
+            const matches = [...findings, ...demoted(needsReview)].map(f => ({ ruleId: f.ruleId, line: lineAt(text, f.range.start), criteria: f.criteria }));
             if (testCase.expect.some(e => !('present' in e) || e.present)) {
-                failingCaseFindings.set(testCase.languageId, (failingCaseFindings.get(testCase.languageId) ?? 0) + findings.length);
+                failingCaseFindings.set(testCase.languageId, (failingCaseFindings.get(testCase.languageId) ?? 0) + matches.length);
             }
             if (!totals.has(testCase.languageId)) totals.set(testCase.languageId, new Map());
             addTallies(totals.get(testCase.languageId)!, scoreCase(testCase.expect, reported));
             if (EVIDENCE.has(name)) {
-                const matches = findings.map(f => ({ ruleId: f.ruleId, line: lineAt(text, f.range.start), criteria: f.criteria }));
                 if (!judged.has(testCase.languageId)) judged.set(testCase.languageId, new Map());
                 addJudged(judged.get(testCase.languageId)!, judgeMatches(testCase, matches));
             }
