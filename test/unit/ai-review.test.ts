@@ -89,6 +89,22 @@ describe('AI Review', () => {
         assert.deepStrictEqual(findings.map(f => f.message), ['Link text does not name its purpose.']);
     });
 
+    it('drops contrast and target size Findings, which source code alone cannot show, without asking for a repair', async () => {
+        const model = fakeModel({
+            findings: [
+                entry(3, '1.4.3', 'Link text has low contrast.'),
+                entry(3, '1.4.11', 'Link outline has low contrast.'),
+                entry(3, '2.5.8', 'Link is too small to tap.'),
+                entry(3, '2.4.4', 'Link text does not name its purpose.')
+            ]
+        });
+
+        const { findings } = await review({ document, checkFindings: [] }, { model, skill, cache: memoryCache() });
+
+        assert.strictEqual(model.requests.length, 1);
+        assert.deepStrictEqual(findings.map(f => f.criteria[0]), ['2.4.4']);
+    });
+
     it('asks once for a repair when the output does not follow the contract', async () => {
         const model = fakeModel(undefined, { findings: [entry(3, '2.4.4')] });
 
