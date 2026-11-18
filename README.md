@@ -29,7 +29,12 @@ Allyproof checks your HTML, React, Vue, Svelte, Angular and Astro code against W
 | Astro | `astro` |
 | Angular component templates | `*.component.html`, inline `template` in `*.ts` |
 
-Allyproof needs **VS Code 1.123** or later. It also runs in VS Code-based editors on the same engine, such as Cursor 3.x. Editors without the language model API (some VS Code forks) run the Check and hide AI Review, the Skill and the tool. It runs in remote setups (SSH, WSL, dev containers, Codespaces) as well as locally.
+Allyproof needs **VS Code 1.123** or later, or an editor built on it. Releases go to two registries:
+
+- **VS Code**: the VS Code Marketplace.
+- **Cursor** (3.x), **Windsurf** and **VSCodium**: Open VSX, the registry these editors install extensions from.
+
+Editors without the language model API (some VS Code forks) run the Check and hide AI Review, the Skill and the tool. It runs in remote setups (SSH, WSL, dev containers, Codespaces) as well as locally.
 
 ## Coverage
 
