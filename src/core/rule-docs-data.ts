@@ -508,7 +508,7 @@ export const ENTRIES: Entry[] = [
         example: { bad: '<h3 role="button">Shipping</h3>', good: '<h3><button type="button">Shipping</button></h3>' }
     },
     {
-        rules: [htmlEslint('no-nested-interactive'), 'nested-interactive'],
+        rules: ['nested-interactive'],
         message: 'Interactive controls must not be nested',
         why: 'A button inside a link is hidden from screen readers or announced confusingly, and it is unclear which one a click or Enter triggers.',
         fix: 'Place the controls side by side.',
