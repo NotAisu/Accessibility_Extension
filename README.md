@@ -8,9 +8,9 @@ Allyproof checks your HTML, React, Vue, Svelte, Angular and Astro code against W
 
 ## Features
 
-- **Check while you type**: Findings appear in the Problems panel for HTML, Vue, Svelte, JSX, TSX and Astro files and Angular component templates (`*.component.html` or an inline `template`). Each language runs its own accessibility linter. Every Finding names its WCAG 2.2 success criterion, and a hover explains why it is a problem and how to fix it, with links to the criterion. Your file is parsed, never executed, and your workspace's own lint config is never loaded.
+- **Check while you type**: Findings appear in the Problems panel for HTML, Vue, Svelte, JSX, TSX and Astro files and Angular component templates (`*.component.html` or an inline `template`). Each language runs its own accessibility linter. Only Proven rules report Findings: rules whose precision on labelled real code is at least 95 % at 95 % confidence; the others list their matches as likely failures under Needs Review. Every Finding names its WCAG 2.2 success criterion, and a hover explains why it is a problem and how to fix it, with links to the criterion. Your file is parsed, never executed, and your workspace's own lint config is never loaded.
 - **Needs Review instead of silent passes**: criteria the Check cannot decide from source, such as text contrast or target size, are listed per file in the Findings tree, not guessed.
-- **Static contrast**: where both colors are certain from literal values (inline styles, Tailwind's default palette and arbitrary values), a contrast below the WCAG 2.x ratio is a Finding with the measured ratio.
+- **Static contrast**: where both colors are certain from literal values (inline styles, Tailwind's default palette and arbitrary values), a contrast below the WCAG 2.x ratio is reported with the measured ratio, under Needs Review until the rule is a Proven rule.
 - **Quick fixes**: deterministic fixes for problems with exactly one right edit, such as removing `aria-hidden` from `<body>`. Fix on save is opt-in (`allyproof.check.fixOnSave`, off by default).
 - **Findings tree**: an Activity Bar view grouped by file and criterion, filtered by Check, AI and Needs Review, plus a status bar summary of the current file. **Check Workspace** checks every supported file in the project.
 - **Ignore and configure**: ignore one Finding with a comment (`<!-- allyproof-ignore image-alt -->`, in JSX `{/* allyproof-ignore … */}`), turn rules off or change their severity in `allyproof.rules`, and map your components to the native elements they render in `allyproof.components`. Ignoring a Finding and disabling its rule are offered in the lightbulb.
@@ -38,7 +38,7 @@ Editors without the language model API (some VS Code forks) run the Check and hi
 
 ## Coverage
 
-The Check reports only what the source decides. Each language runs its own static accessibility linter; these are the WCAG 2.2 A/AA criteria they report Findings for:
+The Check reports only what the source decides. Each language runs its own static accessibility linter; these are the WCAG 2.2 A/AA criteria they check:
 
 | Language | Engine | Criteria |
 | --- | --- | --- |
@@ -49,6 +49,21 @@ The Check reports only what the source decides. Each language runs its own stati
 | Angular | @angular-eslint/eslint-plugin-template | 1.1.1, 1.3.1, 2.1.1, 2.2.2, 2.4.3, 2.4.4, 2.4.6, 4.1.2 |
 
 A listed criterion means the engine has rules for some of its failures, not that it decides the whole criterion: "every image has an `alt`" is checked, "the `alt` text describes the image" is not.
+
+### Proven rules
+
+A rule reports Findings only once it has proven its precision on real code: on independently labelled files (the W3C ACT Rules test cases, real pages and components from open-source projects, and real files with one known failure inserted), the 95 % lower confidence bound of its precision is at least 95 %. Until then its matches are listed as Needs Review, as likely failures to verify. A rule proves itself per language, because each language has its own engine. These rules are Proven rules today:
+
+| Language | Rule | Criteria | Correct | Precision at least |
+| --- | --- | --- | --- | --- |
+| Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 98 of 98 | 96.9 % |
+| Astro | `astro/jsx-a11y/anchor-has-content` | 2.4.4, 4.1.2 | 80 of 80 | 96.3 % |
+| HTML | `image-alt` | 1.1.1 | 126 of 126 | 97.6 % |
+| Svelte | `svelte/a11y_consider_explicit_label` | 4.1.2, 2.4.4 | 99 of 99 | 97.0 % |
+| Vue | `vuejs-accessibility/alt-text` | 1.1.1 | 124 of 124 | 97.6 % |
+| Vue | `vuejs-accessibility/anchor-has-content` | 2.4.4, 4.1.2 | 81 of 81 | 96.3 % |
+
+The evidence of every rule, proven or not, is in [`src/core/proof-status.json`](src/core/proof-status.json), and the labelled files are in [`test/ground-truth`](test/ground-truth).
 
 Allyproof's own rules add what the engines miss, in every language and from literal values only (a bound value such as `:autocomplete="mode"` or `style={{ width: 16 }}` is never guessed):
 
@@ -67,6 +82,7 @@ What only the rendered page can decide is listed per file as **Needs Review** in
 | --- | --- |
 | 1.4.3 Contrast (Minimum) | The file renders text whose contrast static contrast could not decide, for example because a class comes from a stylesheet or a color is bound to an expression |
 | 1.4.11 Non-text Contrast | A text field declares a border whose contrast is not certain from source |
+| Any criterion of a rule that is not yet a Proven rule | The rule matched an element: a likely failure pointing at the element, to verify |
 | 2.5.8 Target Size (Minimum) | The file renders controls. A control whose inline style or Tailwind classes (`w-4`, `size-5`, `w-[20px]`) declare less than 24×24 CSS px is listed as a likely failure pointing at the element |
 
 ### Not checked

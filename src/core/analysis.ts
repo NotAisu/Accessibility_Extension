@@ -101,11 +101,24 @@ export class ParseError extends Error {
     }
 }
 
-const PROOF = proofStatus.rules as Record<string, Record<string, { proven: boolean } | undefined> | undefined>;
+/** A rule's evidence in one language: its judged matches on the evidence sets and the lower bound of its precision. */
+export interface RuleProof {
+    correct: number;
+    wrong: number;
+    lowerBound: number;
+    proven: boolean;
+}
 
-/** Whether a rule is a Proven rule in a language, by the bundled proof status the gate computes (#78). */
+const PROOF = proofStatus.rules as Record<string, Record<string, RuleProof | undefined> | undefined>;
+
+/** A rule's evidence in a language, from the bundled proof status the gate computes (#78). */
+export function proofOf(ruleId: string, languageId: string): RuleProof | undefined {
+    return PROOF[ruleId]?.[languageId];
+}
+
+/** Whether a rule is a Proven rule in a language. */
 export function isProven(ruleId: string, languageId: string): boolean {
-    return PROOF[ruleId]?.[languageId]?.proven === true;
+    return proofOf(ruleId, languageId)?.proven === true;
 }
 
 /**
