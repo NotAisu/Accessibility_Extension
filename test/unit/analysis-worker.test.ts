@@ -99,6 +99,34 @@ describe('AnalysisWorker', () => {
         assert.deepStrictEqual(hung, { status: 'paused', reason: 'The Check took longer than 2000 ms', deadlineExceeded: true });
     });
 
+    it('never holds up the Check of the file being typed in behind a running background request', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 2000, backgroundDeadlineMs: 5000 });
+        const before = echoed(await worker.check('a.html', html('ok')));
+        const background = worker.check('large.html', html('slow:1500'), {}, { background: true });
+
+        const started = Date.now();
+        const typed = echoed(await worker.check('a.html', html('typed')));
+
+        assert.ok(Date.now() - started < 200, `waited ${Date.now() - started} ms`);
+        assert.strictEqual(typed.text, 'typed');
+        assert.strictEqual(echoed(await background).text, 'slow:1500');
+        // The typing Check's engine stayed loaded in its own worker
+        assert.strictEqual(typed.thread, before.thread);
+    });
+
+    it('keeps the typing Check\'s engine loaded when a background request overruns its deadline', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 2000, backgroundDeadlineMs: 300 });
+        const before = echoed(await worker.check('a.html', html('ok')));
+        await worker.check('large.html', html('ok'), {}, { background: true });
+
+        const hung = await worker.check('large.html', html('hang'), {}, { background: true });
+        const after = await worker.check('a.html', html('ok'));
+
+        assert.deepStrictEqual(hung, { status: 'paused', reason: 'The Check took longer than 300 ms', deadlineExceeded: true });
+        assert.ok(after.status === 'done' && !after.firstLoad);
+        assert.strictEqual(echoed(after).thread, before.thread);
+    });
+
     it('reports how long each run took and whether it also loaded its engine', async () => {
         worker = new AnalysisWorker(FAKE_ENGINE);
 
