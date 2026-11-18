@@ -28,3 +28,22 @@ jobs:
       - run: xvfb-run -a npm run test:extension-host
       # The release SBOM step, so a broken SBOM fails here and not during a release
       - uses: ./.github/actions/sbom
+
+  # The Allyproof Check action as a user's workflow runs it: it passes on files without Findings and fails on the
+  # injection cases, each of which holds a Finding of a Proven rule
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./
+        with:
+          paths: src/cli
+          upload-sarif: 'false'
+      - id: failing
+        continue-on-error: true
+        uses: ./
+        with:
+          paths: test/ground-truth/injection/img-without-alt/primevue
+          upload-sarif: 'false'
+      - if: steps.failing.outcome != 'failure'
+        run: echo "::error::The action passed on files with Findings"; exit 1

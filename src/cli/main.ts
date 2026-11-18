@@ -9,6 +9,7 @@ import { workspaceLanguageId } from '../workspace-check';
 import { baselineOf, elementOf, matchBaseline, parseBaseline, type Baseline } from './baseline';
 import { fileOutput, SCHEMA_VERSION, sarif, text, type CheckOutput, type FileOutput } from './output';
 import { ConfigError, optionsFromSettings } from './settings';
+import manifest from '../../package.json';
 
 // The command line (#79): the Check of the editor as a second front end on the analysis core. No AI, no network,
 // and the checked project is data, never executed.
@@ -16,8 +17,7 @@ import { ConfigError, optionsFromSettings } from './settings';
 const EXIT = { clean: 0, blocking: 1, usage: 2, unchecked: 3 } as const;
 const SEVERITY_RANK: Record<Severity, number> = { information: 1, warning: 2, error: 3 };
 const DEFAULT_BASELINE = '.allyproof-baseline.json';
-// Bumped with the release; the SARIF driver version
-const VERSION = '0.1.0';
+const VERSION = manifest.version;
 
 const USAGE = `Usage:
   allyproof check [paths…] [--staged | --changed <base> | --stdin --stdin-filename <path>]
