@@ -80,11 +80,13 @@ export interface ReviewResult {
 }
 
 /** Bump with every change to REPORT_TOOL or to what the review makes of its output, so cached Findings expire. */
-const OUTPUT_SCHEMA_VERSION = '1';
+const OUTPUT_SCHEMA_VERSION = '2';
 /** The default deadline per model request. */
 export const DEADLINE_MS = 60_000;
 // Only an unknown error may be transient; access, rate limits and a slow model would fail the same way again
 const RETRIED_ERRORS = new Set(['Unknown']);
+// Contrast and target size need the rendered page; from source code alone a Finding is a guess, so these stay with the Check and Needs Review
+const UNREVIEWABLE_CRITERIA = new Set(['1.4.3', '1.4.11', '2.5.8']);
 
 const REPORT_TOOL: ReportTool = {
     name: 'report_findings',
@@ -358,7 +360,7 @@ async function reviewPieces(pieces: Piece[], lines: string[], languageId: string
             if (error instanceof ModelError && error.code === 'Cancelled') throw error;
         }
     }
-    return entries.map(e => toFinding(e, lines));
+    return entries.filter(e => !UNREVIEWABLE_CRITERIA.has(e.criterion)).map(e => toFinding(e, lines));
 }
 
 // Same criterion on an overlapping range is the same problem; the Check's Finding wins
