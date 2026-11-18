@@ -3,7 +3,7 @@
   "displayName": "Allyproof – WCAG 2.2 Accessibility Checker",
   "description": "Check HTML, React, Vue, Svelte, Angular and Astro code against WCAG 2.2 AA while you type, with optional AI Review. No telemetry, no account.",
   "version": "0.1.0",
-  "publisher": "notaisu",
+  "publisher": "aisu",
   "license": "MIT",
   "pricing": "Free",
   "icon": "media/icon.png",
@@ -146,7 +146,7 @@
     "viewsWelcome": [
       {
         "view": "allyproof.findings",
-        "contents": "No Findings in the open files. Open an HTML, Vue, Svelte, JSX, TSX, Astro or Angular file to check it.\n[Check Workspace](command:allyproof.checkWorkspace)\n[Get Started](command:workbench.action.openWalkthrough?%22notaisu.allyproof%23allyproof.gettingStarted%22)"
+        "contents": "No Findings in the open files. Open an HTML, Vue, Svelte, JSX, TSX, Astro or Angular file to check it.\n[Check Workspace](command:allyproof.checkWorkspace)\n[Get Started](command:workbench.action.openWalkthrough?%22aisu.allyproof%23allyproof.gettingStarted%22)"
       }
     ],
     "menus": {
