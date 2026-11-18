@@ -34,6 +34,14 @@
         "proven": false
       }
     },
+    "@angular-eslint/template/label-has-associated-control": {
+      "angular": {
+        "correct": 2,
+        "wrong": 0,
+        "lowerBound": 0.223,
+        "proven": false
+      }
+    },
     "@angular-eslint/template/valid-aria": {
       "angular": {
         "correct": 0,
@@ -128,9 +136,9 @@
     },
     "aria-roles": {
       "html": {
-        "correct": 1,
-        "wrong": 0,
-        "lowerBound": 0.05,
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
         "proven": false
       }
     },
@@ -147,6 +155,14 @@
         "correct": 47,
         "wrong": 0,
         "lowerBound": 0.938,
+        "proven": false
+      }
+    },
+    "astro/jsx-a11y/anchor-ambiguous-text": {
+      "astro": {
+        "correct": 26,
+        "wrong": 3,
+        "lowerBound": 0.753,
         "proven": false
       }
     },
@@ -169,7 +185,7 @@
     "astro/jsx-a11y/label-has-associated-control": {
       "astro": {
         "correct": 0,
-        "wrong": 4,
+        "wrong": 5,
         "lowerBound": 0,
         "proven": false
       }
@@ -179,14 +195,6 @@
         "correct": 10,
         "wrong": 0,
         "lowerBound": 0.741,
-        "proven": false
-      }
-    },
-    "blink": {
-      "html": {
-        "correct": 1,
-        "wrong": 0,
-        "lowerBound": 0.05,
         "proven": false
       }
     },
@@ -272,9 +280,33 @@
     },
     "jsx-a11y-x/click-events-have-key-events": {
       "typescriptreact": {
+        "correct": 1,
+        "wrong": 5,
+        "lowerBound": 0.008,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/label-has-associated-control": {
+      "typescriptreact": {
+        "correct": 0,
+        "wrong": 4,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/no-noninteractive-element-interactions": {
+      "typescriptreact": {
         "correct": 0,
         "wrong": 1,
         "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/no-static-element-interactions": {
+      "typescriptreact": {
+        "correct": 3,
+        "wrong": 3,
+        "lowerBound": 0.153,
         "proven": false
       }
     },
@@ -408,9 +440,9 @@
     },
     "vuejs-accessibility/alt-text": {
       "vue": {
-        "correct": 124,
+        "correct": 123,
         "wrong": 0,
-        "lowerBound": 0.976,
+        "lowerBound": 0.975,
         "proven": true
       }
     },
@@ -438,11 +470,35 @@
         "proven": false
       }
     },
+    "vuejs-accessibility/form-control-has-label": {
+      "vue": {
+        "correct": 0,
+        "wrong": 2,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
     "vuejs-accessibility/iframe-has-title": {
       "vue": {
         "correct": 6,
         "wrong": 0,
         "lowerBound": 0.606,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/label-has-for": {
+      "vue": {
+        "correct": 4,
+        "wrong": 0,
+        "lowerBound": 0.472,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/mouse-events-have-key-events": {
+      "vue": {
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
         "proven": false
       }
     },
@@ -464,9 +520,9 @@
     },
     "vuejs-accessibility/no-static-element-interactions": {
       "vue": {
-        "correct": 4,
-        "wrong": 0,
-        "lowerBound": 0.472,
+        "correct": 8,
+        "wrong": 3,
+        "lowerBound": 0.435,
         "proven": false
       }
     }

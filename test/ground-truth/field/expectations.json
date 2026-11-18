@@ -355,7 +355,7 @@
     {
       "file": "wai-bad/before-news.html",
       "languageId": "html",
-      "note": "W3C WAI Before and After Demo, before news page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/before/news.html, W3C Document License. Fails: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 1.4.3, 1.4.5, 2.1.1, 2.4.1, 2.4.2, 2.4.4, 2.4.6, 2.4.7, 3.1.1, 3.2.1, 3.2.2, 3.2.4, 3.3.2, 4.1.2. Line labels: each Finding the Check reported was verified against the element (image without alt attribute, F65; link or control without a name, F68 and F89; html without lang, 3.1.1).",
+      "note": "W3C WAI Before and After Demo, before news page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/before/news.html, W3C Document License. Fails: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 1.4.3, 1.4.5, 2.1.1, 2.4.1, 2.4.2, 2.4.4, 2.4.6, 2.4.7, 3.1.1, 3.2.1, 3.2.2, 3.2.4, 3.3.2, 4.1.2. Line labels: each Finding the Check reported was verified against the element (image without alt attribute, F65; link or control without a name, F68 and F89; html without lang, 3.1.1). Line 221 (an informative chart with alt=\"\") added after the second labeller's review.",
       "expect": [
         {
           "criterion": "1.1.1",
@@ -700,6 +700,10 @@
         {
           "criterion": "1.1.1",
           "line": 268
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 221
         }
       ]
     },
@@ -2008,8 +2012,7 @@
     {
       "file": "govuk-audit/colour-and-contrast-colour-alone-is-used-to-convey-content.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-colour-alone-is-used-to-convey-content\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-colour-alone-is-used-to-convey-content\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: a possibly failing criterion left unlabelled, so other criteria are not claimed to pass.",
       "expect": [
         {
           "criterion": "1.4.1",
@@ -2045,8 +2048,13 @@
       "file": "govuk-audit/colour-and-contrast-large-text-does-not-have-a-contrast-ratio-of-at-least-45-1-so-does-not-meet-aaa.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-large-text-does-not-have-a-contrast-ratio-of-at-least-45-1-so-does-not-meet-aaa\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": []
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-large-text-does-not-have-a-contrast-ratio-of-at-least-45-1-so-does-not-meet-aaa\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
     },
     {
       "file": "govuk-audit/colour-and-contrast-small-text-does-not-have-a-contrast-ratio-of-at-least-45-1-so-does-not-meet-aa.html",
@@ -2064,8 +2072,13 @@
       "file": "govuk-audit/colour-and-contrast-small-text-does-not-have-a-contrast-ratio-of-at-least-71-so-does-not-meet-aaa.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-small-text-does-not-have-a-contrast-ratio-of-at-least-71-so-does-not-meet-aaa\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": []
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-small-text-does-not-have-a-contrast-ratio-of-at-least-71-so-does-not-meet-aaa\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
     },
     {
       "file": "govuk-audit/content-content-identified-by-location.html",
@@ -2095,13 +2108,8 @@
       "file": "govuk-audit/content-content-is-not-organised-into-well-defined-groups-or-chunks-using-headings,-lists,-and-other-visual-mechanisms.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"content-content-is-not-organised-into-well-defined-groups-or-chunks-using-headings,-lists,-and-other-visual-mechanisms\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "1.3.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"content-content-is-not-organised-into-well-defined-groups-or-chunks-using-headings,-lists,-and-other-visual-mechanisms\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/content-first-instance-of-abbreviation-not-expanded.html",
@@ -2120,11 +2128,10 @@
     {
       "file": "govuk-audit/css-content-is-not-readable-and-functional-when-text-is-increased.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-content-is-not-readable-and-functional-when-text-is-increased\"); it fails 1.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-content-is-not-readable-and-functional-when-text-is-increased\"); it fails 1.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 1.4.4 left unlabelled, so other criteria are not claimed to pass.",
       "expect": [
         {
-          "criterion": "1.4.4",
+          "criterion": "1.4.10",
           "present": true
         }
       ]
@@ -2133,8 +2140,13 @@
       "file": "govuk-audit/css-displaynone-used-to-visually-hide-content-when-it-should-be-available-to-screenreader.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-displaynone-used-to-visually-hide-content-when-it-should-be-available-to-screenreader\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": []
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-displaynone-used-to-visually-hide-content-when-it-should-be-available-to-screenreader\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
     },
     {
       "file": "govuk-audit/css-non-decorative-content-inserted-using-css.html",
@@ -2152,10 +2164,14 @@
       "file": "govuk-audit/css-page-zoom-boxes-that-dont-expand-with-the-text.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-page-zoom-boxes-that-dont-expand-with-the-text\"); it fails 1.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-page-zoom-boxes-that-dont-expand-with-the-text\"); it fails 1.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
       "expect": [
         {
           "criterion": "1.4.4",
+          "present": true
+        },
+        {
+          "criterion": "1.4.10",
           "present": true
         }
       ]
@@ -2164,8 +2180,13 @@
       "file": "govuk-audit/css-visibilityhidden-used-to-visually-hide-content-when-it-should-be-available-to-screenreader.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-visibilityhidden-used-to-visually-hide-content-when-it-should-be-available-to-screenreader\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": []
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-visibilityhidden-used-to-visually-hide-content-when-it-should-be-available-to-screenreader\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
     },
     {
       "file": "govuk-audit/forms-empty-label-found.html",
@@ -2191,13 +2212,8 @@
       "file": "govuk-audit/forms-empty-legend.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-empty-legend\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "1.3.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-empty-legend\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/forms-error-messages-no-suggestion-for-corrections-given-e.g.-required-format.html",
@@ -2227,10 +2243,14 @@
       "file": "govuk-audit/forms-errors-identified-by-colour-only.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-errors-identified-by-colour-only\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-errors-identified-by-colour-only\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
       "expect": [
         {
           "criterion": "1.4.1",
+          "present": true
+        },
+        {
+          "criterion": "3.3.1",
           "present": true
         }
       ]
@@ -2238,11 +2258,14 @@
     {
       "file": "govuk-audit/forms-errors-identified-with-a-poor-colour-contrast.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-errors-identified-with-a-poor-colour-contrast\"); it fails 1.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-errors-identified-with-a-poor-colour-contrast\"); it fails 1.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: a possibly failing criterion left unlabelled, so other criteria are not claimed to pass.",
       "expect": [
         {
           "criterion": "1.4.3",
+          "present": true
+        },
+        {
+          "criterion": "3.3.1",
           "present": true
         }
       ]
@@ -2399,31 +2422,16 @@
     {
       "file": "govuk-audit/forms-placeholder-no-label.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-placeholder-no-label\"); it fails 3.3.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "3.3.2",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-placeholder-no-label\"); it fails 3.3.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 3.3.2 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/forms-two-unique-labels-but-identical-for=-attributes.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-two-unique-labels-but-identical-for=-attributes\"); it fails 1.3.1, 3.3.2, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-two-unique-labels-but-identical-for=-attributes\"); it fails 1.3.1, 3.3.2, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: a possibly failing criterion left unlabelled, so other criteria are not claimed to pass.",
       "expect": [
         {
           "criterion": "1.3.1",
-          "present": true
-        },
-        {
-          "criterion": "3.3.2",
-          "present": true
-        },
-        {
-          "criterion": "4.1.2",
           "present": true
         }
       ]
@@ -2443,14 +2451,8 @@
     {
       "file": "govuk-audit/frames-iframe-title-attribute-does-not-describe-the-content-or-purpose-of-the-iframe.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"frames-iframe-title-attribute-does-not-describe-the-content-or-purpose-of-the-iframe\"); it fails 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "4.1.2",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"frames-iframe-title-attribute-does-not-describe-the-content-or-purpose-of-the-iframe\"); it fails 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 4.1.2 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/headings-empty-heading.html",
@@ -2531,13 +2533,8 @@
       "file": "govuk-audit/html-invalid-aria-role-names.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-invalid-aria-role-names\"); it fails 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "4.1.2",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-invalid-aria-role-names\"); it fails 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/html-object-not-embedded-accessibly-wmode-parameter-not-set-to-window.html",
@@ -2549,8 +2546,7 @@
     {
       "file": "govuk-audit/html-pre-element-without-code-element-inside-it.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-pre-element-without-code-element-inside-it\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-pre-element-without-code-element-inside-it\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: a possibly failing criterion left unlabelled, so other criteria are not claimed to pass.",
       "expect": []
     },
     {
@@ -2613,8 +2609,7 @@
     {
       "file": "govuk-audit/images-image-has-empty-alt-and-non-empty-title.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-has-empty-alt-and-non-empty-title\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-has-empty-alt-and-non-empty-title\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: a possibly failing criterion left unlabelled, so other criteria are not claimed to pass.",
       "expect": []
     },
     {
@@ -2682,23 +2677,21 @@
     {
       "file": "govuk-audit/keyboard-access-alert-shows-for-a-short-time.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-alert-shows-for-a-short-time\"); it fails 2.2.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.2.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-alert-shows-for-a-short-time\"); it fails 2.2.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 2.2.1 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/keyboard-access-concertina-items-dont-get-keyboard-focus.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-concertina-items-dont-get-keyboard-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-concertina-items-dont-get-keyboard-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
       "expect": [
         {
           "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
           "present": true
         }
       ]
@@ -2706,8 +2699,7 @@
     {
       "file": "govuk-audit/keyboard-access-dropdown-navigation-only-the-top-level-items-receive-focus.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-dropdown-navigation-only-the-top-level-items-receive-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-dropdown-navigation-only-the-top-level-items-receive-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: a possibly failing criterion left unlabelled, so other criteria are not claimed to pass.",
       "expect": [
         {
           "criterion": "2.1.1",
@@ -2766,25 +2758,14 @@
       "file": "govuk-audit/keyboard-access-keyboard-trap.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-keyboard-trap\"); it fails 2.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.1.2",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-keyboard-trap\"); it fails 2.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/keyboard-access-lightbox-close-button-doesnt-receive-focus.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-lightbox-close-button-doesnt-receive-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-lightbox-close-button-doesnt-receive-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 2.1.1 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/keyboard-access-lightbox-esc-key-doesnt-close-the-lightbox.html",
@@ -2808,14 +2789,8 @@
     {
       "file": "govuk-audit/keyboard-access-lightbox-focus-is-not-retained-within-the-lightbox.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-lightbox-focus-is-not-retained-within-the-lightbox\"); it fails 2.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.4.3",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-lightbox-focus-is-not-retained-within-the-lightbox\"); it fails 2.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 2.4.3 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/keyboard-access-link-with-a-rolebutton-does-not-work-with-space-bar.html",
@@ -2834,8 +2809,7 @@
     {
       "file": "govuk-audit/keyboard-access-tooltips-dont-receive-keyboard-focus.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-tooltips-dont-receive-keyboard-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-tooltips-dont-receive-keyboard-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: a possibly failing criterion left unlabelled, so other criteria are not claimed to pass.",
       "expect": [
         {
           "criterion": "2.1.1",
@@ -2847,49 +2821,29 @@
       "file": "govuk-audit/language-of-content-html-element-has-an-empty-lang-attribute.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-an-empty-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-an-empty-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/language-of-content-html-element-has-an-invalid-value-in-the-lang-attribute.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-an-invalid-value-in-the-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-an-invalid-value-in-the-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/language-of-content-html-element-has-lang-attribute-set-to-wrong-language.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-lang-attribute-set-to-wrong-language\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-lang-attribute-set-to-wrong-language\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/language-of-content-html-element-is-missing-a-lang-attribute.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-is-missing-a-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-is-missing-a-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/language-of-content-lang-attribute-not-used-to-identify-change-of-language.html",
@@ -3006,14 +2960,8 @@
     {
       "file": "govuk-audit/links-link-contains-only-a-full-stop.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-contains-only-a-full-stop\"); it fails 2.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.4.4",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-contains-only-a-full-stop\"); it fails 2.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 2.4.4 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/links-link-launches-new-window-with-no-warning.html",
@@ -3025,14 +2973,8 @@
     {
       "file": "govuk-audit/links-link-not-clearly-identifiable-and-distinguishable-from-surrounding-text.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-not-clearly-identifiable-and-distinguishable-from-surrounding-text\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "1.4.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-not-clearly-identifiable-and-distinguishable-from-surrounding-text\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 1.4.1 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/links-link-text-does-not-make-sense-out-of-context.html",
@@ -3115,13 +3057,8 @@
       "file": "govuk-audit/links-uninformative-link-text.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-uninformative-link-text\"); it fails 2.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.4.4",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-uninformative-link-text\"); it fails 2.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/lists-dt-or-dd-elements-that-are-not-contained-within-a-dl-element.html",
@@ -3206,8 +3143,7 @@
     {
       "file": "govuk-audit/multimedia-flashing-content-doesnt-have-warning.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"multimedia-flashing-content-doesnt-have-warning\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"multimedia-flashing-content-doesnt-have-warning\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: a possibly failing criterion left unlabelled, so other criteria are not claimed to pass.",
       "expect": []
     },
     {
@@ -3238,49 +3174,28 @@
       "file": "govuk-audit/page-title-empty-page-title.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-empty-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.4.2",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-empty-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/page-title-inappropriate-page-title.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-inappropriate-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.4.2",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-inappropriate-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/page-title-missing-page-title.html",
       "languageId": "html",
       "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-missing-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.4.2",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-missing-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Labels corrected after the second labeller's review.",
+      "expect": []
     },
     {
       "file": "govuk-audit/tables-table-has-an-empty-table-header.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-has-an-empty-table-header\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "1.3.1",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-has-an-empty-table-header\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 1.3.1 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/tables-table-has-no-scope-attributes.html",
@@ -3367,14 +3282,8 @@
     {
       "file": "govuk-audit/typography-blink-element-found.html",
       "languageId": "html",
-      "complete": true,
-      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-blink-element-found\"); it fails 2.2.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
-      "expect": [
-        {
-          "criterion": "2.2.2",
-          "present": true
-        }
-      ]
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-blink-element-found\"); it fails 2.2.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT. Close call after the second labeller's review: 2.2.2 left unlabelled, so other criteria are not claimed to pass.",
+      "expect": []
     },
     {
       "file": "govuk-audit/typography-inadequate-line-height-used.html",
@@ -3633,6 +3542,36 @@
         {
           "criterion": "4.1.2",
           "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/dialog/cdk-dialog-overview/cdk-dialog-overview-example-dialog.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/dialog/cdk-dialog-overview/cdk-dialog-overview-example-dialog.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: fails, visible label not associated, the control has no accessible name (F68) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 3
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/dialog/cdk-dialog-overview/cdk-dialog-overview-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/dialog/cdk-dialog-overview/cdk-dialog-overview-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: fails, visible label not associated, the control has no accessible name (F68) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "line": 3
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 3
         }
       ]
     },
@@ -4055,44 +3994,76 @@
     {
       "file": "element-plus_element-plus/docs/examples/skeleton/avoiding-rendering-bouncing.vue",
       "languageId": "vue",
-      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/avoiding-rendering-bouncing.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/avoiding-rendering-bouncing.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65); line 4 label-has-for: fails, visible label not associated, the control has no accessible name (F68) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
       "expect": [
         {
           "criterion": "1.1.1",
           "line": 33
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 4
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 4
         }
       ]
     },
     {
       "file": "element-plus_element-plus/docs/examples/skeleton/initial-rendering-loading.vue",
       "languageId": "vue",
-      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/initial-rendering-loading.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/initial-rendering-loading.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65); line 4 label-has-for: fails, visible label not associated, the control has no accessible name (F68) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
       "expect": [
         {
           "criterion": "1.1.1",
           "line": 33
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 4
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 4
         }
       ]
     },
     {
       "file": "element-plus_element-plus/docs/examples/skeleton/leading-trailing-without-bouncing.vue",
       "languageId": "vue",
-      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/leading-trailing-without-bouncing.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/leading-trailing-without-bouncing.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65); line 4 label-has-for: fails, visible label not associated, the control has no accessible name (F68) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
       "expect": [
         {
           "criterion": "1.1.1",
           "line": 33
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 4
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 4
         }
       ]
     },
     {
       "file": "element-plus_element-plus/docs/examples/skeleton/loading-state.vue",
       "languageId": "vue",
-      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/loading-state.vue, MIT. Each Finding the Check reported was judged at its line (line 28 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/loading-state.vue, MIT. Each Finding the Check reported was judged at its line (line 28 alt-text: fails, img without alt (F65); line 4 label-has-for: fails, visible label not associated, the control has no accessible name (F68) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
       "expect": [
         {
           "criterion": "1.1.1",
           "line": 28
+        },
+        {
+          "criterion": "1.3.1",
+          "line": 4
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 4
         }
       ]
     },
@@ -4134,12 +4105,172 @@
       ]
     },
     {
+      "file": "element-plus_element-plus/docs/examples/upload/custom-thumbnail.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/upload/custom-thumbnail.vue, MIT. Each Finding the Check reported was judged at its line (line 15 click-events-have-key-events: fails, clickable element without keyboard access (F54) (agreed with the second labeller); line 15 no-static-element-interactions: fails, script makes a div or span a control without a role (F59) (agreed with the second labeller); line 22 no-static-element-interactions: fails, script makes a div or span a control without a role (F59) (agreed with the second labeller); line 9 click-events-have-key-events: fails, clickable element without keyboard access (F54) (agreed with the second labeller); line 9 no-static-element-interactions: fails, script makes a div or span a control without a role (F59) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 9
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 15
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 22
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/CheckboxItem.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/CheckboxItem.tsx, MIT. Each Finding the Check reported was judged at its line (line 15 click-events-have-key-events: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller); line 15 no-static-element-interactions: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/ColorPicker/Picker.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/ColorPicker/Picker.tsx, MIT. Each Finding the Check reported was judged at its line (line 153 no-static-element-interactions: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/ContextMenu.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/ContextMenu.tsx, MIT. Each Finding the Check reported was judged at its line (line 99 click-events-have-key-events: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller); line 99 no-noninteractive-element-interactions: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/LibraryMenuItems.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/LibraryMenuItems.tsx, MIT. Each Finding the Check reported was judged at its line (line 341 click-events-have-key-events: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
       "file": "excalidraw_excalidraw/packages/excalidraw/components/Modal.tsx",
       "languageId": "typescriptreact",
       "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/Modal.tsx, MIT. Each Finding the Check reported was judged at its line (line 58 click-events-have-key-events: no failure, click outside to close; Escape closes the dialog; line 58 no-static-element-interactions: no failure, click outside to close; Escape closes the dialog). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
       "expect": [
         {
           "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/PublishLibrary.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/PublishLibrary.tsx, MIT. Each Finding the Check reported was judged at its line (line 181 label-has-associated-control: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller); line 440 label-has-associated-control: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller); line 456 label-has-associated-control: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller); line 472 label-has-associated-control: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/Stats/Collapsible.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/Stats/Collapsible.tsx, MIT. Each Finding the Check reported was judged at its line (line 26 click-events-have-key-events: fails, clickable element without keyboard access (F54) (agreed with the second labeller); line 26 no-static-element-interactions: fails, script makes a div or span a control without a role (F59) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 26
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 26
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/Stats/index.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/Stats/index.tsx, MIT. Each Finding the Check reported was judged at its line (line 194 no-static-element-interactions: fails, script makes a div or span a control without a role (F59) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 194
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/TextField.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/TextField.tsx, MIT. Each Finding the Check reported was judged at its line (line 68 click-events-have-key-events: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller); line 68 no-static-element-interactions: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/UnlockPopup.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/UnlockPopup.tsx, MIT. Each Finding the Check reported was judged at its line (line 61 no-static-element-interactions: fails, script makes a div or span a control without a role (F59) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 61
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/NuxiIcon.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/NuxiIcon.vue, MIT. Each Finding the Check reported was judged at its line (line 47 mouse-events-have-key-events: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/ComponentThemeVisualizer.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/ComponentThemeVisualizer.vue, MIT. Each Finding the Check reported was judged at its line (line 176 no-static-element-interactions: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
           "present": false
         }
       ]
@@ -4301,7 +4432,7 @@
     {
       "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselThumbnailsExample.vue",
       "languageId": "vue",
-      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselThumbnailsExample.vue, MIT. Each Finding the Check reported was judged at its line (line 43 alt-text: fails, img without alt (F65); line 54 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselThumbnailsExample.vue, MIT. Each Finding the Check reported was judged at its line (line 43 alt-text: fails, img without alt (F65); line 47 no-static-element-interactions: fails, script makes a div or span a control without a role (F59) (agreed with the second labeller); line 54 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
       "expect": [
         {
           "criterion": "1.1.1",
@@ -4310,6 +4441,10 @@
         {
           "criterion": "1.1.1",
           "line": 54
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 47
         }
       ]
     },
@@ -4325,13 +4460,39 @@
       ]
     },
     {
-      "file": "nuxt_ui/docs/app/components/og-image/Component.takumi.vue",
+      "file": "nuxt_ui/docs/app/components/theme-studio/color/ThemeStudioColorPaletteEditor.vue",
       "languageId": "vue",
-      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/og-image/Component.takumi.vue, MIT. Each Finding the Check reported was judged at its line (line 69 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/theme-studio/color/ThemeStudioColorPaletteEditor.vue, MIT. Each Finding the Check reported was judged at its line (line 521 no-static-element-interactions: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
       "expect": [
         {
-          "criterion": "1.1.1",
-          "line": 69
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/theme-studio/toolbar/ThemeStudioToolbarSelect.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/theme-studio/toolbar/ThemeStudioToolbarSelect.vue, MIT. Each Finding the Check reported was judged at its line (line 95 no-static-element-interactions: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/theme-studio/view/ThemeStudioViewDashboard.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/theme-studio/view/ThemeStudioViewDashboard.vue, MIT. Each Finding the Check reported was judged at its line (line 634 click-events-have-key-events: fails, clickable element without keyboard access (F54) (agreed with the second labeller); line 634 no-static-element-interactions: fails, script makes a div or span a control without a role (F59) (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 634
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 634
         }
       ]
     },
@@ -4440,6 +4601,21 @@
         {
           "criterion": "4.1.2",
           "line": 29
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/forms/formfield/NonPrimeVueDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/forms/formfield/NonPrimeVueDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 12 form-control-has-label: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller); line 8 form-control-has-label: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
         }
       ]
     },
@@ -4582,21 +4758,6 @@
       ]
     },
     {
-      "file": "primefaces_primevue/apps/showcase/doc/speeddial/TemplateDoc.vue",
-      "languageId": "vue",
-      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/speeddial/TemplateDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 26 click-events-have-key-events: fails, clickable non-focusable element without keyboard access (F54/F42); line 26 no-static-element-interactions: fails, clickable non-focusable element without keyboard access (F54/F42)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "line": 26
-        },
-        {
-          "criterion": "4.1.2",
-          "line": 26
-        }
-      ]
-    },
-    {
       "file": "primefaces_primevue/apps/showcase/doc/theming/styled/ArchitectureDoc.vue",
       "languageId": "vue",
       "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/theming/styled/ArchitectureDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 38 iframe-has-title: fails, iframe without title (F68/4.1.2)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
@@ -4663,9 +4824,206 @@
       ]
     },
     {
+      "file": "twbs_bootstrap/site/src/assets/examples/carousel/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/carousel/index.astro, MIT. Each Finding the Check reported was judged at its line (line 25 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 58 anchor-ambiguous-text: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/cover/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/cover/index.astro, MIT. Each Finding the Check reported was judged at its line (line 24 anchor-ambiguous-text: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/drawer-navbar/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/drawer-navbar/index.astro, MIT. Each Finding the Check reported was judged at its line (line 59 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 60 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 61 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 62 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 63 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 59
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 60
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 61
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 62
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 63
+        }
+      ]
+    },
+    {
       "file": "twbs_bootstrap/site/src/assets/examples/list-groups/index.astro",
       "languageId": "astro",
       "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/list-groups/index.astro, MIT. Each Finding the Check reported was judged at its line (line 113 label-has-associated-control: no failure, label nests its control and has text deeper than the rule looks; line 123 label-has-associated-control: no failure, label nests its control and has text deeper than the rule looks; line 133 label-has-associated-control: no failure, label nests its control and has text deeper than the rule looks; line 143 label-has-associated-control: no failure, label nests its control and has text deeper than the rule looks). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/navbar-bottom/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/navbar-bottom/index.astro, MIT. Each Finding the Check reported was judged at its line (line 31 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 31
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/navbar-fixed/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/navbar-fixed/index.astro, MIT. Each Finding the Check reported was judged at its line (line 25 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/navbar-static/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/navbar-static/index.astro, MIT. Each Finding the Check reported was judged at its line (line 25 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/navbars-drawer/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/navbars-drawer/index.astro, MIT. Each Finding the Check reported was judged at its line (line 106 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 26 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 66 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 26
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 66
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 106
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/navbars/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/navbars/index.astro, MIT. Each Finding the Check reported was judged at its line (line 113 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 147 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 181 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 215 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 22 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 249 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 283 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 320 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 352 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 385 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 416 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 56 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller); line 79 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 22
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 56
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 79
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 113
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 147
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 181
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 215
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 249
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 283
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 320
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 352
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 385
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 416
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/product/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/product/index.astro, MIT. Each Finding the Check reported was judged at its line (line 59 anchor-ambiguous-text: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/sticky-footer-navbar/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/sticky-footer-navbar/index.astro, MIT. Each Finding the Check reported was judged at its line (line 29 anchor-ambiguous-text: fails, link text \"Link\" with no context giving its purpose (2.4.4, agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "file": "withastro_docs/src/components/Spoiler.astro",
+      "languageId": "astro",
+      "note": "https://github.com/withastro/docs/blob/697d16abd26476628cf0bf7b932a8920c768720b/src/components/Spoiler.astro, MIT. Each Finding the Check reported was judged at its line (line 1 label-has-associated-control: no failure, no failure after review: a real control or name is there, or it is not a control (agreed with the second labeller)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
       "expect": [
         {
           "criterion": "1.3.1",
