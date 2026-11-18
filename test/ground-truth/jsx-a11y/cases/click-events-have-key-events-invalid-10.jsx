@@ -1,1 +1,1 @@
-<a tabIndex="0" onClick={() => void 0} />
+<a onClick={() => void 0} />

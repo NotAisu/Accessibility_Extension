@@ -207,6 +207,20 @@ describe('analyse (Vue)', () => {
         ]);
     });
 
+    it('accepts a Vue label that names its control by id or by nesting, not one that does neither', async () => {
+        const text = [
+            '<template>',
+            '    <label for="email">Email</label><input id="email">',
+            '    <label>Name <input></label>',
+            '    <label>Orphan</label>',
+            '</template>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('label-has-for')).map(f => text.slice(f.range.start, f.range.end)), ['<label>Orphan</label>']);
+    });
+
     it('maps each rule to its WCAG criterion, reading directives and bindings', async () => {
         const text = [
             '<template>',
