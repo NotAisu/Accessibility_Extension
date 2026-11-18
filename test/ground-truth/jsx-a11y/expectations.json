@@ -180,7 +180,7 @@
     {
       "file": "cases/alt-text-valid-9.jsx",
       "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-has-content invalid, anchor-is-valid invalid, alt-text valid, img-redundant-alt valid",
+      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-has-content invalid, alt-text valid, img-redundant-alt valid",
       "expect": [
         {
           "criterion": "2.4.4",
@@ -188,10 +188,6 @@
         },
         {
           "criterion": "4.1.2",
-          "present": true
-        },
-        {
-          "criterion": "2.1.1",
           "present": true
         },
         {
@@ -203,7 +199,7 @@
     {
       "file": "cases/alt-text-valid-9.jsx",
       "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-has-content invalid, anchor-is-valid invalid, alt-text valid, img-redundant-alt valid",
+      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-has-content invalid, alt-text valid, img-redundant-alt valid",
       "expect": [
         {
           "criterion": "2.4.4",
@@ -214,10 +210,6 @@
           "present": true
         },
         {
-          "criterion": "2.1.1",
-          "present": true
-        },
-        {
           "criterion": "1.1.1",
           "present": false
         }
@@ -360,14 +352,10 @@
     {
       "file": "cases/alt-text-valid-15.jsx",
       "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: alt-text valid, anchor-is-valid valid, img-redundant-alt valid",
+      "note": "eslint-plugin-jsx-a11y-x rule tests: alt-text valid, img-redundant-alt valid",
       "expect": [
         {
           "criterion": "1.1.1",
-          "present": false
-        },
-        {
-          "criterion": "2.1.1",
           "present": false
         }
       ]
@@ -375,14 +363,10 @@
     {
       "file": "cases/alt-text-valid-15.jsx",
       "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: alt-text valid, anchor-is-valid valid, img-redundant-alt valid",
+      "note": "eslint-plugin-jsx-a11y-x rule tests: alt-text valid, img-redundant-alt valid",
       "expect": [
         {
           "criterion": "1.1.1",
-          "present": false
-        },
-        {
-          "criterion": "2.1.1",
           "present": false
         }
       ]
@@ -3227,850 +3211,6 @@
         },
         {
           "criterion": "4.1.2",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-1.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-1.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-2.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-2.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-3.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-3.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-4.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-4.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-5.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-5.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-6.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-6.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-7.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-7.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-8.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-8.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-9.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-9.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-10.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-10.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-11.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-11.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-12.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-12.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-13.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-13.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-14.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-14.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-15.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-15.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-16.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-16.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-17.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-17.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-18.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-18.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-19.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-19.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-20.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-20.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-21.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-21.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-22.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-22.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-23.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-23.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-24.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-24.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-25.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-25.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-26.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-26.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-27.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-valid-27.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid valid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-1.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-1.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-2.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-2.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-3.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-3.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-4.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-4.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-5.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-5.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-6.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-6.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-7.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-7.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-8.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid, click-events-have-key-events invalid, no-static-element-interactions invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        },
-        {
-          "criterion": "4.1.2",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-8.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid, click-events-have-key-events invalid, no-static-element-interactions invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        },
-        {
-          "criterion": "4.1.2",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-9.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-9.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-10.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-10.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-11.jsx",
-      "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
-          "present": true
-        }
-      ]
-    },
-    {
-      "file": "cases/anchor-is-valid-invalid-11.jsx",
-      "languageId": "typescriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: anchor-is-valid invalid",
-      "expect": [
-        {
-          "criterion": "2.1.1",
           "present": true
         }
       ]
@@ -15718,7 +14858,7 @@
     {
       "file": "cases/click-events-have-key-events-invalid-10.jsx",
       "languageId": "javascriptreact",
-      "note": "eslint-plugin-jsx-a11y-x rule tests: click-events-have-key-events invalid, no-static-element-interactions invalid, no-noninteractive-element-interactions valid",
+      "note": "eslint-plugin-jsx-a11y-x rule tests: click-events-have-key-events invalid, no-static-element-interactions invalid",
       "expect": [
         {
           "criterion": "2.1.1",
@@ -15732,6 +14872,36 @@
     },
     {
       "file": "cases/click-events-have-key-events-invalid-10.jsx",
+      "languageId": "typescriptreact",
+      "note": "eslint-plugin-jsx-a11y-x rule tests: click-events-have-key-events invalid, no-static-element-interactions invalid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-11.jsx",
+      "languageId": "javascriptreact",
+      "note": "eslint-plugin-jsx-a11y-x rule tests: click-events-have-key-events invalid, no-static-element-interactions invalid, no-noninteractive-element-interactions valid",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "cases/click-events-have-key-events-invalid-11.jsx",
       "languageId": "typescriptreact",
       "note": "eslint-plugin-jsx-a11y-x rule tests: click-events-have-key-events invalid, no-static-element-interactions invalid, no-noninteractive-element-interactions valid",
       "expect": [

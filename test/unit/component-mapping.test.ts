@@ -32,7 +32,7 @@ const cases: Case[] = [
     { name: 'a JSX component without alt', languageId: 'javascriptreact', native: jsx('<img src="a.png" />'), component: jsx('<Image src="a.png" />'), at: '<Image' },
     { name: 'a TSX component from a namespace', languageId: 'typescriptreact', native: jsx('<img src="a.png" />'), component: jsx('<UI.Image src="a.png" />'), at: '<UI.Image' },
     { name: 'a JSX password field component (own rule)', languageId: 'javascriptreact', native: jsx('<input type="password" autoComplete="off" />'), component: jsx('<Field type="password" autoComplete="off" />'), at: '<Field' },
-    { name: 'a JSX component with a polymorphic prop', languageId: 'javascriptreact', native: jsx('<a>Home</a>'), component: jsx('<Box as="a">Home</Box>'), at: '<Box' },
+    { name: 'a JSX component with a polymorphic prop', languageId: 'javascriptreact', native: jsx('<a href="/" />'), component: jsx('<Box as="a" href="/" />'), at: '<Box' },
     { name: 'a Vue component in PascalCase', languageId: 'vue', native: vue('<img src="a.png">'), component: vue('<AppImage src="a.png" />'), at: '<AppImage' },
     { name: 'a Vue component in kebab-case', languageId: 'vue', native: vue('<img src="a.png">'), component: vue('<app-image src="a.png" />'), at: '<app-image' },
     { name: 'a Vue password field component (own rule)', languageId: 'vue', native: vue('<input type="password" autocomplete="off">'), component: vue('<Field type="password" autocomplete="off" />'), at: '<Field' },

@@ -11,13 +11,13 @@ import type { ComponentMapping } from '../components';
 
 // eslint-plugin-jsx-a11y-x rules whose failure maps to a WCAG 2.2 A/AA criterion, primary criterion first.
 // Best-practice rules without a WCAG failure (no-access-key, no-autofocus, no-noninteractive-tabindex,
-// no-redundant-roles, prefer-tag-over-role) are left out.
+// no-redundant-roles, prefer-tag-over-role) are left out, and so is anchor-is-valid: a link to "#" still works
+// with the keyboard, and a link without href that acts on click is reported by the interaction rules.
 // control-has-associated-label is off by default upstream: it needs options to tell controls from wrappers.
 export const RULE_CRITERIA: Record<string, string[]> = {
     'alt-text': ['1.1.1'],
     'anchor-ambiguous-text': ['2.4.4'],
     'anchor-has-content': ['2.4.4', '4.1.2'],
-    'anchor-is-valid': ['2.1.1'],
     'aria-activedescendant-has-tabindex': ['2.1.1'],
     'aria-props': ['4.1.2'],
     'aria-proptypes': ['4.1.2'],

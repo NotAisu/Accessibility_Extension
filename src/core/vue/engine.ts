@@ -41,9 +41,10 @@ type RuleModule = { meta?: { docs?: { description?: string; url?: string } } };
 const plugin = vueA11y as unknown as { rules: Record<string, RuleModule> };
 
 // The plugin has no Component Mapping of its own, so the parser renames each mapped component in the syntax tree
-// to the native element it renders before any rule reads it; ranges stay those of the source
+// to the native element it renders before any rule reads it; ranges stay those of the source.
+// The plugin kebab-cases names, so an unmapped <Select> or <Textarea> component would read as the native element;
+// it is renamed to a custom element, whose rendering the rules do not guess.
 function mappingParser(components: ComponentMapping | undefined): Linter.Parser {
-    if (!components) return vueParser;
     return {
         ...vueParser,
         parseForESLint(code: string, options: unknown) {
@@ -52,9 +53,10 @@ function mappingParser(components: ComponentMapping | undefined): Linter.Parser 
                 if (node.type !== 'VElement') return;
                 const written = node.rawName as string;
                 const mapped = mappedElement(written, name => staticAttribute(node, name), components, true);
-                if (mapped) {
+                const renamed = mapped ?? (/[A-Z]/.test(written) ? `component-${written.toLowerCase()}` : undefined);
+                if (renamed) {
                     writtenNames.set(node, written);
-                    node.name = node.rawName = mapped;
+                    node.name = node.rawName = renamed;
                 }
                 (node.children as VueNode[]).forEach(visit);
             };
@@ -71,12 +73,18 @@ function staticAttribute(element: VueNode, name: string): string | true | undefi
     return (attribute.value as { value: string } | null)?.value ?? true;
 }
 
+// label-has-for's default asks for nesting and an id at once; either one labels the control (H44), as
+// jsx-a11y's label-has-associated-control asserts
+export const RULE_OPTIONS: Record<string, unknown[]> = {
+    'label-has-for': [{ required: { some: ['nesting', 'id'] } }]
+};
+
 // The bundled config only; the workspace's own ESLint config is never loaded.
-// Rules run with their default options, as the plugin's recommended config does.
+// Rules otherwise run with their default options, as the plugin's recommended config does.
 function config(skip: Set<string>, components: ComponentMapping | undefined): Linter.Config[] {
     const rules: Linter.RulesRecord = Object.fromEntries(Object.keys(RULE_CRITERIA)
         .filter(rule => !skip.has(PREFIX + rule))
-        .map(rule => [PREFIX + rule, 'warn']));
+        .map(rule => [PREFIX + rule, ['warn', ...RULE_OPTIONS[rule] ?? []]]));
     return [{
         files: ['**/*.vue'],
         plugins: { 'vuejs-accessibility': vueA11y as unknown as NonNullable<Linter.Config['plugins']>[string] },
