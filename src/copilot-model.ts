@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import { ModelError, ModelPort, ModelRequest } from './review/ai-review';
+import { pickCopilotModel } from './review/copilot-model-choice';
 
-/** The first Copilot chat model, or undefined when Copilot (or the language model API) is not available. */
+/** The cheapest capable Copilot chat model, or undefined when Copilot (or the language model API) is not available. */
 export async function selectCopilotModel(): Promise<ModelPort | undefined> {
     // Editors without the language model API (some VS Code forks) simply have no AI Review
     if (typeof vscode.lm?.selectChatModels !== 'function') return undefined;
-    const [model] = await vscode.lm.selectChatModels({ vendor: 'copilot' });
+    const model = pickCopilotModel(await vscode.lm.selectChatModels({ vendor: 'copilot' }));
     return model && new CopilotModel(model);
 }
 
