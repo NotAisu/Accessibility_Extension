@@ -7,6 +7,11 @@
  *
  * It also computes which rules are Proven rules from the evidence sets and fails when that differs from the
  * committed proof status (src/core/proof-status.json), which --update rewrites with the baselines.
+ *
+ * Evidence sets are labelled independently of the engines: the W3C ACT Rules test cases (act), real pages and
+ * component files labelled per Finding (field), and real files with one inserted failure (injection,
+ * generate-injection.ts). The other sets are engine-wiring sets imported from each engine's own rule tests: they
+ * catch bundling and mapping regressions, but an engine passes its own tests, so they never count as evidence.
  */
 import '../esm-only-packages';
 import * as fs from 'fs';
