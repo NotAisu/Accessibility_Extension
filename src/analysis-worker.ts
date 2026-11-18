@@ -6,7 +6,7 @@ import type { WorkerReply, WorkerRequest } from './core/worker';
 export type CheckOutcome =
     /** `durationMs`: how long the run took in the worker; `firstLoad`: the run also loaded its engine. */
     | { status: 'done'; result: AnalysisResult; durationMs: number; firstLoad: boolean }
-    /** A newer version of the document was requested before this one ran. */
+    /** A newer version of the document was requested before this one answered, or the worker was disposed. */
     | { status: 'dropped' }
     /** The Check could not run; the last Findings stay. */
     | { status: 'paused'; reason: string; deadlineExceeded: boolean };
@@ -42,7 +42,10 @@ const FAILURE_WINDOW = `${FAILURE_WINDOW_MS / 60_000} minutes`;
 const MAX_HEAP_MB = 512;
 
 export interface CheckRequestOptions {
-    /** A request no one is typing in, such as the Check of a file checked on save only or the workspace Check; it gets the background deadline. */
+    /**
+     * A request no one is typing in, such as the Check of a file checked on save only or the workspace Check; it runs
+     * in the background worker with the background deadline.
+     */
     background?: boolean;
 }
 
@@ -50,39 +53,62 @@ interface Request {
     key: string;
     document: AnalysisDocument;
     options: AnalysisOptions;
-    background: boolean;
     resolve: (outcome: CheckOutcome) => void;
 }
 
-/** Runs the Check in one long-lived worker thread (ADR 0003), one request at a time. */
+/**
+ * Runs the Check in two long-lived worker threads (ADR 0003), each one request at a time: the typing worker for the
+ * Checks someone waits for, the background worker for background requests. A large file's background Check then never
+ * holds up the file being typed in, and its deadline overrun never unloads the typing worker's engines. Both share one
+ * circuit breaker.
+ */
 export class AnalysisWorker {
-    private worker: Worker | undefined;
-    private running: { request: Request; deadline: NodeJS.Timeout; started: number; firstLoad: boolean } | undefined;
-    // At most one pending request per document: the newest wins
-    private readonly pending = new Map<string, Request>();
+    private readonly typing: CheckWorker;
+    private readonly background: CheckWorker;
+    private readonly breaker: CircuitBreaker;
 
-    // Recent failure times per engine; engines are per language (ADR 0002)
-    private readonly failures = new Map<string, number[]>();
-    // Engines that answered in the current worker; the first run of any other also loads it
-    private loaded = new Set<string>();
-    // Languages checked in the worker this session, for an issue report
-    private readonly checkedLanguages = new Set<string>();
-    private readonly deadlineMs: number;
-    private readonly firstLoadMs: number;
-    private readonly backgroundDeadlineMs: number;
-    private readonly now: () => number;
-    private readonly log: WorkerLog | undefined;
-
-    constructor(private readonly script: string, options: AnalysisWorkerOptions = {}) {
-        this.deadlineMs = options.deadlineMs ?? 1000;
-        this.firstLoadMs = options.firstLoadMs ?? 15_000;
+    constructor(script: string, options: AnalysisWorkerOptions = {}) {
+        const now = options.now ?? Date.now;
+        const { log } = options;
+        this.breaker = new CircuitBreaker(now, log);
+        const shared = { script, firstLoadMs: options.firstLoadMs ?? 15_000, breaker: this.breaker, now, log };
+        this.typing = new CheckWorker({ ...shared, name: 'typing worker', deadlineMs: options.deadlineMs ?? 1000 });
         // Long enough for a large file's Check (a few seconds), short enough that a hung engine is still ended
-        this.backgroundDeadlineMs = options.backgroundDeadlineMs ?? 10_000;
-        this.now = options.now ?? Date.now;
-        this.log = options.log;
+        this.background = new CheckWorker({ ...shared, name: 'background worker', deadlineMs: options.backgroundDeadlineMs ?? 10_000 });
     }
 
     /** The engines run in this session and those the circuit breaker paused, for an issue report. */
+    engines(): EngineUsage {
+        return this.breaker.engines();
+    }
+
+    check(key: string, document: AnalysisDocument, options: AnalysisOptions = {}, { background = false }: CheckRequestOptions = {}): Promise<CheckOutcome> {
+        return new Promise(resolve => {
+            // The newest request for a document wins, in whichever worker the older one waits. One running in the other
+            // worker could answer after this one, so it is dropped too; one running in the same worker answers first
+            const [target, other] = background ? [this.background, this.typing] : [this.typing, this.background];
+            target.drop(key);
+            other.drop(key, { running: true });
+            target.add({ key, document, options, resolve });
+        });
+    }
+
+    /** Ends both workers; every request not yet answered is dropped. */
+    dispose(): void {
+        this.typing.dispose();
+        this.background.dispose();
+    }
+}
+
+/** Pauses an engine for the session once it failed too often, in either worker; engines are per language (ADR 0002). */
+class CircuitBreaker {
+    // Recent failure times per engine
+    private readonly failures = new Map<string, number[]>();
+    // Languages checked this session, for an issue report
+    private readonly checkedLanguages = new Set<string>();
+
+    constructor(private readonly now: () => number, private readonly log: WorkerLog | undefined) {}
+
     engines(): EngineUsage {
         return {
             used: [...this.checkedLanguages].sort(),
@@ -90,18 +116,69 @@ export class AnalysisWorker {
         };
     }
 
-    check(key: string, document: AnalysisDocument, options: AnalysisOptions = {}, { background = false }: CheckRequestOptions = {}): Promise<CheckOutcome> {
-        return new Promise(resolve => {
-            this.pending.get(key)?.resolve({ status: 'dropped' });
-            this.pending.delete(key);
-            this.pending.set(key, { key, document, options, background, resolve });
-            this.next();
-        });
+    /** Why the engine may not run, or undefined when it may. */
+    pausedReason(engine: string): string | undefined {
+        if ((this.failures.get(engine)?.length ?? 0) < MAX_FAILURES) return undefined;
+        return `The ${engine} engine failed ${MAX_FAILURES} times within ${FAILURE_WINDOW} and is paused for this session`;
+    }
+
+    /** Records that the engine ran this session, for an issue report. */
+    recordUse(engine: string): void {
+        this.checkedLanguages.add(engine);
+    }
+
+    recordFailure(engine: string): void {
+        const now = this.now();
+        const recent = [...(this.failures.get(engine) ?? []).filter(time => now - time <= FAILURE_WINDOW_MS), now];
+        this.failures.set(engine, recent);
+        if (recent.length === MAX_FAILURES) this.log?.error(`${engine} engine paused for this session after ${MAX_FAILURES} failures within ${FAILURE_WINDOW}`);
+    }
+}
+
+interface CheckWorkerOptions {
+    script: string;
+    /** How the worker names itself in the log and in a paused Check's reason: "typing worker" or "background worker". */
+    name: string;
+    deadlineMs: number;
+    firstLoadMs: number;
+    breaker: CircuitBreaker;
+    now: () => number;
+    log: WorkerLog | undefined;
+}
+
+/** The typing or the background worker: one worker thread and its queue; the thread spawns on the first request. */
+class CheckWorker {
+    private worker: Worker | undefined;
+    private running: { request: Request; deadline: NodeJS.Timeout; started: number; firstLoad: boolean } | undefined;
+    // At most one pending request per document: the newest wins
+    private readonly pending = new Map<string, Request>();
+    // Engines that answered in the current worker; the first run of any other also loads it
+    private loaded = new Set<string>();
+
+    constructor(private readonly options: CheckWorkerOptions) {}
+
+    /** Drops the pending request for the document and, with `running`, the running one, whose result then goes nowhere. */
+    drop(key: string, { running = false } = {}): void {
+        this.pending.get(key)?.resolve({ status: 'dropped' });
+        this.pending.delete(key);
+        if (running && this.running?.request.key === key) {
+            this.running.request.resolve({ status: 'dropped' });
+            this.running.request = { ...this.running.request, resolve: () => undefined };
+        }
+    }
+
+    add(request: Request): void {
+        this.pending.set(request.key, request);
+        this.next();
     }
 
     dispose(): void {
-        if (this.running) clearTimeout(this.running.deadline);
+        if (this.running) {
+            clearTimeout(this.running.deadline);
+            this.running.request.resolve({ status: 'dropped' });
+        }
         this.running = undefined;
+        this.pending.forEach(request => request.resolve({ status: 'dropped' }));
         this.pending.clear();
         void this.worker?.terminate();
         this.worker = undefined;
@@ -112,24 +189,25 @@ export class AnalysisWorker {
         const [request] = this.pending.values();
         if (!request) return;
         this.pending.delete(request.key);
+        const { breaker, name, log, now } = this.options;
         const engine = request.document.languageId;
-        if ((this.failures.get(engine)?.length ?? 0) >= MAX_FAILURES) {
-            const reason = `The ${engine} engine failed ${MAX_FAILURES} times within ${FAILURE_WINDOW} and is paused for this session`;
-            request.resolve({ status: 'paused', reason, deadlineExceeded: false });
+        const paused = breaker.pausedReason(engine);
+        if (paused !== undefined) {
+            request.resolve({ status: 'paused', reason: paused, deadlineExceeded: false });
             return this.next();
         }
+        breaker.recordUse(engine);
         this.worker ??= this.spawn();
-        this.checkedLanguages.add(engine);
         const firstLoad = !this.loaded.has(engine);
-        const deadlineMs = firstLoad ? this.firstLoadMs : request.background ? this.backgroundDeadlineMs : this.deadlineMs;
+        const deadlineMs = firstLoad ? this.options.firstLoadMs : this.options.deadlineMs;
         const deadline = setTimeout(() => {
             // A synchronous engine cannot be interrupted, only its thread can be ended
             void this.worker?.terminate();
             this.worker = undefined;
-            this.log?.warn(`${engine} Check took longer than ${deadlineMs} ms; the analysis worker is restarted`);
+            log?.warn(`${engine} Check took longer than ${deadlineMs} ms; the ${name} is restarted`);
             this.finish({ status: 'paused', reason: `The Check took longer than ${deadlineMs} ms`, deadlineExceeded: true }, false);
         }, deadlineMs);
-        this.running = { request, deadline, started: this.now(), firstLoad };
+        this.running = { request, deadline, started: now(), firstLoad };
         this.worker.postMessage({ document: request.document, options: request.options } satisfies WorkerRequest);
     }
 
@@ -138,35 +216,29 @@ export class AnalysisWorker {
     private finish(outcome: CheckOutcome, failure = outcome.status === 'paused'): void {
         if (!this.running) return;
         clearTimeout(this.running.deadline);
-        if (failure) this.recordFailure(this.running.request.document.languageId);
+        if (failure) this.options.breaker.recordFailure(this.running.request.document.languageId);
         this.running.request.resolve(outcome);
         this.running = undefined;
         this.next();
     }
 
-    private recordFailure(engine: string): void {
-        const now = this.now();
-        const recent = [...(this.failures.get(engine) ?? []).filter(time => now - time <= FAILURE_WINDOW_MS), now];
-        this.failures.set(engine, recent);
-        if (recent.length === MAX_FAILURES) this.log?.error(`${engine} engine paused for this session after ${MAX_FAILURES} failures within ${FAILURE_WINDOW}`);
-    }
-
     private spawn(): Worker {
-        const worker = new Worker(this.script, { resourceLimits: { maxOldGenerationSizeMb: MAX_HEAP_MB } });
+        const { script, name, log, now } = this.options;
+        const worker = new Worker(script, { resourceLimits: { maxOldGenerationSizeMb: MAX_HEAP_MB } });
         this.loaded = new Set();
-        this.log?.info('Analysis worker started');
+        log?.info(`The ${name} started`);
         worker.on('message', (reply: WorkerReply) => {
             if (worker !== this.worker) return;
             if (!this.running) return;
             const { request, started, firstLoad } = this.running;
             this.loaded.add(request.document.languageId);
-            if ('result' in reply) this.finish({ status: 'done', result: reply.result, durationMs: this.now() - started, firstLoad });
+            if ('result' in reply) this.finish({ status: 'done', result: reply.result, durationMs: now() - started, firstLoad });
             else if ('parseError' in reply) {
                 // The user's code, so the log, where the paused state links, says where only, never what the parser quotes
-                this.log?.warn(`${request.document.languageId} Check paused: parse error at ${logText(reply.position)}`);
+                log?.warn(`${request.document.languageId} Check paused: parse error at ${logText(reply.position)}`);
                 this.finish({ status: 'paused', reason: reply.parseError, deadlineExceeded: false }, false);
             } else {
-                this.log?.error(`${request.document.languageId} engine failed: ${logText(reply.error)}`);
+                log?.error(`${request.document.languageId} engine failed: ${logText(reply.error)}`);
                 this.finish({ status: 'paused', reason: reply.error, deadlineExceeded: false });
             }
         });
@@ -174,11 +246,11 @@ export class AnalysisWorker {
         const stopped = (reason: string) => {
             if (worker !== this.worker) return;
             this.worker = undefined;
-            this.log?.error(logText(this.running ? `${this.running.request.document.languageId} engine: ${reason}` : reason));
+            log?.error(logText(this.running ? `${this.running.request.document.languageId} engine: ${reason}` : reason));
             this.finish({ status: 'paused', reason, deadlineExceeded: false });
         };
-        worker.on('error', (error: Error) => stopped(`The analysis worker crashed: ${error.message}`));
-        worker.on('exit', code => stopped(`The analysis worker stopped (exit code ${code})`));
+        worker.on('error', (error: Error) => stopped(`The ${name} crashed: ${error.message}`));
+        worker.on('exit', code => stopped(`The ${name} stopped (exit code ${code})`));
         // An idle worker must not keep the process alive; a running request's deadline timer does.
         // Only after the listeners: adding a 'message' listener refs the worker again.
         worker.unref();
