@@ -95,7 +95,7 @@ export interface WorkspaceCheckSummary {
 }
 
 /**
- * Checks every given file one at a time as background requests, in the background analysis worker with the longer
+ * Checks every given file one at a time as background requests, in the background worker with the longer
  * background deadline, so the editor's own Checks never wait for them. Re-running only re-checks files whose text or rule settings changed since their last Check.
  */
 export class WorkspaceCheck {

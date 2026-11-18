@@ -46,6 +46,27 @@ describe('AnalysisWorker', () => {
         assert.strictEqual(echoed(await busy).text, 'slow:100');
     });
 
+    it('drops a request running in the background worker when a newer version arrives for the typing worker', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE);
+        const older = worker.check('a.html', html('slow:300'), {}, { background: true });
+
+        const newer = worker.check('a.html', html('v2'));
+
+        assert.strictEqual(echoed(await newer).text, 'v2');
+        assert.deepStrictEqual(await older, { status: 'dropped' });
+    });
+
+    it('drops the running and pending requests when disposed', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE);
+        const running = worker.check('a.html', html('slow:300'));
+        const pending = worker.check('b.html', html('ok'));
+        const background = worker.check('c.html', html('slow:300'), {}, { background: true });
+
+        worker.dispose();
+
+        assert.deepStrictEqual(await Promise.all([running, pending, background]), [{ status: 'dropped' }, { status: 'dropped' }, { status: 'dropped' }]);
+    });
+
     it('stops a request at its deadline and runs the next one on a fresh worker', async () => {
         worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200 });
         const before = echoed(await worker.check('a.html', html('ok')));
@@ -63,8 +84,16 @@ describe('AnalysisWorker', () => {
         const crashed = await worker.check('a.html', html('crash'));
         const after = await worker.check('a.html', html('ok'));
 
-        assert.deepStrictEqual(crashed, { status: 'paused', reason: 'The analysis worker crashed: engine crashed', deadlineExceeded: false });
+        assert.deepStrictEqual(crashed, { status: 'paused', reason: 'The typing worker crashed: engine crashed', deadlineExceeded: false });
         assert.strictEqual(echoed(after).text, 'ok');
+    });
+
+    it('names the background worker in the reason when it crashed', async () => {
+        worker = new AnalysisWorker(FAKE_ENGINE);
+
+        const crashed = await worker.check('a.html', html('crash'), {}, { background: true });
+
+        assert.deepStrictEqual(crashed, { status: 'paused', reason: 'The background worker crashed: engine crashed', deadlineExceeded: false });
     });
 
     it('pauses a request whose engine failed, with the reason', async () => {
@@ -100,16 +129,18 @@ describe('AnalysisWorker', () => {
     });
 
     it('never holds up the Check of the file being typed in behind a running background request', async () => {
-        worker = new AnalysisWorker(FAKE_ENGINE, { deadlineMs: 200, firstLoadMs: 2000, backgroundDeadlineMs: 5000 });
+        worker = new AnalysisWorker(FAKE_ENGINE, { firstLoadMs: 5000, backgroundDeadlineMs: 5000 });
         const before = echoed(await worker.check('a.html', html('ok')));
-        const background = worker.check('large.html', html('slow:1500'), {}, { background: true });
+        const background = worker.check('large.html', html('slow:2000'), {}, { background: true });
 
-        const started = Date.now();
-        const typed = echoed(await worker.check('a.html', html('typed')));
+        const typedCheck = worker.check('a.html', html('typed'));
+        // Behind the background request, the typing Check would answer after it, however loaded the machine
+        const first = await Promise.race([typedCheck.then(() => 'typed'), background.then(() => 'background')]);
 
-        assert.ok(Date.now() - started < 200, `waited ${Date.now() - started} ms`);
+        assert.strictEqual(first, 'typed');
+        const typed = echoed(await typedCheck);
         assert.strictEqual(typed.text, 'typed');
-        assert.strictEqual(echoed(await background).text, 'slow:1500');
+        assert.strictEqual(echoed(await background).text, 'slow:2000');
         // The typing Check's engine stayed loaded in its own worker
         assert.strictEqual(typed.thread, before.thread);
     });
@@ -206,14 +237,14 @@ describe('AnalysisWorker', () => {
         await worker.check('a.html', html('ok'));
 
         assert.deepStrictEqual(lines, [
-            'info Analysis worker started',
+            'info The typing worker started',
             'error html engine failed: engine failed',
-            'warn html Check took longer than 200 ms; the analysis worker is restarted',
-            'info Analysis worker started',
-            'error vue engine: The analysis worker crashed: engine crashed',
-            'info Analysis worker started',
-            'error html engine: The analysis worker crashed: engine crashed',
-            'info Analysis worker started',
+            'warn html Check took longer than 200 ms; the typing worker is restarted',
+            'info The typing worker started',
+            'error vue engine: The typing worker crashed: engine crashed',
+            'info The typing worker started',
+            'error html engine: The typing worker crashed: engine crashed',
+            'info The typing worker started',
             'error html engine failed: engine failed',
             'error html engine paused for this session after 3 failures within 3 minutes'
         ]);
