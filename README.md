@@ -60,7 +60,7 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | Astro | `astro/jsx-a11y/anchor-has-content` | 2.4.4, 4.1.2 | 80 of 80 | 96.3 % |
 | HTML | `image-alt` | 1.1.1 | 126 of 126 | 97.6 % |
 | Svelte | `svelte/a11y_consider_explicit_label` | 4.1.2, 2.4.4 | 99 of 99 | 97.0 % |
-| Vue | `vuejs-accessibility/alt-text` | 1.1.1 | 124 of 124 | 97.6 % |
+| Vue | `vuejs-accessibility/alt-text` | 1.1.1 | 123 of 123 | 97.5 % |
 | Vue | `vuejs-accessibility/anchor-has-content` | 2.4.4, 4.1.2 | 81 of 81 | 96.3 % |
 
 The evidence of every rule, proven or not, is in [`src/core/proof-status.json`](src/core/proof-status.json), and the labelled files are in [`test/ground-truth`](test/ground-truth).

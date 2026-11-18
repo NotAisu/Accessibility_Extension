@@ -1,10 +1,10 @@
 {
   "1.1.1": {
     "precision": 1,
-    "recall": 0.915,
+    "recall": 0.909,
     "tp": 140,
     "fp": 0,
-    "fn": 13
+    "fn": 14
   },
   "1.2.1": {
     "precision": null,
@@ -43,10 +43,10 @@
   },
   "1.3.1": {
     "precision": 1,
-    "recall": 0.476,
+    "recall": 0.513,
     "tp": 20,
     "fp": 0,
-    "fn": 22
+    "fn": 19
   },
   "1.3.2": {
     "precision": null,
@@ -81,7 +81,7 @@
     "recall": 0,
     "tp": 0,
     "fp": 0,
-    "fn": 8
+    "fn": 7
   },
   "1.4.2": {
     "precision": null,
@@ -92,17 +92,17 @@
   },
   "1.4.3": {
     "precision": 1,
-    "recall": 0.294,
+    "recall": 0.263,
     "tp": 5,
     "fp": 0,
-    "fn": 12
+    "fn": 14
   },
   "1.4.4": {
     "precision": 1,
-    "recall": 0.556,
+    "recall": 0.625,
     "tp": 5,
     "fp": 0,
-    "fn": 4
+    "fn": 3
   },
   "1.4.5": {
     "precision": null,
@@ -116,7 +116,7 @@
     "recall": 0,
     "tp": 0,
     "fp": 0,
-    "fn": 1
+    "fn": 3
   },
   "1.4.11": {
     "precision": 1,
@@ -130,26 +130,26 @@
     "recall": 0,
     "tp": 0,
     "fp": 0,
-    "fn": 9
+    "fn": 8
   },
   "2.1.2": {
     "precision": null,
     "recall": 0,
     "tp": 0,
     "fp": 0,
-    "fn": 3
+    "fn": 2
   },
   "2.2.1": {
     "precision": 0.8,
-    "recall": 0.8,
+    "recall": 1,
     "tp": 4,
     "fp": 1,
-    "fn": 1
+    "fn": 0
   },
   "2.2.2": {
     "precision": 1,
-    "recall": 0.667,
-    "tp": 2,
+    "recall": 0.5,
+    "tp": 1,
     "fp": 0,
     "fn": 1
   },
@@ -169,17 +169,17 @@
   },
   "2.4.2": {
     "precision": 1,
-    "recall": 0.286,
+    "recall": 0.364,
     "tp": 4,
     "fp": 0,
-    "fn": 10
+    "fn": 7
   },
   "2.4.3": {
     "precision": null,
     "recall": 0,
     "tp": 0,
     "fp": 0,
-    "fn": 4
+    "fn": 3
   },
   "2.4.4": {
     "precision": 1,
@@ -232,10 +232,10 @@
   },
   "3.1.1": {
     "precision": 0.8,
-    "recall": 0.64,
+    "recall": 0.762,
     "tp": 16,
     "fp": 4,
-    "fn": 9
+    "fn": 5
   },
   "3.1.2": {
     "precision": 1,
@@ -277,14 +277,14 @@
     "recall": 0,
     "tp": 0,
     "fp": 0,
-    "fn": 5
+    "fn": 7
   },
   "3.3.2": {
     "precision": null,
     "recall": 0,
     "tp": 0,
     "fp": 0,
-    "fn": 11
+    "fn": 9
   },
   "3.3.3": {
     "precision": null,
@@ -309,9 +309,9 @@
   },
   "4.1.2": {
     "precision": 0.955,
-    "recall": 0.924,
-    "tp": 85,
+    "recall": 0.933,
+    "tp": 84,
     "fp": 4,
-    "fn": 7
+    "fn": 6
   }
 }
