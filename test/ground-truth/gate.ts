@@ -4,6 +4,9 @@
  *   npm run test:gate                 compare with baseline/<languageId>.json
  *   npm run test:gate -- --update     store the current scores as the new baselines
  *   npm run test:gate -- --bundle <dir>  measure the analysis bundle in <dir>/dist instead of the source
+ *
+ * It also computes which rules are Proven rules from the evidence sets and fails when that differs from the
+ * committed proof status (src/core/proof-status.json), which --update rewrites with the baselines.
  */
 import '../esm-only-packages';
 import * as fs from 'fs';
@@ -11,8 +14,14 @@ import * as path from 'path';
 import { AnalysisWorker } from '../../src/analysis-worker';
 import * as source from '../../src/core/analysis';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
+import { Judged, ProofStatus, addJudged, judgeMatches, proofChanges, proofStatus } from './proof';
 
-const SETS = ['act', 'jsx-a11y', 'vuejs-accessibility', 'own', 'svelte', 'astro', 'angular-eslint'];
+const SETS = ['act', 'jsx-a11y', 'vuejs-accessibility', 'own', 'svelte', 'astro', 'angular-eslint', 'field', 'injection']
+    .filter(name => fs.existsSync(path.join(__dirname, name, 'expectations.json')));
+// Independently labelled real code. The engine-wiring sets (imported from the engines' own rule tests) and own
+// cases never count as evidence that a rule is right (#78).
+const EVIDENCE = new Set(['act', 'field', 'injection']);
+const PROOF_STATUS = path.join(__dirname, '..', '..', 'src', 'core', 'proof-status.json');
 // One file per language, so work on different languages never touches the same baseline
 const BASELINES = path.join(__dirname, 'baseline');
 
@@ -20,8 +29,14 @@ type Scores = Record<string, { precision: number | null; recall: number | null }
 
 type Analyse = typeof source.analyse;
 
-async function measure(analyse: Analyse, silent: Set<string>): Promise<Map<string, Scores>> {
+interface Measured {
+    scoresByLanguage: Map<string, Scores>;
+    proof: ProofStatus;
+}
+
+async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured> {
     const totals = new Map<string, Map<string, Tally>>();
+    const judged = new Map<string, Map<string, Judged>>();
     const failingCaseFindings = new Map<string, number>();
     for (const name of SETS) {
         const dir = path.join(__dirname, name);
@@ -37,6 +52,11 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Map<strin
             }
             if (!totals.has(testCase.languageId)) totals.set(testCase.languageId, new Map());
             addTallies(totals.get(testCase.languageId)!, scoreCase(testCase.expect, reported));
+            if (EVIDENCE.has(name)) {
+                const matches = findings.map(f => ({ ruleId: f.ruleId, line: lineAt(text, f.range.start), criteria: f.criteria }));
+                if (!judged.has(testCase.languageId)) judged.set(testCase.languageId, new Map());
+                addJudged(judged.get(testCase.languageId)!, judgeMatches(testCase, matches));
+            }
         }
     }
     // An engine that loads badly often reports nothing at all rather than failing
@@ -50,7 +70,7 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Map<strin
         }
         scoresByLanguage.set(languageId, scores);
     }
-    return scoresByLanguage;
+    return { scoresByLanguage, proof: proofStatus(judged) };
 }
 
 function lineAt(text: string, offset: number): number {
@@ -112,7 +132,7 @@ function loadAnalyse(): Analyse {
 
 async function main() {
     const silent = new Set<string>();
-    const scoresByLanguage = await measure(loadAnalyse(), silent);
+    const { scoresByLanguage, proof } = await measure(loadAnalyse(), silent);
     const update = process.argv.includes('--update');
     const problems = [...silent].map(languageId => `${languageId}: no Findings on the cases that expect one`);
     if (update && problems.length > 0) {
@@ -137,7 +157,17 @@ async function main() {
             problems.push(...regressions(scores, baseline).map(problem => `${languageId} ${problem}`));
         }
     }
-    if (update) return;
+    printProof(proof);
+    if (update) {
+        fs.writeFileSync(PROOF_STATUS, JSON.stringify(proof, null, 2) + '\n');
+        console.log(`Proof status written to ${path.relative(process.cwd(), PROOF_STATUS)}`);
+        return;
+    }
+    if (!fs.existsSync(PROOF_STATUS)) {
+        problems.push(`no proof status, run npm run test:gate -- --update and commit ${path.relative(process.cwd(), PROOF_STATUS)}`);
+    } else {
+        problems.push(...proofChanges(JSON.parse(fs.readFileSync(PROOF_STATUS, 'utf-8')) as ProofStatus, proof));
+    }
 
     // A language whose ground truth disappeared must not pass silently
     for (const file of fs.existsSync(BASELINES) ? fs.readdirSync(BASELINES).filter(f => f.endsWith('.json')) : []) {
@@ -149,6 +179,15 @@ async function main() {
         process.exit(1);
     }
     console.log('\nNo criterion below the baseline.');
+}
+
+function printProof(proof: ProofStatus): void {
+    console.log(`\nProof status (lower bound at ${proof.confidence * 100} %, Proven from ${proof.threshold})\nlanguage         rule                                 correct wrong  bound`);
+    for (const [ruleId, languages] of Object.entries(proof.rules)) {
+        for (const [languageId, p] of Object.entries(languages)) {
+            console.log(`${languageId.padEnd(16)} ${ruleId.padEnd(36)} ${String(p.correct).padStart(7)} ${String(p.wrong).padStart(5)}  ${p.lowerBound.toFixed(3)}${p.proven ? '  Proven' : ''}`);
+        }
+    }
 }
 
 main().catch(error => {
