@@ -2,7 +2,7 @@
   "name": "allyproof",
   "displayName": "Allyproof – WCAG 2.2 Accessibility Checker",
   "description": "Check HTML, React, Vue, Svelte, Angular and Astro code against WCAG 2.2 AA while you type, with optional AI Review. No telemetry, no account.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "notaisu",
   "license": "MIT",
   "pricing": "Free",
@@ -386,6 +386,7 @@
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
     "mocha": "12.0.3",
+    "ovsx": "1.4.0",
     "ts-node": "10.9.2",
     "typescript-eslint": "8.72.2"
   },

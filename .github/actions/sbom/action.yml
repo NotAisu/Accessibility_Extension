@@ -1,5 +1,5 @@
 name: CycloneDX SBOM
-description: Writes a CycloneDX SBOM of the shipped (non-dev) dependencies; the release workflow (#27) attaches it to the release
+description: Writes a CycloneDX SBOM of the shipped (non-dev) dependencies; the release workflow attaches it to the GitHub release
 inputs:
   path:
     description: File to write the SBOM to
