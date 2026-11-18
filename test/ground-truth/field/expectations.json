@@ -4145,17 +4145,6 @@
       ]
     },
     {
-      "file": "nuxt_ui/docs/app/components/content/ComponentExample.vue",
-      "languageId": "vue",
-      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/ComponentExample.vue, MIT. Each Finding the Check reported was judged at its line (line 242 iframe-has-title: no failure, v-bind object can carry title). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
-      "expect": [
-        {
-          "criterion": "4.1.2",
-          "present": false
-        }
-      ]
-    },
-    {
       "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselArrowsExample.vue",
       "languageId": "vue",
       "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselArrowsExample.vue, MIT. Each Finding the Check reported was judged at its line (line 14 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
@@ -4684,17 +4673,6 @@
         },
         {
           "criterion": "4.1.2",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "twbs_bootstrap/site/src/components/shortcodes/Placeholder.astro",
-      "languageId": "astro",
-      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/components/shortcodes/Placeholder.astro, MIT. Each Finding the Check reported was judged at its line (line 15 alt-text: no failure, spread props can carry alt). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
-      "expect": [
-        {
-          "criterion": "1.1.1",
           "present": false
         }
       ]
