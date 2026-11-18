@@ -1,0 +1,3427 @@
+{
+  "source": "Realistic labelled files from several sources; each case names its source, commit and licence in its note.",
+  "cases": [
+    {
+      "file": "wai-bad/before-home.html",
+      "languageId": "html",
+      "note": "W3C WAI Before and After Demo, before home page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/before/home.html, W3C Document License. Fails: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 1.4.3, 1.4.5, 2.1.1, 2.4.1, 2.4.2, 2.4.4, 2.4.6, 2.4.7, 3.1.1, 3.2.1, 3.2.2, 3.2.4, 3.3.2, 4.1.2. Line labels: each Finding the Check reported was verified against the element (image without alt attribute, F65; link or control without a name, F68 and F89; html without lang, 3.1.1).",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "1.2.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "1.2.3",
+          "present": false
+        },
+        {
+          "criterion": "1.2.4",
+          "present": false
+        },
+        {
+          "criterion": "1.2.5",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "1.3.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.1",
+          "present": true
+        },
+        {
+          "criterion": "1.4.2",
+          "present": false
+        },
+        {
+          "criterion": "1.4.3",
+          "present": true
+        },
+        {
+          "criterion": "1.4.4",
+          "present": false
+        },
+        {
+          "criterion": "1.4.5",
+          "present": true
+        },
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "2.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.1",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.3.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.1",
+          "present": true
+        },
+        {
+          "criterion": "2.4.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.3",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "2.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": true
+        },
+        {
+          "criterion": "2.4.7",
+          "present": true
+        },
+        {
+          "criterion": "3.1.1",
+          "present": true
+        },
+        {
+          "criterion": "3.1.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.1",
+          "present": true
+        },
+        {
+          "criterion": "3.2.2",
+          "present": true
+        },
+        {
+          "criterion": "3.2.3",
+          "present": false
+        },
+        {
+          "criterion": "3.2.4",
+          "present": true
+        },
+        {
+          "criterion": "3.3.1",
+          "present": false
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "3.3.3",
+          "present": false
+        },
+        {
+          "criterion": "3.3.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "3.1.1",
+          "line": 1
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 173
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 174
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 175
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 178
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 183
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 184
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 185
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 187
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 208
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 233
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 244
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 245
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 248
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 248
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 248
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 251
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 254
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 254
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 254
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 257
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 260
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 260
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 260
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 263
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 266
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 266
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 266
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 269
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 273
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 280
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 281
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 282
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 292
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 292
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 293
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 293
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 294
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 294
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 301
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 305
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 306
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 312
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 327
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 333
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 354
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 357
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 358
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 359
+        }
+      ]
+    },
+    {
+      "file": "wai-bad/before-news.html",
+      "languageId": "html",
+      "note": "W3C WAI Before and After Demo, before news page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/before/news.html, W3C Document License. Fails: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 1.4.3, 1.4.5, 2.1.1, 2.4.1, 2.4.2, 2.4.4, 2.4.6, 2.4.7, 3.1.1, 3.2.1, 3.2.2, 3.2.4, 3.3.2, 4.1.2. Line labels: each Finding the Check reported was verified against the element (image without alt attribute, F65; link or control without a name, F68 and F89; html without lang, 3.1.1).",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "1.2.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "1.2.3",
+          "present": false
+        },
+        {
+          "criterion": "1.2.4",
+          "present": false
+        },
+        {
+          "criterion": "1.2.5",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "1.3.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.1",
+          "present": true
+        },
+        {
+          "criterion": "1.4.2",
+          "present": false
+        },
+        {
+          "criterion": "1.4.3",
+          "present": true
+        },
+        {
+          "criterion": "1.4.4",
+          "present": false
+        },
+        {
+          "criterion": "1.4.5",
+          "present": true
+        },
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "2.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.1",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.3.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.1",
+          "present": true
+        },
+        {
+          "criterion": "2.4.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.3",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "2.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": true
+        },
+        {
+          "criterion": "2.4.7",
+          "present": true
+        },
+        {
+          "criterion": "3.1.1",
+          "present": true
+        },
+        {
+          "criterion": "3.1.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.1",
+          "present": true
+        },
+        {
+          "criterion": "3.2.2",
+          "present": true
+        },
+        {
+          "criterion": "3.2.3",
+          "present": false
+        },
+        {
+          "criterion": "3.2.4",
+          "present": true
+        },
+        {
+          "criterion": "3.3.1",
+          "present": false
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "3.3.3",
+          "present": false
+        },
+        {
+          "criterion": "3.3.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "3.1.1",
+          "line": 1
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 75
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 76
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 77
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 80
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 85
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 86
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 87
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 89
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 110
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 135
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 146
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 147
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 150
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 150
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 150
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 153
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 156
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 156
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 156
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 159
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 162
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 162
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 162
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 165
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 168
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 168
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 168
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 171
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 175
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 192
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 193
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 196
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 197
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 202
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 213
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 214
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 215
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 218
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 223
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 236
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 237
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 238
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 241
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 246
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 263
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 266
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 267
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 268
+        }
+      ]
+    },
+    {
+      "file": "wai-bad/before-tickets.html",
+      "languageId": "html",
+      "note": "W3C WAI Before and After Demo, before tickets page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/before/tickets.html, W3C Document License. Fails: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 1.4.3, 1.4.5, 2.1.1, 2.4.1, 2.4.2, 2.4.4, 2.4.6, 2.4.7, 3.1.1, 3.2.1, 3.2.2, 3.2.4, 3.3.2, 4.1.2. Line labels: each Finding the Check reported was verified against the element (image without alt attribute, F65; link or control without a name, F68 and F89; html without lang, 3.1.1).",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "1.2.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "1.2.3",
+          "present": false
+        },
+        {
+          "criterion": "1.2.4",
+          "present": false
+        },
+        {
+          "criterion": "1.2.5",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "1.3.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.1",
+          "present": true
+        },
+        {
+          "criterion": "1.4.2",
+          "present": false
+        },
+        {
+          "criterion": "1.4.3",
+          "present": true
+        },
+        {
+          "criterion": "1.4.4",
+          "present": false
+        },
+        {
+          "criterion": "1.4.5",
+          "present": true
+        },
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "2.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.1",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.3.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.1",
+          "present": true
+        },
+        {
+          "criterion": "2.4.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.3",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "2.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": true
+        },
+        {
+          "criterion": "2.4.7",
+          "present": true
+        },
+        {
+          "criterion": "3.1.1",
+          "present": true
+        },
+        {
+          "criterion": "3.1.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.1",
+          "present": true
+        },
+        {
+          "criterion": "3.2.2",
+          "present": true
+        },
+        {
+          "criterion": "3.2.3",
+          "present": false
+        },
+        {
+          "criterion": "3.2.4",
+          "present": true
+        },
+        {
+          "criterion": "3.3.1",
+          "present": false
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "3.3.3",
+          "present": false
+        },
+        {
+          "criterion": "3.3.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "3.1.1",
+          "line": 1
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 70
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 71
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 72
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 75
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 80
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 81
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 82
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 84
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 105
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 130
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 141
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 142
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 145
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 145
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 145
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 148
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 151
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 151
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 151
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 154
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 157
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 157
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 157
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 160
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 163
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 163
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 163
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 166
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 170
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 172
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 201
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 282
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 285
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 286
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 287
+        }
+      ]
+    },
+    {
+      "file": "wai-bad/before-survey.html",
+      "languageId": "html",
+      "note": "W3C WAI Before and After Demo, before survey page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/before/survey.html, W3C Document License. Fails: 1.1.1, 1.3.1, 1.3.2, 1.4.1, 1.4.3, 1.4.5, 2.1.1, 2.4.1, 2.4.2, 2.4.3, 2.4.4, 2.4.6, 2.4.7, 3.1.1, 3.2.1, 3.2.2, 3.2.4, 3.3.2, 4.1.2. Line labels: each Finding the Check reported was verified against the element (image without alt attribute, F65; link or control without a name, F68 and F89; html without lang, 3.1.1).",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "1.2.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "1.2.3",
+          "present": false
+        },
+        {
+          "criterion": "1.2.4",
+          "present": false
+        },
+        {
+          "criterion": "1.2.5",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "1.3.2",
+          "present": true
+        },
+        {
+          "criterion": "1.3.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.1",
+          "present": true
+        },
+        {
+          "criterion": "1.4.2",
+          "present": false
+        },
+        {
+          "criterion": "1.4.3",
+          "present": true
+        },
+        {
+          "criterion": "1.4.4",
+          "present": false
+        },
+        {
+          "criterion": "1.4.5",
+          "present": true
+        },
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "2.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.1",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.3.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.1",
+          "present": true
+        },
+        {
+          "criterion": "2.4.2",
+          "present": true
+        },
+        {
+          "criterion": "2.4.3",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "2.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": true
+        },
+        {
+          "criterion": "2.4.7",
+          "present": true
+        },
+        {
+          "criterion": "3.1.1",
+          "present": true
+        },
+        {
+          "criterion": "3.1.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.1",
+          "present": true
+        },
+        {
+          "criterion": "3.2.2",
+          "present": true
+        },
+        {
+          "criterion": "3.2.3",
+          "present": false
+        },
+        {
+          "criterion": "3.2.4",
+          "present": true
+        },
+        {
+          "criterion": "3.3.1",
+          "present": false
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "3.3.3",
+          "present": false
+        },
+        {
+          "criterion": "3.3.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        },
+        {
+          "criterion": "3.1.1",
+          "line": 1
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 76
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 77
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 78
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 81
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 86
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 87
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 88
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 90
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 111
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 136
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 147
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 148
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 151
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 151
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 151
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 154
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 157
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 157
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 157
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 160
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 163
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 163
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 163
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 166
+        },
+        {
+          "criterion": "2.4.4",
+          "line": 169
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 169
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 169
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 172
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 176
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 200
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 204
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 208
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 232
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 236
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 240
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 286
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 513
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 515
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 583
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 586
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 587
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 588
+        }
+      ]
+    },
+    {
+      "file": "wai-bad/after-home.html",
+      "languageId": "html",
+      "note": "W3C WAI Before and After Demo, after home page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/after/home.html, W3C Document License. Accessible version, no failures.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "1.2.3",
+          "present": false
+        },
+        {
+          "criterion": "1.2.4",
+          "present": false
+        },
+        {
+          "criterion": "1.2.5",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "1.3.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.1",
+          "present": false
+        },
+        {
+          "criterion": "1.4.2",
+          "present": false
+        },
+        {
+          "criterion": "1.4.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.4",
+          "present": false
+        },
+        {
+          "criterion": "1.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "2.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.1",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.3.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.3",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "2.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "2.4.7",
+          "present": false
+        },
+        {
+          "criterion": "3.1.1",
+          "present": false
+        },
+        {
+          "criterion": "3.1.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.1",
+          "present": false
+        },
+        {
+          "criterion": "3.2.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.3",
+          "present": false
+        },
+        {
+          "criterion": "3.2.4",
+          "present": false
+        },
+        {
+          "criterion": "3.3.1",
+          "present": false
+        },
+        {
+          "criterion": "3.3.2",
+          "present": false
+        },
+        {
+          "criterion": "3.3.3",
+          "present": false
+        },
+        {
+          "criterion": "3.3.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "wai-bad/after-news.html",
+      "languageId": "html",
+      "note": "W3C WAI Before and After Demo, after news page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/after/news.html, W3C Document License. Accessible version, no failures.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "1.2.3",
+          "present": false
+        },
+        {
+          "criterion": "1.2.4",
+          "present": false
+        },
+        {
+          "criterion": "1.2.5",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "1.3.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.1",
+          "present": false
+        },
+        {
+          "criterion": "1.4.2",
+          "present": false
+        },
+        {
+          "criterion": "1.4.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.4",
+          "present": false
+        },
+        {
+          "criterion": "1.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "2.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.1",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.3.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.3",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "2.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "2.4.7",
+          "present": false
+        },
+        {
+          "criterion": "3.1.1",
+          "present": false
+        },
+        {
+          "criterion": "3.1.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.1",
+          "present": false
+        },
+        {
+          "criterion": "3.2.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.3",
+          "present": false
+        },
+        {
+          "criterion": "3.2.4",
+          "present": false
+        },
+        {
+          "criterion": "3.3.1",
+          "present": false
+        },
+        {
+          "criterion": "3.3.2",
+          "present": false
+        },
+        {
+          "criterion": "3.3.3",
+          "present": false
+        },
+        {
+          "criterion": "3.3.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "wai-bad/after-tickets.html",
+      "languageId": "html",
+      "note": "W3C WAI Before and After Demo, after tickets page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/after/tickets.html, W3C Document License. Accessible version, no failures.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "1.2.3",
+          "present": false
+        },
+        {
+          "criterion": "1.2.4",
+          "present": false
+        },
+        {
+          "criterion": "1.2.5",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "1.3.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.1",
+          "present": false
+        },
+        {
+          "criterion": "1.4.2",
+          "present": false
+        },
+        {
+          "criterion": "1.4.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.4",
+          "present": false
+        },
+        {
+          "criterion": "1.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "2.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.1",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.3.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.3",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "2.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "2.4.7",
+          "present": false
+        },
+        {
+          "criterion": "3.1.1",
+          "present": false
+        },
+        {
+          "criterion": "3.1.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.1",
+          "present": false
+        },
+        {
+          "criterion": "3.2.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.3",
+          "present": false
+        },
+        {
+          "criterion": "3.2.4",
+          "present": false
+        },
+        {
+          "criterion": "3.3.1",
+          "present": false
+        },
+        {
+          "criterion": "3.3.2",
+          "present": false
+        },
+        {
+          "criterion": "3.3.3",
+          "present": false
+        },
+        {
+          "criterion": "3.3.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "wai-bad/after-survey.html",
+      "languageId": "html",
+      "note": "W3C WAI Before and After Demo, after survey page; labels are the page-level results of W3C's evaluation report (WCAG 2.0 A/AA, so 2.1 and 2.2 criteria are unlabelled). Source https://www.w3.org/WAI/demos/bad/after/survey.html, W3C Document License. Accessible version, no failures.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.1",
+          "present": false
+        },
+        {
+          "criterion": "1.2.2",
+          "present": false
+        },
+        {
+          "criterion": "1.2.3",
+          "present": false
+        },
+        {
+          "criterion": "1.2.4",
+          "present": false
+        },
+        {
+          "criterion": "1.2.5",
+          "present": false
+        },
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "1.3.2",
+          "present": false
+        },
+        {
+          "criterion": "1.3.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.1",
+          "present": false
+        },
+        {
+          "criterion": "1.4.2",
+          "present": false
+        },
+        {
+          "criterion": "1.4.3",
+          "present": false
+        },
+        {
+          "criterion": "1.4.4",
+          "present": false
+        },
+        {
+          "criterion": "1.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "2.1.2",
+          "present": false
+        },
+        {
+          "criterion": "2.2.1",
+          "present": false
+        },
+        {
+          "criterion": "2.2.2",
+          "present": false
+        },
+        {
+          "criterion": "2.3.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.1",
+          "present": false
+        },
+        {
+          "criterion": "2.4.2",
+          "present": false
+        },
+        {
+          "criterion": "2.4.3",
+          "present": false
+        },
+        {
+          "criterion": "2.4.4",
+          "present": false
+        },
+        {
+          "criterion": "2.4.5",
+          "present": false
+        },
+        {
+          "criterion": "2.4.6",
+          "present": false
+        },
+        {
+          "criterion": "2.4.7",
+          "present": false
+        },
+        {
+          "criterion": "3.1.1",
+          "present": false
+        },
+        {
+          "criterion": "3.1.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.1",
+          "present": false
+        },
+        {
+          "criterion": "3.2.2",
+          "present": false
+        },
+        {
+          "criterion": "3.2.3",
+          "present": false
+        },
+        {
+          "criterion": "3.2.4",
+          "present": false
+        },
+        {
+          "criterion": "3.3.1",
+          "present": false
+        },
+        {
+          "criterion": "3.3.2",
+          "present": false
+        },
+        {
+          "criterion": "3.3.3",
+          "present": false
+        },
+        {
+          "criterion": "3.3.4",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/buttons-empty-alt-attribute-on-image-button.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"buttons-empty-alt-attribute-on-image-button\"); it fails 1.1.1, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/buttons-empty-button.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"buttons-empty-button\"); it fails 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/buttons-image-button-has-no-alt-attribute.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"buttons-image-button-has-no-alt-attribute\"); it fails 1.1.1, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/buttons-uninformative-alt-attribute-value-on-image-button.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"buttons-uninformative-alt-attribute-value-on-image-button\"); it fails 1.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/colour-and-contrast-colour-alone-is-used-to-convey-content.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-colour-alone-is-used-to-convey-content\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/colour-and-contrast-focus-not-visible.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-focus-not-visible\"); it fails 2.4.7. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.7",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/colour-and-contrast-large-text-does-not-have-a-contrast-ratio-of-at-least-31-so-does-not-meet-aa.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-large-text-does-not-have-a-contrast-ratio-of-at-least-31-so-does-not-meet-aa\"); it fails 1.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/colour-and-contrast-large-text-does-not-have-a-contrast-ratio-of-at-least-45-1-so-does-not-meet-aaa.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-large-text-does-not-have-a-contrast-ratio-of-at-least-45-1-so-does-not-meet-aaa\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/colour-and-contrast-small-text-does-not-have-a-contrast-ratio-of-at-least-45-1-so-does-not-meet-aa.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-small-text-does-not-have-a-contrast-ratio-of-at-least-45-1-so-does-not-meet-aa\"); it fails 1.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/colour-and-contrast-small-text-does-not-have-a-contrast-ratio-of-at-least-71-so-does-not-meet-aaa.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"colour-and-contrast-small-text-does-not-have-a-contrast-ratio-of-at-least-71-so-does-not-meet-aaa\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/content-content-identified-by-location.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"content-content-identified-by-location\"); it fails 1.3.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/content-content-is-not-in-correct-reading-order-in-source-code.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"content-content-is-not-in-correct-reading-order-in-source-code\"); it fails 1.3.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/content-content-is-not-organised-into-well-defined-groups-or-chunks-using-headings,-lists,-and-other-visual-mechanisms.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"content-content-is-not-organised-into-well-defined-groups-or-chunks-using-headings,-lists,-and-other-visual-mechanisms\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/content-first-instance-of-abbreviation-not-expanded.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"content-first-instance-of-abbreviation-not-expanded\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/content-plain-language-is-not-used.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"content-plain-language-is-not-used\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/css-content-is-not-readable-and-functional-when-text-is-increased.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-content-is-not-readable-and-functional-when-text-is-increased\"); it fails 1.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/css-displaynone-used-to-visually-hide-content-when-it-should-be-available-to-screenreader.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-displaynone-used-to-visually-hide-content-when-it-should-be-available-to-screenreader\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/css-non-decorative-content-inserted-using-css.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-non-decorative-content-inserted-using-css\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/css-page-zoom-boxes-that-dont-expand-with-the-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-page-zoom-boxes-that-dont-expand-with-the-text\"); it fails 1.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/css-visibilityhidden-used-to-visually-hide-content-when-it-should-be-available-to-screenreader.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"css-visibilityhidden-used-to-visually-hide-content-when-it-should-be-available-to-screenreader\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/forms-empty-label-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-empty-label-found\"); it fails 1.3.1, 3.3.2, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-empty-legend.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-empty-legend\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-error-messages-no-suggestion-for-corrections-given-e.g.-required-format.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-error-messages-no-suggestion-for-corrections-given-e.g.-required-format\"); it fails 3.3.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.3.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-errors-are-not-identified.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-errors-are-not-identified\"); it fails 3.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-errors-identified-by-colour-only.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-errors-identified-by-colour-only\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-errors-identified-with-a-poor-colour-contrast.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-errors-identified-with-a-poor-colour-contrast\"); it fails 1.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-field-hint-not-associated-with-input.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-field-hint-not-associated-with-input\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/forms-fieldset-without-a-legend.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-fieldset-without-a-legend\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/forms-form-control-that-changes-context-without-warning.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-form-control-that-changes-context-without-warning\"); it fails 3.2.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-form-element-has-no-label.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-form-element-has-no-label\"); it fails 1.3.1, 3.3.2, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-group-of-check-boxes-not-enclosed-in-a-fieldset.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-group-of-check-boxes-not-enclosed-in-a-fieldset\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-group-of-radio-buttons-not-enclosed-in-a-fieldset.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-group-of-radio-buttons-not-enclosed-in-a-fieldset\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-label-element-with-for-attribute-but-not-matching-id=-attribute-of-form-control.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-label-element-with-for-attribute-but-not-matching-id=-attribute-of-form-control\"); it fails 1.3.1, 3.3.2, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-labels-missing-when-they-would-look-clumsy-for-some-form-controls.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-labels-missing-when-they-would-look-clumsy-for-some-form-controls\"); it fails 1.3.1, 3.3.2, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-left-aligned-form-labels-with-too-much-white-space.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-left-aligned-form-labels-with-too-much-white-space\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/forms-missing-labels-in-checkboxes.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-missing-labels-in-checkboxes\"); it fails 1.3.1, 3.3.2, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-non-unique-field-label-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-non-unique-field-label-found\"); it fails 2.4.6. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.6",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-placeholder-no-label.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-placeholder-no-label\"); it fails 3.3.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.3.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/forms-two-unique-labels-but-identical-for=-attributes.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"forms-two-unique-labels-but-identical-for=-attributes\"); it fails 1.3.1, 3.3.2, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        },
+        {
+          "criterion": "3.3.2",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/frames-iframe-is-missing-a-title-attribute.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"frames-iframe-is-missing-a-title-attribute\"); it fails 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/frames-iframe-title-attribute-does-not-describe-the-content-or-purpose-of-the-iframe.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"frames-iframe-title-attribute-does-not-describe-the-content-or-purpose-of-the-iframe\"); it fails 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/headings-empty-heading.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"headings-empty-heading\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/headings-headings-not-structured-in-a-hierarchical-manner.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"headings-headings-not-structured-in-a-hierarchical-manner\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/headings-missing-h1.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"headings-missing-h1\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/headings-text-formatting-used-instead-of-an-actual-heading.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"headings-text-formatting-used-instead-of-an-actual-heading\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/html-article-element-used-to-mark-up-an-element-thats-not-an-article-blog-post-etc..html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-article-element-used-to-mark-up-an-element-thats-not-an-article-blog-post-etc.\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-deprecated-center-element.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-deprecated-center-element\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-deprecated-font-element.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-deprecated-font-element\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-duplicate-id.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-duplicate-id\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-empty-paragraph.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-empty-paragraph\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-inline-style-adds-colour.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-inline-style-adds-colour\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-invalid-aria-role-names.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-invalid-aria-role-names\"); it fails 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/html-object-not-embedded-accessibly-wmode-parameter-not-set-to-window.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-object-not-embedded-accessibly-wmode-parameter-not-set-to-window\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-pre-element-without-code-element-inside-it.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-pre-element-without-code-element-inside-it\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-spacer-image-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-spacer-image-found\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/html-start-and-close-tags-dont-match.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"html-start-and-close-tags-dont-match\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/images-a-distraction-is-present-an-animated-gif.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-a-distraction-is-present-an-animated-gif\"); it fails 2.2.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/images-background-image-that-conveys-information-does-not-have-a-text-alternative.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-background-image-that-conveys-information-does-not-have-a-text-alternative\"); it fails 1.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/images-image-alt-attribute-contains-image-file-name.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-alt-attribute-contains-image-file-name\"); it fails 1.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/images-image-has-alt-and-title-that-are-different.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-has-alt-and-title-that-are-different\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/images-image-has-empty-alt-and-non-empty-title.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-has-empty-alt-and-non-empty-title\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/images-image-that-conveys-information-has-an-empty-alt-attribute.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-that-conveys-information-has-an-empty-alt-attribute\"); it fails 1.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/images-image-that-conveys-information-has-inappropriate-alt-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-that-conveys-information-has-inappropriate-alt-text\"); it fails 1.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/images-image-with-no-alt-attribute.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-with-no-alt-attribute\"); it fails 1.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/images-image-with-partial-text-alternative.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-with-partial-text-alternative\"); it fails 1.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/images-image-with-presentation-role-has-non-empty-alt.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"images-image-with-presentation-role-has-non-empty-alt\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/keyboard-access-accesskey-attribute-used.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-accesskey-attribute-used\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/keyboard-access-alert-shows-for-a-short-time.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-alert-shows-for-a-short-time\"); it fails 2.2.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.2.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-concertina-items-dont-get-keyboard-focus.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-concertina-items-dont-get-keyboard-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-dropdown-navigation-only-the-top-level-items-receive-focus.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-dropdown-navigation-only-the-top-level-items-receive-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-fake-button-is-not-keyboard-accessible.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-fake-button-is-not-keyboard-accessible\"); it fails 2.1.1, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-focus-order-in-wrong-order.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-focus-order-in-wrong-order\"); it fails 2.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-keyboard-focus-assigned-to-a-non-focusable-element-using-tabindex0.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-keyboard-focus-assigned-to-a-non-focusable-element-using-tabindex0\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/keyboard-access-keyboard-focus-is-not-indicated-visually.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-keyboard-focus-is-not-indicated-visually\"); it fails 2.4.7. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.7",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-keyboard-trap.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-keyboard-trap\"); it fails 2.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-lightbox-close-button-doesnt-receive-focus.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-lightbox-close-button-doesnt-receive-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-lightbox-esc-key-doesnt-close-the-lightbox.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-lightbox-esc-key-doesnt-close-the-lightbox\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/keyboard-access-lightbox-focus-is-not-moved-immediately-to-lightbox.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-lightbox-focus-is-not-moved-immediately-to-lightbox\"); it fails 2.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-lightbox-focus-is-not-retained-within-the-lightbox.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-lightbox-focus-is-not-retained-within-the-lightbox\"); it fails 2.4.3. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.3",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/keyboard-access-link-with-a-rolebutton-does-not-work-with-space-bar.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-link-with-a-rolebutton-does-not-work-with-space-bar\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/keyboard-access-tabindex-greater-than-0.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-tabindex-greater-than-0\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/keyboard-access-tooltips-dont-receive-keyboard-focus.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"keyboard-access-tooltips-dont-receive-keyboard-focus\"); it fails 2.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/language-of-content-html-element-has-an-empty-lang-attribute.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-an-empty-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/language-of-content-html-element-has-an-invalid-value-in-the-lang-attribute.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-an-invalid-value-in-the-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/language-of-content-html-element-has-lang-attribute-set-to-wrong-language.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-has-lang-attribute-set-to-wrong-language\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/language-of-content-html-element-is-missing-a-lang-attribute.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-html-element-is-missing-a-lang-attribute\"); it fails 3.1.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/language-of-content-lang-attribute-not-used-to-identify-change-of-language.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-lang-attribute-not-used-to-identify-change-of-language\"); it fails 3.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/language-of-content-lang-attribute-used-to-identify-change-of-language-but-with-invalid-value.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-lang-attribute-used-to-identify-change-of-language-but-with-invalid-value\"); it fails 3.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/language-of-content-lang-attribute-used-to-identify-change-of-language-but-with-wrong-language.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-lang-attribute-used-to-identify-change-of-language-but-with-wrong-language\"); it fails 3.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "3.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/language-of-content-text-language-changed-without-required-change-in-direction.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-text-language-changed-without-required-change-in-direction\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/language-of-content-text-language-is-in-the-wrong-direction.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"language-of-content-text-language-is-in-the-wrong-direction\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-adjacent-links-going-to-the-same-destination.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-adjacent-links-going-to-the-same-destination\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-blank-link-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-blank-link-text\"); it fails 2.4.4, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/links-identifying-links-by-colour-alone.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-identifying-links-by-colour-alone\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/links-image-link-alt-text-repeats-text-in-the-link.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-image-link-alt-text-repeats-text-in-the-link\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-image-link-with-no-alternative-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-image-link-with-no-alternative-text\"); it fails 1.1.1, 2.4.4, 4.1.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": true
+        },
+        {
+          "criterion": "2.4.4",
+          "present": true
+        },
+        {
+          "criterion": "4.1.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/links-link-contains-only-a-full-stop.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-contains-only-a-full-stop\"); it fails 2.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/links-link-launches-new-window-with-no-warning.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-launches-new-window-with-no-warning\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-link-not-clearly-identifiable-and-distinguishable-from-surrounding-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-not-clearly-identifiable-and-distinguishable-from-surrounding-text\"); it fails 1.4.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/links-link-text-does-not-make-sense-out-of-context.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-text-does-not-make-sense-out-of-context\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-link-text-with-identical-title.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-text-with-identical-title\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-link-to-,-invalid-hypertext-reference.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-to-,-invalid-hypertext-reference\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-link-to-a-multimedia-file-no-transcript.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-to-a-multimedia-file-no-transcript\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-link-to-an-image-no-text-alternative.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-to-an-image-no-text-alternative\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-link-to-javascript-invalid-hypertext-reference.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-to-javascript-invalid-hypertext-reference\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-link-to-pdf-does-not-include-information-on-file-format-and-file-size.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-link-to-pdf-does-not-include-information-on-file-format-and-file-size\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-links-not-separated-by-printable-characters.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-links-not-separated-by-printable-characters\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-links-to-a-sound-file-no-transcript.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-links-to-a-sound-file-no-transcript\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-links-with-the-same-text-go-to-different-pages.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-links-with-the-same-text-go-to-different-pages\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-non-specific-link-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-non-specific-link-text\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/links-uninformative-link-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"links-uninformative-link-text\"); it fails 2.4.4. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/lists-dt-or-dd-elements-that-are-not-contained-within-a-dl-element.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"lists-dt-or-dd-elements-that-are-not-contained-within-a-dl-element\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/lists-improperly-nested-lists.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"lists-improperly-nested-lists\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/lists-li-element-with-no-parent.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"lists-li-element-with-no-parent\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/lists-list-not-marked-up-as-a-list.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"lists-list-not-marked-up-as-a-list\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/multimedia-embedded-audio-file-is-missing-text-alternative.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"multimedia-embedded-audio-file-is-missing-text-alternative\"); it fails 1.2.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.2.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/multimedia-embedded-video-file-is-missing-text-alternative.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"multimedia-embedded-video-file-is-missing-text-alternative\"); it fails 1.2.2, 1.2.3, 1.2.5. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.2.2",
+          "present": true
+        },
+        {
+          "criterion": "1.2.3",
+          "present": true
+        },
+        {
+          "criterion": "1.2.5",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/multimedia-flashing-content-doesnt-have-warning.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"multimedia-flashing-content-doesnt-have-warning\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/navigation-inadequately-sized-clickable-targets-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"navigation-inadequately-sized-clickable-targets-found\"); it fails 2.5.8. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.5.8",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/page-layout-wide-page-forces-users-to-scroll-horizontally.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-layout-wide-page-forces-users-to-scroll-horizontally\"); it fails 1.4.10. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.4.10",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/page-title-empty-page-title.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-empty-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/page-title-inappropriate-page-title.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-inappropriate-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/page-title-missing-page-title.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"page-title-missing-page-title\"); it fails 2.4.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.4.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/tables-table-has-an-empty-table-header.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-has-an-empty-table-header\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/tables-table-has-no-scope-attributes.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-has-no-scope-attributes\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/tables-table-has-no-table-headings.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-has-no-table-headings\"); it fails 1.3.1. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/tables-table-is-missing-a-caption.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-is-missing-a-caption\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/tables-table-nested-within-table.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-nested-within-table\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/tables-table-nested-within-table-header.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-nested-within-table-header\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/tables-table-that-only-has-th-elements-in-it.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-that-only-has-th-elements-in-it\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/tables-table-used-for-layout.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-used-for-layout\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/tables-table-with-column-headers-and-double-row-headers.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-with-column-headers-and-double-row-headers\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/tables-table-with-inconsistent-numbers-of-columns-in-rows.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-with-inconsistent-numbers-of-columns-in-rows\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/tables-table-with-some-empty-cells.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"tables-table-with-some-empty-cells\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/typography-all-caps-text-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-all-caps-text-found\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/typography-blink-element-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-blink-element-found\"); it fails 2.2.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/typography-inadequate-line-height-used.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-inadequate-line-height-used\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/typography-italics-used-on-long-sections-of-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-italics-used-on-long-sections-of-text\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/typography-justified-text-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-justified-text-found\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/typography-long-lines-of-text.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-long-lines-of-text\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    },
+    {
+      "file": "govuk-audit/typography-marquee-element-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-marquee-element-found\"); it fails 2.2.2. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": [
+        {
+          "criterion": "2.2.2",
+          "present": true
+        }
+      ]
+    },
+    {
+      "file": "govuk-audit/typography-very-small-text-found.html",
+      "languageId": "html",
+      "complete": true,
+      "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-very-small-text-found\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
+      "expect": []
+    }
+  ]
+}
