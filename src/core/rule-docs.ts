@@ -55,6 +55,11 @@ for (const entry of ENTRIES) {
     }
 }
 
+/** Every rule id with a docs entry, sorted. */
+export function documentedRules(): string[] {
+    return [...byRule.keys()].sort();
+}
+
 /** The docs entry of a rule id; undefined for a rule without one. */
 export function ruleDoc(ruleId: string): RuleDoc | undefined {
     const entry = byRule.get(ruleId);

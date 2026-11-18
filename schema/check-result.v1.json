@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/NotAisu/Accessibility_Extension/schema/check-result.v1.json",
+  "title": "Allyproof check result, schema version 1",
+  "description": "The output of `allyproof check --format json`. Additions keep the version; a breaking change raises it.",
+  "type": "object",
+  "required": ["schemaVersion", "files", "summary"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "files": { "type": "array", "items": { "$ref": "#/definitions/file" } },
+    "summary": {
+      "type": "object",
+      "required": ["files", "failedFiles", "findings", "blocking", "baselined", "fixedSinceBaseline", "needsReview"],
+      "properties": {
+        "files": { "type": "integer", "minimum": 0 },
+        "failedFiles": { "type": "integer", "minimum": 0 },
+        "findings": { "type": "integer", "minimum": 0 },
+        "blocking": { "type": "integer", "minimum": 0 },
+        "baselined": { "type": "integer", "minimum": 0 },
+        "fixedSinceBaseline": { "type": "integer", "minimum": 0 },
+        "needsReview": { "type": "integer", "minimum": 0 }
+      }
+    }
+  },
+  "definitions": {
+    "position": {
+      "type": "object",
+      "required": ["line", "column", "offset"],
+      "properties": {
+        "line": { "type": "integer", "minimum": 1, "description": "1-based, counting the line breaks the editor counts" },
+        "column": { "type": "integer", "minimum": 1, "description": "1-based, in UTF-16 code units" },
+        "offset": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "location": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": { "start": { "$ref": "#/definitions/position" }, "end": { "$ref": "#/definitions/position" } }
+    },
+    "finding": {
+      "type": "object",
+      "required": ["ruleId", "criteria", "severity", "layer", "message", "helpUrl", "proof", "range", "baselined"],
+      "properties": {
+        "ruleId": { "type": "string" },
+        "criteria": { "type": "array", "items": { "type": "string", "pattern": "^\\d\\.\\d+\\.\\d+$" }, "minItems": 1 },
+        "severity": { "enum": ["error", "warning", "information"] },
+        "layer": { "const": "check" },
+        "message": { "type": "string" },
+        "helpUrl": { "type": "string" },
+        "proof": { "const": "proven", "description": "Only Proven rules report Findings" },
+        "range": { "$ref": "#/definitions/location" },
+        "fix": {
+          "type": "array",
+          "description": "The deterministic fix: apply every edit, then check again",
+          "items": {
+            "type": "object",
+            "required": ["range", "newText"],
+            "properties": { "range": { "$ref": "#/definitions/location" }, "newText": { "type": "string" } }
+          }
+        },
+        "baselined": { "type": "boolean", "description": "In the baseline, so it does not block" }
+      }
+    },
+    "needsReview": {
+      "type": "object",
+      "required": ["criterion", "reason"],
+      "properties": {
+        "criterion": { "type": "string" },
+        "reason": { "type": "string" },
+        "ruleId": { "type": "string", "description": "The Unproven rule that matched: a likely failure at range, to verify" },
+        "proof": { "const": "unproven" },
+        "range": { "$ref": "#/definitions/location" }
+      }
+    },
+    "file": {
+      "type": "object",
+      "required": ["file", "languageId", "status", "findings", "needsReview"],
+      "properties": {
+        "file": { "type": "string", "description": "Repository-relative, with forward slashes" },
+        "languageId": { "type": "string" },
+        "status": { "enum": ["checked", "failed"] },
+        "error": { "type": "string" },
+        "findings": { "type": "array", "items": { "$ref": "#/definitions/finding" } },
+        "needsReview": { "type": "array", "items": { "$ref": "#/definitions/needsReview" } }
+      }
+    }
+  }
+}
