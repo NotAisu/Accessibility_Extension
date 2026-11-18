@@ -14,6 +14,8 @@ export interface GroundTruthCase {
     file: string;
     languageId: string;
     note?: string;
+    /** Every criterion is labelled, so a Finding on any criterion not expected there is a false positive. */
+    complete?: boolean;
     expect: Expectation[];
 }
 
