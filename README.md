@@ -1,14 +1,35 @@
 # Allyproof – WCAG 2.2 Accessibility Checker
 
-Allyproof checks your frontend code against WCAG 2.2 A/AA while you work and can ask an AI model to review it.
+Allyproof checks your HTML, React, Vue, Svelte, Angular and Astro code against WCAG 2.2 A/AA while you write it, and can ask an AI model to review what a static Check cannot decide.
 
-> Early preview. Analysis currently runs axe-core on a static parse of the file; results for HTML are the most reliable.
+**No telemetry, no account.** The Check runs offline and free. Your code leaves your machine only when you start an AI Review, and only to the provider you chose.
+
+> Pre-release. The coverage section below says exactly what is checked, what is listed as Needs Review and what is left to AI Review or to you.
 
 ## Features
 
-- **Check**: Findings appear in the Problems panel when you open or save an HTML, Vue, Svelte, JSX, TSX or Astro file, or an Angular component template (`*.component.html` or an inline `template`). Your file is parsed, never executed.
-- **AI Review**: `Allyproof: Start AI Review` asks GitHub Copilot to look for semantic problems the Check cannot detect. Its Findings appear as information marked "AI"; progress and the result are shown in the status bar.
-- **AI fixes**: every Finding has a "Fix with AI" quick fix, never the preferred one. The Check re-runs on the proposed edit first and discards a fix that adds Findings; the fix is then shown as a diff you apply or discard, and is refused if the code changed since the Finding was reported.
+- **Check while you type**: Findings appear in the Problems panel for HTML, Vue, Svelte, JSX, TSX and Astro files and Angular component templates (`*.component.html` or an inline `template`). Each language runs its own accessibility linter. Every Finding names its WCAG 2.2 success criterion, and a hover explains why it is a problem and how to fix it, with links to the criterion. Your file is parsed, never executed, and your workspace's own lint config is never loaded.
+- **Needs Review instead of silent passes**: criteria the Check cannot decide from source, such as text contrast or target size, are listed per file in the Findings tree, not guessed.
+- **Static contrast**: where both colors are certain from literal values (inline styles, Tailwind's default palette and arbitrary values), a contrast below the WCAG 2.x ratio is a Finding with the measured ratio.
+- **Quick fixes**: deterministic fixes for problems with exactly one right edit, such as removing `aria-hidden` from `<body>`. Fix on save is opt-in (`allyproof.check.fixOnSave`, off by default).
+- **Findings tree**: an Activity Bar view grouped by file and criterion, filtered by Check, AI and Needs Review, plus a status bar summary of the current file. **Check Workspace** checks every supported file in the project.
+- **Ignore and configure**: ignore one Finding with a comment (`<!-- allyproof-ignore image-alt -->`, in JSX `{/* allyproof-ignore … */}`), turn rules off or change their severity in `allyproof.rules`, and map your components to the native elements they render in `allyproof.components`. Ignoring a Finding and disabling its rule are offered in the lightbulb.
+- **AI Review** (optional): reviews the current file or selection for semantic problems with GitHub Copilot (including models you added to Copilot with your own key) or a local model through LM Studio or Ollama. A Relevance Gate sends only regions with markup that changed since the last review. Its Findings appear as information marked "AI".
+- **AI fixes**: every Finding has a "Fix with AI" quick fix, never the preferred one. The Check re-runs on the proposed edit and discards a fix that adds Findings; the fix is then shown as a diff you apply or discard.
+- **Skill for your own agent**: the same review instructions the AI Review uses, plus the `a11y_check` tool, ready for Copilot chat and agent mode and as a file for Claude Code, Cursor and other agents.
+
+## Supported languages and editors
+
+| File | Language id |
+| --- | --- |
+| HTML | `html` |
+| React (JSX, TSX) | `javascriptreact`, `typescriptreact` |
+| Vue single-file components | `vue` |
+| Svelte | `svelte` |
+| Astro | `astro` |
+| Angular component templates | `*.component.html`, inline `template` in `*.ts` |
+
+Allyproof needs **VS Code 1.123** or later. It also runs in VS Code-based editors on the same engine, such as Cursor 3.x. Editors without the language model API (some VS Code forks) run the Check and hide AI Review, the Skill and the tool. It runs in remote setups (SSH, WSL, dev containers, Codespaces) as well as locally.
 
 ## Coverage
 
@@ -22,25 +43,42 @@ The Check reports only what the source decides. Each language runs its own stati
 | Svelte | Svelte compiler a11y warnings | 1.1.1, 1.2.2, 1.3.1, 1.3.5, 2.1.1, 2.2.2, 2.4.3, 2.4.4, 2.4.6, 3.1.1, 4.1.2 |
 | Angular | @angular-eslint/eslint-plugin-template | 1.1.1, 1.3.1, 2.1.1, 2.2.2, 2.4.3, 2.4.4, 2.4.6, 4.1.2 |
 
-None of them checks a criterion new in WCAG 2.2, and the Vue and Angular engines have no rule for 1.3.5. Allyproof's own rules cover those that are statically checkable, the WCAG 2.2 ones in every language, from literal values only (a bound value such as `:autocomplete="mode"` or `style={{ width: 16 }}` is never guessed):
+A listed criterion means the engine has rules for some of its failures, not that it decides the whole criterion: "every image has an `alt`" is checked, "the `alt` text describes the image" is not.
 
-| Criterion | Upstream | Allyproof |
-| --- | --- | --- |
-| 1.3.5 Identify Input Purpose (Vue, Angular) | – | `allyproof/autocomplete-valid`: an `autocomplete` value that is not an HTML autofill token sequence, such as `autocomplete="emal"`; the other languages' engines check 1.3.5 themselves |
-| 2.4.11 Focus Not Obscured (Minimum) | – | Not decidable from source: depends on rendered layout and sticky content |
-| 2.5.7 Dragging Movements | – | Not decidable from source: whether a single-pointer alternative exists is behaviour |
-| 2.5.8 Target Size (Minimum) | axe-core's rule needs layout, so it is off | A control whose inline style or Tailwind classes (`w-4`, `size-5`, `w-[20px]`) declare less than 24×24 CSS px is listed as a likely failure in Needs Review, pointing at the element; every other control leaves 2.5.8 in Needs Review |
-| 3.2.6 Consistent Help | – | Not decidable from one file: compares pages |
-| 3.3.7 Redundant Entry | – | Not decidable from source: depends on the process |
-| 3.3.8 Accessible Authentication (Minimum) | – | `allyproof/password-autocomplete`: a password field with `autocomplete="off"` |
+Allyproof's own rules add what the engines miss, in every language and from literal values only (a bound value such as `:autocomplete="mode"` or `style={{ width: 16 }}` is never guessed):
 
-Contrast (1.4.3) and target size are listed as Needs Review for any file that renders text or controls. Criteria the Check cannot decide, such as meaningful alt text or link purpose, are what AI Review is for.
+| Criterion | Allyproof |
+| --- | --- |
+| 1.3.5 Identify Input Purpose (Vue, Angular) | `allyproof/autocomplete-valid`: an `autocomplete` value that is not an HTML autofill token sequence, such as `autocomplete="emal"`; the other languages' engines check 1.3.5 themselves |
+| 1.4.3 Contrast (Minimum) | `allyproof/text-contrast`: text whose color and background are both certain from inline styles or Tailwind classes, on the element or a static ancestor, and fail 4.5:1 (3:1 for large text) |
+| 1.4.11 Non-text Contrast | `allyproof/non-text-contrast`: a text field whose border and background are both certain and neither reaches 3:1 against its surroundings |
+| 3.3.8 Accessible Authentication (Minimum) | `allyproof/password-autocomplete`: a password field with `autocomplete="off"` |
 
-## AI Review
+### Needs Review
 
-AI Review uses your GitHub Copilot models (including models you added to Copilot with your own key). Before the first review Allyproof tells you which provider will see your code. Code is only sent when you start a review; `allyproof.aiReview.auto` also starts one on save and is off by default. Allyproof has no telemetry.
+What only the rendered page can decide is listed per file as **Needs Review** in the Findings tree (not in the editor), with the reason:
 
-The review instructions are the Allyproof Skill in `skills/allyproof/SKILL.md`.
+| Criterion | When |
+| --- | --- |
+| 1.4.3 Contrast (Minimum) | The file renders text whose contrast static contrast could not decide, for example because a class comes from a stylesheet or a color is bound to an expression |
+| 1.4.11 Non-text Contrast | A text field declares a border whose contrast is not certain from source |
+| 2.5.8 Target Size (Minimum) | The file renders controls. A control whose inline style or Tailwind classes (`w-4`, `size-5`, `w-[20px]`) declare less than 24×24 CSS px is listed as a likely failure pointing at the element |
+
+### Not checked
+
+The Check does not decide criteria that depend on meaning, behaviour or other pages, such as meaningful alt text (1.1.1), link purpose (2.4.4), focus visible (2.4.7), focus not obscured (2.4.11), dragging movements (2.5.7), consistent help (3.2.6), redundant entry (3.3.7) or status messages (4.1.3). The semantic ones are what AI Review is for; the rest need testing in the browser.
+
+### AI Review
+
+AI Review sees only source code. It looks for semantic problems the Check cannot detect, such as alt text that does not describe its image, vague link text or a missing label for a custom control. Its Findings are probable, not certain, and are reported as information marked "AI". It never reports contrast (1.4.3, 1.4.11) or target size (2.5.8): from source those would be guesses, so they stay with the Check and Needs Review.
+
+## Privacy
+
+- **No telemetry, no account.** Allyproof collects nothing and sends nothing about you or your usage.
+- The Check runs locally and offline. Your project's code and lint config are never executed.
+- AI Review sends code only when you start it (`allyproof.aiReview.auto` also starts it on save and is off by default). Before the first review Allyproof tells you which provider will see your code. With a local model your code stays on your machine.
+- In an untrusted workspace AI Review uses only GitHub Copilot, so a repository cannot redirect your code to another endpoint through workspace settings.
+- **Allyproof: Report Issue** opens a prefilled issue with your environment and no code.
 
 ## Use the Skill in your own agent
 
@@ -50,16 +88,22 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
 - **Claude Code, Cursor and other agents**: copy the `skills/allyproof` folder into your project's skills folder, for example `.claude/skills/allyproof/` (Claude Code) or `.agents/skills/allyproof/`, or your user-level skills folder. These agents use your own subscription.
 - **Your repository**: **Allyproof: Add Skill to Repository** writes the Skill to `.github/skills/allyproof/SKILL.md`, so Copilot code review reviews pull requests for accessibility without any CI setup. It also offers `.claude/skills` and `.agents/skills`. The written Skill carries the extension version in its `metadata`, and an existing Skill file is only replaced after you confirm. If the agent can open the rendered page in a browser, the Skill has it verify the Needs Review criteria there.
 
-`a11y_check` runs the Check on a file (`filePath`), on proposed code (`code` and `languageId`), or on proposed code for a file (`filePath` and `code`), so an agent can verify its fix before applying it. It returns the Findings with their line and the criteria that Need Review; the Skill calls it first and reviews only what the Check cannot decide. Outside VS Code with the extension the tool is not available, and the agent reviews only the semantic problems the Skill lists. Editors without the language model API (some VS Code forks) hide the AI Review, the Skill and the tool.
+`a11y_check` runs the Check on a file (`filePath`), on proposed code (`code` and `languageId`), or on proposed code for a file (`filePath` and `code`), so an agent can verify its fix before applying it. It returns the Findings with their line and the criteria that Need Review; the Skill calls it first and reviews only what the Check cannot decide. Outside VS Code with the extension the tool is not available, and the agent reviews only the semantic problems the Skill lists.
 
 ## Commands
 
 All commands are in the Command Palette under **Allyproof**:
 
-- Start AI Review
-- Cancel AI Review
-- Add Skill to Repository
 - Check Workspace: checks every supported file that `files.exclude` and `.gitignore` leave and lists the Findings in the Findings tree; files that are not open get no diagnostics in the editor. Running it again re-checks only the files that changed.
+- Filter Findings
+- Start AI Review, Cancel AI Review, Clear AI Review Cache
+- Add Skill to Repository
+- Show Log
+- Report Issue
+
+## Feedback
+
+Found a false positive, a missed problem or a bug? [Report Issue](https://github.com/NotAisu/Accessibility_Extension/issues), or run **Allyproof: Report Issue** to open one prefilled with your environment.
 
 ## Development
 
@@ -71,6 +115,7 @@ npm run test:unit
 npm run test:gate   # Check precision/recall per language against ground truth
 npm run test:bundle-gate  # the same gate against the packaged VSIX, unpacked without node_modules
 npm run package     # allyproof-<version>.vsix
+npm run icon        # media/icon.png from media/icon.svg
 ```
 
 After an intended change in Check quality, store the new scores with `npm run test:gate -- --update` and commit the changed files in `test/ground-truth/baseline/`.
