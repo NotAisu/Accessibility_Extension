@@ -1,1 +1,1 @@
-<template><label for='id'><input type='text' /></label></template>
+<template><label for='id' /><input type='text' /></template>

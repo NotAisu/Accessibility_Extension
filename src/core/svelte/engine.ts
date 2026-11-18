@@ -9,7 +9,7 @@ import { mappedElement, type ComponentMapping } from '../components';
 // Svelte compiler a11y warnings whose failure maps to a WCAG 2.2 A/AA criterion, primary criterion first,
 // mapped like the JSX engine's equivalent rules. Best-practice warnings without a WCAG
 // failure (a11y_accesskey, a11y_autofocus, a11y_hidden, a11y_no_noninteractive_tabindex,
-// a11y_no_redundant_roles) are left out.
+// a11y_no_redundant_roles, and a11y_invalid_attribute like anchor-is-valid) are left out.
 export const WARNING_CRITERIA: Record<string, string[]> = {
     'a11y_aria_activedescendant_has_tabindex': ['2.1.1'],
     'a11y_aria_attributes': ['4.1.2'],
@@ -29,7 +29,6 @@ export const WARNING_CRITERIA: Record<string, string[]> = {
     'a11y_incorrect_aria_attribute_type_tokenlist': ['4.1.2'],
     'a11y_incorrect_aria_attribute_type_tristate': ['4.1.2'],
     'a11y_interactive_supports_focus': ['2.1.1'],
-    'a11y_invalid_attribute': ['2.1.1'],
     'a11y_label_has_associated_control': ['1.3.1', '4.1.2'],
     'a11y_media_has_caption': ['1.2.2'],
     'a11y_misplaced_role': ['4.1.2'],

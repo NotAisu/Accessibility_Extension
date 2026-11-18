@@ -7,7 +7,7 @@
  * Each spec imports only its rule and the makeRuleTester helper, so it is transpiled and run with the
  * installed rule (some specs read its exported role lists) and a recording helper; no install in the
  * clone is needed. The helper wraps every snippet in <template>,
- * as done here. Only cases that run the rule the way the Check does (default options) are kept.
+ * as done here. Only cases that run the rule the way the Check does (its options, else the defaults) are kept.
  * Each distinct snippet becomes one case: its criteria are present when a rule mapped to them labels
  * it invalid, absent when such a rule labels it valid.
  * A valid label only clears the rule that tested the snippet: another rule sharing the criterion
@@ -19,7 +19,7 @@ import * as path from 'path';
 import * as ts from 'typescript';
 import * as vm from 'vm';
 import vueA11y from 'eslint-plugin-vuejs-accessibility';
-import { RULE_CRITERIA } from '../../src/core/vue/engine';
+import { RULE_CRITERIA, RULE_OPTIONS } from '../../src/core/vue/engine';
 import type { GroundTruthSet } from './ground-truth';
 
 type TestCase = string | { code: string; options?: unknown[] };
@@ -106,12 +106,13 @@ function main(clone: string) {
     console.log(`Imported ${snippets.size} snippets from ${commit}`);
 }
 
-// The code of a case that runs the rule with its default options, as the Check does
+// The code of a case that runs the rule with the options the Check runs it with
 function checkedCode(test: TestCase, rule: string): string | undefined {
-    if (typeof test === 'string') return test;
-    const options = JSON.stringify(test.options?.[0] ?? {});
-    const defaults = SPELLED_OUT_DEFAULTS[rule]?.[0];
-    return options === '{}' || (defaults !== undefined && options === JSON.stringify(defaults)) ? test.code : undefined;
+    const code = typeof test === 'string' ? test : test.code;
+    const options = JSON.stringify((typeof test === 'string' ? undefined : test.options?.[0]) ?? {});
+    const checked = RULE_OPTIONS[rule]?.[0] ?? SPELLED_OUT_DEFAULTS[rule]?.[0];
+    const runsAsChecked = options === JSON.stringify(checked ?? {}) || (!RULE_OPTIONS[rule] && options === '{}');
+    return runsAsChecked ? code : undefined;
 }
 
 function evenly<T>(items: T[], max: number): T[] {

@@ -1,0 +1,530 @@
+{
+  "confidence": 0.95,
+  "threshold": 0.95,
+  "rules": {
+    "@angular-eslint/template/alt-text": {
+      "angular": {
+        "correct": 7,
+        "wrong": 0,
+        "lowerBound": 0.651,
+        "proven": false
+      }
+    },
+    "@angular-eslint/template/click-events-have-key-events": {
+      "angular": {
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "@angular-eslint/template/elements-content": {
+      "angular": {
+        "correct": 98,
+        "wrong": 0,
+        "lowerBound": 0.969,
+        "proven": true
+      }
+    },
+    "@angular-eslint/template/interactive-supports-focus": {
+      "angular": {
+        "correct": 0,
+        "wrong": 4,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "@angular-eslint/template/label-has-associated-control": {
+      "angular": {
+        "correct": 2,
+        "wrong": 0,
+        "lowerBound": 0.223,
+        "proven": false
+      }
+    },
+    "@angular-eslint/template/valid-aria": {
+      "angular": {
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "@html-eslint/no-positive-tabindex": {
+      "html": {
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "@html-eslint/require-li-container": {
+      "html": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
+        "proven": false
+      }
+    },
+    "allyproof/text-contrast": {
+      "html": {
+        "correct": 4,
+        "wrong": 0,
+        "lowerBound": 0.472,
+        "proven": false
+      },
+      "svelte": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
+        "proven": false
+      },
+      "typescriptreact": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
+        "proven": false
+      }
+    },
+    "area-alt": {
+      "html": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
+        "proven": false
+      }
+    },
+    "aria-command-name": {
+      "html": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
+        "proven": false
+      }
+    },
+    "aria-input-field-name": {
+      "html": {
+        "correct": 3,
+        "wrong": 0,
+        "lowerBound": 0.368,
+        "proven": false
+      }
+    },
+    "aria-required-attr": {
+      "html": {
+        "correct": 0,
+        "wrong": 2,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "aria-required-children": {
+      "html": {
+        "correct": 12,
+        "wrong": 0,
+        "lowerBound": 0.779,
+        "proven": false
+      }
+    },
+    "aria-required-parent": {
+      "html": {
+        "correct": 12,
+        "wrong": 0,
+        "lowerBound": 0.779,
+        "proven": false
+      }
+    },
+    "aria-roles": {
+      "html": {
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "aria-valid-attr-value": {
+      "html": {
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "astro/jsx-a11y/alt-text": {
+      "astro": {
+        "correct": 47,
+        "wrong": 0,
+        "lowerBound": 0.938,
+        "proven": false
+      }
+    },
+    "astro/jsx-a11y/anchor-ambiguous-text": {
+      "astro": {
+        "correct": 26,
+        "wrong": 3,
+        "lowerBound": 0.753,
+        "proven": false
+      }
+    },
+    "astro/jsx-a11y/anchor-has-content": {
+      "astro": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "astro/jsx-a11y/aria-unsupported-elements": {
+      "astro": {
+        "correct": 0,
+        "wrong": 2,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "astro/jsx-a11y/label-has-associated-control": {
+      "astro": {
+        "correct": 0,
+        "wrong": 5,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "autocomplete-valid": {
+      "html": {
+        "correct": 10,
+        "wrong": 0,
+        "lowerBound": 0.741,
+        "proven": false
+      }
+    },
+    "button-name": {
+      "html": {
+        "correct": 5,
+        "wrong": 0,
+        "lowerBound": 0.549,
+        "proven": false
+      }
+    },
+    "dlitem": {
+      "html": {
+        "correct": 2,
+        "wrong": 0,
+        "lowerBound": 0.223,
+        "proven": false
+      }
+    },
+    "document-title": {
+      "html": {
+        "correct": 4,
+        "wrong": 0,
+        "lowerBound": 0.472,
+        "proven": false
+      }
+    },
+    "frame-title": {
+      "html": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
+        "proven": false
+      }
+    },
+    "html-has-lang": {
+      "html": {
+        "correct": 8,
+        "wrong": 2,
+        "lowerBound": 0.493,
+        "proven": false
+      }
+    },
+    "html-lang-valid": {
+      "html": {
+        "correct": 5,
+        "wrong": 2,
+        "lowerBound": 0.341,
+        "proven": false
+      }
+    },
+    "image-alt": {
+      "html": {
+        "correct": 126,
+        "wrong": 0,
+        "lowerBound": 0.976,
+        "proven": true
+      }
+    },
+    "input-image-alt": {
+      "html": {
+        "correct": 5,
+        "wrong": 0,
+        "lowerBound": 0.549,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/alt-text": {
+      "typescriptreact": {
+        "correct": 11,
+        "wrong": 0,
+        "lowerBound": 0.761,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/anchor-has-content": {
+      "typescriptreact": {
+        "correct": 15,
+        "wrong": 0,
+        "lowerBound": 0.818,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/click-events-have-key-events": {
+      "typescriptreact": {
+        "correct": 1,
+        "wrong": 5,
+        "lowerBound": 0.008,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/label-has-associated-control": {
+      "typescriptreact": {
+        "correct": 0,
+        "wrong": 4,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/no-noninteractive-element-interactions": {
+      "typescriptreact": {
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/no-static-element-interactions": {
+      "typescriptreact": {
+        "correct": 3,
+        "wrong": 3,
+        "lowerBound": 0.153,
+        "proven": false
+      }
+    },
+    "label": {
+      "html": {
+        "correct": 26,
+        "wrong": 0,
+        "lowerBound": 0.891,
+        "proven": false
+      }
+    },
+    "link-name": {
+      "html": {
+        "correct": 30,
+        "wrong": 0,
+        "lowerBound": 0.904,
+        "proven": false
+      }
+    },
+    "list": {
+      "html": {
+        "correct": 2,
+        "wrong": 0,
+        "lowerBound": 0.223,
+        "proven": false
+      }
+    },
+    "listitem": {
+      "html": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
+        "proven": false
+      }
+    },
+    "marquee": {
+      "html": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
+        "proven": false
+      }
+    },
+    "meta-refresh": {
+      "html": {
+        "correct": 4,
+        "wrong": 1,
+        "lowerBound": 0.342,
+        "proven": false
+      }
+    },
+    "meta-viewport": {
+      "html": {
+        "correct": 5,
+        "wrong": 0,
+        "lowerBound": 0.549,
+        "proven": false
+      }
+    },
+    "nested-interactive": {
+      "html": {
+        "correct": 5,
+        "wrong": 0,
+        "lowerBound": 0.549,
+        "proven": false
+      }
+    },
+    "select-name": {
+      "html": {
+        "correct": 6,
+        "wrong": 0,
+        "lowerBound": 0.606,
+        "proven": false
+      }
+    },
+    "summary-name": {
+      "html": {
+        "correct": 3,
+        "wrong": 0,
+        "lowerBound": 0.368,
+        "proven": false
+      }
+    },
+    "svelte/a11y_consider_explicit_label": {
+      "svelte": {
+        "correct": 99,
+        "wrong": 0,
+        "lowerBound": 0.97,
+        "proven": true
+      }
+    },
+    "svelte/a11y_incorrect_aria_attribute_type_boolean": {
+      "svelte": {
+        "correct": 0,
+        "wrong": 4,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "svelte/a11y_missing_attribute": {
+      "svelte": {
+        "correct": 17,
+        "wrong": 0,
+        "lowerBound": 0.838,
+        "proven": false
+      }
+    },
+    "svg-img-alt": {
+      "html": {
+        "correct": 4,
+        "wrong": 0,
+        "lowerBound": 0.472,
+        "proven": false
+      }
+    },
+    "td-headers-attr": {
+      "html": {
+        "correct": 4,
+        "wrong": 0,
+        "lowerBound": 0.472,
+        "proven": false
+      }
+    },
+    "valid-lang": {
+      "html": {
+        "correct": 9,
+        "wrong": 0,
+        "lowerBound": 0.716,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/alt-text": {
+      "vue": {
+        "correct": 123,
+        "wrong": 0,
+        "lowerBound": 0.975,
+        "proven": true
+      }
+    },
+    "vuejs-accessibility/anchor-has-content": {
+      "vue": {
+        "correct": 81,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "vuejs-accessibility/aria-role": {
+      "vue": {
+        "correct": 0,
+        "wrong": 4,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/click-events-have-key-events": {
+      "vue": {
+        "correct": 3,
+        "wrong": 0,
+        "lowerBound": 0.368,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/form-control-has-label": {
+      "vue": {
+        "correct": 0,
+        "wrong": 2,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/iframe-has-title": {
+      "vue": {
+        "correct": 6,
+        "wrong": 0,
+        "lowerBound": 0.606,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/label-has-for": {
+      "vue": {
+        "correct": 4,
+        "wrong": 0,
+        "lowerBound": 0.472,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/mouse-events-have-key-events": {
+      "vue": {
+        "correct": 0,
+        "wrong": 1,
+        "lowerBound": 0,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/no-aria-hidden-on-focusable": {
+      "vue": {
+        "correct": 2,
+        "wrong": 0,
+        "lowerBound": 0.223,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/no-role-presentation-on-focusable": {
+      "vue": {
+        "correct": 2,
+        "wrong": 0,
+        "lowerBound": 0.223,
+        "proven": false
+      }
+    },
+    "vuejs-accessibility/no-static-element-interactions": {
+      "vue": {
+        "correct": 8,
+        "wrong": 3,
+        "lowerBound": 0.435,
+        "proven": false
+      }
+    }
+  }
+}
