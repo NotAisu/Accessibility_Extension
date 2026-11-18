@@ -9,6 +9,7 @@ import { MISSING_ATTRIBUTE_CRITERIA, WARNING_CRITERIA as SVELTE_WARNINGS } from 
 import { RULE_CRITERIA as HTML_ESLINT_RULES } from '../../src/core/html/html-eslint-check';
 import { AXE_TAGS, LAYOUT_RULES } from '../../src/core/html/axe-check';
 import { isTargetCriterion } from '../../src/core/wcag';
+import { ruleDoc } from '../../src/core/rule-docs';
 
 // The Marketplace page is built from package.json and README.md; these keep it from drifting from the code
 const root = path.join(__dirname, '..', '..');
@@ -60,11 +61,36 @@ function readmeRow(label: string): string[] | undefined {
     return cells?.[cells.length - 2].split(',').map(c => c.trim()).sort(byNumber);
 }
 
+const LANGUAGE_NAMES: Record<string, string> = {
+    html: 'HTML', javascriptreact: 'JSX', typescriptreact: 'TSX', vue: 'Vue', svelte: 'Svelte', astro: 'Astro',
+    angular: 'Angular', typescript: 'Angular (inline)'
+};
+
+/** The README's table of Proven rules, as the committed proof status says it must read. */
+function provenTable(): string {
+    const status = JSON.parse(fs.readFileSync(path.join(root, 'src', 'core', 'proof-status.json'), 'utf-8')) as {
+        rules: Record<string, Record<string, { correct: number; wrong: number; lowerBound: number; proven: boolean }>>;
+    };
+    const rows = Object.entries(status.rules).flatMap(([ruleId, languages]) => Object.entries(languages)
+        .filter(([, proof]) => proof.proven)
+        .map(([languageId, proof]) => {
+            const criteria = ruleDoc(ruleId)?.wcag.map(link => link.criterion).join(', ') ?? '';
+            return `| ${LANGUAGE_NAMES[languageId]} | \`${ruleId}\` | ${criteria} | ${proof.correct} of ${proof.correct + proof.wrong} | ${(proof.lowerBound * 100).toFixed(1)} % |`;
+        }))
+        .sort();
+    return ['| Language | Rule | Criteria | Correct | Precision at least |', '| --- | --- | --- | --- | --- |', ...rows].join('\n');
+}
+
 describe('Marketplace listing', () => {
     it('lists exactly the criteria each engine reports Findings for', () => {
         for (const [label, criteria] of Object.entries(ENGINE_CRITERIA)) {
             assert.deepStrictEqual(readmeRow(label), [...new Set(criteria)].sort(byNumber), `README coverage row "${label}"`);
         }
+    });
+
+    it('lists exactly the Proven rules and their evidence from the committed proof status', () => {
+        const table = provenTable();
+        assert.ok(readme.includes(`\n${table}\n`), `README needs this table of Proven rules:\n${table}`);
     });
 
     it('names the minimum VS Code version the manifest requires', () => {

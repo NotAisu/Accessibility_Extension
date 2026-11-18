@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import type { Finding } from '../../src/core/analysis';
+import { proofOf, type Finding } from '../../src/core/analysis';
 import { diagnosticMessage, HOVER_COMMANDS, learnMarkdown } from '../../src/learn-hover';
 
 const finding = (overrides: Partial<Finding> = {}): Finding => ({
@@ -98,6 +98,16 @@ describe('learn hover', () => {
         assert.match(markdown, /^\*\*Some problem\*\*/);
         assert.match(markdown, /Engine explanation/);
         assert.deepStrictEqual(commandsOf(markdown), ['allyproof.ignoreFinding', 'allyproof.disableRule', 'allyproof.startAIReview']);
+    });
+
+    it('shows how the rule was proven in the document\'s language', () => {
+        const proof = proofOf('vuejs-accessibility/alt-text', 'vue')!;
+
+        const markdown = learnMarkdown(finding({ ruleId: 'vuejs-accessibility/alt-text' }), 'vue', target);
+
+        assert.ok(proof.proven);
+        assert.ok(markdown.includes(`**Proven rule:** ${proof.correct} of ${proof.correct + proof.wrong} labelled matches correct`), markdown);
+        assert.match(markdown, /precision at least \d+\\\.\d % at 95 % confidence/);
     });
 
     it('keeps the diagnostic message on one line', () => {

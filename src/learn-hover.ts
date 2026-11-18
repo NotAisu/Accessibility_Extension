@@ -1,4 +1,4 @@
-import type { Finding } from './core/analysis';
+import { proofOf, type Finding } from './core/analysis';
 import { frameworkOf, ruleDoc, type Example } from './core/rule-docs';
 import { criterionName, criterionUrl } from './core/wcag';
 
@@ -34,7 +34,7 @@ export function learnMarkdown(finding: Finding, languageId: string, target: Hove
     const rule = `[Rule ${escape(finding.ruleId)}](${finding.helpUrl})`;
     if (!doc) {
         const criteria = finding.criteria.map(c => `[WCAG ${escape(`${c} ${criterionName(c)}`)}](${criterionUrl(c)})`);
-        return [`**${escape(finding.message)}**`, escape(finding.explanation), [...criteria, rule].join(' · '), commands(finding, target)].join('\n\n');
+        return [`**${escape(finding.message)}**`, escape(finding.explanation), ...evidence(finding, languageId), [...criteria, rule].join(' · '), commands(finding, target)].join('\n\n');
     }
     const example = doc.examples[frameworkOf(languageId)];
     const links = [...doc.wcag, ...doc.act].map(link => `[${escape(link.title)}](${link.url})`);
@@ -45,9 +45,19 @@ export function learnMarkdown(finding: Finding, languageId: string, target: Hove
         ...doc.details ? [`**This Finding:** ${escape(finding.explanation)}`] : [],
         snippet(example.file ? `Bad, in \`${example.file}\`:` : 'Bad:', example, example.bad),
         snippet('Good:', example, example.good),
+        ...evidence(finding, languageId),
         [...links, rule].join(' · '),
         commands(finding, target)
     ].join('\n\n');
+}
+
+// How the rule was proven: only Proven rules report Findings, so a Finding always has its evidence
+function evidence(finding: Finding, languageId: string): string[] {
+    const proof = proofOf(finding.ruleId, languageId);
+    if (!proof) return [];
+    const judged = proof.correct + proof.wrong;
+    const falsePositives = proof.wrong === 0 ? 'no false positive' : `${proof.wrong} false ${proof.wrong === 1 ? 'positive' : 'positives'}`;
+    return [`**Proven rule:** ${proof.correct} of ${judged} labelled matches correct, ${falsePositives}; precision at least ${escape((proof.lowerBound * 100).toFixed(1))} % at 95 % confidence, on the W3C ACT Rules and the field and injection sets\.`];
 }
 
 function snippet(label: string, example: Example, code: string): string {
