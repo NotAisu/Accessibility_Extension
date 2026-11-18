@@ -1,7 +1,8 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
-import { analyse, type AnalysisOptions, type Finding } from '../../src/core/analysis';
+import { type AnalysisOptions, type Finding } from '../../src/core/analysis';
+import { analyse } from './every-rule';
 
 // Component Mapping: a mapped component gets the Findings of the native element it renders, an unmapped one none
 

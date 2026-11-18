@@ -47,11 +47,12 @@ describe('a11y_check tool on files', () => {
             : Promise.reject(new Error(`File not found: ${filePath}`))
     };
 
-    it('checks the file when only filePath is given', async () => {
+    it('checks the file when only filePath is given, an Unproven rule\'s match as Needs Review on its line', async () => {
         const output = await run({ filePath: 'src/App.tsx' }, withFiles);
 
         assert.strictEqual(output.languageId, 'typescriptreact');
-        assert.deepStrictEqual(output.findings.map(f => f.line), [2]);
+        assert.deepStrictEqual(output.findings, []);
+        assert.deepStrictEqual(output.needsReview.filter(e => e.ruleId).map(e => [e.ruleId, e.criterion, e.line]), [['jsx-a11y-x/alt-text', '1.1.1', 2]]);
     });
 
     it('checks proposed code in the language of the file it is meant for', async () => {

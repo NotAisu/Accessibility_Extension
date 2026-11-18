@@ -1,5 +1,6 @@
 import * as assert from 'assert';
-import { analyse, Finding } from '../../src/core/analysis';
+import { Finding } from '../../src/core/analysis';
+import { analyse } from './every-rule';
 
 // The text after applying a Finding's fix, edits applied back to front so earlier offsets stay valid
 function applyFix(text: string, finding: Finding): string {

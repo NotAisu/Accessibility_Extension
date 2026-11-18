@@ -1,5 +1,6 @@
 import * as assert from 'assert';
-import { analyse, AnalysisDocument, Finding, ParseError } from '../../src/core/analysis';
+import { AnalysisDocument, Finding, ParseError } from '../../src/core/analysis';
+import { analyse } from './every-rule';
 import { ignoreLine } from '../../src/core/ignore';
 
 const page = (body: string) => [

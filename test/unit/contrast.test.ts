@@ -1,5 +1,6 @@
 import * as assert from 'assert';
-import { analyse, type AnalysisResult } from '../../src/core/analysis';
+import { type AnalysisResult } from '../../src/core/analysis';
+import { analyse } from './every-rule';
 
 // Static contrast (#33) through the analysis core, as every language reports it
 
