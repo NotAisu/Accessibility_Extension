@@ -3422,6 +3422,1293 @@
       "complete": true,
       "note": "GOV.UK accessibility tool audit test page with one known barrier (\"typography-very-small-text-found\"); the barrier is not a WCAG 2.2 AA failure. Other criteria pass. Source https://github.com/alphagov/accessibility-tool-audit/tree/e9e46115caf55f07a9302a5ee187687870510a09/tests, MIT.",
       "expect": []
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/combobox/combobox-datepicker/combobox-datepicker-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/combobox/combobox-datepicker/combobox-datepicker-example.html, MIT. Each Finding the Check reported was judged at its line (line 13 interactive-supports-focus: no failure, widget directive manages focus (activedescendant or focus trap)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/combobox/combobox-select/combobox-select-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/combobox/combobox-select/combobox-select-example.html, MIT. Each Finding the Check reported was judged at its line (line 10 interactive-supports-focus: no failure, widget directive manages focus (activedescendant or focus trap)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/grid/grid-calendar/grid-calendar-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/grid/grid-calendar/grid-calendar-example.html, MIT. Each Finding the Check reported was judged at its line (line 13 interactive-supports-focus: no failure, widget directive manages focus (activedescendant or focus trap)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-active-descendant/listbox-active-descendant-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-active-descendant/listbox-active-descendant-example.html, MIT. Each Finding the Check reported was judged at its line (line 9 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-configurable/listbox-configurable-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-configurable/listbox-configurable-example.html, MIT. Each Finding the Check reported was judged at its line (line 67 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-disabled-focusable/listbox-disabled-focusable-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-disabled-focusable/listbox-disabled-focusable-example.html, MIT. Each Finding the Check reported was judged at its line (line 9 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-disabled-skipped/listbox-disabled-skipped-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-disabled-skipped/listbox-disabled-skipped-example.html, MIT. Each Finding the Check reported was judged at its line (line 9 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-disabled/listbox-disabled-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-disabled/listbox-disabled-example.html, MIT. Each Finding the Check reported was judged at its line (line 8 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-horizontal/listbox-horizontal-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-horizontal/listbox-horizontal-example.html, MIT. Each Finding the Check reported was judged at its line (line 9 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-multi-select-follow-focus/listbox-multi-select-follow-focus-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-multi-select-follow-focus/listbox-multi-select-follow-focus-example.html, MIT. Each Finding the Check reported was judged at its line (line 10 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-multi-select/listbox-multi-select-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-multi-select/listbox-multi-select-example.html, MIT. Each Finding the Check reported was judged at its line (line 10 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-readonly/listbox-readonly-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-readonly/listbox-readonly-example.html, MIT. Each Finding the Check reported was judged at its line (line 9 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-rtl-horizontal/listbox-rtl-horizontal-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-rtl-horizontal/listbox-rtl-horizontal-example.html, MIT. Each Finding the Check reported was judged at its line (line 9 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-single-select-follow-focus/listbox-single-select-follow-focus-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-single-select-follow-focus/listbox-single-select-follow-focus-example.html, MIT. Each Finding the Check reported was judged at its line (line 10 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/aria/listbox/listbox-single-select/listbox-single-select-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/aria/listbox/listbox-single-select/listbox-single-select-example.html, MIT. Each Finding the Check reported was judged at its line (line 10 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-activedescendant/cdk-listbox-activedescendant-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-activedescendant/cdk-listbox-activedescendant-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-compare-with/cdk-listbox-compare-with-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-compare-with/cdk-listbox-compare-with-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-custom-navigation/cdk-listbox-custom-navigation-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-custom-navigation/cdk-listbox-custom-navigation-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-custom-typeahead/cdk-listbox-custom-typeahead-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-custom-typeahead/cdk-listbox-custom-typeahead-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-disabled/cdk-listbox-disabled-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-disabled/cdk-listbox-disabled-example.html, MIT. Each Finding the Check reported was judged at its line (line 9 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-forms-validation/cdk-listbox-forms-validation-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-forms-validation/cdk-listbox-forms-validation-example.html, MIT. Each Finding the Check reported was judged at its line (line 2 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-horizontal/cdk-listbox-horizontal-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-horizontal/cdk-listbox-horizontal-example.html, MIT. Each Finding the Check reported was judged at its line (line 2 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-multiple/cdk-listbox-multiple-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-multiple/cdk-listbox-multiple-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-overview/cdk-listbox-overview-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-overview/cdk-listbox-overview-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-reactive-forms/cdk-listbox-reactive-forms-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-reactive-forms/cdk-listbox-reactive-forms-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-template-forms/cdk-listbox-template-forms-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-template-forms/cdk-listbox-template-forms-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/listbox/cdk-listbox-value-binding/cdk-listbox-value-binding-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/listbox/cdk-listbox-value-binding/cdk-listbox-value-binding-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/tree/cdk-tree-custom-key-manager/cdk-tree-custom-key-manager-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/tree/cdk-tree-custom-key-manager/cdk-tree-custom-key-manager-example.html, MIT. Each Finding the Check reported was judged at its line (line 8 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/tree/cdk-tree-flat-children-accessor/cdk-tree-flat-children-accessor-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/tree/cdk-tree-flat-children-accessor/cdk-tree-flat-children-accessor-example.html, MIT. Each Finding the Check reported was judged at its line (line 8 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/tree/cdk-tree-flat-level-accessor/cdk-tree-flat-level-accessor-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/tree/cdk-tree-flat-level-accessor/cdk-tree-flat-level-accessor-example.html, MIT. Each Finding the Check reported was judged at its line (line 8 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/tree/cdk-tree-flat/cdk-tree-flat-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/tree/cdk-tree-flat/cdk-tree-flat-example.html, MIT. Each Finding the Check reported was judged at its line (line 8 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/tree/cdk-tree-nested-children-accessor/cdk-tree-nested-children-accessor-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/tree/cdk-tree-nested-children-accessor/cdk-tree-nested-children-accessor-example.html, MIT. Each Finding the Check reported was judged at its line (line 6 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/tree/cdk-tree-nested-level-accessor/cdk-tree-nested-level-accessor-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/tree/cdk-tree-nested-level-accessor/cdk-tree-nested-level-accessor-example.html, MIT. Each Finding the Check reported was judged at its line (line 6 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/cdk/tree/cdk-tree-nested/cdk-tree-nested-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/cdk/tree/cdk-tree-nested/cdk-tree-nested-example.html, MIT. Each Finding the Check reported was judged at its line (line 6 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/card/card-media-size/card-media-size-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/card/card-media-size/card-media-size-example.html, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65); line 46 alt-text: fails, img without alt (F65); line 7 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 7
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 33
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 46
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/list/list-avatar/list-avatar-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/list/list-avatar/list-avatar-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 alt-text: fails, img without alt (F65); line 8 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 3
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/radio/radio-ng-model/radio-ng-model-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/radio/radio-ng-model/radio-ng-model-example.html, MIT. Each Finding the Check reported was judged at its line (line 1 label-has-associated-control: no failure, label is referenced by aria-labelledby). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/tabs/tab-nav-bar-basic/tab-nav-bar-basic-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/tabs/tab-nav-bar-basic/tab-nav-bar-basic-example.html, MIT. Each Finding the Check reported was judged at its line (line 4 click-events-have-key-events: no failure, mat-tab-link is a focusable link; line 4 interactive-supports-focus: no failure, widget directive manages focus (activedescendant or focus trap)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/tooltip/tooltip-manual/tooltip-manual-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/tooltip/tooltip-manual/tooltip-manual-example.html, MIT. Each Finding the Check reported was judged at its line (line 26 valid-aria: no failure, unknown aria-* attribute is ignored; no failure). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/tree/tree-dynamic/tree-dynamic-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/tree/tree-dynamic/tree-dynamic-example.html, MIT. Each Finding the Check reported was judged at its line (line 3 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 3
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/tree/tree-flat-child-accessor-overview/tree-flat-child-accessor-overview-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/tree/tree-flat-child-accessor-overview/tree-flat-child-accessor-overview-example.html, MIT. Each Finding the Check reported was judged at its line (line 5 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/tree/tree-flat-overview/tree-flat-overview-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/tree/tree-flat-overview/tree-flat-overview-example.html, MIT. Each Finding the Check reported was judged at its line (line 5 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/tree/tree-harness/tree-harness-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/tree/tree-harness/tree-harness-example.html, MIT. Each Finding the Check reported was judged at its line (line 5 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/tree/tree-legacy-keyboard-interface/tree-legacy-keyboard-interface-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/tree/tree-legacy-keyboard-interface/tree-legacy-keyboard-interface-example.html, MIT. Each Finding the Check reported was judged at its line (line 7 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "file": "angular_components/src/components-examples/material/tree/tree-loadmore/tree-loadmore-example.html",
+      "languageId": "angular",
+      "note": "https://github.com/angular/components/blob/5eb7a34a082e5f9736711938972cc2984265f5a9/src/components-examples/material/tree/tree-loadmore/tree-loadmore-example.html, MIT. Each Finding the Check reported was judged at its line (line 4 elements-content: fails, empty button in the accessibility tree has no name (ACT 97a4e1; disabled is no exception)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/avatar/fallback.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/avatar/fallback.vue, MIT. Each Finding the Check reported was judged at its line (line 4 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/card/with-images.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/card/with-images.vue, MIT. Each Finding the Check reported was judged at its line (line 4 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 4
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/skeleton/avoiding-rendering-bouncing.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/avoiding-rendering-bouncing.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 33
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/skeleton/initial-rendering-loading.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/initial-rendering-loading.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 33
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/skeleton/leading-trailing-without-bouncing.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/leading-trailing-without-bouncing.vue, MIT. Each Finding the Check reported was judged at its line (line 33 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 33
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/skeleton/loading-state.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/loading-state.vue, MIT. Each Finding the Check reported was judged at its line (line 28 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 28
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/skeleton/rendering-with-data.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/skeleton/rendering-with-data.vue, MIT. Each Finding the Check reported was judged at its line (line 38 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 38
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/typography/line-height.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/typography/line-height.vue, MIT. Each Finding the Check reported was judged at its line (line 12 alt-text: fails, img without alt (F65); line 7 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 7
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "file": "element-plus_element-plus/docs/examples/upload/avatar.vue",
+      "languageId": "vue",
+      "note": "https://github.com/element-plus/element-plus/blob/7c07ff389d7d39fc59ab8214689bcd90b46a5487/docs/examples/upload/avatar.vue, MIT. Each Finding the Check reported was judged at its line (line 9 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "file": "excalidraw_excalidraw/packages/excalidraw/components/Modal.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/excalidraw/excalidraw/blob/d732d4f3d50e6ac092ec6e86a4e04a40546a9395/packages/excalidraw/components/Modal.tsx, MIT. Each Finding the Check reported was judged at its line (line 58 click-events-have-key-events: no failure, click outside to close; Escape closes the dialog; line 58 no-static-element-interactions: no failure, click outside to close; Escape closes the dialog). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/ComponentExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/ComponentExample.vue, MIT. Each Finding the Check reported was judged at its line (line 242 iframe-has-title: no failure, v-bind object can carry title). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselArrowsExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselArrowsExample.vue, MIT. Each Finding the Check reported was judged at its line (line 14 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselAutoHeightExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselAutoHeightExample.vue, MIT. Each Finding the Check reported was judged at its line (line 27 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselAutoScrollExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselAutoScrollExample.vue, MIT. Each Finding the Check reported was judged at its line (line 22 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 22
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselAutoplayExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselAutoplayExample.vue, MIT. Each Finding the Check reported was judged at its line (line 22 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 22
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselClassNamesExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselClassNamesExample.vue, MIT. Each Finding the Check reported was judged at its line (line 23 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 23
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselDotsExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselDotsExample.vue, MIT. Each Finding the Check reported was judged at its line (line 14 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselDotsMultipleExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselDotsMultipleExample.vue, MIT. Each Finding the Check reported was judged at its line (line 14 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselExample.vue, MIT. Each Finding the Check reported was judged at its line (line 29 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselFadeExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselFadeExample.vue, MIT. Each Finding the Check reported was judged at its line (line 21 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselItemsExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselItemsExample.vue, MIT. Each Finding the Check reported was judged at its line (line 14 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselItemsMultipleExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselItemsMultipleExample.vue, MIT. Each Finding the Check reported was judged at its line (line 14 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselOrientationExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselOrientationExample.vue, MIT. Each Finding the Check reported was judged at its line (line 20 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselPrevNextExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselPrevNextExample.vue, MIT. Each Finding the Check reported was judged at its line (line 21 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselPrevNextIconExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselPrevNextIconExample.vue, MIT. Each Finding the Check reported was judged at its line (line 26 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 26
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselThumbnailsExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselThumbnailsExample.vue, MIT. Each Finding the Check reported was judged at its line (line 43 alt-text: fails, img without alt (F65); line 54 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 43
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 54
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/content/examples/carousel/CarouselWheelGesturesExample.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/content/examples/carousel/CarouselWheelGesturesExample.vue, MIT. Each Finding the Check reported was judged at its line (line 20 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/docs/app/components/og-image/Component.takumi.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/docs/app/components/og-image/Component.takumi.vue, MIT. Each Finding the Check reported was judged at its line (line 69 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 69
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/playgrounds/nuxt/app/pages/components/carousel.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/playgrounds/nuxt/app/pages/components/carousel.vue, MIT. Each Finding the Check reported was judged at its line (line 137 alt-text: fails, img without alt (F65); line 142 alt-text: fails, img without alt (F65); line 147 alt-text: fails, img without alt (F65); line 152 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 137
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 142
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 147
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 152
+        }
+      ]
+    },
+    {
+      "file": "nuxt_ui/playgrounds/nuxt/app/pages/components/chat-message.vue",
+      "languageId": "vue",
+      "note": "https://github.com/nuxt/ui/blob/0f58f482b839023ee8f61cc58451c6e371b2a177/playgrounds/nuxt/app/pages/components/chat-message.vue, MIT. Each Finding the Check reported was judged at its line (line 30 aria-role: no failure, role is a component prop, not an ARIA role; line 39 aria-role: no failure, role is a component prop, not an ARIA role; line 48 aria-role: no failure, role is a component prop, not an ARIA role; line 57 aria-role: no failure, role is a component prop, not an ARIA role). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/breadcrumb/TemplateDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/breadcrumb/TemplateDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 8 anchor-has-content: fails, icon-only link without accessible name (F89)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.4.4",
+          "line": 8
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/chip/IconDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/chip/IconDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 12 no-static-element-interactions: fails, clickable non-focusable element without keyboard access (F54/F42)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/customicons/VideoDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/customicons/VideoDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 6 iframe-has-title: fails, iframe without title (F68/4.1.2)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/designer/ci/OverviewDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/designer/ci/OverviewDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 13 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/designer/ci/VideoTutorialDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/designer/ci/VideoTutorialDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 5 iframe-has-title: fails, iframe without title (F68/4.1.2)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/drawer/pt/PTViewer.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/drawer/pt/PTViewer.vue, MIT. Each Finding the Check reported was judged at its line (line 29 no-aria-hidden-on-focusable: fails, focusable element with aria-hidden (ACT 6cfa84); line 29 no-role-presentation-on-focusable: fails, focusable element with aria-hidden (ACT 6cfa84); line 5 no-aria-hidden-on-focusable: fails, focusable element with aria-hidden (ACT 6cfa84); line 5 no-role-presentation-on-focusable: fails, focusable element with aria-hidden (ACT 6cfa84)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 5
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/galleria/fullscreen/CustomContentDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/galleria/fullscreen/CustomContentDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 29 click-events-have-key-events: fails, clickable non-focusable element without keyboard access (F54/F42); line 29 no-static-element-interactions: fails, clickable non-focusable element without keyboard access (F54/F42)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 29
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/imagecompare/BasicDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/imagecompare/BasicDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 11 alt-text: fails, img without alt (F65); line 8 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 8
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/imagecompare/ResponsiveDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/imagecompare/ResponsiveDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 11 alt-text: fails, img without alt (F65); line 8 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 8
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/imagecompare/pt/PTViewer.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/imagecompare/pt/PTViewer.vue, MIT. Each Finding the Check reported was judged at its line (line 5 alt-text: fails, img without alt (F65); line 8 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 5
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/nuxt/VideoDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/nuxt/VideoDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 6 iframe-has-title: fails, iframe without title (F68/4.1.2)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/passthrough/IntroductionDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/passthrough/IntroductionDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 15 iframe-has-title: fails, iframe without title (F68/4.1.2)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/popover/BasicDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/popover/BasicDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 30 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 30
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/popover/SelectDataDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/popover/SelectDataDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 13 click-events-have-key-events: fails, clickable non-focusable element without keyboard access (F54/F42); line 13 no-static-element-interactions: fails, clickable non-focusable element without keyboard access (F54/F42); line 14 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 14
+        },
+        {
+          "criterion": "2.1.1",
+          "line": 13
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/popover/pt/PTViewer.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/popover/pt/PTViewer.vue, MIT. Each Finding the Check reported was judged at its line (line 26 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 26
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/rating/TemplateDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/rating/TemplateDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 11 alt-text: fails, img without alt (F65); line 8 alt-text: fails, img without alt (F65)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "line": 8
+        },
+        {
+          "criterion": "1.1.1",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/speeddial/TemplateDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/speeddial/TemplateDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 26 click-events-have-key-events: fails, clickable non-focusable element without keyboard access (F54/F42); line 26 no-static-element-interactions: fails, clickable non-focusable element without keyboard access (F54/F42)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 26
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 26
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/theming/styled/ArchitectureDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/theming/styled/ArchitectureDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 38 iframe-has-title: fails, iframe without title (F68/4.1.2)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 38
+        }
+      ]
+    },
+    {
+      "file": "primefaces_primevue/apps/showcase/doc/vite/VideoDoc.vue",
+      "languageId": "vue",
+      "note": "https://github.com/primefaces/primevue/blob/36965f13dc40597deeb16192a8568308cbeb70d9/apps/showcase/doc/vite/VideoDoc.vue, MIT. Each Finding the Check reported was judged at its line (line 6 iframe-has-title: fails, iframe without title (F68/4.1.2)). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "file": "skeletonlabs_skeleton/playgrounds/skeleton-react/src/routes/__root.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/skeletonlabs/skeleton/blob/38f596fabb0b529ae0f7781c7212c00fd4435fc4/playgrounds/skeleton-react/src/routes/__root.tsx, MIT. Each Finding the Check reported was judged at its line (line 49 text-contrast: fails, white on Tailwind blue-500, 3.7:1, small text). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "line": 49
+        }
+      ]
+    },
+    {
+      "file": "skeletonlabs_skeleton/playgrounds/skeleton-svelte/src/routes/+layout.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/skeletonlabs/skeleton/blob/38f596fabb0b529ae0f7781c7212c00fd4435fc4/playgrounds/skeleton-svelte/src/routes/+layout.svelte, MIT. Each Finding the Check reported was judged at its line (line 27 text-contrast: fails, white on Tailwind orange-500, 2.9:1, small text). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "file": "skeletonlabs_skeleton/sites/skeleton.dev/src/components/examples/guides/cookbook/breadcrumbs/svelte/default.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/skeletonlabs/skeleton/blob/38f596fabb0b529ae0f7781c7212c00fd4435fc4/sites/skeleton.dev/src/components/examples/guides/cookbook/breadcrumbs/svelte/default.svelte, MIT. Each Finding the Check reported was judged at its line (line 3 a11y_incorrect_aria_attribute_type_boolean: no failure, bare aria-hidden on a separator: exposed separator text, no failure; line 5 a11y_incorrect_aria_attribute_type_boolean: no failure, bare aria-hidden on a separator: exposed separator text, no failure). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "skeletonlabs_skeleton/sites/skeleton.dev/src/components/examples/guides/cookbook/breadcrumbs/svelte/icons.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/skeletonlabs/skeleton/blob/38f596fabb0b529ae0f7781c7212c00fd4435fc4/sites/skeleton.dev/src/components/examples/guides/cookbook/breadcrumbs/svelte/icons.svelte, MIT. Each Finding the Check reported was judged at its line (line 13 a11y_incorrect_aria_attribute_type_boolean: no failure, bare aria-hidden on a separator: exposed separator text, no failure; line 21 a11y_incorrect_aria_attribute_type_boolean: no failure, bare aria-hidden on a separator: exposed separator text, no failure). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/assets/examples/list-groups/index.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/assets/examples/list-groups/index.astro, MIT. Each Finding the Check reported was judged at its line (line 113 label-has-associated-control: no failure, label nests its control and has text deeper than the rule looks; line 123 label-has-associated-control: no failure, label nests its control and has text deeper than the rule looks; line 133 label-has-associated-control: no failure, label nests its control and has text deeper than the rule looks; line 143 label-has-associated-control: no failure, label nests its control and has text deeper than the rule looks). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.3.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "twbs_bootstrap/site/src/components/shortcodes/Placeholder.astro",
+      "languageId": "astro",
+      "note": "https://github.com/twbs/bootstrap/blob/cca152095afcf92b9defb5deae8304a2a84f61eb/site/src/components/shortcodes/Placeholder.astro, MIT. Each Finding the Check reported was judged at its line (line 15 alt-text: no failure, spread props can carry alt). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "withastro_starlight/packages/starlight/src/components/SidebarPersister.astro",
+      "languageId": "astro",
+      "note": "https://github.com/withastro/starlight/blob/dc7451c127bbf1dc195a2c1ab2c3670fc00dd84c/packages/starlight/src/components/SidebarPersister.astro, MIT. Each Finding the Check reported was judged at its line (line 35 aria-unsupported-elements: no failure, script is not rendered; line 62 aria-unsupported-elements: no failure, script is not rendered). Criteria of close calls are left unlabelled; Findings are judged, unreported failures are not labelled, so this case measures precision, not recall.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
     }
   ]
 }

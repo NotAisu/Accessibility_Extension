@@ -98,6 +98,23 @@ function config(skip: Set<string>, components: ComponentMapping | undefined): Li
 
 const linter = new Linter({ configType: 'flat' });
 
+const CONTENT_RULES = new Set(['anchor-has-content', 'heading-has-content']);
+
+type AstNode = { type: string; parent?: AstNode; openingElement?: { selfClosing: boolean } };
+
+// An empty element passed as a render prop (<Item render={<a href="#" />}>Settings</Item>) gets its content from the
+// component that renders it
+function isRenderProp(source: { getNodeByRangeIndex(index: number): unknown }, offset: number): boolean {
+    let node = source.getNodeByRangeIndex(offset) as AstNode | null;
+    while (node && node.type !== 'JSXElement') node = node.parent ?? null;
+    if (!node?.openingElement?.selfClosing) return false;
+    for (let parent = node.parent; parent; parent = parent.parent) {
+        if (parent.type === 'JSXAttribute') return true;
+        if (parent.type === 'JSXElement' || parent.type === 'JSXFragment') return false;
+    }
+    return false;
+}
+
 /** Plain JSX is parsed by espree, TypeScript only for `.tsx` (`typescript: true`). */
 export function checkJsx(text: string, typescript: boolean, components?: ComponentMapping): AnalysisResult {
     const toOffset = eslintOffsetAt(text);
@@ -108,6 +125,7 @@ export function checkJsx(text: string, typescript: boolean, components?: Compone
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
+        if (CONTENT_RULES.has(rule) && isRenderProp(linter.getSourceCode(), start)) continue;
         const end = message.endLine && message.endColumn ? toOffset(message.endLine, message.endColumn) : start;
         const docs = plugin.rules[rule]?.meta?.docs;
         findings.push({
