@@ -12,7 +12,7 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
     let api: TestingApi;
 
     suiteSetup(async () => {
-        const extension = vscode.extensions.getExtension<TestingApi>('notaisu.allyproof');
+        const extension = vscode.extensions.getExtension<TestingApi>('aisu.allyproof');
         assert.ok(extension, 'Allyproof is not installed');
         api = await extension.activate();
         assert.ok(api, 'Allyproof exposes no testing API in the extension host');

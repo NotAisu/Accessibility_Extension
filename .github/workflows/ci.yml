@@ -26,5 +26,5 @@ jobs:
       # Extension-host smoke tests: the packaged VSIX in the lowest supported VS Code, in a trusted and an untrusted
       # workspace, on a virtual display
       - run: xvfb-run -a npm run test:extension-host
-      # The release SBOM step, kept working until the release workflow (#27) attaches its output
+      # The release SBOM step, so a broken SBOM fails here and not during a release
       - uses: ./.github/actions/sbom

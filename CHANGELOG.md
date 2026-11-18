@@ -2,7 +2,7 @@
 
 Pre-releases use odd minor versions, stable releases even ones.
 
-## Unreleased
+## 0.1.0 (pre-release)
 
 First pre-release of Allyproof – WCAG 2.2 Accessibility Checker.
 
