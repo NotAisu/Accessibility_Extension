@@ -20,3 +20,6 @@ grep -q "W3C Software And Document" "$dir/vsix/extension/dist/THIRD-PARTY-NOTICE
     || { echo "THIRD-PARTY-NOTICES.txt with the W3C notice missing from the VSIX"; exit 1; }
 
 npm run test:gate -- --bundle "$dir/vsix/extension"
+
+# The command line in the VSIX, run as a user or CI runs it
+ALLYPROOF_CLI="$dir/vsix/extension/dist/cli.mjs" npm run test:cli

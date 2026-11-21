@@ -109,7 +109,26 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
 - **Claude Code, Cursor and other agents**: copy the `skills/allyproof` folder into your project's skills folder, for example `.claude/skills/allyproof/` (Claude Code) or `.agents/skills/allyproof/`, or your user-level skills folder. These agents use your own subscription.
 - **Your repository**: **Allyproof: Add Skill to Repository** writes the Skill to `.github/skills/allyproof/SKILL.md`, so Copilot code review reviews pull requests for accessibility without any CI setup. It also offers `.claude/skills` and `.agents/skills`. The written Skill carries the extension version in its `metadata`, and an existing Skill file is only replaced after you confirm. If the agent can open the rendered page in a browser, the Skill has it verify the Needs Review criteria there.
 
-`a11y_check` runs the Check on a file (`filePath`), on proposed code (`code` and `languageId`), or on proposed code for a file (`filePath` and `code`), so an agent can verify its fix before applying it. It returns the Findings with their line and the criteria that Need Review; the Skill calls it first and reviews only what the Check cannot decide. Outside VS Code with the extension the tool is not available, and the agent reviews only the semantic problems the Skill lists.
+`a11y_check` runs the Check on a file (`filePath`), on proposed code (`code` and `languageId`), or on proposed code for a file (`filePath` and `code`), so an agent can verify its fix before applying it. It returns the Findings with their line and the criteria that Need Review; the Skill calls it first and reviews only what the Check cannot decide. Outside VS Code the agent runs the same Check from the command line instead (below): `allyproof check <file> --format json`, or `--stdin --stdin-filename <file>` for code it has not written yet.
+
+## Block inaccessible commits
+
+The command line runs the editor's Check, with the same engines, the rule settings and Component Mapping from `.vscode/settings.json`, and the same ignore comments. It needs Node 24.15, makes no network requests, runs no AI and never executes your code.
+
+```sh
+npx allyproof check                    # the repository, or the paths you name
+npx allyproof check --staged           # what is about to be committed, from Git's index
+npx allyproof check --changed origin/main --format sarif > allyproof.sarif
+npx allyproof baseline                 # accept today's Findings; only new ones block
+npx allyproof explain image-alt        # what a rule checks, why, how to fix it, and its proof
+npx allyproof rules --format json      # every rule, its criteria and its proof status
+```
+
+Only Findings block; Needs Review is listed and never blocks. `--fail-on error|warning|information` sets the lowest severity that blocks (`warning`, so every Finding, by default). Exit codes: **0** no blocking Findings, **1** blocking Findings, **2** a usage or configuration error, **3** a file could not be checked (a parse error, an engine crash or a deadline), so a commit never passes with a file left unchecked. `--format json` follows the JSON Schema in [`schema/check-result.v1.json`](schema/check-result.v1.json) and carries each Finding's fix edits and proof status. The baseline (`.allyproof-baseline.json`) records each Finding by rule, file and start tag, so it survives lines moving, and the summary counts how many baselined Findings were fixed. Git's own `--no-verify` is the only way to skip a hook.
+
+- **Set it up**: **Allyproof: Set Up Commit Check** adds the check to lefthook, to lint-staged under Husky, to Husky's `pre-commit` hook or to the pre-commit framework (as a local hook), or writes a plain Git hook, and can add a GitHub Actions workflow. It shows every file it will create or change and writes only after you confirm; existing entries are kept.
+- **GitHub Actions**: the `NotAisu/Accessibility_Extension` action checks the files a pull request changes, fails the job on blocking Findings, and uploads SARIF, so Findings appear as code scanning alerts on the changed lines. Check out with `fetch-depth: 0`, grant `security-events: write`, and make the job a required status check to enforce it. Inputs: `base`, `paths`, `baseline`, `fail-on`, `upload-sarif`.
+- **Other CI**: run `npx allyproof check --changed <base>` and use the exit code; SARIF and JSON work with any code scanning or report tool.
 
 ## Commands
 
@@ -119,6 +138,7 @@ All commands are in the Command Palette under **Allyproof**:
 - Filter Findings
 - Start AI Review, Cancel AI Review, Clear AI Review Cache
 - Add Skill to Repository
+- Set Up Commit Check
 - Show Log
 - Report Issue
 
