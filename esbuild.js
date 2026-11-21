@@ -53,6 +53,20 @@ const fixEnginePitfalls = {
             }
             return { contents: patched, loader: 'js' };
         });
+        // jsdom reads its default stylesheet next to __dirname at load time, which ESM output does not define.
+        // axe-core's computed styles need it, so the file is inlined.
+        build.onLoad({ filter: /jsdom[\\/]lib[\\/]jsdom[\\/]living[\\/]css[\\/]helpers[\\/]computed-style\.js$/ }, async (args) => {
+            const source = await fs.promises.readFile(args.path, 'utf8');
+            const css = await fs.promises.readFile(path.resolve(path.dirname(args.path), '../../../browser/default-stylesheet.css'), 'utf8');
+            const patched = source.replace(
+                /const defaultStyleSheet = fs\.readFileSync\(\s*path\.resolve\(__dirname, "\.\.\/\.\.\/\.\.\/browser\/default-stylesheet\.css"\),\s*{ encoding: "utf-8" }\s*\);/,
+                `const defaultStyleSheet = ${JSON.stringify(css)};`
+            );
+            if (patched === source) {
+                throw new Error('jsdom default stylesheet read not found; update the esbuild stub');
+            }
+            return { contents: patched, loader: 'js' };
+        });
         // eslint-plugin-jsx-a11y-x reads its name and version from package.json through a runtime
         // require next to the source file, which the bundle does not ship. A static import is inlined.
         build.onLoad({ filter: /eslint-plugin-jsx-a11y-x[\\/]lib[\\/]index\.js$/ }, async (args) => {
