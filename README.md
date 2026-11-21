@@ -57,6 +57,7 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | Language | Rule | Criteria | Correct | Precision at least |
 | --- | --- | --- | --- | --- |
 | Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 98 of 98 | 96.9 % |
+| Astro | `allyproof/button-name` | 4.1.2, 2.4.4 | 70 of 70 | 95.8 % |
 | Astro | `astro/jsx-a11y/anchor-has-content` | 2.4.4, 4.1.2 | 80 of 80 | 96.3 % |
 | HTML | `image-alt` | 1.1.1 | 126 of 126 | 97.6 % |
 | Svelte | `svelte/a11y_consider_explicit_label` | 4.1.2, 2.4.4 | 99 of 99 | 97.0 % |
@@ -73,6 +74,7 @@ Allyproof's own rules add what the engines miss, in every language and from lite
 | 1.4.3 Contrast (Minimum) | `allyproof/text-contrast`: text whose color and background are both certain from inline styles or Tailwind classes, on the element or a static ancestor, and fail 4.5:1 (3:1 for large text) |
 | 1.4.11 Non-text Contrast | `allyproof/non-text-contrast`: a text field whose border and background are both certain and neither reaches 3:1 against its surroundings |
 | 3.3.8 Accessible Authentication (Minimum) | `allyproof/password-autocomplete`: a password field with `autocomplete="off"` |
+| 4.1.2 Name, Role, Value (JSX, TSX, Astro) | `allyproof/button-name`: a `<button>` with no visible text, accessible name attribute or potentially naming child |
 
 ### Needs Review
 

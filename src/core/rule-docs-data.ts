@@ -181,7 +181,7 @@ export const ENTRIES: Entry[] = [
         }
     },
     {
-        rules: ['button-name', 'input-button-name', 'aria-command-name', 'summary-name', svelte('a11y_consider_explicit_label')],
+        rules: ['button-name', 'input-button-name', 'aria-command-name', 'summary-name', svelte('a11y_consider_explicit_label'), own('button-name')],
         message: 'Buttons need text that names them',
         why: 'A button without text is announced as just "button", so screen reader users cannot tell what it does.',
         fix: 'Put visible text in the button, or an aria-label when it only holds an icon; give an input button a value.',

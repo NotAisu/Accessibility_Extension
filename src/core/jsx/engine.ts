@@ -3,8 +3,8 @@ import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
-import { hasSpread, renderedJsxContent } from './jsx-ast';
-import { withOwnRules } from '../own-rules';
+import { emptyButtons, hasSpread, renderedJsxContent } from './jsx-ast';
+import { buttonNameFinding, withOwnRules } from '../own-rules';
 import type { ComponentMapping } from '../components';
 
 // The JSX/TSX engine as one chunk, loaded on the first React document.
@@ -139,6 +139,8 @@ export function checkJsx(text: string, typescript: boolean, components?: Compone
             helpUrl: docs?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
+    const source = linter.getSourceCode();
+    for (const range of emptyButtons(source, components)) findings.push(buttonNameFinding(range));
     // Spread attributes can set the class or style
-    return withOwnRules(findings, renderedJsxContent(linter.getSourceCode(), { textParents: ['JSXElement', 'JSXFragment'], bindsStyle: hasSpread, components }));
+    return withOwnRules(findings, renderedJsxContent(source, { textParents: ['JSXElement', 'JSXFragment'], bindsStyle: hasSpread, components }));
 }

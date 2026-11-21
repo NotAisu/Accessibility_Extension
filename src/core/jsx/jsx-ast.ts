@@ -1,3 +1,4 @@
+import type { TextRange } from '../analysis';
 import { addText, type RenderedContent, type SourceElement } from '../needs-review';
 import { mappedElement, type ComponentMapping } from '../components';
 
@@ -122,4 +123,100 @@ export function rendersElements(node: unknown): boolean {
     if (type === 'JSXElement' || type === 'JSXFragment') return true;
     return Object.entries(node).some(([key, value]) => key !== 'parent' && key !== 'loc' && key !== 'range'
         && (Array.isArray(value) ? value.some(rendersElements) : typeof value === 'object' && rendersElements(value)));
+}
+
+/** Start-tag ranges of `<button>` elements (and components mapped to `button`) with no accessible name. */
+export function emptyButtons(source: JsxSource, components?: ComponentMapping): TextRange[] {
+    const ranges: TextRange[] = [];
+    const visit = (node: JsxNode, inAttribute: boolean) => {
+        if (node.type === 'JSXElement') {
+            const opening = node.openingElement as JsxNode;
+            const written = tagName(opening);
+            const attributes = attributesOf(opening);
+            const tag = mappedElement(written, name => attributes.get(name.toLowerCase()), components) ?? written;
+            const renderProp = inAttribute && Boolean(opening.selfClosing);
+            if (tag === 'button' && !renderProp && !isNamedElement(opening, attributes) && !hasNamedChildren(node)) {
+                const [start, end] = opening.range as [number, number];
+                ranges.push({ start, end });
+            }
+            inAttribute = false;
+        } else if (node.type === 'JSXFragment') {
+            inAttribute = false;
+        } else if (node.type === 'JSXAttribute') {
+            inAttribute = true;
+        }
+        for (const key of source.visitorKeys[node.type] ?? []) {
+            for (const child of [node[key]].flat()) {
+                if (child && typeof (child as JsxNode).type === 'string') visit(child as JsxNode, inAttribute);
+            }
+        }
+    };
+    visit(source.ast as JsxNode, false);
+    return ranges;
+}
+
+const NAME_ATTRS = ['aria-label', 'aria-labelledby', 'title', 'dangerouslysetinnerhtml', 'children'];
+
+function hasNonEmptyAttr(attributes: Map<string, string | true>, name: string): boolean {
+    const value = attributes.get(name);
+    return value === true || (typeof value === 'string' && value.trim().length > 0);
+}
+
+function hasSetContentDirective(opening: JsxNode): boolean {
+    return (opening.attributes as JsxNode[]).some(a => {
+        const name = a.name as JsxNode | undefined;
+        return name?.type === 'JSXNamespacedName'
+            && (name.namespace as JsxNode | undefined)?.name === 'set'
+            && ['html', 'text'].includes(((name.name as JsxNode | undefined)?.name as string | undefined) ?? '');
+    });
+}
+
+function isHiddenOrPresentational(attributes: Map<string, string | true>): boolean {
+    const hidden = attributes.get('aria-hidden');
+    if (hidden === true || (typeof hidden === 'string' && hidden.trim().toLowerCase() === 'true')) return true;
+    const role = attributes.get('role');
+    return role === true || (typeof role === 'string' && ['presentation', 'none'].includes(role.trim().toLowerCase()));
+}
+
+function isNamedElement(opening: JsxNode, attributes: Map<string, string | true>): boolean {
+    return hasSpread(opening) || isHiddenOrPresentational(attributes)
+        || NAME_ATTRS.some(name => hasNonEmptyAttr(attributes, name))
+        || hasSetContentDirective(opening);
+}
+
+function isEmptyExpression(expression: JsxNode): boolean {
+    if (expression.type === 'JSXEmptyExpression') return true;
+    if (expression.type === 'Identifier' && expression.name === 'undefined') return true;
+    if (expression.type !== 'Literal') return false;
+    return expression.value === null || expression.value === false
+        || (typeof expression.value === 'string' && !expression.value.trim());
+}
+
+function hasNamedChildren(parent: JsxNode): boolean {
+    const children = (parent.children as JsxNode[] | undefined) ?? [];
+    for (const child of children) {
+        if (child.type === 'JSXText' && typeof child.value === 'string' && child.value.trim()) return true;
+        if (child.type === 'JSXExpressionContainer' && !isEmptyExpression(child.expression as JsxNode)) return true;
+        if ((child.type === 'JSXFragment' || child.type === 'AstroFragment') && hasNamedChildren(child)) return true;
+        if (child.type === 'JSXElement' && childProvidesName(child)) return true;
+    }
+    return false;
+}
+
+function childProvidesName(element: JsxNode): boolean {
+    const opening = element.openingElement as JsxNode;
+    const attributes = attributesOf(opening);
+    const hidden = attributes.get('aria-hidden');
+    if (typeof hidden === 'string' && hidden.trim().toLowerCase() === 'true') return false;
+    if (hasSpread(opening)) return true;
+    const tag = tagName(opening);
+    // Custom components and <slot> may render text or labelled icons we cannot see statically
+    if (!tag || tag === 'slot' || /^[A-Z]/.test(tag) || tag.includes('.')) return true;
+    if (NAME_ATTRS.some(name => hasNonEmptyAttr(attributes, name)) || hasSetContentDirective(opening)) return true;
+    if (['img', 'area', 'input'].includes(tag) && hasNonEmptyAttr(attributes, 'alt')) return true;
+    if (tag === 'svg') {
+        const children = (element.children as JsxNode[] | undefined) ?? [];
+        return children.some(c => c.type === 'JSXElement' && tagName(c.openingElement as JsxNode) === 'title' && hasNamedChildren(c));
+    }
+    return hasNamedChildren(element);
 }

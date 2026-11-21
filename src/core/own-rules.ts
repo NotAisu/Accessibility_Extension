@@ -1,4 +1,4 @@
-import type { AnalysisResult, Finding, NeedsReview } from './analysis';
+import type { AnalysisResult, Finding, NeedsReview, TextRange } from './analysis';
 import { isControl, layoutNeedsReview, RenderedContent, SourceElement } from './needs-review';
 import { criterionUrl } from './wcag';
 import { contrast } from './contrast';
@@ -23,6 +23,20 @@ export function withOwnRules(findings: Finding[], content: RenderedContent, opti
     return {
         findings: [...findings, ...own, ...contrasts.findings],
         needsReview: [...layoutNeedsReview(content, contrasts.allTextDecided), ...contrasts.needsReview, ...content.elements.flatMap(smallTarget)]
+    };
+}
+
+/** A button without text or a naming attribute, in languages whose upstream engine has no rule for 4.1.2. */
+export function buttonNameFinding(range: TextRange): Finding {
+    return {
+        range,
+        criteria: ['4.1.2'],
+        ruleId: `${PREFIX}button-name`,
+        layer: 'check',
+        severity: 'warning',
+        message: 'Buttons must have discernible text',
+        explanation: 'A button without visible text or an accessible name (such as aria-label or aria-labelledby) is announced as just "button" by screen readers.',
+        helpUrl: criterionUrl('4.1.2')
     };
 }
 

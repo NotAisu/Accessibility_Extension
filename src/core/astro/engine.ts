@@ -5,8 +5,8 @@ import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 import { styleBlocksSetColors } from '../needs-review';
-import { hasSpread, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
-import { withOwnRules } from '../own-rules';
+import { emptyButtons, hasSpread, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
+import { buttonNameFinding, withOwnRules } from '../own-rules';
 import { jsxA11ySettings, RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
 import type { ComponentMapping } from '../components';
 
@@ -64,8 +64,10 @@ export function checkAstro(text: string, components?: ComponentMapping): Analysi
             helpUrl: docs?.extensionRule?.url ?? `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
         });
     }
+    const source = linter.getSourceCode();
+    for (const range of emptyButtons(source, components)) findings.push(buttonNameFinding(range));
     // <script> and <style> bodies are raw text that renders nothing. class:list and spread attributes can set the class or style
-    const content = renderedJsxContent(linter.getSourceCode(), {
+    const content = renderedJsxContent(source, {
         textParents: ['JSXElement', 'JSXFragment', 'AstroFragment'],
         bindsStyle: opening => hasSpread(opening) || (opening.attributes as JsxNode[]).some(a => (a.name as JsxNode | undefined)?.type === 'JSXNamespacedName'),
         components
