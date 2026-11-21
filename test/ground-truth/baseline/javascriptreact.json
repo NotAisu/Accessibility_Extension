@@ -1,10 +1,10 @@
 {
   "1.1.1": {
-    "precision": 0.952,
-    "recall": 1,
-    "tp": 59,
+    "precision": 0.979,
+    "recall": 0.993,
+    "tp": 138,
     "fp": 3,
-    "fn": 0
+    "fn": 1
   },
   "1.2.2": {
     "precision": 1,
@@ -64,10 +64,10 @@
   },
   "2.4.4": {
     "precision": 1,
-    "recall": 1,
-    "tp": 28,
+    "recall": 0.868,
+    "tp": 59,
     "fp": 0,
-    "fn": 0
+    "fn": 9
   },
   "2.4.6": {
     "precision": 1,
@@ -98,10 +98,10 @@
     "fn": 0
   },
   "4.1.2": {
-    "precision": 0.726,
-    "recall": 1,
-    "tp": 548,
+    "precision": 0.738,
+    "recall": 0.985,
+    "tp": 583,
     "fp": 207,
-    "fn": 0
+    "fn": 9
   }
 }

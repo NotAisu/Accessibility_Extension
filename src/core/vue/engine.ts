@@ -74,8 +74,9 @@ function staticAttribute(element: VueNode, name: string): string | true | undefi
 }
 
 // label-has-for's default asks for nesting and an id at once; either one labels the control (H44), as
-// jsx-a11y's label-has-associated-control asserts
+// jsx-a11y's label-has-associated-control asserts. aria-role ignores custom components whose `role` is a prop.
 export const RULE_OPTIONS: Record<string, unknown[]> = {
+    'aria-role': [{ ignoreNonDOM: true }],
     'label-has-for': [{ required: { some: ['nesting', 'id'] } }]
 };
 

@@ -39,7 +39,7 @@ describe('a11y_check tool', () => {
 });
 
 describe('a11y_check tool on files', () => {
-    const files: Record<string, string> = { 'src/App.tsx': 'export const App = () => (\n  <img src="a.png" />\n);' };
+    const files: Record<string, string> = { 'src/App.tsx': 'export const App = () => (\n  <span tabIndex={2}>x</span>\n);' };
     const withFiles: CheckToolPorts = {
         ...ports,
         read: filePath => filePath in files
@@ -52,7 +52,7 @@ describe('a11y_check tool on files', () => {
 
         assert.strictEqual(output.languageId, 'typescriptreact');
         assert.deepStrictEqual(output.findings, []);
-        assert.deepStrictEqual(output.needsReview.filter(e => e.ruleId).map(e => [e.ruleId, e.criterion, e.line]), [['jsx-a11y-x/alt-text', '1.1.1', 2]]);
+        assert.deepStrictEqual(output.needsReview.filter(e => e.ruleId).map(e => [e.ruleId, e.criterion, e.line]), [['jsx-a11y-x/tabindex-no-positive', '2.4.3', 2]]);
     });
 
     it('checks proposed code in the language of the file it is meant for', async () => {

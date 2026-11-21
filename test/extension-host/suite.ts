@@ -46,20 +46,19 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
         assert.match(String(api.findingsStatus.accessibilityInformation?.label), /^Accessibility: [1-9]\d* Findings?/);
     });
 
-    // No Proven rule has a deterministic fix yet; re-enable once html-has-lang or aria-hidden-body is Proven (#86)
-    test.skip('a quick fix can be applied', async () => {
+    test('a quick fix can be applied', async () => {
         const document = await open('fixable.html');
-        const [lang] = await diagnosticsOf(document.uri, found => found.some(d => code(d) === 'html-has-lang'))
-            .then(found => found.filter(d => code(d) === 'html-has-lang'));
+        const [body] = await diagnosticsOf(document.uri, found => found.some(d => code(d) === 'aria-hidden-body'))
+            .then(found => found.filter(d => code(d) === 'aria-hidden-body'));
         const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
-            'vscode.executeCodeActionProvider', document.uri, lang.range, vscode.CodeActionKind.QuickFix.value);
-        const fix = actions.find(action => action.title === 'Fix this Finding (html-has-lang)');
+            'vscode.executeCodeActionProvider', document.uri, body.range, vscode.CodeActionKind.QuickFix.value);
+        const fix = actions.find(action => action.title === 'Fix this Finding (aria-hidden-body)');
         assert.ok(fix?.edit, actions.map(action => action.title).join('\n'));
         assert.ok(fix.isPreferred);
         assert.ok(await vscode.workspace.applyEdit(fix.edit));
-        assert.match(document.getText(), /<html lang="en">/);
+        assert.match(document.getText(), /<body>/);
         await document.save();
-        await diagnosticsOf(document.uri, found => found.length > 0 && !found.some(d => code(d) === 'html-has-lang'));
+        await diagnosticsOf(document.uri, found => found.length > 0 && !found.some(d => code(d) === 'aria-hidden-body'));
     });
 
     test('the lightbulb ignores a Finding with a comment, prepared only when picked', async () => {

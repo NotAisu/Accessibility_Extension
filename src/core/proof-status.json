@@ -4,9 +4,9 @@
   "rules": {
     "@angular-eslint/template/alt-text": {
       "angular": {
-        "correct": 7,
+        "correct": 11,
         "wrong": 0,
-        "lowerBound": 0.651,
+        "lowerBound": 0.761,
         "proven": false
       }
     },
@@ -20,9 +20,9 @@
     },
     "@angular-eslint/template/elements-content": {
       "angular": {
-        "correct": 98,
+        "correct": 95,
         "wrong": 0,
-        "lowerBound": 0.969,
+        "lowerBound": 0.968,
         "proven": true
       }
     },
@@ -68,16 +68,22 @@
     },
     "allyproof/button-name": {
       "astro": {
-        "correct": 70,
+        "correct": 80,
         "wrong": 0,
-        "lowerBound": 0.958,
+        "lowerBound": 0.963,
         "proven": true
       },
-      "typescriptreact": {
-        "correct": 4,
+      "javascriptreact": {
+        "correct": 3,
         "wrong": 0,
-        "lowerBound": 0.472,
+        "lowerBound": 0.368,
         "proven": false
+      },
+      "typescriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
       }
     },
     "allyproof/text-contrast": {
@@ -114,6 +120,14 @@
         "wrong": 0,
         "lowerBound": 0.05,
         "proven": false
+      }
+    },
+    "aria-hidden-body": {
+      "html": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
       }
     },
     "aria-input-field-name": {
@@ -166,9 +180,9 @@
     },
     "astro/jsx-a11y/alt-text": {
       "astro": {
-        "correct": 47,
+        "correct": 53,
         "wrong": 0,
-        "lowerBound": 0.938,
+        "lowerBound": 0.945,
         "proven": false
       }
     },
@@ -182,9 +196,9 @@
     },
     "astro/jsx-a11y/anchor-has-content": {
       "astro": {
-        "correct": 80,
+        "correct": 76,
         "wrong": 0,
-        "lowerBound": 0.963,
+        "lowerBound": 0.961,
         "proven": true
       }
     },
@@ -199,7 +213,7 @@
     "astro/jsx-a11y/label-has-associated-control": {
       "astro": {
         "correct": 0,
-        "wrong": 5,
+        "wrong": 1,
         "lowerBound": 0,
         "proven": false
       }
@@ -214,9 +228,9 @@
     },
     "button-name": {
       "html": {
-        "correct": 5,
+        "correct": 34,
         "wrong": 0,
-        "lowerBound": 0.549,
+        "lowerBound": 0.915,
         "proven": false
       }
     },
@@ -230,10 +244,10 @@
     },
     "document-title": {
       "html": {
-        "correct": 4,
+        "correct": 84,
         "wrong": 0,
-        "lowerBound": 0.472,
-        "proven": false
+        "lowerBound": 0.964,
+        "proven": true
       }
     },
     "frame-title": {
@@ -262,9 +276,9 @@
     },
     "image-alt": {
       "html": {
-        "correct": 126,
+        "correct": 145,
         "wrong": 0,
-        "lowerBound": 0.976,
+        "lowerBound": 0.979,
         "proven": true
       }
     },
@@ -277,19 +291,31 @@
       }
     },
     "jsx-a11y-x/alt-text": {
-      "typescriptreact": {
-        "correct": 11,
+      "javascriptreact": {
+        "correct": 79,
         "wrong": 0,
-        "lowerBound": 0.761,
-        "proven": false
+        "lowerBound": 0.962,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
       }
     },
     "jsx-a11y-x/anchor-has-content": {
-      "typescriptreact": {
-        "correct": 15,
+      "javascriptreact": {
+        "correct": 31,
         "wrong": 0,
-        "lowerBound": 0.818,
+        "lowerBound": 0.907,
         "proven": false
+      },
+      "typescriptreact": {
+        "correct": 68,
+        "wrong": 0,
+        "lowerBound": 0.956,
+        "proven": true
       }
     },
     "jsx-a11y-x/click-events-have-key-events": {
@@ -300,11 +326,11 @@
         "proven": false
       }
     },
-    "jsx-a11y-x/label-has-associated-control": {
-      "typescriptreact": {
-        "correct": 0,
-        "wrong": 4,
-        "lowerBound": 0,
+    "jsx-a11y-x/iframe-has-title": {
+      "javascriptreact": {
+        "correct": 1,
+        "wrong": 0,
+        "lowerBound": 0.05,
         "proven": false
       }
     },
@@ -334,10 +360,10 @@
     },
     "link-name": {
       "html": {
-        "correct": 30,
+        "correct": 110,
         "wrong": 0,
-        "lowerBound": 0.904,
-        "proven": false
+        "lowerBound": 0.973,
+        "proven": true
       }
     },
     "list": {
@@ -406,9 +432,9 @@
     },
     "svelte/a11y_consider_explicit_label": {
       "svelte": {
-        "correct": 99,
+        "correct": 117,
         "wrong": 0,
-        "lowerBound": 0.97,
+        "lowerBound": 0.974,
         "proven": true
       }
     },
@@ -422,10 +448,10 @@
     },
     "svelte/a11y_missing_attribute": {
       "svelte": {
-        "correct": 17,
+        "correct": 82,
         "wrong": 0,
-        "lowerBound": 0.838,
-        "proven": false
+        "lowerBound": 0.964,
+        "proven": true
       }
     },
     "svg-img-alt": {
@@ -466,14 +492,6 @@
         "wrong": 0,
         "lowerBound": 0.963,
         "proven": true
-      }
-    },
-    "vuejs-accessibility/aria-role": {
-      "vue": {
-        "correct": 0,
-        "wrong": 4,
-        "lowerBound": 0,
-        "proven": false
       }
     },
     "vuejs-accessibility/click-events-have-key-events": {
