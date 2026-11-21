@@ -54,9 +54,9 @@ const plugin = jsxA11y as unknown as {
     configs: { recommended: { rules: Record<string, Linter.RuleEntry> } };
 };
 
-// label-has-associated-control's default, spelled out as its rule tests do
+// label-has-associated-control's default depth of 2 misses labels whose text or control sits inside a wrapper element
 const SPELLED_OUT_DEFAULTS: Record<string, unknown[]> = {
-    'label-has-associated-control': [{ assert: 'either' }]
+    'label-has-associated-control': [{ assert: 'either', depth: 25 }]
 };
 
 // Options from the plugin's recommended config, which its rule tests exercise; rules it turns off

@@ -56,11 +56,19 @@ A rule reports Findings only once it has proven its precision on real code: on i
 
 | Language | Rule | Criteria | Correct | Precision at least |
 | --- | --- | --- | --- | --- |
-| Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 98 of 98 | 96.9 % |
-| Astro | `allyproof/button-name` | 4.1.2, 2.4.4 | 70 of 70 | 95.8 % |
-| Astro | `astro/jsx-a11y/anchor-has-content` | 2.4.4, 4.1.2 | 80 of 80 | 96.3 % |
-| HTML | `image-alt` | 1.1.1 | 126 of 126 | 97.6 % |
-| Svelte | `svelte/a11y_consider_explicit_label` | 4.1.2, 2.4.4 | 99 of 99 | 97.0 % |
+| Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 95 of 95 | 96.8 % |
+| Astro | `allyproof/button-name` | 4.1.2, 2.4.4 | 80 of 80 | 96.3 % |
+| Astro | `astro/jsx-a11y/anchor-has-content` | 2.4.4, 4.1.2 | 76 of 76 | 96.1 % |
+| HTML | `aria-hidden-body` | 1.3.1, 4.1.2 | 80 of 80 | 96.3 % |
+| HTML | `document-title` | 2.4.2 | 84 of 84 | 96.4 % |
+| HTML | `image-alt` | 1.1.1 | 145 of 145 | 97.9 % |
+| HTML | `link-name` | 2.4.4, 4.1.2 | 110 of 110 | 97.3 % |
+| JSX | `jsx-a11y-x/alt-text` | 1.1.1 | 79 of 79 | 96.2 % |
+| Svelte | `svelte/a11y_consider_explicit_label` | 4.1.2, 2.4.4 | 117 of 117 | 97.4 % |
+| Svelte | `svelte/a11y_missing_attribute` | 1.1.1, 2.1.1, 3.1.1, 4.1.2 | 82 of 82 | 96.4 % |
+| TSX | `allyproof/button-name` | 4.1.2, 2.4.4 | 80 of 80 | 96.3 % |
+| TSX | `jsx-a11y-x/alt-text` | 1.1.1 | 80 of 80 | 96.3 % |
+| TSX | `jsx-a11y-x/anchor-has-content` | 2.4.4, 4.1.2 | 68 of 68 | 95.6 % |
 | Vue | `vuejs-accessibility/alt-text` | 1.1.1 | 123 of 123 | 97.5 % |
 | Vue | `vuejs-accessibility/anchor-has-content` | 2.4.4, 4.1.2 | 81 of 81 | 96.3 % |
 

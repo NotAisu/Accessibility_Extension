@@ -29,24 +29,46 @@ const SOURCES: Record<string, { url: string; commit: string }> = {
     'sveltekit': { url: 'https://github.com/sveltejs/kit', commit: '1cda796508aa14efd3b7832f3290a8f04eb88526' },
     'bootstrap': { url: 'https://github.com/twbs/bootstrap', commit: 'cca152095afcf92b9defb5deae8304a2a84f61eb' },
     'astro-docs': { url: 'https://github.com/withastro/docs', commit: '697d16abd26476628cf0bf7b932a8920c768720b' },
-    'starlight': { url: 'https://github.com/withastro/starlight', commit: 'dc7451c127bbf1dc195a2c1ab2c3670fc00dd84c' }
+    'starlight': { url: 'https://github.com/withastro/starlight', commit: 'dc7451c127bbf1dc195a2c1ab2c3670fc00dd84c' },
+    'primereact': { url: 'https://github.com/primefaces/primereact', commit: '5cd9b145ce7d8b498e745002624ba958f307897e' },
+    'mdn-learning-area': { url: 'https://github.com/mdn/learning-area', commit: '21973263ba859ff3477919087b488157f9d618a6' },
+    'mantine': { url: 'https://github.com/mantinedev/mantine', commit: '06e603112455d5073603f33abc2a7cbdf094be2e' }
 };
 
 const PER_KIND = 80;
 
 const LANGUAGE: [RegExp, string][] = [
-    [/\.tsx$/, 'typescriptreact'], [/\.jsx$/, 'javascriptreact'], [/\.vue$/, 'vue'], [/\.svelte$/, 'svelte'],
-    [/\.astro$/, 'astro'], [/\.component\.html$/, 'angular'], [/-example\.html$/, 'angular']
+    [/\.tsx$/, 'typescriptreact'],
+    [/\.jsx$/, 'javascriptreact'],
+    [/^components\/doc\/.*\.js$/, 'javascriptreact'],
+    [/^docs\/data\/.*\.js$/, 'javascriptreact'],
+    [/\.vue$/, 'vue'],
+    [/\.svelte$/, 'svelte'],
+    [/\.astro$/, 'astro'],
+    [/\.component\.html$/, 'angular'],
+    [/-example\.html$/, 'angular'],
+    [/\.html$/, 'html']
 ];
 
 // Attributes that name an element or take it out of the accessibility tree, and spreads that may set them
 const NAMED = /\s(aria-label|aria-labelledby|title|aria-hidden|role)\s*=|\{\s*\.\.\.|v-bind="|v-bind=\{/;
+const NAMED_EXCEPT_TITLE = /\s(aria-label|aria-labelledby|aria-hidden|role)\s*=|\{\s*\.\.\.|v-bind="|v-bind=\{/;
+
+interface MutationResult {
+    /** Line index (0-based) to replace. */
+    editLine: number;
+    /** Replacement text for `editLine`. */
+    mutated: string;
+    /** 0-based line where the failure is reported (defaults to the starting line). */
+    reportLine?: number;
+}
 
 interface Mutation {
     kind: string;
     criteria: string[];
-    /** The rewritten line, or undefined when the mutation does not apply to it. */
-    apply(line: string): string | undefined;
+    languages?: string[];
+    /** Returns a single-line edit preserving line count, or undefined when the mutation does not apply. */
+    apply(lines: string[], index: number, markup: boolean[]): MutationResult | undefined;
 }
 
 const MUTATIONS: Mutation[] = [
@@ -54,38 +76,111 @@ const MUTATIONS: Mutation[] = [
         // An image without a text alternative (F65)
         kind: 'img-without-alt',
         criteria: ['1.1.1'],
-        apply: line => {
+        apply: (lines, i) => {
+            const line = lines[i];
             const tag = /<img\b[^<>]*>/.exec(line)?.[0];
-            if (!tag || NAMED.test(tag)) return undefined;
-            const stripped = tag.replace(/\s(?::|v-bind:)?alt=("[^"]*"|'[^']*'|\{[^{}]*\})/, '');
-            return stripped === tag || /\balt\b/.test(stripped) ? undefined : line.replace(tag, stripped);
+            if (tag) {
+                if (NAMED.test(tag)) return undefined;
+                const stripped = tag.replace(/\s(?::|v-bind:)?alt=("[^"]*"|'[^']*'|\{[^{}]*\})/, '');
+                return stripped === tag || /\balt\b/.test(stripped) ? undefined : { editLine: i, mutated: line.replace(tag, stripped) };
+            }
+            // Multiline <img ... alt="..." ...>
+            if (!/<img\b(?![^<>]*>)/.test(line)) return undefined;
+            const end = findTagEnd(lines, i);
+            if (end === undefined) return undefined;
+            const full = lines.slice(i, end + 1).join('\n');
+            if (NAMED.test(full)) return undefined;
+            for (let k = i; k <= end; k++) {
+                const stripped = lines[k].replace(/\s(?::|v-bind:)?alt=("[^"]*"|'[^']*'|\{[^{}]*\})/, '');
+                if (stripped !== lines[k] && !/\balt\b/.test(stripped)) {
+                    return { editLine: k, mutated: stripped, reportLine: i };
+                }
+            }
+            return undefined;
         }
     },
     {
         // A link without an accessible name (ACT c487ae)
         kind: 'empty-link',
         criteria: ['2.4.4', '4.1.2'],
-        apply: line => emptied(line, 'a', /\s(:|v-bind:)?href=/)
+        apply: (lines, i, markup) => emptied(lines, i, markup, 'a', /\s(:|v-bind:)?href=/)
     },
     {
         // A button without an accessible name (ACT 97a4e1)
         kind: 'empty-button',
         criteria: ['4.1.2'],
-        apply: line => emptied(line, 'button')
+        languages: ['html', 'typescriptreact', 'javascriptreact', 'svelte', 'astro', 'angular'],
+        apply: (lines, i, markup) => emptied(lines, i, markup, 'button')
+    },
+    {
+        // An iframe without an accessible name (ACT cae760)
+        kind: 'iframe-without-title',
+        criteria: ['4.1.2'],
+        apply: (lines, i) => {
+            const line = lines[i];
+            const tag = /<iframe\b[^<>]*>/.exec(line)?.[0];
+            if (!tag || NAMED_EXCEPT_TITLE.test(tag)) return undefined;
+            const stripped = tag.replace(/\s(?::|v-bind:)?title=("[^"]*"|'[^']*'|\{[^{}]*\})/, '');
+            return stripped === tag || /\btitle\b/.test(stripped) ? undefined : { editLine: i, mutated: line.replace(tag, stripped) };
+        }
+    },
+    {
+        // An HTML page with an empty <title> (ACT 2779a5); axe reports document-title on the <html> element
+        kind: 'empty-title',
+        criteria: ['2.4.2'],
+        languages: ['html'],
+        apply: (lines, i) => {
+            const match = /(<title>)([^<>]*\w[^<>]*)(<\/title>)/i.exec(lines[i]);
+            if (!match) return undefined;
+            const htmlLine = lines.findIndex(l => /<html\b/i.test(l));
+            if (htmlLine === -1 || lines.some(l => /%sveltekit\.|\{\{/.test(l))) return undefined;
+            return { editLine: i, mutated: lines[i].replace(match[0], match[1] + match[3]), reportLine: htmlLine };
+        }
+    },
+    {
+        // aria-hidden="true" on <body> hides the entire page from assistive technology (4.1.2 / 1.3.1)
+        kind: 'aria-hidden-body',
+        criteria: ['4.1.2', '1.3.1'],
+        languages: ['html'],
+        apply: (lines, i) => {
+            if (lines.some(l => /%sveltekit\.|\{\{/.test(l))) return undefined;
+            if (lines.filter(l => /<body\b/i.test(l)).length !== 1) return undefined;
+            const match = /<body(\b[^<>]*)>/i.exec(lines[i]);
+            if (!match || /aria-hidden/i.test(match[1])) return undefined;
+            return { editLine: i, mutated: lines[i].replace(match[0], `<body aria-hidden="true"${match[1]}>`) };
+        }
     }
 ];
 
-// The element on one line with plain text as its only content, emptied
-function emptied(line: string, element: string, required?: RegExp): string | undefined {
+function findTagEnd(lines: string[], start: number): number | undefined {
+    const limit = Math.min(lines.length - 1, start + 24);
+    for (let k = start + 1; k <= limit; k++) {
+        if (lines[k].includes('>')) return k;
+    }
+    return undefined;
+}
+
+// The element on one line (or open / plain-text / close across three lines) with plain text as its only content, emptied
+function emptied(lines: string[], i: number, markup: boolean[], element: string, required?: RegExp): MutationResult | undefined {
+    const line = lines[i];
     const match = new RegExp(`(<${element}\\b(?:[^<>{}]|\\{[^{}]*\\})*>)([^<>{}]*\\w[^<>{}]*)(</${element}>)`).exec(line);
-    if (!match || NAMED.test(match[1]) || (required && !required.test(match[1]))) return undefined;
-    return line.replace(match[0], match[1] + match[3]);
+    if (match) {
+        if (NAMED.test(match[1]) || (required && !required.test(match[1]))) return undefined;
+        return { editLine: i, mutated: line.replace(match[0], match[1] + match[3]) };
+    }
+    if (i + 2 >= lines.length || !markup[i + 1] || !markup[i + 2]) return undefined;
+    const open = new RegExp(`^\\s*(<${element}\\b(?:[^<>{}]|\\{[^{}]*\\})*>)\\s*$`).exec(line);
+    const body = lines[i + 1];
+    const close = new RegExp(`^\\s*</${element}>\\s*$`).exec(lines[i + 2]);
+    if (!open || !close || NAMED.test(open[1]) || (required && !required.test(open[1]))) return undefined;
+    if (!/^[^<>{}]*\w[^<>{}]*$/.test(body)) return undefined;
+    return { editLine: i + 1, mutated: '', reportLine: i };
 }
 
 async function main(sourcesDir: string) {
     const outDir = path.join(__dirname, 'injection');
     fs.rmSync(outDir, { recursive: true, force: true });
-    const candidates = new Map<string, { source: string; file: string; text: string; line: number; mutated: string }[]>();
+    const candidates = new Map<string, { source: string; file: string; text: string; editLine: number; reportLine: number; mutated: string }[]>();
     for (const [source, { commit }] of Object.entries(SOURCES)) {
         const clone = path.join(sourcesDir, source);
         const head = execFileSync('git', ['-C', clone, 'rev-parse', 'HEAD'], { encoding: 'utf-8' }).trim();
@@ -96,15 +191,18 @@ async function main(sourcesDir: string) {
             const text = fs.readFileSync(path.join(clone, file), 'utf-8');
             const lines = text.split('\n');
             const markup = markupLines(languageId, lines);
-            const applicable = MUTATIONS.flatMap(mutation => lines.flatMap((line, i) => {
-                const mutated = markup[i] ? mutation.apply(line) : undefined;
-                return mutated === undefined ? [] : [{ mutation, line: i, mutated }];
-            }));
+            const applicable = MUTATIONS.flatMap(mutation => {
+                if (mutation.languages && !mutation.languages.includes(languageId)) return [];
+                return lines.flatMap((_, i) => {
+                    const result = markup[i] ? mutation.apply(lines, i, markup) : undefined;
+                    return result === undefined ? [] : [{ mutation, editLine: result.editLine, reportLine: result.reportLine ?? i, mutated: result.mutated }];
+                });
+            });
             if (applicable.length === 0 || !(await isClean(languageId, text))) continue;
-            for (const { mutation, line, mutated } of applicable) {
+            for (const { mutation, editLine, reportLine, mutated } of applicable) {
                 const key = `${languageId} ${mutation.kind}`;
                 if (!candidates.has(key)) candidates.set(key, []);
-                candidates.get(key)!.push({ source, file, text, line, mutated });
+                candidates.get(key)!.push({ source, file, text, editLine, reportLine, mutated });
             }
         }
     }
@@ -116,10 +214,11 @@ async function main(sourcesDir: string) {
     for (const key of [...candidates.keys()].sort()) {
         const [languageId, kind] = key.split(' ');
         const mutation = MUTATIONS.find(m => m.kind === kind)!;
-        for (const { source, file, text, line, mutated } of evenly(candidates.get(key)!, PER_KIND)) {
+        for (const { source, file, text, editLine, reportLine, mutated } of evenly(candidates.get(key)!, PER_KIND)) {
             const lines = text.split('\n');
-            lines[line] = mutated;
-            const caseFile = path.join(kind, source, `${file.replace(/[\\/]/g, '__')}--${line + 1}${path.extname(file)}`);
+            lines[editLine] = mutated;
+            const ext = languageId === 'javascriptreact' ? '.jsx' : path.extname(file);
+            const caseFile = path.join(kind, source, `${file.replace(/[\\/]/g, '__')}--${reportLine + 1}${ext}`);
             fs.mkdirSync(path.dirname(path.join(outDir, caseFile)), { recursive: true });
             fs.writeFileSync(path.join(outDir, caseFile), lines.join('\n'));
             const licence = path.join(outDir, 'licenses', source);
@@ -128,8 +227,8 @@ async function main(sourcesDir: string) {
             const testCase: GroundTruthCase = {
                 file: caseFile.split(path.sep).join('/'),
                 languageId,
-                note: `${url}/blob/${commit}/${file} (licence in licenses/${source}), ${kind} inserted on line ${line + 1}.`,
-                expect: mutation.criteria.map(criterion => ({ criterion, line: line + 1 }))
+                note: `${url}/blob/${commit}/${file} (licence in licenses/${source}), ${kind} inserted on line ${reportLine + 1}.`,
+                expect: mutation.criteria.map(criterion => ({ criterion, line: reportLine + 1 }))
             };
             set.cases.push(testCase);
         }
@@ -171,7 +270,8 @@ function markupLines(languageId: string, lines: string[]): boolean[] {
 
 async function isClean(languageId: string, text: string): Promise<boolean> {
     try {
-        return (await analyse({ languageId, text })).findings.length === 0;
+        const { findings, needsReview } = await analyse({ languageId, text });
+        return findings.length === 0 && needsReview.every(entry => !entry.ruleId);
     } catch {
         return false;
     }

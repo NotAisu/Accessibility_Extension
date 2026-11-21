@@ -187,6 +187,19 @@ describe('analyse (JSX/TSX)', () => {
 
         assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('anchor-has-content')).map(f => text.slice(f.range.start, f.range.end)), ['<a href="/empty" />']);
     });
+
+    it('accepts a label whose text or control is nested deeper than two elements', async () => {
+        const text = [
+            'export const Form = () => <>',
+            '    <label><div><span>Name</span></div><input type="text" /></label>',
+            '    <label className="orphan">Orphan</label>',
+            '</>;'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'typescriptreact', text });
+
+        assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('label-has-associated-control')).map(f => text.slice(f.range.start, f.range.end)), ['<label className="orphan">']);
+    });
 });
 
 describe('analyse (Vue)', () => {
@@ -254,6 +267,21 @@ describe('analyse (Vue)', () => {
         const { findings } = await analyse({ languageId: 'vue', text });
 
         assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('label-has-for')).map(f => text.slice(f.range.start, f.range.end)), ['<label>Orphan</label>']);
+    });
+
+    it('ignores a role prop on an unmapped Vue component while still flagging invalid roles on native elements', async () => {
+        const text = [
+            '<template>',
+            '    <UChatMessage role="user" />',
+            '    <div role="bogus"></div>',
+            '</template>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(findings.filter(f => f.ruleId === 'vuejs-accessibility/aria-role').map(f => text.slice(f.range.start, f.range.end)), [
+            'role="bogus"'
+        ]);
     });
 
     it('maps each rule to its WCAG criterion, reading directives and bindings', async () => {
