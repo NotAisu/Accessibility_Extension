@@ -154,8 +154,9 @@ function attributesOf(element: SvelteNode): Map<string, string | true> {
 
 function compileComponent(text: string): { warnings: Warning[]; ast: AST.Root } {
     try {
-        // generate: false analyses the component without producing code; nothing in it runs
-        const { warnings, ast } = compile(text, { generate: false, modernAst: true }) as { warnings: Warning[]; ast: AST.Root };
+        // generate: false analyses the component without producing code; nothing in it runs.
+        // experimental.async accepts Svelte 5 async runes ($derived(await ...)) and template awaits
+        const { warnings, ast } = compile(text, { generate: false, modernAst: true, experimental: { async: true } }) as { warnings: Warning[]; ast: AST.Root };
         return { warnings, ast };
     } catch (error) {
         // Invalid components must not read as clean files; the compiler names every such error CompileError

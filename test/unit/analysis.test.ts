@@ -222,6 +222,26 @@ describe('analyse (Vue)', () => {
         ]);
     });
 
+    it('parses <script lang="tsx"> and <script lang="jsx">', async () => {
+        const tsx = [
+            '<script setup lang="tsx">',
+            'const renderIcon = (label: string) => <span>{label}</span>;',
+            '</script>',
+            '<template><img src="chart.png"></template>'
+        ].join('\n');
+        const jsx = [
+            '<script setup lang="jsx">',
+            'const renderIcon = () => <span />;',
+            '</script>',
+            '<template><img src="chart.png"></template>'
+        ].join('\n');
+
+        for (const text of [tsx, jsx]) {
+            const { findings } = await analyse({ languageId: 'vue', text });
+            assert.deepStrictEqual(findings.map(f => f.ruleId), ['vuejs-accessibility/alt-text']);
+        }
+    });
+
     it('accepts a Vue label that names its control by id or by nesting, not one that does neither', async () => {
         const text = [
             '<template>',
@@ -316,6 +336,20 @@ describe('analyse (Svelte)', () => {
 
     it('fails on unparseable code instead of reporting no Findings', async () => {
         await assert.rejects(analyse({ languageId: 'svelte', text: '<div><img src="x">{#if a}</div>' }), ParseError);
+    });
+
+    it('parses await inside $derived', async () => {
+        const text = [
+            '<script>',
+            '    let { load } = $props();',
+            '    let data = $derived(await load());',
+            '</script>',
+            '<img src={data.src}>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'svelte', text });
+
+        assert.deepStrictEqual(findings.map(f => f.ruleId), ['svelte/a11y_missing_attribute']);
     });
 
     it('maps each warning to its WCAG criterion, by element where one warning covers several', async () => {
