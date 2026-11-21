@@ -132,6 +132,7 @@ function checkTemplate(text: string, base: number, components: ComponentMapping 
         const start = toOffset(message.line, message.column);
         // Its selector's :has() also matches every ancestor of an element with the mouse event
         if (rule === 'mouse-events-have-key-events' && !facts!.boundEvents.get(start - base)?.has(/^`(\w+)`/.exec(message.message)?.[1] ?? '')) continue;
+        if (rule === 'label-has-associated-control' && labelsByReference(text, start - base)) continue;
         const end = message.endLine && message.endColumn ? toOffset(message.endLine, message.endColumn) : start;
         const docs = plugin.rules[rule]?.meta?.docs;
         findings.push({
@@ -146,6 +147,12 @@ function checkTemplate(text: string, base: number, components: ComponentMapping 
         });
     }
     return { findings, content: facts!.content };
+}
+
+// A label whose id a control in the same template names in aria-labelledby is associated with it
+function labelsByReference(text: string, labelStart: number): boolean {
+    const id = /^<label\b[^>]*?\sid="([^"]+)"/.exec(text.slice(labelStart))?.[1];
+    return id !== undefined && [...text.matchAll(/aria-labelledby="([^"]*)"/g)].some(m => m[1].split(/\s+/).includes(id));
 }
 
 interface InlineTemplate {

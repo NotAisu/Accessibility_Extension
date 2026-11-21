@@ -21,7 +21,7 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
 
     test('opening a file shows diagnostics', async () => {
         const document = await open('index.html');
-        const diagnostics = await diagnosticsOf(document.uri, found => found.some(d => code(d) === 'html-has-lang'));
+        const diagnostics = await diagnosticsOf(document.uri, found => found.some(d => code(d) === 'image-alt'));
         assert.ok(diagnostics.some(d => code(d) === 'image-alt'), messages(diagnostics));
         assert.ok(diagnostics.every(d => d.source === 'Allyproof'));
     });
@@ -32,7 +32,7 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
         const file = api.findings.getChildren().find(node => api.findings.getTreeItem(node).label === 'index.html');
         assert.ok(file, 'index.html is not in the Findings tree');
         const fileItem = api.findings.getTreeItem(file);
-        assert.match(String(fileItem.accessibilityInformation?.label), /^index\.html, \d+ Findings/);
+        assert.match(String(fileItem.accessibilityInformation?.label), /^index\.html, [1-9]\d* Findings?/);
         const labels = api.findings.getChildren(file).flatMap(node => [node, ...api.findings.getChildren(node)])
             .map(node => api.findings.getTreeItem(node).accessibilityInformation?.label ?? '');
         assert.ok(labels.some(label => /^Check Finding: Images must have alternative text, line 5$/.test(label)), labels.join('\n'));
@@ -43,10 +43,11 @@ suite(`Extension host (${trusted ? 'trusted' : 'untrusted'} workspace)`, () => {
         const document = await open('index.html');
         await diagnosticsOf(document.uri, found => found.length > 0);
         await until(() => api.findingsStatus.text !== '', 'the status bar summary never showed');
-        assert.match(String(api.findingsStatus.accessibilityInformation?.label), /^Accessibility: \d+ Findings/);
+        assert.match(String(api.findingsStatus.accessibilityInformation?.label), /^Accessibility: [1-9]\d* Findings?/);
     });
 
-    test('a quick fix can be applied', async () => {
+    // No Proven rule has a deterministic fix yet; re-enable once html-has-lang or aria-hidden-body is Proven (#86)
+    test.skip('a quick fix can be applied', async () => {
         const document = await open('fixable.html');
         const [lang] = await diagnosticsOf(document.uri, found => found.some(d => code(d) === 'html-has-lang'))
             .then(found => found.filter(d => code(d) === 'html-has-lang'));

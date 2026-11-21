@@ -11,13 +11,13 @@ import type { ComponentMapping } from '../components';
 
 // eslint-plugin-jsx-a11y-x rules whose failure maps to a WCAG 2.2 A/AA criterion, primary criterion first.
 // Best-practice rules without a WCAG failure (no-access-key, no-autofocus, no-noninteractive-tabindex,
-// no-redundant-roles, prefer-tag-over-role) are left out.
+// no-redundant-roles, prefer-tag-over-role) are left out, and so is anchor-is-valid: a link to "#" still works
+// with the keyboard, and a link without href that acts on click is reported by the interaction rules.
 // control-has-associated-label is off by default upstream: it needs options to tell controls from wrappers.
 export const RULE_CRITERIA: Record<string, string[]> = {
     'alt-text': ['1.1.1'],
     'anchor-ambiguous-text': ['2.4.4'],
     'anchor-has-content': ['2.4.4', '4.1.2'],
-    'anchor-is-valid': ['2.1.1'],
     'aria-activedescendant-has-tabindex': ['2.1.1'],
     'aria-props': ['4.1.2'],
     'aria-proptypes': ['4.1.2'],
@@ -98,6 +98,23 @@ function config(skip: Set<string>, components: ComponentMapping | undefined): Li
 
 const linter = new Linter({ configType: 'flat' });
 
+const CONTENT_RULES = new Set(['anchor-has-content', 'heading-has-content']);
+
+type AstNode = { type: string; parent?: AstNode; openingElement?: { selfClosing: boolean } };
+
+// An empty element passed as a render prop (<Item render={<a href="#" />}>Settings</Item>) gets its content from the
+// component that renders it
+function isRenderProp(source: { getNodeByRangeIndex(index: number): unknown }, offset: number): boolean {
+    let node = source.getNodeByRangeIndex(offset) as AstNode | null;
+    while (node && node.type !== 'JSXElement') node = node.parent ?? null;
+    if (!node?.openingElement?.selfClosing) return false;
+    for (let parent = node.parent; parent; parent = parent.parent) {
+        if (parent.type === 'JSXAttribute') return true;
+        if (parent.type === 'JSXElement' || parent.type === 'JSXFragment') return false;
+    }
+    return false;
+}
+
 /** Plain JSX is parsed by espree, TypeScript only for `.tsx` (`typescript: true`). */
 export function checkJsx(text: string, typescript: boolean, components?: ComponentMapping): AnalysisResult {
     const toOffset = eslintOffsetAt(text);
@@ -108,6 +125,7 @@ export function checkJsx(text: string, typescript: boolean, components?: Compone
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
+        if (CONTENT_RULES.has(rule) && isRenderProp(linter.getSourceCode(), start)) continue;
         const end = message.endLine && message.endColumn ? toOffset(message.endLine, message.endColumn) : start;
         const docs = plugin.rules[rule]?.meta?.docs;
         findings.push({

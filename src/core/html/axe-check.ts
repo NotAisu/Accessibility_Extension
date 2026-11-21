@@ -46,6 +46,25 @@ async function runAxe(text: string): Promise<AnalysisResult> {
     // A silent console: JSDOM reports unimplemented APIs (canvas) that axe-core probes
     const dom = new JSDOM(text, { includeNodeLocations: true, virtualConsole: new VirtualConsole() });
     const { document } = dom.window;
+    // jsdom 30's UA stylesheet sets `marquee { overflow: hidden !important }`. Without layout,
+    // JSDOM's 0x0 bounding rects make axe-core's is-on-screen check treat every <marquee> as clipped.
+    if (document.querySelector('marquee')) {
+        const getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
+        dom.window.getComputedStyle = (element: Element, pseudo?: string | null) => {
+            const style = getComputedStyle(element, pseudo);
+            if (element.localName !== 'marquee') return style;
+            return new Proxy(style, {
+                get(target, prop) {
+                    if (prop === 'overflow' || prop === 'overflowX' || prop === 'overflowY') return 'visible';
+                    if (prop === 'getPropertyValue') {
+                        return (name: string) => /^overflow(-[xy])?$/.test(name) ? 'visible' : target.getPropertyValue(name);
+                    }
+                    const value: unknown = Reflect.get(target, prop, target);
+                    return typeof value === 'function' ? (value as (...args: unknown[]) => unknown).bind(target) : value;
+                }
+            });
+        };
+    }
     try {
         // No timeout of its own: an unfinished axe run would overlap the next one. The analysis worker's deadline ends it
         const results = await axe.run(document.documentElement, AXE_OPTIONS);

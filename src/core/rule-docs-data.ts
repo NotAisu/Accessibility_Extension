@@ -219,14 +219,6 @@ export const ENTRIES: Entry[] = [
         act: ['5effbb'],
         example: { bad: '<a href="/pricing">Click here</a>', good: '<a href="/pricing">See pricing</a>' }
     },
-    {
-        rules: [...jsx('anchor-is-valid'), svelte('a11y_invalid_attribute')],
-        message: 'Links need a real destination; use a button for actions',
-        why: 'A link with href="#" or "javascript:" goes nowhere, is announced as a link though it acts as a button and does not react to the keys a button does.',
-        fix: 'Give the link a real URL, or use a <button> for an action.',
-        wcag: ['2.1.1'],
-        example: { bad: '<a href="#" onclick="openMenu()">Menu</a>', good: '<button type="button" onclick="openMenu()">Menu</button>' }
-    },
 
     {
         rules: [...jsx('iframe-has-title'), vue('iframe-has-title'), htmlEslint('require-frame-title'), 'frame-title'],
@@ -508,7 +500,7 @@ export const ENTRIES: Entry[] = [
         example: { bad: '<h3 role="button">Shipping</h3>', good: '<h3><button type="button">Shipping</button></h3>' }
     },
     {
-        rules: [htmlEslint('no-nested-interactive'), 'nested-interactive'],
+        rules: ['nested-interactive'],
         message: 'Interactive controls must not be nested',
         why: 'A button inside a link is hidden from screen readers or announced confusingly, and it is unclear which one a click or Enter triggers.',
         fix: 'Place the controls side by side.',

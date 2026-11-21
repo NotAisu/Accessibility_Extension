@@ -1,5 +1,6 @@
 import * as assert from 'assert';
-import { analyse, checkLanguageId, isChecked, ParseError } from '../../src/core/analysis';
+import { checkLanguageId, isChecked, ParseError } from '../../src/core/analysis';
+import { analyse } from './every-rule';
 
 const page = (body: string) => [
     '<!DOCTYPE html>',
@@ -172,6 +173,20 @@ describe('analyse (JSX/TSX)', () => {
             assert.strictEqual(text.slice(findings[0].range.start, findings[0].range.end), '<img src="x" />');
         }
     });
+
+    it('leaves an empty link passed as a render prop to the component that fills it, not an empty link child', async () => {
+        const text = [
+            'export const A = () => <>',
+            '    <Item render={<a href="/settings" />}>Settings</Item>',
+            '    <Badge render={(props) => <a {...props} href="/new" />}>New</Badge>',
+            '    <Item><a href="/empty" /></Item>',
+            '</>;'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'typescriptreact', text });
+
+        assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('anchor-has-content')).map(f => text.slice(f.range.start, f.range.end)), ['<a href="/empty" />']);
+    });
 });
 
 describe('analyse (Vue)', () => {
@@ -205,6 +220,20 @@ describe('analyse (Vue)', () => {
         assert.deepStrictEqual(findings.map(f => [f.ruleId, text.slice(f.range.start, f.range.end)]), [
             ['vuejs-accessibility/alt-text', '<img :src="props.src as string">']
         ]);
+    });
+
+    it('accepts a Vue label that names its control by id or by nesting, not one that does neither', async () => {
+        const text = [
+            '<template>',
+            '    <label for="email">Email</label><input id="email">',
+            '    <label>Name <input></label>',
+            '    <label>Orphan</label>',
+            '</template>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+
+        assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('label-has-for')).map(f => text.slice(f.range.start, f.range.end)), ['<label>Orphan</label>']);
     });
 
     it('maps each rule to its WCAG criterion, reading directives and bindings', async () => {
@@ -549,5 +578,17 @@ describe('analyse (Angular)', () => {
         const { findings } = await analyse({ languageId: 'typescript', text });
 
         assert.deepStrictEqual(findings.map(f => text.slice(f.range.start, f.range.end)), ['<img src="chart.png">']);
+    });
+
+    it('accepts a label that a control names in aria-labelledby, not an unreferenced one', async () => {
+        const text = [
+            '<label id="fruit-label">Fruit</label>',
+            '<ul role="listbox" aria-labelledby="fruit-label"><li role="option" aria-selected="true">Apple</li></ul>',
+            '<label id="loose-label">Size</label>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'angular', text });
+
+        assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('label-has-associated-control')).map(f => text.slice(f.range.start, f.range.end)), ['<label id="loose-label">Size</label>']);
     });
 });

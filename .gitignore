@@ -3,7 +3,7 @@ node_modules
 /
 test/results/
 CLAUDE.md
-docs/
+/docs/
 GLOSSARY.md
 out/
 dist/

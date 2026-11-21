@@ -13,7 +13,8 @@ export interface CheckToolInput {
 export interface CheckToolOutput {
     languageId: string;
     findings: (Pick<Finding, 'criteria' | 'ruleId' | 'severity' | 'message' | 'explanation' | 'helpUrl'> & { line: number })[];
-    needsReview: NeedsReview[];
+    /** A likely failure of an Unproven rule points at its element's line. */
+    needsReview: (NeedsReview & { line?: number })[];
 }
 
 export interface CheckToolPorts {
@@ -51,7 +52,7 @@ export async function runCheckTool(input: CheckToolInput, ports: CheckToolPorts)
             explanation: f.explanation,
             helpUrl: f.helpUrl
         })),
-        needsReview: outcome.result.needsReview
+        needsReview: outcome.result.needsReview.map(entry => entry.range ? { ...entry, line: lineOf(entry.range.start) } : entry)
     };
     return JSON.stringify(output);
 }
