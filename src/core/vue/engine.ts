@@ -94,7 +94,7 @@ function config(skip: Set<string>, components: ComponentMapping | undefined): Li
             sourceType: 'module',
             // Parser objects, not names: vue-eslint-parser would require() a name at lint time.
             // Without a lang the script and the template expressions are parsed by espree.
-            parserOptions: { parser: { ts: tsParser } }
+            parserOptions: { parser: { ts: tsParser, tsx: tsParser }, ecmaFeatures: { jsx: true } }
         },
         rules
     }];
