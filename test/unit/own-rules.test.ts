@@ -127,4 +127,69 @@ describe('own rules', () => {
             '<button style={{ width: 16, height: 16 }}>'
         ]);
     });
+
+    it('reports empty <button> elements in JSX, TSX and Astro (4.1.2)', async () => {
+        const jsx = [
+            'export const Buttons = ({ label, ...props }) => (',
+            '    <>',
+            '        <button></button>',
+            '        <button />',
+            '        <button>   </button>',
+            '        <button><span /></button>',
+            '        <button><svg aria-hidden="true"><path d="M0 0" /></svg></button>',
+            '        <button><svg><path d="M0 0" /></svg></button>',
+            '        <button>Save</button>',
+            '        <button>{label}</button>',
+            '        <button aria-label="Close" />',
+            '        <button aria-labelledby="id" />',
+            '        <button title="Help" />',
+            '        <button {...props} />',
+            '        <button aria-hidden="true" />',
+            '        <button role="presentation" />',
+            '        <button><Icon /></button>',
+            '        <button><img src="x.png" alt="Save" /></button>',
+            '        <button><svg><title>Close</title><path d="M0 0" /></svg></button>',
+            '        <button dangerouslySetInnerHTML={{ __html: "Go" }} />',
+            '        <Trigger render={<button />} />',
+            '    </>',
+            ');'
+        ].join('\n');
+
+        for (const languageId of ['javascriptreact', 'typescriptreact']) {
+            const { findings } = await analyse({ languageId, text: jsx });
+            const buttons = findings.filter(f => f.ruleId === 'allyproof/button-name');
+            assert.deepStrictEqual(buttons.map(f => slice(jsx, f.range)), [
+                '<button>',
+                '<button />',
+                '<button>',
+                '<button>',
+                '<button>',
+                '<button>'
+            ], languageId);
+            assert.deepStrictEqual(buttons[0].criteria, ['4.1.2']);
+        }
+
+        const astro = [
+            '---',
+            'const label = "Save";',
+            '---',
+            '<button></button>',
+            '<button><slot /></button>',
+            '<button set:html={label}></button>',
+            '<button>OK</button>'
+        ].join('\n');
+        const { findings } = await analyse({ languageId: 'astro', text: astro });
+        assert.deepStrictEqual(findings.filter(f => f.ruleId === 'allyproof/button-name').map(f => slice(astro, f.range)), [
+            '<button>'
+        ]);
+
+        const mapped = 'export const Page = () => <><MyButton /><MyButton>Save</MyButton></>;';
+        const { findings: mappedFindings } = await analyse(
+            { languageId: 'typescriptreact', text: mapped },
+            { components: { components: { MyButton: 'button' } } }
+        );
+        assert.deepStrictEqual(mappedFindings.filter(f => f.ruleId === 'allyproof/button-name').map(f => slice(mapped, f.range)), [
+            '<MyButton />'
+        ]);
+    });
 });

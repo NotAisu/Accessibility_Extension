@@ -66,6 +66,20 @@
         "proven": false
       }
     },
+    "allyproof/button-name": {
+      "astro": {
+        "correct": 70,
+        "wrong": 0,
+        "lowerBound": 0.958,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 4,
+        "wrong": 0,
+        "lowerBound": 0.472,
+        "proven": false
+      }
+    },
     "allyproof/text-contrast": {
       "html": {
         "correct": 4,
