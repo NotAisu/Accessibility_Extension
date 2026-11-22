@@ -423,5 +423,8 @@
     "tailwindcss": "4.3.5",
     "typescript": "5.4.5",
     "vue-eslint-parser": "10.4.2"
+  },
+  "overrides": {
+    "minimatch": "11.0.8"
   }
 }
