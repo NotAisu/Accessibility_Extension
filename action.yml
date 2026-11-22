@@ -25,16 +25,24 @@ runs:
     - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version: 24
-    # shortcut: builds the command line from this repository, switch to the npm package once it is published
-    - name: Build the command line
+    # The command line from npm at this action's version; built from the repository only when that version is not
+    # published yet (a version bump before its release)
+    - name: Install the command line
       shell: bash
       working-directory: ${{ github.action_path }}
-      run: npm ci --ignore-scripts --no-audit --no-fund && node esbuild.js --production
+      run: |
+        version=$(node -p 'require("./package.json").version')
+        if [ "$(npm view "allyproof@$version" version 2>/dev/null)" = "$version" ]; then
+          npm install --prefix "$RUNNER_TEMP/allyproof" --ignore-scripts --no-audit --no-fund "allyproof@$version"
+          echo "CLI=$RUNNER_TEMP/allyproof/node_modules/allyproof/cli.mjs" >> "$GITHUB_ENV"
+        else
+          npm ci --ignore-scripts --no-audit --no-fund && node esbuild.js --production
+          echo "CLI=$PWD/dist/cli.mjs" >> "$GITHUB_ENV"
+        fi
     - name: Check
       id: check
       shell: bash
       env:
-        CLI: ${{ github.action_path }}/dist/cli.mjs
         BASE: ${{ inputs.base }}
         PATHS: ${{ inputs.paths }}
         BASELINE: ${{ inputs.baseline }}
