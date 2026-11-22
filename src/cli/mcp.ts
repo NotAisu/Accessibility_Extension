@@ -3,16 +3,22 @@ import * as path from 'path';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
+import { documentedRules, ruleDoc } from '../core/rule-docs';
 import { workspaceLanguageId } from '../workspace-check';
+import SKILL from '../../skills/allyproof/SKILL.md';
 import { analysisWorker, checkAll, diskSource, LANGUAGES, posix, settingsOf, SEVERITY_RANK, type Source } from './check';
+import { explanation, ruleList } from './rules';
 import { ConfigError } from './settings';
 
 // `allyproof mcp` (#46): the Check as MCP tools over stdio, the third front end on the analysis core. It returns the
 // command line's JSON result, reads only files inside the working directory, writes nothing and makes no network
-// requests; the checked files and the settings are data, never executed (ADR 0002).
+// requests; the checked files and the settings are data, never executed (ADR 0002). Rule docs and the rule list are
+// those of `allyproof explain` and `allyproof rules`, and the prompt is the Skill the AI Review uses (#22).
 
 /** A request the tool refuses, reported to the agent as a tool error. */
 class Refused extends Error {}
+
+const READ_ONLY = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
 
 const CHECK_DESCRIPTION = 'Runs Allyproof\'s deterministic WCAG 2.2 AA Check and returns the JSON result of `allyproof check --format json` '
     + '(schema version 1): Findings of Proven rules with line, WCAG criteria, rule, message, help URL and exact `fix` edits where there are any, '
@@ -34,7 +40,7 @@ export async function serve(root: string, version: string): Promise<number> {
             path: z.string().optional().describe('The file the code is for; its extension gives the language and the result names it.'),
             languageId: z.enum(LANGUAGES).optional().describe('The language of code, for example html, vue or typescriptreact. Defaults to the language of path.')
         },
-        annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
+        annotations: READ_ONLY
     }, async input => {
         try {
             const output = await checkAll(sourcesOf(fs.realpathSync(root), input), settingsOf(root), undefined, SEVERITY_RANK.warning, worker);
@@ -49,6 +55,37 @@ export async function serve(root: string, version: string): Promise<number> {
             return { isError: true, content: [{ type: 'text', text: error.message }] };
         }
     });
+    server.registerTool('explain_rule', {
+        title: 'Explain an Allyproof rule',
+        description: 'The docs of a Check rule, as `allyproof explain`: what fails, the WCAG criteria and failure technique, how to fix it, '
+            + 'a failing and a passing example, and its proof status with evidence. Read it before fixing a Finding, so the fix removes the cause '
+            + 'rather than silencing the rule. Also offered as the resource allyproof://rules/<ruleId>.',
+        inputSchema: {
+            ruleId: z.string().describe('The rule id of a Finding or Needs Review entry, for example image-alt or vuejs-accessibility/alt-text.'),
+            languageId: z.enum(LANGUAGES).optional().describe('The language whose framework the examples are written in. Defaults to html.')
+        },
+        annotations: READ_ONLY
+    }, ({ ruleId, languageId }) => {
+        const text = explanation(ruleId, languageId);
+        if (text === undefined) return { isError: true, content: [{ type: 'text', text: `No rule ${ruleId}; list_rules lists them` }] };
+        return { content: [{ type: 'text', text }] };
+    });
+    server.registerTool('list_rules', {
+        title: 'List the Allyproof rules',
+        description: 'The Check\'s rules as `allyproof rules --format json`: per rule its WCAG criteria, Layer and proof status per language. '
+            + 'Only a rule Proven in a language reports Findings there; its other matches are Needs Review entries.',
+        inputSchema: {},
+        annotations: READ_ONLY
+    }, () => ({ content: [{ type: 'text', text: JSON.stringify(ruleList(), null, 2) }] }));
+    for (const ruleId of documentedRules()) {
+        const uri = `allyproof://rules/${ruleId}`;
+        server.registerResource(ruleId, uri, { title: ruleId, description: ruleDoc(ruleId)!.message, mimeType: 'text/plain' },
+            () => ({ contents: [{ uri, mimeType: 'text/plain', text: explanation(ruleId)! }] }));
+    }
+    server.registerPrompt('allyproof_review', {
+        title: 'Allyproof review',
+        description: 'The Allyproof Skill: review frontend code for WCAG 2.2 AA with the check, fix, re-check loop.'
+    }, () => ({ messages: [{ role: 'user', content: { type: 'text', text: SKILL } }] }));
     const transport = new StdioServerTransport();
     const closed = new Promise<void>(resolve => { transport.onclose = resolve; });
     await server.connect(transport);

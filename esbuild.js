@@ -216,8 +216,8 @@ async function main() {
             'vscode-css-languageservice': 'vscode-css-languageservice/lib/esm/cssLanguageService.js',
             '@astrojs/compiler-binding': astroWasiBinding()
         },
-        // The Astro compiler's WASM module, inlined into the Astro chunk
-        loader: { '.wasm': 'binary' },
+        // The Astro compiler's WASM module, inlined into the Astro chunk; the Skill, inlined into the MCP server's prompt
+        loader: { '.wasm': 'binary', '.md': 'text' },
         metafile: true,
         minify: production,
         sourcemap: !production,
