@@ -4,6 +4,8 @@
  *   npm run test:gate                 compare with baseline/<languageId>.json
  *   npm run test:gate -- --update     store the current scores as the new baselines
  *   npm run test:gate -- --bundle <dir>  measure the analysis bundle in <dir>/dist instead of the source
+ *   npm run test:gate -- --mcp <cli.mjs>  measure every case through `allyproof mcp` of that command line, with the
+ *                                         check tool's `code`, and fail when any score differs from the source's
  *
  * It also computes which rules are Proven rules from the evidence sets and fails when that differs from the
  * committed proof status (src/core/proof-status.json), which --update rewrites with the baselines.
@@ -15,10 +17,14 @@
  */
 import '../esm-only-packages';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { AnalysisWorker } from '../../src/analysis-worker';
 import * as source from '../../src/core/analysis';
-import type { NeedsReview, TextRange } from '../../src/core/analysis';
+import type { Finding, NeedsReview, TextRange } from '../../src/core/analysis';
+import type { CheckOutput, Location } from '../../src/cli/output';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
 import { Judged, ProofStatus, addJudged, judgeMatches, proofChanges, proofStatus } from './proof';
 
@@ -33,7 +39,11 @@ const BASELINES = path.join(__dirname, 'baseline');
 
 type Scores = Record<string, { precision: number | null; recall: number | null } & Tally>;
 
-type Analyse = typeof source.analyse;
+// What the gate reads of a result: where each Finding and Needs Review entry is, its rule and its criteria
+type Analyse = (document: { languageId: string; text: string }) => Promise<{
+    findings: Pick<Finding, 'ruleId' | 'range' | 'criteria'>[];
+    needsReview: NeedsReview[];
+}>;
 
 interface Measured {
     scoresByLanguage: Map<string, Scores>;
@@ -149,7 +159,71 @@ function loadAnalyse(): Analyse {
     };
 }
 
+// The packaged MCP server, run as an MCP client runs it: every case as proposed code, with its language
+async function connectServer(cli: string): Promise<{ analyse: Analyse; close: () => Promise<void> }> {
+    console.log(`Measuring allyproof mcp of ${cli}`);
+    // An empty project, so no settings of this repository apply
+    const project = fs.mkdtempSync(path.join(os.tmpdir(), 'allyproof-gate-'));
+    const client = new Client({ name: 'allyproof-gate', version: '1.0.0' });
+    await client.connect(new StdioClientTransport({ command: process.execPath, args: [cli, 'mcp'], cwd: project, stderr: 'inherit' }));
+    const range = (location: Location): TextRange => ({ start: location.start.offset, end: location.end.offset });
+    const analyse: Analyse = async ({ languageId, text }) => {
+        const result = await client.callTool({ name: 'check', arguments: { code: text, languageId } }) as { isError?: boolean; content: { text: string }[] };
+        if (result.isError) throw new Error(`allyproof mcp did not check a ${languageId} case: ${result.content.map(c => c.text).join('\n')}`);
+        const output = JSON.parse(result.content[0].text) as CheckOutput;
+        // A file the Check does not analyse (TypeScript without a component) has no entry, like an empty result
+        const file = output.files[0] ?? { findings: [], needsReview: [] };
+        return {
+            findings: file.findings.map(f => ({ ruleId: f.ruleId, criteria: f.criteria, range: range(f.range) })),
+            needsReview: file.needsReview.map(e => ({ criterion: e.criterion, reason: e.reason, ...e.ruleId ? { ruleId: e.ruleId } : {}, ...e.range ? { range: range(e.range) } : {} }))
+        };
+    };
+    return {
+        analyse,
+        close: async () => {
+            await client.close();
+            fs.rmSync(project, { recursive: true, force: true });
+        }
+    };
+}
+
+// Every score and the proof status through the server, which must equal the source's exactly
+async function mainServer(cli: string): Promise<void> {
+    const server = await connectServer(path.resolve(cli));
+    let viaServer: Measured;
+    try {
+        viaServer = await measure(server.analyse, new Set());
+    } finally {
+        await server.close();
+    }
+    const fromSource = await measure(source.analyse, new Set());
+    const problems: string[] = [];
+    const languages = new Set([...fromSource.scoresByLanguage.keys(), ...viaServer.scoresByLanguage.keys()]);
+    for (const languageId of [...languages].sort()) {
+        const want = fromSource.scoresByLanguage.get(languageId) ?? {};
+        const got = viaServer.scoresByLanguage.get(languageId) ?? {};
+        for (const criterion of [...new Set([...Object.keys(want), ...Object.keys(got)])].sort(byCriterion)) {
+            const [w, g] = [want[criterion], got[criterion]];
+            if (JSON.stringify(w) !== JSON.stringify(g)) {
+                const show = (s: Scores[string] | undefined) => s ? `precision ${format(s.precision)} recall ${format(s.recall)} tp ${s.tp} fp ${s.fp} fn ${s.fn}` : 'not measured';
+                problems.push(`${languageId} ${criterion}: ${show(g)} through the server, ${show(w)} from source`);
+            }
+        }
+    }
+    if (JSON.stringify(viaServer.proof) !== JSON.stringify(fromSource.proof)) {
+        problems.push(...proofChanges(fromSource.proof, viaServer.proof).map(change => `proof status through the server: ${change}`));
+        if (problems.length === 0) problems.push('proof status through the server differs from source');
+    }
+    if (problems.length > 0) {
+        console.error(`\nThe MCP server scores differently from the source:\n  ${problems.join('\n  ')}`);
+        process.exit(1);
+    }
+    console.log(`\nEvery score through allyproof mcp equals the source's (${languages.size} languages).`);
+}
+
 async function main() {
+    const mcp = process.argv.indexOf('--mcp');
+    if (mcp !== -1) return mainServer(process.argv[mcp + 1]);
     const silent = new Set<string>();
     const { scoresByLanguage, proof } = await measure(loadAnalyse(), silent);
     const update = process.argv.includes('--update');

@@ -20,7 +20,8 @@ jobs:
       # Shipped dependencies only: a high or critical advisory fails CI, unless scripts/audit.ts allows it until a date
       - run: npm run audit
       # Lint, typecheck, unit tests, then the gate on source and on the unpacked VSIX: fails when Check precision or recall
-      # of any WCAG criterion drops below the stored baseline of its language. Bundling also writes THIRD-PARTY-NOTICES
+      # of any WCAG criterion drops below the stored baseline of its language, or when any score through the MCP server
+      # of the unpacked npm package differs from the source's. Bundling also writes THIRD-PARTY-NOTICES
       # and fails on a bundled license outside the allowlist
       - run: npm run verify
       # Extension-host smoke tests: the packaged VSIX in the lowest supported VS Code, in a trusted and an untrusted
