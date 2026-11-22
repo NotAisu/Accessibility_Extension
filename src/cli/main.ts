@@ -1,4 +1,3 @@
-import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parseArgs } from 'util';
@@ -6,7 +5,7 @@ import { proofOf, type Severity } from '../core/analysis';
 import { documentedRules, frameworkOf, ruleDoc } from '../core/rule-docs';
 import { workspaceLanguageId } from '../workspace-check';
 import { baselineOf, parseBaseline, type Baseline } from './baseline';
-import { checkAll, diskSource, elementAt, LANGUAGES, posix, settingsOf, SEVERITY_RANK, type Source } from './check';
+import { checkAll, diskSource, elementAt, git, isRepository, LANGUAGES, posix, settingsOf, SEVERITY_RANK, treeFiles, type Source } from './check';
 import { serve } from './mcp';
 import { SCHEMA_VERSION, sarif, text } from './output';
 import { ConfigError } from './settings';
@@ -84,10 +83,6 @@ async function main(argv: string[]): Promise<number> {
     return output.summary.failedFiles ? EXIT.unchecked : output.summary.blocking ? EXIT.blocking : EXIT.clean;
 }
 
-function git(root: string, args: string[]): string {
-    return execFileSync('git', ['-C', root, ...args], { encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
-}
-
 function repositoryRoot(): string {
     try {
         return git(process.cwd(), ['rev-parse', '--show-toplevel']).trim();
@@ -95,8 +90,6 @@ function repositoryRoot(): string {
         return process.cwd();
     }
 }
-
-const isRepository = (root: string) => fs.existsSync(path.join(root, '.git'));
 
 function readBaseline(file: string): Baseline {
     try {
@@ -106,25 +99,12 @@ function readBaseline(file: string): Baseline {
     }
 }
 
-// The files Git does not ignore, or every file outside node_modules in a folder that is not a repository
 function treeSources(root: string, paths: string[]): Source[] {
     const prefixes = paths.map(p => posix(path.relative(root, path.resolve(p))));
-    const inside = (file: string) => prefixes.some(prefix => prefix === '' || file === prefix || file.startsWith(`${prefix}/`));
-    const files = isRepository(root)
-        ? git(root, ['ls-files', '--cached', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean)
-        : walk(root, '');
     for (const prefix of prefixes) {
         if (prefix.startsWith('..') || !fs.existsSync(path.join(root, prefix))) throw new UsageError(`${prefix || '.'} is not in ${root}`);
     }
-    return files.filter(file => inside(file) && workspaceLanguageId(file) && fs.existsSync(path.join(root, file))).sort().map(file => diskSource(root, file));
-}
-
-function walk(root: string, dir: string): string[] {
-    return fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap(entry => {
-        const file = dir ? `${dir}/${entry.name}` : entry.name;
-        if (entry.name === 'node_modules' || entry.name.startsWith('.')) return [];
-        return entry.isDirectory() ? walk(root, file) : [file];
-    });
+    return treeFiles(root, prefixes).map(file => diskSource(root, file));
 }
 
 // What is about to be committed: the staged content from the index, not the working copy
