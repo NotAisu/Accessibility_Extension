@@ -24,6 +24,7 @@ fs.writeFileSync(path.join(out, 'README.md'), [
     'npx allyproof check            # the repository',
     'npx allyproof check --staged   # what is about to be committed',
     'npx allyproof explain image-alt',
+    'npx allyproof mcp              # an MCP server over stdio with the check tool, for coding agents',
     '```',
     '',
     'Run `npx allyproof --help` for every option and exit code. The JSON output follows `schema/check-result.v1.json`.',

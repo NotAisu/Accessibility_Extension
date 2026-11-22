@@ -2,20 +2,20 @@ import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parseArgs } from 'util';
-import { AnalysisWorker } from '../analysis-worker';
-import { checkLanguageId, isChecked, proofOf, type AnalysisOptions, type Severity } from '../core/analysis';
+import { proofOf, type Severity } from '../core/analysis';
 import { documentedRules, frameworkOf, ruleDoc } from '../core/rule-docs';
 import { workspaceLanguageId } from '../workspace-check';
-import { baselineOf, elementOf, matchBaseline, parseBaseline, type Baseline } from './baseline';
-import { fileOutput, SCHEMA_VERSION, sarif, text, type CheckOutput, type FileOutput } from './output';
-import { ConfigError, optionsFromSettings } from './settings';
+import { baselineOf, parseBaseline, type Baseline } from './baseline';
+import { checkAll, diskSource, elementAt, LANGUAGES, posix, settingsOf, SEVERITY_RANK, type Source } from './check';
+import { serve } from './mcp';
+import { SCHEMA_VERSION, sarif, text } from './output';
+import { ConfigError } from './settings';
 import manifest from '../../package.json';
 
 // The command line (#79): the Check of the editor as a second front end on the analysis core. No AI, no network,
 // and the checked project is data, never executed.
 
 const EXIT = { clean: 0, blocking: 1, usage: 2, unchecked: 3 } as const;
-const SEVERITY_RANK: Record<Severity, number> = { information: 1, warning: 2, error: 3 };
 const DEFAULT_BASELINE = '.allyproof-baseline.json';
 const VERSION = manifest.version;
 
@@ -25,17 +25,12 @@ const USAGE = `Usage:
   allyproof baseline [paths…] [--baseline <file>]
   allyproof explain <rule id> [--language <language id>]
   allyproof rules [--format text|json]
+  allyproof mcp     an MCP server over stdio with the check tool, for coding agents
 
 Exit codes: 0 no blocking Findings, 1 blocking Findings, 2 usage or configuration error, 3 a file could not be checked.
 `;
 
 class UsageError extends Error {}
-
-interface Source {
-    /** Repository-relative path with forward slashes. */
-    file: string;
-    read(): string;
-}
 
 async function main(argv: string[]): Promise<number> {
     const { values, positionals } = parseArgs({
@@ -60,6 +55,7 @@ async function main(argv: string[]): Promise<number> {
     }
     if (command === 'explain') return explain(args[0], values.language);
     if (command === 'rules') return rules(values.format);
+    if (command === 'mcp') return serve(process.cwd(), VERSION);
     if (command !== 'check' && command !== 'baseline') throw new UsageError(`Unknown command ${command}`);
     if (!['text', 'json', 'sarif'].includes(values.format)) throw new UsageError(`--format is text, json or sarif, not ${values.format}`);
     if (!(values['fail-on'] in SEVERITY_RANK)) throw new UsageError(`--fail-on is error, warning or information, not ${values['fail-on']}`);
@@ -88,50 +84,6 @@ async function main(argv: string[]): Promise<number> {
     return output.summary.failedFiles ? EXIT.unchecked : output.summary.blocking ? EXIT.blocking : EXIT.clean;
 }
 
-async function checkAll(sources: Source[], options: AnalysisOptions, baseline: Baseline | undefined, failOn: number): Promise<CheckOutput> {
-    // The worker next to this script; it holds the engines, so a crash or a runaway engine never takes the run with it
-    const worker = new AnalysisWorker(path.join(path.dirname(fs.realpathSync(process.argv[1])), 'worker.mjs'));
-    const files: FileOutput[] = [];
-    try {
-        for (const source of sources) {
-            const languageId = checkLanguageId(workspaceLanguageId(source.file) ?? '', source.file);
-            const content = source.read();
-            const document = { languageId, text: content };
-            if (!isChecked(document)) continue;
-            const outcome = await worker.check(source.file, document, options, { background: true });
-            if (outcome.status !== 'done') {
-                files.push({ file: source.file, languageId, status: 'failed', error: outcome.status === 'paused' ? outcome.reason : 'dropped', findings: [], needsReview: [] });
-                continue;
-            }
-            const elements = outcome.result.findings.map(f => ({ ruleId: f.ruleId, file: source.file, element: elementOf(content, f) }));
-            const baselined = baseline ? matchBaseline(baseline, elements, new Set()).baselined : elements.map(() => false);
-            files.push(fileOutput(source.file, languageId, content, outcome.result, baselined));
-        }
-    } finally {
-        worker.dispose();
-    }
-    const findings = files.flatMap(file => file.findings);
-    const elements = files.flatMap(file => file.findings.map(f => ({ ruleId: f.ruleId, file: file.file, element: elementAt(sources, file.file, f.range.start.offset) })));
-    return {
-        schemaVersion: SCHEMA_VERSION,
-        files,
-        summary: {
-            files: files.length,
-            failedFiles: files.filter(file => file.status === 'failed').length,
-            findings: findings.length,
-            blocking: findings.filter(f => !f.baselined && SEVERITY_RANK[f.severity] >= failOn).length,
-            baselined: findings.filter(f => f.baselined).length,
-            fixedSinceBaseline: baseline ? matchBaseline(baseline, elements, new Set(files.map(file => file.file))).fixed : 0,
-            needsReview: files.reduce((sum, file) => sum + file.needsReview.length, 0)
-        }
-    };
-}
-
-function elementAt(sources: Source[], file: string, offset: number): string {
-    const content = sources.find(source => source.file === file)!.read();
-    return elementOf(content, { range: { start: offset, end: offset } });
-}
-
 function git(root: string, args: string[]): string {
     return execFileSync('git', ['-C', root, ...args], { encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
 }
@@ -145,12 +97,6 @@ function repositoryRoot(): string {
 }
 
 const isRepository = (root: string) => fs.existsSync(path.join(root, '.git'));
-const posix = (file: string) => file.split(path.sep).join('/');
-
-function settingsOf(root: string): AnalysisOptions {
-    const file = path.join(root, '.vscode', 'settings.json');
-    return fs.existsSync(file) ? optionsFromSettings(fs.readFileSync(file, 'utf-8'), posix(path.relative(process.cwd(), file)) || file) : {};
-}
 
 function readBaseline(file: string): Baseline {
     try {
@@ -158,12 +104,6 @@ function readBaseline(file: string): Baseline {
     } catch (error) {
         throw new ConfigError(`The baseline ${file} cannot be read: ${(error as Error).message}`);
     }
-}
-
-// Read lazily and once: a file is read when it is checked
-function diskSource(root: string, file: string): Source {
-    let content: string | undefined;
-    return { file, read: () => content ??= fs.readFileSync(path.join(root, file), 'utf-8') };
 }
 
 // The files Git does not ignore, or every file outside node_modules in a folder that is not a repository
@@ -246,8 +186,6 @@ function proofLine(ruleId: string): string {
     if (languages.length === 0) return 'no evidence yet, so its matches are listed as Needs Review';
     return languages.map(({ languageId, proof }) => `${languageId} ${proof.proven ? 'Proven' : 'Unproven'} (${proof.correct} of ${proof.correct + proof.wrong} correct, precision at least ${(proof.lowerBound * 100).toFixed(1)} %)`).join('; ');
 }
-
-const LANGUAGES = ['html', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro', 'angular', 'typescript'];
 
 function proofsOf(ruleId: string) {
     return LANGUAGES.flatMap(languageId => {
