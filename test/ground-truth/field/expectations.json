@@ -5045,6 +5045,102 @@
           "present": false
         }
       ]
+    },
+    {
+      "file": "mui_material-ui/docs/src/pages/premium-themes/onepirate/modules/views/ProductHero.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/mui/material-ui/blob/422ac96720b78e518581095b6806d958003fdb3f/docs/src/pages/premium-themes/onepirate/modules/views/ProductHero.tsx (licence in mui_material-ui/LICENSE). Line 18 is the only native image. It preloads a decorative background and has display:none, so ACT 23a2a8 is inapplicable. Label confirmed independently.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "reactstrap_reactstrap/stories/examples/Clearfix.jsx",
+      "languageId": "javascriptreact",
+      "note": "https://github.com/reactstrap/reactstrap/blob/090bc1eeb19bcc269970151d330c6bc03f731635/stories/examples/Clearfix.js (licence in reactstrap_reactstrap/LICENSE). Both buttons (lines 6 and 9) have literal visible names, per ACT 97a4e1. The .jsx suffix records how to parse the original JS. Label confirmed independently.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "skeletonlabs_skeleton/sites/skeleton.dev/src/components/ui/code.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/skeletonlabs/skeleton/blob/38f596fabb0b529ae0f7781c7212c00fd4435fc4/sites/skeleton.dev/src/components/ui/code.svelte (licence in skeletonlabs_skeleton/LICENSE). The copy button at line 57 has a visible name in both branches (Copied or Copy code), per ACT 97a4e1. Label confirmed independently.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "withastro_astro/examples/portfolio/src/pages/about.astro",
+      "languageId": "astro",
+      "note": "https://github.com/withastro/astro/blob/c302892e4a2434fb4d8e66702576f5406e63d986/examples/portfolio/src/pages/about.astro (licence in withastro_astro/LICENSE). The only native image, at line 14, has descriptive alternative text at line 18, per ACT 23a2a8. Label confirmed independently.",
+      "expect": [
+        {
+          "criterion": "1.1.1",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "withastro_astro/examples/advanced-routing/src/pages/login.astro",
+      "languageId": "astro",
+      "note": "https://github.com/withastro/astro/blob/c302892e4a2434fb4d8e66702576f5406e63d986/examples/advanced-routing/src/pages/login.astro (licence in withastro_astro/LICENSE). The email and password inputs have associated labels (lines 22 and 32, H44), and the submit button at line 35 has the visible name Sign in (ACT 97a4e1). Label confirmed independently.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "GoogleChrome_samples/autocapitalize/index.html",
+      "languageId": "html",
+      "note": "https://github.com/GoogleChrome/samples/blob/228e6e56581105bb55cab0d9ff6212d408ccc7dd/autocapitalize/index.html (licence in GoogleChrome_samples/LICENSE). The three rendered textboxes have nearby text but no associated label. The shared HTML snippet includes the markup without adding names. ACT e086e5, label confirmed independently.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 45
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 52
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 59
+        }
+      ]
+    },
+    {
+      "file": "GoogleChrome_samples/cut-and-copy/index.html",
+      "languageId": "html",
+      "note": "https://github.com/GoogleChrome/samples/blob/228e6e56581105bb55cab0d9ff6212d408ccc7dd/cut-and-copy/index.html (licence in GoogleChrome_samples/LICENSE). The textarea has text as its value and no accessible name. The demo script only selects and cuts the value. ACT e086e5, label confirmed independently.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "file": "GoogleChrome_samples/fetch-api/fetch-post.html",
+      "languageId": "html",
+      "note": "https://github.com/GoogleChrome/samples/blob/228e6e56581105bb55cab0d9ff6212d408ccc7dd/fetch-api/fetch-post.html (licence in GoogleChrome_samples/LICENSE). The textarea has no associated label or accessible name. The demo script reads its value and handles button clicks. ACT e086e5, label confirmed independently.",
+      "expect": [
+        {
+          "criterion": "4.1.2",
+          "line": 10
+        }
+      ]
     }
   ]
 }

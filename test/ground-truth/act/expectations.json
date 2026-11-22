@@ -2268,61 +2268,6 @@
       ]
     },
     {
-      "file": "cases/ucwvc8-inapplicable-2.html",
-      "languageId": "html",
-      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 2",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/ucwvc8-inapplicable-3.html",
-      "languageId": "html",
-      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 3",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/ucwvc8-inapplicable-4.html",
-      "languageId": "html",
-      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 4",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/ucwvc8-inapplicable-5.html",
-      "languageId": "html",
-      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 5",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
-      "file": "cases/ucwvc8-inapplicable-6.html",
-      "languageId": "html",
-      "note": "ACT rule ucwvc8 \"HTML page language subtag matches default language\", inapplicable example 6",
-      "expect": [
-        {
-          "criterion": "3.1.1",
-          "present": false
-        }
-      ]
-    },
-    {
       "file": "cases/bf051a-passed-1.html",
       "languageId": "html",
       "note": "ACT rule bf051a \"HTML page lang attribute has valid language tag\", passed example 1",

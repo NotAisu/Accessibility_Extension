@@ -3,7 +3,7 @@ import jsxA11y from 'eslint-plugin-jsx-a11y-x';
 import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
-import { emptyButtons, hasSpread, renderedJsxContent } from './jsx-ast';
+import { hasSpread, isHiddenAt, renderedJsxContent, unnamedMarkup, type JsxSource } from './jsx-ast';
 import { buttonNameFinding, withOwnRules } from '../own-rules';
 import type { ComponentMapping } from '../components';
 
@@ -55,7 +55,7 @@ const plugin = jsxA11y as unknown as {
 };
 
 // label-has-associated-control's default depth of 2 misses labels whose text or control sits inside a wrapper element
-const SPELLED_OUT_DEFAULTS: Record<string, unknown[]> = {
+const RULE_OVERRIDES: Record<string, unknown[]> = {
     'label-has-associated-control': [{ assert: 'either', depth: 25 }]
 };
 
@@ -63,7 +63,7 @@ const SPELLED_OUT_DEFAULTS: Record<string, unknown[]> = {
 // run with their default options
 export const RULE_OPTIONS: Record<string, unknown[]> = Object.fromEntries(Object.keys(RULE_CRITERIA).map(rule => {
     const entry = plugin.configs.recommended.rules[PREFIX + rule];
-    return [rule, SPELLED_OUT_DEFAULTS[rule] ?? (Array.isArray(entry) ? entry.slice(1) : [])];
+    return [rule, RULE_OVERRIDES[rule] ?? (Array.isArray(entry) ? entry.slice(1) : [])];
 }));
 
 /** The plugin's own settings for Component Mapping, read by every rule through its element type. */
@@ -115,6 +115,33 @@ function isRenderProp(source: { getNodeByRangeIndex(index: number): unknown }, o
     return false;
 }
 
+export function addMarkupFindings(findings: Finding[], source: JsxSource, prefix: string, components?: ComponentMapping): void {
+    const { buttons, labels, links } = unnamedMarkup(source, components);
+    for (const range of buttons) findings.push(buttonNameFinding(range));
+    const missingNames = [
+        { rule: 'label-has-associated-control', ranges: labels, message: 'A form label must have accessible text.' },
+        { rule: 'anchor-has-content', ranges: links, message: 'A link must have accessible text.' }
+    ];
+    // Upstream accepts some markup that renders no accessible text, including whitespace-only links.
+    for (const { rule, ranges, message } of missingNames) {
+        const ruleId = prefix + rule;
+        const reported = new Set(findings.filter(finding => finding.ruleId === ruleId).map(finding => finding.range.start));
+        for (const range of ranges) {
+            if (reported.has(range.start)) continue;
+            findings.push({
+                range,
+                criteria: RULE_CRITERIA[rule],
+                ruleId,
+                layer: 'check',
+                severity: 'warning',
+                message,
+                explanation: 'Provide a name that is available to assistive technology.',
+                helpUrl: `https://github.com/es-tooling/eslint-plugin-jsx-a11y-x/tree/HEAD/docs/rules/${rule}.md`
+            });
+        }
+    }
+}
+
 /** Plain JSX is parsed by espree, TypeScript only for `.tsx` (`typescript: true`). */
 export function checkJsx(text: string, typescript: boolean, components?: ComponentMapping): AnalysisResult {
     const toOffset = eslintOffsetAt(text);
@@ -126,6 +153,7 @@ export function checkJsx(text: string, typescript: boolean, components?: Compone
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
         if (CONTENT_RULES.has(rule) && isRenderProp(linter.getSourceCode(), start)) continue;
+        if ((rule === 'alt-text' || rule === 'anchor-has-content') && isHiddenAt(linter.getSourceCode(), start)) continue;
         const end = message.endLine && message.endColumn ? toOffset(message.endLine, message.endColumn) : start;
         const docs = plugin.rules[rule]?.meta?.docs;
         findings.push({
@@ -140,7 +168,7 @@ export function checkJsx(text: string, typescript: boolean, components?: Compone
         });
     }
     const source = linter.getSourceCode();
-    for (const range of emptyButtons(source, components)) findings.push(buttonNameFinding(range));
+    addMarkupFindings(findings, source, PREFIX, components);
     // Spread attributes can set the class or style
     return withOwnRules(findings, renderedJsxContent(source, { textParents: ['JSXElement', 'JSXFragment'], bindsStyle: hasSpread, components }));
 }

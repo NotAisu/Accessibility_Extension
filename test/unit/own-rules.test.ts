@@ -146,6 +146,14 @@ describe('own rules', () => {
             '        <button {...props} />',
             '        <button aria-hidden="true" />',
             '        <button role="presentation" />',
+            '        <button hidden />',
+            '        <div hidden><button /></div>',
+            '        <button style={{ display: "none" }} />',
+            '        <label>Save <button /></label>',
+            '        <button id="submit" /><label htmlFor="submit">Submit</label>',
+            '        <button hidden={false} />',
+            '        <button>{true}</button>',
+            '        <button><my-icon /></button>',
             '        <button><Icon /></button>',
             '        <button><img src="x.png" alt="Save" /></button>',
             '        <button><svg><title>Close</title><path d="M0 0" /></svg></button>',
@@ -156,7 +164,7 @@ describe('own rules', () => {
         ].join('\n');
 
         for (const languageId of ['javascriptreact', 'typescriptreact']) {
-            const { findings } = await analyse({ languageId, text: jsx });
+            const { findings } = await analyse({ languageId, text: jsx }, { proven: () => true });
             const buttons = findings.filter(f => f.ruleId === 'allyproof/button-name');
             assert.deepStrictEqual(buttons.map(f => slice(jsx, f.range)), [
                 '<button>',
@@ -164,6 +172,9 @@ describe('own rules', () => {
                 '<button>',
                 '<button>',
                 '<button>',
+                '<button>',
+                '<button role="presentation" />',
+                '<button hidden={false} />',
                 '<button>'
             ], languageId);
             assert.deepStrictEqual(buttons[0].criteria, ['4.1.2']);
@@ -176,6 +187,10 @@ describe('own rules', () => {
             '<button></button>',
             '<button><slot /></button>',
             '<button set:html={label}></button>',
+            '<button hidden />',
+            '<button style="display: none;" />',
+            '<div hidden><button /></div>',
+            '<label for="save">Save</label><button id="save"></button>',
             '<button>OK</button>'
         ].join('\n');
         const { findings } = await analyse({ languageId: 'astro', text: astro });

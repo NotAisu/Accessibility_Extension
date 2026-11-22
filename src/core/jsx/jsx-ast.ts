@@ -1,6 +1,7 @@
 import type { TextRange } from '../analysis';
 import { addText, type RenderedContent, type SourceElement } from '../needs-review';
 import { mappedElement, type ComponentMapping } from '../components';
+import { inlineDisplayNone, inlineVisibilityHidden } from '../inline-visibility';
 
 // What the JSX and Astro engines read from a JSX syntax tree, which both parsers produce for the markup
 
@@ -125,34 +126,80 @@ export function rendersElements(node: unknown): boolean {
         && (Array.isArray(value) ? value.some(rendersElements) : typeof value === 'object' && rendersElements(value)));
 }
 
-/** Start-tag ranges of `<button>` elements (and components mapped to `button`) with no accessible name. */
-export function emptyButtons(source: JsxSource, components?: ComponentMapping): TextRange[] {
-    const ranges: TextRange[] = [];
-    const visit = (node: JsxNode, inAttribute: boolean) => {
+interface MarkupElement {
+    node: JsxNode;
+    opening: JsxNode;
+    attributes: Map<string, string | true>;
+    tag: string;
+    hidden: boolean;
+    inAttribute: boolean;
+    scope: JsxNode;
+    parentLabel?: MarkupElement;
+}
+
+/** Findings the shared JSX and Astro trees can decide from the markup. */
+export function unnamedMarkup(source: JsxSource, components?: ComponentMapping): { buttons: TextRange[]; labels: TextRange[]; links: TextRange[] } {
+    const elements: MarkupElement[] = [];
+    const labelsByScope = new Map<JsxNode, Set<string>>();
+    const visit = (node: JsxNode, scope: JsxNode, inAttribute: boolean, hidden: boolean, visibilityHidden: boolean, parentLabel?: MarkupElement) => {
+        if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') scope = node;
         if (node.type === 'JSXElement') {
             const opening = node.openingElement as JsxNode;
             const written = tagName(opening);
             const attributes = attributesOf(opening);
             const tag = mappedElement(written, name => attributes.get(name.toLowerCase()), components) ?? written;
-            const renderProp = inAttribute && Boolean(opening.selfClosing);
-            if (tag === 'button' && !renderProp && !isNamedElement(opening, attributes) && !hasNamedChildren(node)) {
-                const [start, end] = opening.range as [number, number];
-                ranges.push({ start, end });
+            hidden ||= hidesElement(opening, attributes);
+            visibilityHidden = inlineVisibilityHidden(attributes.get('style')) ?? visibilityHidden;
+            const element = { node, opening, attributes, tag, hidden: hidden || visibilityHidden, inAttribute, scope, parentLabel };
+            if (tag === 'button' || tag === 'label' || tag === 'a' && typeof attributes.get('href') === 'string') elements.push(element);
+            if (tag === 'label') {
+                parentLabel = element;
+                const target = attributes.get('htmlfor') ?? attributes.get('for');
+                if (!inAttribute && typeof target === 'string' && target && couldNameElement(element)) {
+                    if (!labelsByScope.has(scope)) labelsByScope.set(scope, new Set());
+                    labelsByScope.get(scope)!.add(target);
+                }
             }
             inAttribute = false;
         } else if (node.type === 'JSXFragment') {
             inAttribute = false;
         } else if (node.type === 'JSXAttribute') {
             inAttribute = true;
+            hidden = false;
+            visibilityHidden = false;
+            parentLabel = undefined;
         }
         for (const key of source.visitorKeys[node.type] ?? []) {
             for (const child of [node[key]].flat()) {
-                if (child && typeof (child as JsxNode).type === 'string') visit(child as JsxNode, inAttribute);
+                if (child && typeof (child as JsxNode).type === 'string') visit(child as JsxNode, scope, inAttribute, hidden, visibilityHidden, parentLabel);
             }
         }
     };
-    visit(source.ast as JsxNode, false);
-    return ranges;
+    const root = source.ast as JsxNode;
+    visit(root, root, false, false, false);
+
+    const buttons: TextRange[] = [];
+    const labels: TextRange[] = [];
+    const links: TextRange[] = [];
+    for (const element of elements) {
+        const { opening, tag, attributes, hidden, inAttribute, parentLabel } = element;
+        if (hidden || inAttribute && opening.selfClosing || couldNameElement(element)) continue;
+        const [start, end] = opening.range as [number, number];
+        if (tag === 'label') {
+            labels.push({ start, end });
+            continue;
+        }
+        if (tag === 'a') {
+            links.push({ start, end });
+            continue;
+        }
+        const id = attributes.get('id');
+        const labelFor = parentLabel?.attributes.get('htmlfor') ?? parentLabel?.attributes.get('for');
+        if (typeof id === 'string' && labelsByScope.get(element.scope)?.has(id)
+            || parentLabel && (labelFor === undefined || labelFor === true || labelFor === id) && couldNameElement(parentLabel)) continue;
+        buttons.push({ start, end });
+    }
+    return { buttons, labels, links };
 }
 
 const NAME_ATTRS = ['aria-label', 'aria-labelledby', 'title', 'dangerouslysetinnerhtml', 'children'];
@@ -171,47 +218,71 @@ function hasSetContentDirective(opening: JsxNode): boolean {
     });
 }
 
-function isHiddenOrPresentational(attributes: Map<string, string | true>): boolean {
+function hidesElement(opening: JsxNode, attributes: Map<string, string | true>): boolean {
     const hidden = attributes.get('aria-hidden');
-    if (hidden === true || (typeof hidden === 'string' && hidden.trim().toLowerCase() === 'true')) return true;
-    const role = attributes.get('role');
-    return role === true || (typeof role === 'string' && ['presentation', 'none'].includes(role.trim().toLowerCase()));
+    const style = attributes.get('style');
+    if (typeof hidden === 'string' && hidden.trim().toLowerCase() === 'true'
+        || inlineDisplayNone(style)) return true;
+    return (opening.attributes as JsxNode[]).some(attribute => {
+        const name = (attribute.name as JsxNode | undefined)?.name;
+        const value = attribute.value as JsxNode | null | undefined;
+        const expression = value?.type === 'JSXExpressionContainer' ? value.expression as JsxNode : undefined;
+        if (name === 'aria-hidden') return expression?.type === 'Literal' && expression.value === true;
+        return (name === 'hidden' || name === 'inert') && (value === null || value?.type === 'Literal'
+            || expression?.type === 'Literal' && Boolean(expression.value));
+    });
 }
 
-function isNamedElement(opening: JsxNode, attributes: Map<string, string | true>): boolean {
-    return hasSpread(opening) || isHiddenOrPresentational(attributes)
+/** Whether the reported JSX element or a containing element is statically hidden. */
+export function isHiddenAt(source: { getNodeByRangeIndex(index: number): unknown }, offset: number): boolean {
+    let visibilityHidden: boolean | undefined;
+    for (let node = source.getNodeByRangeIndex(offset) as JsxNode | null; node; node = (node.parent as JsxNode | undefined) ?? null) {
+        if (node.type === 'JSXElement') {
+            const opening = node.openingElement as JsxNode;
+            const attributes = attributesOf(opening);
+            if (hidesElement(opening, attributes)) return true;
+            visibilityHidden ??= inlineVisibilityHidden(attributes.get('style'));
+        }
+        if (node.type === 'JSXAttribute') break;
+    }
+    return visibilityHidden ?? false;
+}
+
+function couldNameElement({ node, opening, attributes }: MarkupElement): boolean {
+    return hasSpread(opening)
         || NAME_ATTRS.some(name => hasNonEmptyAttr(attributes, name))
-        || hasSetContentDirective(opening);
+        || hasSetContentDirective(opening) || hasNamedChildren(node);
 }
 
 function isEmptyExpression(expression: JsxNode): boolean {
     if (expression.type === 'JSXEmptyExpression') return true;
-    if (expression.type === 'Identifier' && expression.name === 'undefined') return true;
     if (expression.type !== 'Literal') return false;
-    return expression.value === null || expression.value === false
+    return expression.value === null || typeof expression.value === 'boolean'
         || (typeof expression.value === 'string' && !expression.value.trim());
 }
 
-function hasNamedChildren(parent: JsxNode): boolean {
+function hasNamedChildren(parent: JsxNode, visibilityHidden = false): boolean {
     const children = (parent.children as JsxNode[] | undefined) ?? [];
     for (const child of children) {
-        if (child.type === 'JSXText' && typeof child.value === 'string' && child.value.trim()) return true;
-        if (child.type === 'JSXExpressionContainer' && !isEmptyExpression(child.expression as JsxNode)) return true;
-        if ((child.type === 'JSXFragment' || child.type === 'AstroFragment') && hasNamedChildren(child)) return true;
-        if (child.type === 'JSXElement' && childProvidesName(child)) return true;
+        if (!visibilityHidden && child.type === 'JSXText' && typeof child.value === 'string' && child.value.trim()) return true;
+        if (child.type === 'JSXExpressionContainer' && !isEmptyExpression(child.expression as JsxNode)
+            && (!visibilityHidden || rendersElements(child.expression))) return true;
+        if ((child.type === 'JSXFragment' || child.type === 'AstroFragment') && hasNamedChildren(child, visibilityHidden)) return true;
+        if (child.type === 'JSXElement' && childProvidesName(child, visibilityHidden)) return true;
     }
     return false;
 }
 
-function childProvidesName(element: JsxNode): boolean {
+function childProvidesName(element: JsxNode, inheritedVisibility: boolean): boolean {
     const opening = element.openingElement as JsxNode;
     const attributes = attributesOf(opening);
-    const hidden = attributes.get('aria-hidden');
-    if (typeof hidden === 'string' && hidden.trim().toLowerCase() === 'true') return false;
+    if (hidesElement(opening, attributes)) return false;
     if (hasSpread(opening)) return true;
     const tag = tagName(opening);
+    const visibilityHidden = inlineVisibilityHidden(attributes.get('style')) ?? inheritedVisibility;
+    if (visibilityHidden) return hasNamedChildren(element, true);
     // Custom components and <slot> may render text or labelled icons we cannot see statically
-    if (!tag || tag === 'slot' || /^[A-Z]/.test(tag) || tag.includes('.')) return true;
+    if (!tag || tag === 'slot' || /^[A-Z]/.test(tag) || /[.-]/.test(tag)) return true;
     if (NAME_ATTRS.some(name => hasNonEmptyAttr(attributes, name)) || hasSetContentDirective(opening)) return true;
     if (['img', 'area', 'input'].includes(tag) && hasNonEmptyAttr(attributes, 'alt')) return true;
     if (tag === 'svg') {

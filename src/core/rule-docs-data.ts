@@ -181,12 +181,24 @@ export const ENTRIES: Entry[] = [
         }
     },
     {
-        rules: ['button-name', 'input-button-name', 'aria-command-name', 'summary-name', svelte('a11y_consider_explicit_label'), own('button-name')],
+        rules: ['input-button-name', 'aria-command-name', 'summary-name', svelte('a11y_consider_explicit_label')],
         message: 'Buttons need text that names them',
         why: 'A button without text is announced as just "button", so screen reader users cannot tell what it does.',
         fix: 'Put visible text in the button, or an aria-label when it only holds an icon; give an input button a value.',
         wcag: ['4.1.2', '2.4.4'],
         act: ['97a4e1', 'm6b1q3', '2t702h'],
+        example: {
+            bad: '<button type="button"><span class="icon-close"></span></button>',
+            good: '<button type="button" aria-label="Close"><span class="icon-close"></span></button>'
+        }
+    },
+    {
+        rules: ['button-name', own('button-name')],
+        message: 'Buttons need text that names them',
+        why: 'A button without an accessible name leaves screen reader users unable to tell what it does.',
+        fix: 'Add visible button text, or provide an aria-label for an icon-only button.',
+        wcag: ['4.1.2'],
+        act: ['97a4e1'],
         example: {
             bad: '<button type="button"><span class="icon-close"></span></button>',
             good: '<button type="button" aria-label="Close"><span class="icon-close"></span></button>'
@@ -221,13 +233,25 @@ export const ENTRIES: Entry[] = [
     },
 
     {
-        rules: [...jsx('iframe-has-title'), vue('iframe-has-title'), htmlEslint('require-frame-title'), 'frame-title'],
+        rules: [...jsx('iframe-has-title'), htmlEslint('require-frame-title'), 'frame-title'],
         message: 'Frames need a title',
         why: 'Screen readers announce a frame by its title; without one users cannot tell what the frame holds before entering it.',
         fix: 'Add a title that describes the frame\'s content.',
         wcag: ['4.1.2'],
         act: ['cae760'],
         example: { bad: '<iframe src="https://maps.example.com/shop"></iframe>', good: '<iframe src="https://maps.example.com/shop" title="Map to our shop"></iframe>' }
+    },
+    {
+        rules: [vue('iframe-has-title')],
+        message: 'Iframes need an accessible name',
+        why: 'An accessible name tells users what the iframe contains before they enter it.',
+        fix: 'Add a title that describes the iframe\'s content. A title provides the broadest screen reader support.',
+        wcag: ['4.1.2'],
+        act: ['cae760'],
+        example: {
+            bad: '<iframe src="/map"></iframe>',
+            good: '<iframe src="/map" title="Map to our shop"></iframe>'
+        }
     },
     {
         rules: ['frame-title-unique'],
@@ -527,7 +551,7 @@ export const ENTRIES: Entry[] = [
     {
         rules: [
             ...jsx('label-has-associated-control'), vue('label-has-for'), vue('form-control-has-label'), ng('label-has-associated-control'),
-            svelte('a11y_label_has_associated_control'), 'label', 'select-name'
+            svelte('a11y_label_has_associated_control'), 'select-name'
         ],
         message: 'Form fields need a label tied to them',
         why: 'Screen readers announce a field by its label; a label that is not tied to the field leaves it unnamed, and clicking the label does not focus it.',
@@ -537,6 +561,18 @@ export const ENTRIES: Entry[] = [
         example: {
             bad: '<div>\n  <label>Email</label>\n  <input type="email">\n</div>',
             good: '<label for="email">Email <input type="email" id="email"></label>'
+        }
+    },
+    {
+        rules: ['label'],
+        message: 'Form fields need an accessible name',
+        why: 'An unnamed form field leaves screen reader users unable to tell what to enter.',
+        fix: 'Associate a visible label with the field by matching its for attribute to the field id.',
+        wcag: ['4.1.2'],
+        act: ['e086e5'],
+        example: {
+            bad: '<input type="text" id="name">',
+            good: '<div><label for="name">Name</label><input type="text" id="name"></div>'
         }
     },
     {

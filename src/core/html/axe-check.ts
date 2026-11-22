@@ -44,7 +44,9 @@ export function checkHtmlWithAxe(text: string): Promise<AnalysisResult> {
 
 async function runAxe(text: string): Promise<AnalysisResult> {
     // A silent console: JSDOM reports unimplemented APIs (canvas) that axe-core probes
-    const dom = new JSDOM(text, { includeNodeLocations: true, virtualConsole: new VirtualConsole() });
+    // A file's UTF-8 BOM is an encoding marker. Replacing it preserves every source offset.
+    const source = text.startsWith('\uFEFF') ? ` ${text.slice(1)}` : text;
+    const dom = new JSDOM(source, { includeNodeLocations: true, virtualConsole: new VirtualConsole() });
     const { document } = dom.window;
     // jsdom 30's UA stylesheet sets `marquee { overflow: hidden !important }`. Without layout,
     // JSDOM's 0x0 bounding rects make axe-core's is-on-screen check treat every <marquee> as clipped.

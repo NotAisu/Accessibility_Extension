@@ -1,0 +1,140 @@
+<script lang="ts">
+	import { codeToHtml } from "@/modules/shiki.bundle";
+	import { stripShikiComments } from "@/modules/strip-shiki-comments";
+	import CheckIcon from "@lucide/svelte/icons/check";
+	import CopyIcon from "@lucide/svelte/icons/copy";
+	import {
+		transformerNotationHighlight,
+		transformerNotationWordHighlight,
+		transformerNotationDiff,
+	} from "@shikijs/transformers";
+
+	interface Props {
+		code: Parameters<typeof codeToHtml>[0];
+		lang?: Parameters<typeof codeToHtml>[1]["lang"];
+	}
+
+	const props: Props = $props();
+	const { code, lang = "txt" } = $derived(props);
+
+	const html = $derived(
+		await codeToHtml(code.trim(), {
+			lang,
+			themes: {
+				light: "github-light",
+				dark: "github-dark",
+			},
+			mergeSameStyleTokens: true,
+			mergeWhitespaces: true,
+			defaultColor: "light-dark()",
+			transformers: [
+				transformerNotationHighlight(),
+				transformerNotationWordHighlight(),
+				transformerNotationDiff(),
+			],
+		}),
+	);
+
+	let hasCopied = $state(false);
+
+	async function copyCode() {
+		if (hasCopied) {
+			return;
+		}
+		await navigator.clipboard.writeText(stripShikiComments(code.trim()));
+		hasCopied = true;
+		setTimeout(() => {
+			hasCopied = false;
+		}, 2000);
+	}
+</script>
+
+<div class="ui-code relative" data-pagefind-ignore>
+	<header
+		class="absolute top-0 left-0 flex h-10 w-full items-center justify-between px-5 text-xs select-none"
+	>
+		<span class="font-mono opacity-50">{lang}</span>
+		<button onclick={copyCode} class="flex h-full items-center gap-2">
+			{#if hasCopied}
+				<CheckIcon class="size-3" />
+				Copied
+			{:else}
+				<CopyIcon class="size-3" />
+				Copy code
+			{/if}
+		</button>
+	</header>
+	{@html html}
+</div>
+
+<style>
+	@reference "../../app.css";
+
+	:global(.shiki) {
+		font-size: 13px;
+		line-height: var(--text-sm--line-height);
+		white-space: pre-wrap;
+		padding-block: --spacing(4);
+		border: 1px solid var(--color-surface-100-900);
+		border-radius: var(--radius-container);
+
+		/* Header clearance — only applies when this component's wrapper
+		   (which renders the absolute-positioned lang/copy header) is present. */
+		:global(.ui-code &) {
+			padding-top: --spacing(10);
+		}
+
+		@variant dark {
+			background-color: rgba(0, 0, 0, 0.5) !important;
+		}
+
+		:global(& > code) {
+			display: inline-block;
+			width: 100%;
+
+			:global(& > .line) {
+				display: inline-block;
+				width: 100%;
+				padding-inline: --spacing(5);
+				word-break: break-all;
+
+				:global(&.diff) {
+					:global(&.add) {
+						position: relative;
+						background: var(--color-green-50);
+						&::before {
+							position: absolute;
+							left: --spacing(1.5);
+							content: "+";
+							color: var(--color-green-500);
+						}
+
+						@variant dark {
+							background: var(--color-green-950);
+						}
+					}
+
+					:global(&.remove) {
+						position: relative;
+						background: var(--color-red-50);
+						&::before {
+							position: absolute;
+							left: --spacing(1.5);
+							content: "-";
+							color: var(--color-red-500);
+						}
+
+						@variant dark {
+							background: var(--color-red-950);
+						}
+					}
+				}
+
+				:global(&.highlighted),
+				:global(& > .highlighted-word) {
+					background-color: var(--color-surface-200-800);
+				}
+			}
+		}
+	}
+</style>

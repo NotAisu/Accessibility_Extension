@@ -4,10 +4,10 @@
   "rules": {
     "@angular-eslint/template/alt-text": {
       "angular": {
-        "correct": 11,
+        "correct": 84,
         "wrong": 0,
-        "lowerBound": 0.761,
-        "proven": false
+        "lowerBound": 0.964,
+        "proven": true
       }
     },
     "@angular-eslint/template/click-events-have-key-events": {
@@ -20,9 +20,9 @@
     },
     "@angular-eslint/template/elements-content": {
       "angular": {
-        "correct": 95,
+        "correct": 160,
         "wrong": 0,
-        "lowerBound": 0.968,
+        "lowerBound": 0.981,
         "proven": true
       }
     },
@@ -74,10 +74,10 @@
         "proven": true
       },
       "javascriptreact": {
-        "correct": 3,
+        "correct": 80,
         "wrong": 0,
-        "lowerBound": 0.368,
-        "proven": false
+        "lowerBound": 0.963,
+        "proven": true
       },
       "typescriptreact": {
         "correct": 80,
@@ -180,10 +180,10 @@
     },
     "astro/jsx-a11y/alt-text": {
       "astro": {
-        "correct": 53,
+        "correct": 60,
         "wrong": 0,
-        "lowerBound": 0.945,
-        "proven": false
+        "lowerBound": 0.951,
+        "proven": true
       }
     },
     "astro/jsx-a11y/anchor-ambiguous-text": {
@@ -196,9 +196,9 @@
     },
     "astro/jsx-a11y/anchor-has-content": {
       "astro": {
-        "correct": 76,
+        "correct": 79,
         "wrong": 0,
-        "lowerBound": 0.961,
+        "lowerBound": 0.962,
         "proven": true
       }
     },
@@ -228,10 +228,10 @@
     },
     "button-name": {
       "html": {
-        "correct": 34,
+        "correct": 74,
         "wrong": 0,
-        "lowerBound": 0.915,
-        "proven": false
+        "lowerBound": 0.96,
+        "proven": true
       }
     },
     "dlitem": {
@@ -252,33 +252,33 @@
     },
     "frame-title": {
       "html": {
-        "correct": 1,
+        "correct": 2,
         "wrong": 0,
-        "lowerBound": 0.05,
+        "lowerBound": 0.223,
         "proven": false
       }
     },
     "html-has-lang": {
       "html": {
-        "correct": 8,
-        "wrong": 2,
-        "lowerBound": 0.493,
-        "proven": false
+        "correct": 88,
+        "wrong": 0,
+        "lowerBound": 0.966,
+        "proven": true
       }
     },
     "html-lang-valid": {
       "html": {
         "correct": 5,
-        "wrong": 2,
-        "lowerBound": 0.341,
+        "wrong": 0,
+        "lowerBound": 0.549,
         "proven": false
       }
     },
     "image-alt": {
       "html": {
-        "correct": 145,
+        "correct": 205,
         "wrong": 0,
-        "lowerBound": 0.979,
+        "lowerBound": 0.985,
         "proven": true
       }
     },
@@ -292,9 +292,9 @@
     },
     "jsx-a11y-x/alt-text": {
       "javascriptreact": {
-        "correct": 79,
+        "correct": 74,
         "wrong": 0,
-        "lowerBound": 0.962,
+        "lowerBound": 0.96,
         "proven": true
       },
       "typescriptreact": {
@@ -306,15 +306,15 @@
     },
     "jsx-a11y-x/anchor-has-content": {
       "javascriptreact": {
-        "correct": 31,
+        "correct": 80,
         "wrong": 0,
-        "lowerBound": 0.907,
-        "proven": false
+        "lowerBound": 0.963,
+        "proven": true
       },
       "typescriptreact": {
-        "correct": 68,
+        "correct": 78,
         "wrong": 0,
-        "lowerBound": 0.956,
+        "lowerBound": 0.962,
         "proven": true
       }
     },
@@ -328,9 +328,15 @@
     },
     "jsx-a11y-x/iframe-has-title": {
       "javascriptreact": {
-        "correct": 1,
+        "correct": 2,
         "wrong": 0,
-        "lowerBound": 0.05,
+        "lowerBound": 0.223,
+        "proven": false
+      },
+      "typescriptreact": {
+        "correct": 7,
+        "wrong": 0,
+        "lowerBound": 0.651,
         "proven": false
       }
     },
@@ -352,17 +358,17 @@
     },
     "label": {
       "html": {
-        "correct": 26,
+        "correct": 85,
         "wrong": 0,
-        "lowerBound": 0.891,
-        "proven": false
+        "lowerBound": 0.965,
+        "proven": true
       }
     },
     "link-name": {
       "html": {
-        "correct": 110,
+        "correct": 108,
         "wrong": 0,
-        "lowerBound": 0.973,
+        "lowerBound": 0.972,
         "proven": true
       }
     },
@@ -432,9 +438,9 @@
     },
     "svelte/a11y_consider_explicit_label": {
       "svelte": {
-        "correct": 117,
+        "correct": 119,
         "wrong": 0,
-        "lowerBound": 0.974,
+        "lowerBound": 0.975,
         "proven": true
       }
     },
@@ -448,9 +454,9 @@
     },
     "svelte/a11y_missing_attribute": {
       "svelte": {
-        "correct": 82,
+        "correct": 81,
         "wrong": 0,
-        "lowerBound": 0.964,
+        "lowerBound": 0.963,
         "proven": true
       }
     },
@@ -512,10 +518,10 @@
     },
     "vuejs-accessibility/iframe-has-title": {
       "vue": {
-        "correct": 6,
+        "correct": 65,
         "wrong": 0,
-        "lowerBound": 0.606,
-        "proven": false
+        "lowerBound": 0.954,
+        "proven": true
       }
     },
     "vuejs-accessibility/label-has-for": {
