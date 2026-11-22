@@ -2,9 +2,19 @@
 
 Pre-releases use odd minor versions, stable releases even ones.
 
-## 0.1.0 (pre-release)
+## 0.1.1 (pre-release)
 
-First pre-release of Allyproof – WCAG 2.2 Accessibility Checker.
+First pre-release of Allyproof – WCAG 2.2 Accessibility Checker. (0.1.0 was tagged but never published.)
+
+### Proven rules
+
+- A rule reports Findings only when it is a Proven rule in that language: at least 95 % precision at 95 % confidence on the W3C ACT Rules and on labelled real code from open-source projects. Every other match is listed as Needs Review and never blocks. The README lists the Proven rules; each Finding's hover shows its evidence.
+
+### Command line and commit check
+
+- `allyproof check`, `baseline`, `explain` and `rules`, with text, JSON and SARIF output, `--staged`, `--changed` and a baseline that only blocks new Findings.
+- Set Up Commit Check adds the check to lefthook, Husky, lint-staged, the pre-commit framework or a plain Git hook, and optionally a GitHub workflow.
+- A GitHub Action that uploads the results to code scanning.
 
 ### Check
 
