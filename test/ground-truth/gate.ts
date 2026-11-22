@@ -74,11 +74,13 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured>
             }
             if (!totals.has(testCase.languageId)) totals.set(testCase.languageId, new Map());
             addTallies(totals.get(testCase.languageId)!, scoreCase(testCase.expect, reported));
-            const earlier = EVIDENCE.has(name) ? repeated(testCase.languageId, `${name}/${testCase.file}`, text) : undefined;
-            if (earlier) repeats.push(`${name}/${testCase.file} repeats ${earlier}`);
-            else if (EVIDENCE.has(name)) {
-                if (!judged.has(testCase.languageId)) judged.set(testCase.languageId, new Map());
-                addJudged(judged.get(testCase.languageId)!, judgeMatches(testCase, matches));
+            if (EVIDENCE.has(name)) {
+                const earlier = repeated(testCase.languageId, `${name}/${testCase.file}`, text, testCase.expect);
+                if (earlier) repeats.push(`${name}/${testCase.file} repeats ${earlier}`);
+                else {
+                    if (!judged.has(testCase.languageId)) judged.set(testCase.languageId, new Map());
+                    addJudged(judged.get(testCase.languageId)!, judgeMatches(testCase, matches));
+                }
             }
         }
     }

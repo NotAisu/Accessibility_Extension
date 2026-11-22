@@ -27,11 +27,19 @@ describe('proof of a rule\'s precision', () => {
 
     it('counts a case whose text repeats an earlier one in the same language once, wherever it was checked in', () => {
         const repeated = repeatedEvidence();
+        const fails = [{ ruleId: 'image-alt', line: 1 }];
 
-        assert.strictEqual(repeated('vue', 'act/a.vue', '<img>'), undefined);
-        assert.strictEqual(repeated('html', 'act/a.html', '<img>'), undefined);
-        assert.strictEqual(repeated('vue', 'field/b.vue', '<img>'), 'act/a.vue');
-        assert.strictEqual(repeated('vue', 'field/c.vue', '<img alt="">'), undefined);
+        assert.strictEqual(repeated('vue', 'act/a.vue', '<img>', fails), undefined);
+        assert.strictEqual(repeated('html', 'act/a.html', '<img>', fails), undefined);
+        assert.strictEqual(repeated('vue', 'field/b.vue', '<img>', fails), 'act/a.vue');
+        assert.strictEqual(repeated('vue', 'field/c.vue', '<img alt="">', []), undefined);
+    });
+
+    it('fails on a repeated case whose labels disagree with the earlier one', () => {
+        const repeated = repeatedEvidence();
+        repeated('vue', 'act/a.vue', '<img>', [{ ruleId: 'image-alt', line: 1 }]);
+
+        assert.throws(() => repeated('vue', 'field/b.vue', '<img>', []), /field\/b\.vue and act\/a\.vue have the same text but different labels/);
     });
 
     describe('judging a rule\'s matches against a case', () => {
