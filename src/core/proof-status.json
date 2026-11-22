@@ -20,7 +20,7 @@
     },
     "@angular-eslint/template/elements-content": {
       "angular": {
-        "correct": 160,
+        "correct": 159,
         "wrong": 0,
         "lowerBound": 0.981,
         "proven": true
@@ -406,9 +406,9 @@
     },
     "meta-viewport": {
       "html": {
-        "correct": 5,
+        "correct": 4,
         "wrong": 0,
-        "lowerBound": 0.549,
+        "lowerBound": 0.472,
         "proven": false
       }
     },

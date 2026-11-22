@@ -20,7 +20,7 @@ import { AnalysisWorker } from '../../src/analysis-worker';
 import * as source from '../../src/core/analysis';
 import type { NeedsReview, TextRange } from '../../src/core/analysis';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
-import { Judged, ProofStatus, addJudged, judgeMatches, proofChanges, proofStatus } from './proof';
+import { Judged, ProofStatus, addJudged, judgeMatches, proofChanges, proofStatus, repeatedEvidence } from './proof';
 
 const SETS = ['act', 'jsx-a11y', 'vuejs-accessibility', 'own', 'svelte', 'astro', 'angular-eslint', 'field', 'injection']
     .filter(name => fs.existsSync(path.join(__dirname, name, 'expectations.json')));
@@ -56,6 +56,8 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured>
     const totals = new Map<string, Map<string, Tally>>();
     const judged = new Map<string, Map<string, Judged>>();
     const failingCaseFindings = new Map<string, number>();
+    const repeated = repeatedEvidence();
+    const repeats: string[] = [];
     for (const name of SETS) {
         const dir = path.join(__dirname, name);
         const set = JSON.parse(fs.readFileSync(path.join(dir, 'expectations.json'), 'utf-8')) as GroundTruthSet;
@@ -72,12 +74,15 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured>
             }
             if (!totals.has(testCase.languageId)) totals.set(testCase.languageId, new Map());
             addTallies(totals.get(testCase.languageId)!, scoreCase(testCase.expect, reported));
-            if (EVIDENCE.has(name)) {
+            const earlier = EVIDENCE.has(name) ? repeated(testCase.languageId, `${name}/${testCase.file}`, text) : undefined;
+            if (earlier) repeats.push(`${name}/${testCase.file} repeats ${earlier}`);
+            else if (EVIDENCE.has(name)) {
                 if (!judged.has(testCase.languageId)) judged.set(testCase.languageId, new Map());
                 addJudged(judged.get(testCase.languageId)!, judgeMatches(testCase, matches));
             }
         }
     }
+    if (repeats.length > 0) console.log(`Counted once for the proof (same text and language):\n  ${repeats.join('\n  ')}`);
     // An engine that loads badly often reports nothing at all rather than failing
     for (const [languageId, count] of failingCaseFindings) if (count === 0) silent.add(languageId);
     const scoresByLanguage = new Map<string, Scores>();

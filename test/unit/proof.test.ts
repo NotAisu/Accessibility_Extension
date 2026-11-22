@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { analyse } from '../../src/core/analysis';
-import { judgeMatches, lowerBound, proofStatus } from '../ground-truth/proof';
+import { judgeMatches, lowerBound, proofStatus, repeatedEvidence } from '../ground-truth/proof';
 
 describe('proof of a rule\'s precision', () => {
     describe('the 95 % lower bound clears 0.95', () => {
@@ -23,6 +23,15 @@ describe('proof of a rule\'s precision', () => {
             assert.strictEqual(lowerBound(0, 0), 0);
             assert.strictEqual(lowerBound(0, 5), 0);
         });
+    });
+
+    it('counts a case whose text repeats an earlier one in the same language once, wherever it was checked in', () => {
+        const repeated = repeatedEvidence();
+
+        assert.strictEqual(repeated('vue', 'act/a.vue', '<img>'), undefined);
+        assert.strictEqual(repeated('html', 'act/a.html', '<img>'), undefined);
+        assert.strictEqual(repeated('vue', 'field/b.vue', '<img>'), 'act/a.vue');
+        assert.strictEqual(repeated('vue', 'field/c.vue', '<img alt="">'), undefined);
     });
 
     describe('judging a rule\'s matches against a case', () => {
