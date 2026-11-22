@@ -33,8 +33,8 @@ export interface AgentPort {
     run(task: AgentTask): Promise<AgentOutcome>;
 }
 
-/** The tools the agent may use: read and edit the file, the Skill and the Check. No shell and no web. */
-const ALLOWED_TOOLS = ['Read', 'Edit', 'Write', 'Glob', 'Grep', 'Skill', 'mcp__allyproof__check'];
+/** The tools the agent may use: read and edit the file, the Skill and every tool of the Allyproof MCP server. No shell and no web. */
+const ALLOWED_TOOLS = ['Read', 'Edit', 'Write', 'Glob', 'Grep', 'Skill', 'mcp__allyproof'];
 
 export function claudeCode(model: string): AgentPort {
     return {
