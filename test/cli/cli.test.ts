@@ -45,6 +45,11 @@ const blockingRules = (output: CheckOutput) => output.files.flatMap(f => f.findi
 describe('allyproof check', function () {
     this.timeout(120_000);
 
+    it('prints its version', () => {
+        const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf-8')) as { version: string };
+        for (const flag of ['--version', '-v']) assert.deepStrictEqual(run(os.tmpdir(), [flag]), { code: 0, stdout: `${version}\n`, stderr: '' });
+    });
+
     it('reports unnamed markup only where it is exposed', () => {
         const dir = repository({
             'Hidden.tsx': 'export default <main><div inert><img src="/hidden.png" /><button /><a href="/hidden" /></div><div style={{ visibility: "hidden" }}><button /></div></main>',
