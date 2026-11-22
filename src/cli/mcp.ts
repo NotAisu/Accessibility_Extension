@@ -4,7 +4,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { workspaceLanguageId } from '../workspace-check';
-import { checkAll, diskSource, LANGUAGES, posix, settingsOf, SEVERITY_RANK, type Source } from './check';
+import { analysisWorker, checkAll, diskSource, LANGUAGES, posix, settingsOf, SEVERITY_RANK, type Source } from './check';
 import { ConfigError } from './settings';
 
 // `allyproof mcp` (#46): the Check as MCP tools over stdio, the third front end on the analysis core. It returns the
@@ -23,6 +23,8 @@ const CHECK_DESCRIPTION = 'Runs Allyproof\'s deterministic WCAG 2.2 AA Check and
 /** Serves the MCP server on stdin and stdout until the client disconnects; paths resolve inside `root`. */
 export async function serve(root: string, version: string): Promise<number> {
     const server = new McpServer({ name: 'allyproof', version });
+    // One worker for the server's lifetime: its engines load once, not on every call
+    const worker = analysisWorker();
     server.registerTool('check', {
         title: 'Allyproof Check',
         description: CHECK_DESCRIPTION,
@@ -35,7 +37,7 @@ export async function serve(root: string, version: string): Promise<number> {
         annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false }
     }, async input => {
         try {
-            const output = await checkAll(sourcesOf(fs.realpathSync(root), input), settingsOf(root), undefined, SEVERITY_RANK.warning);
+            const output = await checkAll(sourcesOf(fs.realpathSync(root), input), settingsOf(root), undefined, SEVERITY_RANK.warning, worker);
             const json = { type: 'text' as const, text: JSON.stringify(output, null, 2) };
             const failed = output.files.filter(file => file.status === 'failed');
             if (failed.length === 0) return { content: [json] };
@@ -52,6 +54,7 @@ export async function serve(root: string, version: string): Promise<number> {
     await server.connect(transport);
     process.stdin.once('end', () => void server.close());
     await closed;
+    worker.dispose();
     return 0;
 }
 
