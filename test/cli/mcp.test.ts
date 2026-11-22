@@ -54,13 +54,73 @@ describe('allyproof mcp', function () {
         client = undefined;
     });
 
-    it('offers a read-only check tool', async () => {
+    it('offers read-only check, explain_rule and list_rules tools', async () => {
         client = await connect(project({}));
         const { tools } = await client.listTools();
 
-        const tool = tools.find(t => t.name === 'check');
-        assert.ok(tool, tools.map(t => t.name).join(', '));
-        assert.strictEqual(tool.annotations?.readOnlyHint, true);
+        for (const name of ['check', 'explain_rule', 'list_rules']) {
+            const tool = tools.find(t => t.name === name);
+            assert.ok(tool, `${name} is not in ${tools.map(t => t.name).join(', ')}`);
+            assert.strictEqual(tool.annotations?.readOnlyHint, true, name);
+        }
+    });
+
+    it('lists the rules as allyproof rules --format json does', async () => {
+        const dir = project({});
+        const expected: unknown = JSON.parse(cli(dir, ['rules', '--format', 'json']).stdout);
+        client = await connect(dir);
+
+        const result = await client.callTool({ name: 'list_rules', arguments: {} }) as ToolResult;
+        assert.ok(!result.isError, result.content[0]?.text);
+        assert.deepStrictEqual(JSON.parse(result.content[0].text), expected);
+    });
+
+    it('explains a rule as allyproof explain does, with its proof status', async () => {
+        const dir = project({});
+        client = await connect(dir);
+
+        for (const [args, flags] of [[{ ruleId: 'vuejs-accessibility/alt-text', languageId: 'vue' }, ['--language', 'vue']], [{ ruleId: 'image-alt' }, []]] as const) {
+            const expected = cli(dir, ['explain', args.ruleId, ...flags]).stdout;
+            const result = await client.callTool({ name: 'explain_rule', arguments: args }) as ToolResult;
+            assert.ok(!result.isError, result.content[0]?.text);
+            assert.strictEqual(result.content[0].text, expected);
+            assert.match(result.content[0].text, /\nProof: /);
+        }
+    });
+
+    it('reports an unknown rule id as a tool error', async () => {
+        client = await connect(project({}));
+
+        const result = await client.callTool({ name: 'explain_rule', arguments: { ruleId: 'no-such-rule' } }) as ToolResult;
+        assert.strictEqual(result.isError, true);
+        assert.match(result.content[0].text, /No rule no-such-rule/);
+    });
+
+    it('offers every rule\'s docs as a resource that reads as allyproof explain', async () => {
+        const dir = project({});
+        const ruleIds = (JSON.parse(cli(dir, ['rules', '--format', 'json']).stdout) as { rules: { ruleId: string }[] }).rules.map(rule => rule.ruleId);
+        client = await connect(dir);
+
+        const { resources } = await client.listResources();
+        assert.deepStrictEqual(resources.map(r => r.uri).sort(), ruleIds.map(id => `allyproof://rules/${id}`).sort());
+        for (const id of ruleIds.filter((_, i) => i % 10 === 0)) {
+            const { contents } = await client.readResource({ uri: `allyproof://rules/${id}` });
+            assert.strictEqual((contents[0] as { text: string }).text, cli(dir, ['explain', id]).stdout, id);
+        }
+        for (const { uri } of resources) {
+            const { contents } = await client.readResource({ uri });
+            assert.match((contents[0] as { text: string }).text, /\nHow to fix: /, uri);
+        }
+    });
+
+    it('offers the Allyproof Skill as the allyproof_review prompt', async () => {
+        client = await connect(project({}));
+
+        const { prompts } = await client.listPrompts();
+        assert.ok(prompts.some(p => p.name === 'allyproof_review'), prompts.map(p => p.name).join(', '));
+        const { messages } = await client.getPrompt({ name: 'allyproof_review' });
+        const skill = fs.readFileSync(path.join(__dirname, '..', '..', 'skills', 'allyproof', 'SKILL.md'), 'utf-8');
+        assert.deepStrictEqual(messages, [{ role: 'user', content: { type: 'text', text: skill } }]);
     });
 
     it('checks a file and the same text as code with the result of allyproof check --format json', async () => {
