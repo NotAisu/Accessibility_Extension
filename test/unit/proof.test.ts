@@ -61,25 +61,25 @@ describe('proof of a rule\'s precision', () => {
 });
 
 describe('only Proven rules report Findings', () => {
-    // vuejs-accessibility/alt-text is a Proven rule in Vue, vuejs-accessibility/iframe-has-title is not
-    const text = '<template>\n  <img :src="chart">\n  <iframe src="/map"></iframe>\n</template>\n';
+    // vuejs-accessibility/alt-text is a Proven rule in Vue, aria-role is Unproven.
+    const text = '<template>\n  <img :src="chart">\n  <div role="bogus">Text</div>\n</template>\n';
 
     it('reports a Proven rule\'s match as a Finding and an Unproven rule\'s as Needs Review at its element', async () => {
         const { findings, needsReview } = await analyse({ languageId: 'vue', text });
 
         assert.deepStrictEqual(findings.map(f => f.ruleId), ['vuejs-accessibility/alt-text']);
         const likely = needsReview.filter(e => e.ruleId);
-        assert.deepStrictEqual(likely.map(e => [e.ruleId, e.criterion]), [['vuejs-accessibility/iframe-has-title', '4.1.2']]);
-        assert.strictEqual(text.slice(likely[0].range!.start, likely[0].range!.end), '<iframe src="/map"></iframe>');
+        assert.deepStrictEqual(likely.map(e => [e.ruleId, e.criterion]), [['vuejs-accessibility/aria-role', '4.1.2']]);
+        assert.strictEqual(text.slice(likely[0].range!.start, likely[0].range!.end), 'role="bogus"');
         assert.match(likely[0].reason, /^Likely failure, verify: .*not yet a Proven rule/);
     });
 
     it('lets a setting turn an Unproven rule off, never promote it to Findings', async () => {
-        const promoted = await analyse({ languageId: 'vue', text }, { rules: { 'vuejs-accessibility/iframe-has-title': 'error' } });
-        const off = await analyse({ languageId: 'vue', text }, { rules: { 'vuejs-accessibility/iframe-has-title': 'off' } });
+        const promoted = await analyse({ languageId: 'vue', text }, { rules: { 'vuejs-accessibility/aria-role': 'error' } });
+        const off = await analyse({ languageId: 'vue', text }, { rules: { 'vuejs-accessibility/aria-role': 'off' } });
 
         assert.deepStrictEqual(promoted.findings.map(f => f.ruleId), ['vuejs-accessibility/alt-text']);
-        assert.ok(promoted.needsReview.some(e => e.ruleId === 'vuejs-accessibility/iframe-has-title'));
+        assert.ok(promoted.needsReview.some(e => e.ruleId === 'vuejs-accessibility/aria-role'));
         assert.ok(!off.needsReview.some(e => e.ruleId));
     });
 });

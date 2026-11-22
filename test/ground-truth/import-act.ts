@@ -43,6 +43,8 @@ function main(clone: string) {
         if (!id || !name || criteria.length === 0) continue;
 
         for (const example of examples(markdown)) {
+            // A page outside the language-match rule can still lack a language declaration.
+            if (id === 'ucwvc8' && example.outcome === 'inapplicable') continue;
             if ((INLINE_STYLE_RULES.has(id) ? NOT_STATIC_KEEPING_INLINE_STYLES : NOT_STATIC).test(example.code)) continue;
             const caseFile = `${id}-${example.outcome}-${example.number}.html`;
             const title = `${name} ${example.outcome} example ${example.number}`;

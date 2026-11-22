@@ -1,4 +1,5 @@
 import { Linter } from 'eslint/universal';
+import { dom as ariaDom } from 'aria-query';
 import vueA11y from 'eslint-plugin-vuejs-accessibility';
 import * as vueParser from 'vue-eslint-parser';
 import * as tsParser from '@typescript-eslint/parser';
@@ -53,7 +54,8 @@ function mappingParser(components: ComponentMapping | undefined): Linter.Parser 
                 if (node.type !== 'VElement') return;
                 const written = node.rawName as string;
                 const mapped = mappedElement(written, name => staticAttribute(node, name), components, true);
-                const renamed = mapped ?? (/[A-Z]/.test(written) ? `component-${written.toLowerCase()}` : undefined);
+                const renamed = mapped ?? (node.namespace === vueParser.AST.NS.HTML && /[A-Z]/.test(written)
+                    ? `component-${written.toLowerCase()}` : undefined);
                 if (renamed) {
                     writtenNames.set(node, written);
                     node.name = node.rawName = renamed;
@@ -74,9 +76,8 @@ function staticAttribute(element: VueNode, name: string): string | true | undefi
 }
 
 // label-has-for's default asks for nesting and an id at once; either one labels the control (H44), as
-// jsx-a11y's label-has-associated-control asserts. aria-role ignores custom components whose `role` is a prop.
+// jsx-a11y's label-has-associated-control asserts.
 export const RULE_OPTIONS: Record<string, unknown[]> = {
-    'aria-role': [{ ignoreNonDOM: true }],
     'label-has-for': [{ required: { some: ['nesting', 'id'] } }]
 };
 
@@ -84,7 +85,8 @@ export const RULE_OPTIONS: Record<string, unknown[]> = {
 // Rules otherwise run with their default options, as the plugin's recommended config does.
 function config(skip: Set<string>, components: ComponentMapping | undefined): Linter.Config[] {
     const rules: Linter.RulesRecord = Object.fromEntries(Object.keys(RULE_CRITERIA)
-        .filter(rule => !skip.has(PREFIX + rule))
+        // The upstream iframe rule only checks title, even on a hidden iframe or one named through ARIA.
+        .filter(rule => rule !== 'iframe-has-title' && !skip.has(PREFIX + rule))
         .map(rule => [PREFIX + rule, ['warn', ...RULE_OPTIONS[rule] ?? []]]));
     return [{
         files: ['**/*.vue'],
@@ -103,15 +105,38 @@ function config(skip: Set<string>, components: ComponentMapping | undefined): Li
 
 const linter = new Linter({ configType: 'flat' });
 
+function componentRoleOffsets(template: VueNode | undefined): Set<number> {
+    const offsets = new Set<number>();
+    const visit = (node: VueNode): void => {
+        if (node.type !== 'VElement') return;
+        const tag = node.rawName as string;
+        if (node.namespace === vueParser.AST.NS.HTML && !ariaDom.has(tag)) {
+            const startTag = node.startTag as { attributes: { range: [number, number] }[] };
+            for (const attribute of startTag.attributes) offsets.add(attribute.range[0]);
+        }
+        (node.children as VueNode[]).forEach(visit);
+    };
+    if (template) visit(template);
+    return offsets;
+}
+
 export function checkVue(text: string, components?: ComponentMapping): AnalysisResult {
     const toOffset = eslintOffsetAt(text);
     const findings: Finding[] = [];
-    for (const message of lintSkippingCrashedRules(linter, text, 'document.vue', skip => config(skip, components))) {
+    const messages = lintSkippingCrashedRules(linter, text, 'document.vue', skip => config(skip, components));
+    let componentRoles: Set<number> | undefined;
+    for (const message of messages) {
         // Unparseable code must not read as a clean file
         if (message.fatal) throw new ParseError(`${message.line}:${message.column}`, message.message);
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
+        // The plugin's ignoreNonDOM also ignores SVG and MathML, whose roles still apply.
+        if (rule === 'aria-role') {
+            const ast = linter.getSourceCode().ast as { templateBody?: VueNode };
+            componentRoles ??= componentRoleOffsets(ast.templateBody);
+            if (componentRoles.has(start)) continue;
+        }
         const end = message.endLine && message.endColumn ? toOffset(message.endLine, message.endColumn) : start;
         const docs = plugin.rules[rule]?.meta?.docs;
         findings.push({
@@ -126,7 +151,7 @@ export function checkVue(text: string, components?: ComponentMapping): AnalysisR
         });
     }
     const ast = linter.getSourceCode().ast as { templateBody?: VueNode };
-    const content = renderedContent(ast.templateBody);
+    const content = renderedContent(ast.templateBody, findings);
     content.stylesheetColors = styleBlocksSetColors(text);
     return withOwnRules(findings, content, { inputPurpose: true });
 }
@@ -138,7 +163,7 @@ interface VueNode {
 
 // Text and mustaches in the template and intrinsic controls; a component counts as the native element it is mapped
 // to and is otherwise opaque
-function renderedContent(template: VueNode | undefined): RenderedContent {
+function renderedContent(template: VueNode | undefined, findings: Finding[]): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
     const visit = (node: VueNode, parent?: SourceElement) => {
         if (node.type === 'VText' && typeof node.value === 'string' && node.value.trim()) {
@@ -158,12 +183,62 @@ function renderedContent(template: VueNode | undefined): RenderedContent {
             if (component) element.component = component;
             if (bindsClassOrStyle(node) || hasVShow(node)) element.boundStyle = true;
             content.elements.push(element);
+            if (element.tag === 'iframe' && needsIframeName(element) && !hasUncertainIframeMarkup(node)) {
+                findings.push({
+                    range: element.range,
+                    criteria: RULE_CRITERIA['iframe-has-title'],
+                    ruleId: PREFIX + 'iframe-has-title',
+                    layer: 'check',
+                    severity: 'warning',
+                    message: 'Iframes need an accessible name.',
+                    explanation: 'Give the frame a title that tells users what it contains before entering it.',
+                    helpUrl: 'https://www.w3.org/WAI/standards-guidelines/act/rules/cae760/proposed/'
+                });
+            }
             (node.children as VueNode[]).forEach(child => visit(child, element));
         }
     };
     // The <template> element itself renders nothing; its children do
     for (const child of (template?.children ?? []) as VueNode[]) visit(child);
     return content;
+}
+
+function hasUncertainIframeMarkup(node: VueNode): boolean {
+    for (let current: VueNode | undefined = node; current?.type === 'VElement'; current = current.parent as VueNode | undefined) {
+        const attributes = (current.startTag as { attributes: VueNode[] }).attributes;
+        for (const attribute of attributes.filter(attribute => attribute.directive)) {
+            const key = attribute.key as VueNode;
+            const name = (key.name as VueNode).name;
+            const argument = key.argument as VueNode | null;
+            if (name === 'bind' && argument?.type !== 'VIdentifier') return true;
+            const expression = (attribute.value as VueNode | null)?.expression as VueNode | null;
+            if ((name === 'show' || name === 'if') && expression?.type === 'Literal' && !expression.value) return true;
+        }
+    }
+    return false;
+}
+
+function needsIframeName(element: SourceElement): boolean {
+    const { attributes } = element;
+    const hasContent = attributes.get('src') || attributes.get('srcdoc');
+    if (!hasContent || ['title', 'aria-label', 'aria-labelledby'].some(name => {
+        const value = attributes.get(name);
+        return value === true || Boolean(value?.trim());
+    })) return false;
+    const tabIndex = attributes.get('tabindex');
+    const role = attributes.get('role');
+    if (tabIndex === true || typeof tabIndex === 'string' && /^-\d+$/.test(tabIndex.trim()) && Number(tabIndex) < 0
+        || role === true || typeof role === 'string' && /^(?:none|presentation)$/i.test(role.trim())) return false;
+
+    for (let ancestor: SourceElement | undefined = element; ancestor; ancestor = ancestor.parent) {
+        const attributes = ancestor.attributes;
+        const ariaHidden = attributes.get('aria-hidden');
+        const style = attributes.get('style');
+        if (attributes.has('hidden') || attributes.has('inert') || ariaHidden === true
+            || typeof ariaHidden === 'string' && ariaHidden.trim().toLowerCase() === 'true'
+            || typeof style === 'string' && /(?:^|;)\s*(?:display\s*:\s*none|visibility\s*:\s*hidden)\s*(?:!important\s*)?(?:;|$)/i.test(style)) return false;
+    }
+    return true;
 }
 
 // A value only for a static attribute; a binding (:href, v-bind:role) counts as present

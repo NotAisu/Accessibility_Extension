@@ -6,8 +6,8 @@
  *
  * A base file is a file the Check reports nothing in. Each mutation rewrites one line and keeps the line count,
  * and makes a failure that holds whatever the rest of the file does, so the case expects the mutation's criteria on
- * that line and on no other line. At most PER_KIND cases per language and mutation, evenly spaced over the sorted
- * candidates, keep one project from outweighing the others.
+ * that line and on no other line. At most PER_KIND cases per language and mutation are evenly spaced over the
+ * sorted candidates, preferring distinct source files when enough are available.
  */
 import '../esm-only-packages';
 import { execFileSync } from 'child_process';
@@ -15,6 +15,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { analyse } from '../../src/core/analysis';
 import type { GroundTruthCase, GroundTruthSet } from './ground-truth';
+import { vueIframeCases } from './vue-iframe-injection';
 
 const SOURCES: Record<string, { url: string; commit: string }> = {
     'angular-components': { url: 'https://github.com/angular/components', commit: '5eb7a34a082e5f9736711938972cc2984265f5a9' },
@@ -32,10 +33,31 @@ const SOURCES: Record<string, { url: string; commit: string }> = {
     'starlight': { url: 'https://github.com/withastro/starlight', commit: 'dc7451c127bbf1dc195a2c1ab2c3670fc00dd84c' },
     'primereact': { url: 'https://github.com/primefaces/primereact', commit: '5cd9b145ce7d8b498e745002624ba958f307897e' },
     'mdn-learning-area': { url: 'https://github.com/mdn/learning-area', commit: '21973263ba859ff3477919087b488157f9d618a6' },
-    'mantine': { url: 'https://github.com/mantinedev/mantine', commit: '06e603112455d5073603f33abc2a7cbdf094be2e' }
+    'mantine': { url: 'https://github.com/mantinedev/mantine', commit: '06e603112455d5073603f33abc2a7cbdf094be2e' },
+    'reactstrap': { url: 'https://github.com/reactstrap/reactstrap', commit: '090bc1eeb19bcc269970151d330c6bc03f731635' },
+    'astro': { url: 'https://github.com/withastro/astro', commit: 'c302892e4a2434fb4d8e66702576f5406e63d986' },
+    'angular': { url: 'https://github.com/angular/angular', commit: '8b15295e8c7f1543d41dadb5955279702be52c16' },
+    'ngx-admin': { url: 'https://github.com/akveo/ngx-admin', commit: 'dc6a442704bfef34b776b5eb15faf852d9e2f75c' },
+    'css-examples': { url: 'https://github.com/mdn/css-examples', commit: '65b08d2236b304d50d28a807a48c35f6889d902d' },
+    'coreui-angular': { url: 'https://github.com/coreui/coreui-free-angular-admin-template', commit: '502fddc3f410daa628a2d4a557797e50784f55e0' },
+    'react-big-calendar': { url: 'https://github.com/jquense/react-big-calendar', commit: '183783ad45c8b845c2f57c46711c1c4c85047843' },
+    'react-dev': { url: 'https://github.com/reactjs/react.dev', commit: '46a54e0592729712b7640308b53268e84fdc7c9f' },
+    'aria-practices': { url: 'https://github.com/w3c/aria-practices', commit: 'f14b2490a6728cda85fd7feafbd148b3c3eaf038' },
+    'chrome-samples': { url: 'https://github.com/GoogleChrome/samples', commit: '228e6e56581105bb55cab0d9ff6212d408ccc7dd' },
+    'primeng': { url: 'https://github.com/primefaces/primeng', commit: 'fe82b291d6fedde177dc12c0af7ef1008dc1b1ff' },
+    'gatsby': { url: 'https://github.com/gatsbyjs/gatsby', commit: '0ac6c88a72c4dfd4d541e3ac43c664343e8e15b6' },
+    'nextjs': { url: 'https://github.com/vercel/next.js', commit: '794836c3cbb750d1e34f99e210b39b7bdfbc4c58' },
+    'vue-docs': { url: 'https://github.com/vuejs/docs', commit: 'f66b5825d64a722ea6abc6eaae9974aa09c0c109' },
+    'hoppscotch': { url: 'https://github.com/hoppscotch/hoppscotch', commit: '55908a76a1d0555c9bbb5d74244c14173df95b06' },
+    'dashy': { url: 'https://github.com/Lissy93/dashy', commit: '1ff6f439b09a621c1eca4b8f9d50455cd557d2d7' },
+    'material-lite': { url: 'https://github.com/google/material-design-lite', commit: '85f29d30e64827d7a22d193eefe896fa952488f7' },
+    'twbs-examples': { url: 'https://github.com/twbs/examples', commit: '897eca7a8331fcca5e3db52ac392ee537ad43b35' },
+    'dom-examples': { url: 'https://github.com/mdn/dom-examples', commit: 'a2c57197c219bd1c87d48aa901f4c2a24b249658' },
+    'web-dev-beginners': { url: 'https://github.com/microsoft/Web-Dev-For-Beginners', commit: '93b9967af14efd43246c713217dad40d7c27c2f5' }
 };
 
 const PER_KIND = 80;
+const MAX_FIXTURE_BYTES = 128 * 1024;
 
 const LANGUAGE: [RegExp, string][] = [
     [/\.tsx$/, 'typescriptreact'],
@@ -51,8 +73,12 @@ const LANGUAGE: [RegExp, string][] = [
 ];
 
 // Attributes that name an element or take it out of the accessibility tree, and spreads that may set them
-const NAMED = /\s(aria-label|aria-labelledby|title|aria-hidden|role)\s*=|\{\s*\.\.\.|v-bind="|v-bind=\{/;
-const NAMED_EXCEPT_TITLE = /\s(aria-label|aria-labelledby|aria-hidden|role)\s*=|\{\s*\.\.\.|v-bind="|v-bind=\{/;
+const NAMED_EXCEPT_TITLE = /\s(aria-label|aria-labelledby|aria-hidden|role|inert)\s*=|\s(?:hidden|inert)(?=[\s=>/])|\b(?:display\s*:\s*['"]?none|visibility\s*:\s*['"]?hidden)\b|\{\s*\.\.\.|v-bind="|v-bind=\{/i;
+const TITLE = /\stitle\s*=/i;
+
+function canMutateName(tag: string): boolean {
+    return !TITLE.test(tag) && !NAMED_EXCEPT_TITLE.test(tag);
+}
 
 interface MutationResult {
     /** Line index (0-based) to replace. */
@@ -80,7 +106,7 @@ const MUTATIONS: Mutation[] = [
             const line = lines[i];
             const tag = /<img\b[^<>]*>/.exec(line)?.[0];
             if (tag) {
-                if (NAMED.test(tag)) return undefined;
+                if (!canMutateName(tag)) return undefined;
                 const stripped = tag.replace(/\s(?::|v-bind:)?alt=("[^"]*"|'[^']*'|\{[^{}]*\})/, '');
                 return stripped === tag || /\balt\b/.test(stripped) ? undefined : { editLine: i, mutated: line.replace(tag, stripped) };
             }
@@ -89,7 +115,7 @@ const MUTATIONS: Mutation[] = [
             const end = findTagEnd(lines, i);
             if (end === undefined) return undefined;
             const full = lines.slice(i, end + 1).join('\n');
-            if (NAMED.test(full)) return undefined;
+            if (!canMutateName(full)) return undefined;
             for (let k = i; k <= end; k++) {
                 const stripped = lines[k].replace(/\s(?::|v-bind:)?alt=("[^"]*"|'[^']*'|\{[^{}]*\})/, '');
                 if (stripped !== lines[k] && !/\balt\b/.test(stripped)) {
@@ -113,15 +139,52 @@ const MUTATIONS: Mutation[] = [
         apply: (lines, i, markup) => emptied(lines, i, markup, 'button')
     },
     {
+        // A text field whose only explicit label was linked through its id (ACT e086e5).
+        kind: 'unlabelled-input',
+        criteria: ['4.1.2'],
+        languages: ['html', 'angular'],
+        apply: (lines, i) => {
+            const input = /<input\b[^<>]*>/i.exec(lines[i])?.[0];
+            if (!input || !canMutateName(input) || /\b(?:placeholder|list)\s*=|\{\{|\[|\]/.test(input)) return undefined;
+            const id = /\sid=(["'])([\w-]+)\1/.exec(input)?.[2];
+            if (!id || /\stype\s*=/i.test(input) && !/\stype\s*=\s*(["'])(?:text|email|search|tel|url|password)\1/i.test(input)) return undefined;
+            const content = lines.join('\n');
+            const target = new RegExp(`<label\\b[^<>]*\\sfor=(["'])${id}\\1[^<>]*>[^<>]*\\w[^<>]*</label>`, 'i');
+            if (!target.test(content) || content.includes('allyproof-unlabelled') || inLabel(lines, i, '<input')) return undefined;
+            return { editLine: i, mutated: lines[i].replace(input, input.replace(/(\sid=)(["'])[\w-]+\2/, '$1$2allyproof-unlabelled$2')) };
+        }
+    },
+    {
+        // A full page whose document language was removed (ACT b5c3f8).
+        kind: 'html-without-lang',
+        criteria: ['3.1.1'],
+        languages: ['html'],
+        apply: (lines, i) => {
+            const html = /^\s*<html\b[^<>]*>/i.exec(lines[i])?.[0];
+            if (!html || /\bxml:lang\s*=|\{\{|%\w/.test(html)) return undefined;
+            if (!lines.some(line => /^\s*<!doctype\s+html\b/i.test(line))
+                || !lines.some(line => /<head\b/i.test(line)) || !lines.some(line => /<body\b/i.test(line))) return undefined;
+            const stripped = html.replace(/\slang\s*=\s*(?:"[a-zA-Z-]+"|'[a-zA-Z-]+'|[a-zA-Z-]+(?=[\s>]))/i, '');
+            return stripped === html ? undefined : { editLine: i, mutated: lines[i].replace(html, stripped) };
+        }
+    },
+    {
         // An iframe without an accessible name (ACT cae760)
         kind: 'iframe-without-title',
         criteria: ['4.1.2'],
         apply: (lines, i) => {
             const line = lines[i];
-            const tag = /<iframe\b[^<>]*>/.exec(line)?.[0];
+            if (!/<iframe\b/.test(line)) return undefined;
+            const end = line.includes('>') ? i : findTagEnd(lines, i);
+            if (end === undefined) return undefined;
+            const tag = /<iframe\b[^<>]*>/.exec(lines.slice(i, end + 1).join('\n'))?.[0];
             if (!tag || NAMED_EXCEPT_TITLE.test(tag)) return undefined;
-            const stripped = tag.replace(/\s(?::|v-bind:)?title=("[^"]*"|'[^']*'|\{[^{}]*\})/, '');
-            return stripped === tag || /\btitle\b/.test(stripped) ? undefined : { editLine: i, mutated: line.replace(tag, stripped) };
+            const title = /\s(?::|v-bind:)?title=("[^"]+"|'[^']+')/.exec(tag)?.[0];
+            if (!title || title.includes('\n') || /\btitle\b/.test(tag.replace(title, ''))) return undefined;
+            for (let line = i; line <= end; line++) {
+                if (lines[line].includes(title)) return { editLine: line, mutated: lines[line].replace(title, ''), reportLine: i };
+            }
+            return undefined;
         }
     },
     {
@@ -160,35 +223,51 @@ function findTagEnd(lines: string[], start: number): number | undefined {
     return undefined;
 }
 
-// The element on one line (or open / plain-text / close across three lines) with plain text as its only content, emptied
+function inLabel(lines: string[], i: number, opening: string): boolean {
+    const before = [...lines.slice(0, i), lines[i].slice(0, lines[i].toLowerCase().indexOf(opening))].join('\n');
+    return (before.match(/<\/?label\b/gi)?.pop() ?? '').toLowerCase() === '<label';
+}
+
+function canEmpty(tag: string, lines: string[], i: number, element: string, required?: RegExp): boolean {
+    if (!canMutateName(tag) || (required && !required.test(tag))) return false;
+    if (element !== 'button') return true;
+    const id = /\sid=(["'])([\w-]+)\1/.exec(tag)?.[2];
+    if (id && lines.some(line => new RegExp(`\\s(?:htmlFor|for)=(["'])${id}\\1`, 'i').test(line))) return false;
+    return !inLabel(lines, i, '<button');
+}
+
+// Only plain text or a standalone line of plain text can be removed without assuming how an expression renders.
 function emptied(lines: string[], i: number, markup: boolean[], element: string, required?: RegExp): MutationResult | undefined {
     const line = lines[i];
-    const match = new RegExp(`(<${element}\\b(?:[^<>{}]|\\{[^{}]*\\})*>)([^<>{}]*\\w[^<>{}]*)(</${element}>)`).exec(line);
+    if (!line.includes(`<${element}`)) return undefined;
+    const opening = `<${element}\\b(?:[^<>{}]|\\{[^{}]*\\})*>`;
+    const match = new RegExp(`(${opening})([^<>{}]*\\w[^<>{}]*)(</${element}>)`).exec(line);
     if (match) {
-        if (NAMED.test(match[1]) || (required && !required.test(match[1]))) return undefined;
+        if (!canEmpty(match[1], lines, i, element, required)) return undefined;
         return { editLine: i, mutated: line.replace(match[0], match[1] + match[3]) };
     }
-    if (i + 2 >= lines.length || !markup[i + 1] || !markup[i + 2]) return undefined;
-    const open = new RegExp(`^\\s*(<${element}\\b(?:[^<>{}]|\\{[^{}]*\\})*>)\\s*$`).exec(line);
-    const body = lines[i + 1];
-    const close = new RegExp(`^\\s*</${element}>\\s*$`).exec(lines[i + 2]);
-    if (!open || !close || NAMED.test(open[1]) || (required && !required.test(open[1]))) return undefined;
+    const openTag = new RegExp(`^\\s*(${opening})\\s*$`);
+    const end = openTag.test(line) ? i : findTagEnd(lines, i);
+    if (end === undefined || end + 2 >= lines.length || markup.slice(i, end + 3).some(allowed => !allowed)) return undefined;
+    const open = openTag.exec(lines.slice(i, end + 1).join('\n'));
+    const body = lines[end + 1];
+    const close = new RegExp(`^\\s*</${element}>\\s*$`).exec(lines[end + 2]);
+    if (!open || !close || !canEmpty(open[1], lines, i, element, required)) return undefined;
     if (!/^[^<>{}]*\w[^<>{}]*$/.test(body)) return undefined;
-    return { editLine: i + 1, mutated: '', reportLine: i };
+    return { editLine: end + 1, mutated: '', reportLine: i };
 }
 
 async function main(sourcesDir: string) {
     const outDir = path.join(__dirname, 'injection');
-    fs.rmSync(outDir, { recursive: true, force: true });
-    const candidates = new Map<string, { source: string; file: string; text: string; editLine: number; reportLine: number; mutated: string }[]>();
+    const vueIframes = await vueIframeCases(sourcesDir);
+    const candidates = new Map<string, (EvidenceDocument & { source: string; editLine: number; reportLine: number; mutated: string })[]>();
     for (const [source, { commit }] of Object.entries(SOURCES)) {
         const clone = path.join(sourcesDir, source);
         const head = execFileSync('git', ['-C', clone, 'rev-parse', 'HEAD'], { encoding: 'utf-8' }).trim();
         if (head !== commit) throw new Error(`${source} is at ${head}, not ${commit}`);
-        for (const file of filesOf(clone)) {
-            const languageId = LANGUAGE.find(([pattern]) => pattern.test(file))?.[1];
-            if (!languageId) continue;
-            const text = fs.readFileSync(path.join(clone, file), 'utf-8');
+        for (const document of documentsOf(source, clone)) {
+            const { languageId, text } = document;
+            if (Buffer.byteLength(text) > MAX_FIXTURE_BYTES) continue;
             const lines = text.split('\n');
             const markup = markupLines(languageId, lines);
             const applicable = MUTATIONS.flatMap(mutation => {
@@ -202,7 +281,7 @@ async function main(sourcesDir: string) {
             for (const { mutation, editLine, reportLine, mutated } of applicable) {
                 const key = `${languageId} ${mutation.kind}`;
                 if (!candidates.has(key)) candidates.set(key, []);
-                candidates.get(key)!.push({ source, file, text, editLine, reportLine, mutated });
+                candidates.get(key)!.push({ ...document, source, editLine, reportLine, mutated });
             }
         }
     }
@@ -211,10 +290,14 @@ async function main(sourcesDir: string) {
         source: 'Component files of open-source projects at pinned commits, each with one inserted failure; each case names its source, commit and licence in its note.',
         cases: []
     };
+    fs.rmSync(outDir, { recursive: true, force: true });
     for (const key of [...candidates.keys()].sort()) {
         const [languageId, kind] = key.split(' ');
         const mutation = MUTATIONS.find(m => m.kind === kind)!;
-        for (const { source, file, text, editLine, reportLine, mutated } of evenly(candidates.get(key)!, PER_KIND)) {
+        const samples = candidates.get(key)!;
+        const unique = new Map(samples.map(sample => [sample.file + '\0' + sample.source, sample]));
+        const selected = unique.size >= PER_KIND ? [...unique.values()] : samples;
+        for (const { source, file, origin, text, editLine, reportLine, mutated } of evenly(selected, PER_KIND)) {
             const lines = text.split('\n');
             lines[editLine] = mutated;
             const ext = languageId === 'javascriptreact' ? '.jsx' : path.extname(file);
@@ -227,14 +310,64 @@ async function main(sourcesDir: string) {
             const testCase: GroundTruthCase = {
                 file: caseFile.split(path.sep).join('/'),
                 languageId,
-                note: `${url}/blob/${commit}/${file} (licence in licenses/${source}), ${kind} inserted on line ${reportLine + 1}.`,
+                note: origin
+                    ? `${url}/blob/${commit}/${origin} (licence in licenses/${source}), ${kind} inserted on fixture line ${reportLine + 1}.`
+                    : `${url}/blob/${commit}/${file} (licence in licenses/${source}), ${kind} inserted on line ${reportLine + 1}.`,
                 expect: mutation.criteria.map(criterion => ({ criterion, line: reportLine + 1 }))
             };
             set.cases.push(testCase);
         }
     }
+    for (const { testCase, text, licenceFile, licence } of vueIframes) {
+        const file = path.join(outDir, testCase.file);
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, text);
+        fs.writeFileSync(path.join(outDir, licenceFile), licence);
+        set.cases.push(testCase);
+    }
     fs.writeFileSync(path.join(outDir, 'expectations.json'), JSON.stringify(set, null, 2) + '\n');
     console.log(`Generated ${set.cases.length} cases`);
+}
+
+interface EvidenceDocument {
+    languageId: string;
+    file: string;
+    origin?: string;
+    text: string;
+}
+
+function* documentsOf(source: string, clone: string): Iterable<EvidenceDocument> {
+    const seen = new Set<string>();
+    for (const file of filesOf(clone)) {
+        const reactExample = source === 'react-dev' && /^src\/content\/.*\.md$/.test(file);
+        const angularExample = source === 'primeng' && file.includes('showcase') && file.endsWith('.ts');
+        if (reactExample || angularExample) {
+            const text = fs.readFileSync(path.join(clone, file), 'utf8');
+            const examples = reactExample
+                ? text.matchAll(/^```(?:js|jsx)\b[^\n]*\n([\s\S]*?)^```/gm)
+                : text.matchAll(/\btemplate\s*:\s*`([^`]+)`/g);
+            for (const example of examples) {
+                const template = example[1];
+                if (!/<(?:a|button|img|label|iframe)\b/.test(template) || template.includes('${') || seen.has(template.trim())) continue;
+                seen.add(template.trim());
+                const line = text.slice(0, example.index).split('\n').length;
+                yield {
+                    languageId: reactExample ? 'javascriptreact' : 'angular',
+                    file: `${file}--${line}${reactExample ? '.jsx' : '.component.html'}`,
+                    origin: `${file}#L${line}`,
+                    text: template
+                };
+            }
+            continue;
+        }
+        if (['gatsby', 'nextjs'].includes(source) && (!file.startsWith('examples/') || /\/(?:cms-sitecore-xmcloud|with-stencil)\//.test(file))) continue;
+        const javascriptComponent = ['reactstrap', 'react-big-calendar'].includes(source) && /^(src|stories)\/.*\.js$/.test(file)
+            || ['gatsby', 'nextjs'].includes(source) && file.endsWith('.js');
+        const angularTemplate = ['angular', 'coreui-angular'].includes(source) && /\.html$/.test(file);
+        const languageId = javascriptComponent ? 'javascriptreact'
+            : angularTemplate ? 'angular' : LANGUAGE.find(([pattern]) => pattern.test(file))?.[1];
+        if (languageId) yield { languageId, file, text: fs.readFileSync(path.join(clone, file), 'utf8') };
+    }
 }
 
 // Which lines are rendered markup: not script, style, frontmatter, comments or markup quoted in a template literal
@@ -280,13 +413,14 @@ async function isClean(languageId: string, text: string): Promise<boolean> {
 function filesOf(clone: string): string[] {
     return execFileSync('git', ['-C', clone, 'ls-files'], { encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 })
         .split('\n')
-        .filter(file => file && !/(^|\/)(tests?|__tests__|__e2e__|e2e|fixtures?)\//.test(file) && !/\.(spec|test|stories)\./.test(file)
+        .filter(file => file && !/(^|\/)(tests?|__tests__|__e2e__|e2e|fixtures?|dist|build|node_modules)\//.test(file)
+            && !/\.(spec|test|stories)\./.test(file)
             && fs.existsSync(path.join(clone, file)))
         .sort();
 }
 
 function copyLicence(clone: string, to: string) {
-    const name = ['LICENSE', 'LICENSE.md', 'LICENSE.txt'].find(n => fs.existsSync(path.join(clone, n)));
+    const name = ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENSE-DOCS.md', 'license.md'].find(n => fs.existsSync(path.join(clone, n)));
     if (!name) throw new Error(`${clone} has no licence file`);
     fs.mkdirSync(path.dirname(to), { recursive: true });
     fs.copyFileSync(path.join(clone, name), to);

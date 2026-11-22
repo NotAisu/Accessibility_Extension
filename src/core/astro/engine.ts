@@ -5,9 +5,9 @@ import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 import { styleBlocksSetColors } from '../needs-review';
-import { emptyButtons, hasSpread, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
-import { buttonNameFinding, withOwnRules } from '../own-rules';
-import { jsxA11ySettings, RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
+import { hasSpread, isHiddenAt, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
+import { withOwnRules } from '../own-rules';
+import { addMarkupFindings, jsxA11ySettings, RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
 import type { ComponentMapping } from '../components';
 
 // The Astro engine as one chunk, loaded on the first Astro document.
@@ -51,6 +51,7 @@ export function checkAstro(text: string, components?: ComponentMapping): Analysi
         const rule = message.ruleId?.startsWith(PREFIX) ? message.ruleId.slice(PREFIX.length) : undefined;
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
+        if ((rule === 'alt-text' || rule === 'anchor-has-content') && isHiddenAt(linter.getSourceCode(), start)) continue;
         const end = message.endLine && message.endColumn ? toOffset(message.endLine, message.endColumn) : start;
         const docs = plugin.rules[`jsx-a11y/${rule}`]?.meta?.docs;
         findings.push({
@@ -65,7 +66,7 @@ export function checkAstro(text: string, components?: ComponentMapping): Analysi
         });
     }
     const source = linter.getSourceCode();
-    for (const range of emptyButtons(source, components)) findings.push(buttonNameFinding(range));
+    addMarkupFindings(findings, source, PREFIX, components);
     // <script> and <style> bodies are raw text that renders nothing. class:list and spread attributes can set the class or style
     const content = renderedJsxContent(source, {
         textParents: ['JSXElement', 'JSXFragment', 'AstroFragment'],

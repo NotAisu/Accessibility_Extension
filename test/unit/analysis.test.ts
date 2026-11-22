@@ -10,6 +10,13 @@ const page = (body: string) => [
 ].join('\n');
 
 describe('analyse (HTML)', () => {
+    it('maps page-level findings to their actual tags in a file with a UTF-8 BOM', async () => {
+        const text = '\uFEFF<!DOCTYPE html>\n<html>\n<head><title>Example</title></head>\n<body aria-hidden="true">Example</body>\n</html>';
+        const { findings } = await analyse({ languageId: 'html', text }, { proven: () => true });
+        const tag = (ruleId: string) => findings.filter(f => f.ruleId === ruleId).map(f => text.slice(f.range.start, f.range.end));
+        assert.deepStrictEqual(tag('html-has-lang'), ['<html>']);
+        assert.deepStrictEqual(tag('aria-hidden-body'), ['<body aria-hidden="true">']);
+    });
     it('reports a Check Finding at the exact source range of the element', async () => {
         const text = page('<p>Sales</p>\n<img src="chart.png">');
 
@@ -192,13 +199,45 @@ describe('analyse (JSX/TSX)', () => {
         const text = [
             'export const Form = () => <>',
             '    <label><div><span>Name</span></div><input type="text" /></label>',
+            '    <label id="hidden-text"><span><span aria-hidden="true">Name</span></span><input /></label>',
+            '    <label id="empty-expression"><span><span>{null}</span></span><input /></label>',
             '    <label className="orphan">Orphan</label>',
             '</>;'
         ].join('\n');
 
         const { findings } = await analyse({ languageId: 'typescriptreact', text });
 
-        assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('label-has-associated-control')).map(f => text.slice(f.range.start, f.range.end)), ['<label className="orphan">']);
+        assert.deepStrictEqual(findings.filter(f => f.ruleId.endsWith('label-has-associated-control'))
+            .sort((left, right) => left.range.start - right.range.start).map(f => text.slice(f.range.start, f.range.end)), [
+            '<label id="hidden-text">', '<label id="empty-expression">', '<label className="orphan">'
+        ]);
+    });
+
+    it('checks alt text only on images that are not statically hidden', async () => {
+        const text = [
+            'export const Page = () => <>',
+            '    <img style={{ display: "none" }} src="preload.png" />',
+            '    <div hidden><img src="hidden.png" /></div>',
+            '    <img hidden={false} src="visible.png" />',
+            '</>;'
+        ].join('\n');
+        const { findings } = await analyse({ languageId: 'typescriptreact', text });
+        assert.deepStrictEqual(findings.filter(f => f.ruleId === 'jsx-a11y-x/alt-text')
+            .map(f => text.slice(f.range.start, f.range.end)), ['<img hidden={false} src="visible.png" />']);
+    });
+
+    it('reports a static link whose only content is whitespace', async () => {
+        const text = [
+            'export const Navigation = () => <>',
+            '    <a href="/empty">',
+            '    </a>',
+            '    <a href="/hidden" hidden />',
+            '    <a href="/named" aria-label="Open help" />',
+            '</>;'
+        ].join('\n');
+        const { findings } = await analyse({ languageId: 'javascriptreact', text }, { proven: () => true });
+        assert.deepStrictEqual(findings.filter(f => f.ruleId === 'jsx-a11y-x/anchor-has-content')
+            .map(f => text.slice(f.range.start, f.range.end)), ['<a href="/empty">']);
     });
 });
 
@@ -273,14 +312,42 @@ describe('analyse (Vue)', () => {
         const text = [
             '<template>',
             '    <UChatMessage role="user" />',
+            '    <user-message role="user" />',
             '    <div role="bogus"></div>',
+            '    <svg role="invalid"></svg>',
+            '    <math role="invalid-math"></math>',
             '</template>'
         ].join('\n');
 
         const { findings } = await analyse({ languageId: 'vue', text });
 
         assert.deepStrictEqual(findings.filter(f => f.ruleId === 'vuejs-accessibility/aria-role').map(f => text.slice(f.range.start, f.range.end)), [
-            'role="bogus"'
+            'role="bogus"', 'role="invalid"', 'role="invalid-math"'
+        ]);
+    });
+
+    it('reports exposed Vue iframes with content only when they lack an accessible name', async () => {
+        const text = [
+            '<template>',
+            '    <iframe src="/unnamed"></iframe>',
+            '    <iframe src="/blank-title" title=" "></iframe>',
+            '    <iframe src="/title" title="Map"></iframe>',
+            '    <iframe src="/aria" aria-label="Route map"></iframe>',
+            '    <h2 id="map-name">Map</h2><iframe src="/map" aria-labelledby="map-name"></iframe>',
+            '    <iframe src="/dynamic" :title="title"></iframe>',
+            '    <iframe src="/props" v-bind="frameProps"></iframe>',
+            '    <iframe src="/hidden" hidden></iframe>',
+            '    <div v-show="false"><iframe src="/not-rendered"></iframe></div>',
+            '    <section aria-hidden="true"><iframe src="/hidden-parent"></iframe></section>',
+            '    <iframe src="/decorative" role="presentation"></iframe>',
+            '    <iframe src="/out-of-tab-order" tabindex="-1"></iframe>',
+            '    <iframe></iframe>',
+            '</template>'
+        ].join('\n');
+        const { findings } = await analyse({ languageId: 'vue', text }, { proven: () => true });
+        assert.deepStrictEqual(findings.filter(f => f.ruleId === 'vuejs-accessibility/iframe-has-title')
+            .map(f => text.slice(f.range.start, f.range.end)), [
+            '<iframe src="/unnamed">', '<iframe src="/blank-title" title=" ">'
         ]);
     });
 
