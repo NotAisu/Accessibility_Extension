@@ -7,7 +7,7 @@
  * A base file is a file the Check reports nothing in. Each mutation rewrites one line and keeps the line count,
  * and makes a failure that holds whatever the rest of the file does, so the case expects the mutation's criteria on
  * that line and on no other line. At most PER_KIND cases per language and mutation are evenly spaced over the
- * sorted candidates, preferring distinct source files when enough are available.
+ * sorted candidates, preferring distinct source content when enough is available. Identical mutations count once.
  */
 import '../esm-only-packages';
 import { execFileSync } from 'child_process';
@@ -172,6 +172,8 @@ const MUTATIONS: Mutation[] = [
         // An iframe without an accessible name (ACT cae760)
         kind: 'iframe-without-title',
         criteria: ['4.1.2'],
+        // Vue cases are selected separately from pinned sources by vueIframeCases.
+        languages: ['html', 'typescriptreact', 'javascriptreact', 'svelte', 'astro', 'angular'],
         apply: (lines, i) => {
             const line = lines[i];
             if (!/<iframe\b/.test(line)) return undefined;
@@ -265,6 +267,9 @@ async function main(sourcesDir: string) {
         const clone = path.join(sourcesDir, source);
         const head = execFileSync('git', ['-C', clone, 'rev-parse', 'HEAD'], { encoding: 'utf-8' }).trim();
         if (head !== commit) throw new Error(`${source} is at ${head}, not ${commit}`);
+        if (execFileSync('git', ['-C', clone, 'status', '--porcelain', '--untracked-files=no']).length) {
+            throw new Error(`${source} has tracked changes relative to ${commit}`);
+        }
         for (const document of documentsOf(source, clone)) {
             const { languageId, text } = document;
             if (Buffer.byteLength(text) > MAX_FIXTURE_BYTES) continue;
@@ -295,15 +300,20 @@ async function main(sourcesDir: string) {
         const [languageId, kind] = key.split(' ');
         const mutation = MUTATIONS.find(m => m.kind === kind)!;
         const samples = candidates.get(key)!;
-        const unique = new Map(samples.map(sample => [sample.file + '\0' + sample.source, sample]));
-        const selected = unique.size >= PER_KIND ? [...unique.values()] : samples;
+        const unique = new Map(samples.map(sample => [sample.text, sample]));
+        const selected = unique.size >= PER_KIND ? [...unique.values()]
+            : [...new Map(samples.map(sample => [`${sample.text}\0${sample.editLine}\0${sample.mutated}`, sample])).values()];
+        const written = new Set<string>();
         for (const { source, file, origin, text, editLine, reportLine, mutated } of evenly(selected, PER_KIND)) {
             const lines = text.split('\n');
             lines[editLine] = mutated;
+            const mutatedText = lines.join('\n');
+            if (written.has(mutatedText)) continue;
+            written.add(mutatedText);
             const ext = languageId === 'javascriptreact' ? '.jsx' : path.extname(file);
             const caseFile = path.join(kind, source, `${file.replace(/[\\/]/g, '__')}--${reportLine + 1}${ext}`);
             fs.mkdirSync(path.dirname(path.join(outDir, caseFile)), { recursive: true });
-            fs.writeFileSync(path.join(outDir, caseFile), lines.join('\n'));
+            fs.writeFileSync(path.join(outDir, caseFile), mutatedText);
             const licence = path.join(outDir, 'licenses', source);
             if (!fs.existsSync(licence)) copyLicence(path.join(sourcesDir, source), licence);
             const { url, commit } = SOURCES[source];

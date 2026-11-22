@@ -57,10 +57,10 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | Language | Rule | Criteria | Correct | Precision at least |
 | --- | --- | --- | --- | --- |
 | Angular | `@angular-eslint/template/alt-text` | 1.1.1 | 84 of 84 | 96.4 % |
-| Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 162 of 162 | 98.1 % |
+| Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 160 of 160 | 98.1 % |
 | Astro | `allyproof/button-name` | 4.1.2 | 80 of 80 | 96.3 % |
 | Astro | `astro/jsx-a11y/alt-text` | 1.1.1 | 60 of 60 | 95.1 % |
-| Astro | `astro/jsx-a11y/anchor-has-content` | 2.4.4, 4.1.2 | 80 of 80 | 96.3 % |
+| Astro | `astro/jsx-a11y/anchor-has-content` | 2.4.4, 4.1.2 | 79 of 79 | 96.2 % |
 | HTML | `aria-hidden-body` | 1.3.1, 4.1.2 | 80 of 80 | 96.3 % |
 | HTML | `button-name` | 4.1.2 | 74 of 74 | 96.0 % |
 | HTML | `document-title` | 2.4.2 | 84 of 84 | 96.4 % |
@@ -69,16 +69,16 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | HTML | `label` | 4.1.2 | 85 of 85 | 96.5 % |
 | HTML | `link-name` | 2.4.4, 4.1.2 | 108 of 108 | 97.2 % |
 | JSX | `allyproof/button-name` | 4.1.2 | 80 of 80 | 96.3 % |
-| JSX | `jsx-a11y-x/alt-text` | 1.1.1 | 80 of 80 | 96.3 % |
+| JSX | `jsx-a11y-x/alt-text` | 1.1.1 | 74 of 74 | 96.0 % |
 | JSX | `jsx-a11y-x/anchor-has-content` | 2.4.4, 4.1.2 | 80 of 80 | 96.3 % |
 | Svelte | `svelte/a11y_consider_explicit_label` | 4.1.2, 2.4.4 | 119 of 119 | 97.5 % |
 | Svelte | `svelte/a11y_missing_attribute` | 1.1.1, 2.1.1, 3.1.1, 4.1.2 | 81 of 81 | 96.3 % |
 | TSX | `allyproof/button-name` | 4.1.2 | 80 of 80 | 96.3 % |
 | TSX | `jsx-a11y-x/alt-text` | 1.1.1 | 80 of 80 | 96.3 % |
-| TSX | `jsx-a11y-x/anchor-has-content` | 2.4.4, 4.1.2 | 79 of 79 | 96.2 % |
+| TSX | `jsx-a11y-x/anchor-has-content` | 2.4.4, 4.1.2 | 78 of 78 | 96.2 % |
 | Vue | `vuejs-accessibility/alt-text` | 1.1.1 | 123 of 123 | 97.5 % |
 | Vue | `vuejs-accessibility/anchor-has-content` | 2.4.4, 4.1.2 | 81 of 81 | 96.3 % |
-| Vue | `vuejs-accessibility/iframe-has-title` | 4.1.2 | 68 of 68 | 95.6 % |
+| Vue | `vuejs-accessibility/iframe-has-title` | 4.1.2 | 65 of 65 | 95.4 % |
 
 The evidence of every rule, proven or not, is in [`src/core/proof-status.json`](src/core/proof-status.json), and the labelled files are in [`test/ground-truth`](test/ground-truth).
 

@@ -20,7 +20,7 @@
     },
     "@angular-eslint/template/elements-content": {
       "angular": {
-        "correct": 162,
+        "correct": 160,
         "wrong": 0,
         "lowerBound": 0.981,
         "proven": true
@@ -196,9 +196,9 @@
     },
     "astro/jsx-a11y/anchor-has-content": {
       "astro": {
-        "correct": 80,
+        "correct": 79,
         "wrong": 0,
-        "lowerBound": 0.963,
+        "lowerBound": 0.962,
         "proven": true
       }
     },
@@ -292,9 +292,9 @@
     },
     "jsx-a11y-x/alt-text": {
       "javascriptreact": {
-        "correct": 80,
+        "correct": 74,
         "wrong": 0,
-        "lowerBound": 0.963,
+        "lowerBound": 0.96,
         "proven": true
       },
       "typescriptreact": {
@@ -312,7 +312,7 @@
         "proven": true
       },
       "typescriptreact": {
-        "correct": 79,
+        "correct": 78,
         "wrong": 0,
         "lowerBound": 0.962,
         "proven": true
@@ -518,9 +518,9 @@
     },
     "vuejs-accessibility/iframe-has-title": {
       "vue": {
-        "correct": 68,
+        "correct": 65,
         "wrong": 0,
-        "lowerBound": 0.956,
+        "lowerBound": 0.954,
         "proven": true
       }
     },

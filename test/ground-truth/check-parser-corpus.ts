@@ -38,6 +38,7 @@ async function main(sourcesDir: string): Promise<void> {
         for (const { name, commit, languageId } of SOURCES) {
             const cwd = path.resolve(sourcesDir, name);
             assert.equal(execFileSync('git', ['rev-parse', 'HEAD'], { cwd, encoding: 'utf8' }).trim(), commit, name);
+            assert.equal(execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], { cwd, encoding: 'utf8' }).trim(), '', `${name}: tracked files differ from the pinned commit`);
             const files = execFileSync('git', ['ls-files', '-z'], { cwd, encoding: 'utf8' }).split('\0');
             let checked = 0;
             for (const file of files.filter(file => file.endsWith(`.${languageId}`))) {

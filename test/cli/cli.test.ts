@@ -45,6 +45,37 @@ const blockingRules = (output: CheckOutput) => output.files.flatMap(f => f.findi
 describe('allyproof check', function () {
     this.timeout(120_000);
 
+    it('reports unnamed markup only where it is exposed', () => {
+        const dir = repository({
+            'Hidden.tsx': 'export default <main><div inert><img src="/hidden.png" /><button /><a href="/hidden" /></div><div style={{ visibility: "hidden" }}><button /></div></main>',
+            'Visible.tsx': 'export default <div style={{ visibility: "hidden" }}><button style={{ visibility: "visible" }} /></div>',
+            'Visible.astro': '<div style="display: none; display: block;"><img src="/visible.png"><button></button><a href="/visible"></a></div>',
+            'Hidden.vue': '<template><iframe :src="null"></iframe><iframe src="/map" :style="{ display: \'none\' }"></iframe><iframe src="/map" v-if="!true"></iframe></template>',
+            'Visible.vue': '<template><div style="display: none; display: block;"><iframe src="/map" :aria-hidden="false"></iframe></div></template>'
+        });
+        const result = run(dir, ['check', '--format', 'json']);
+
+        assert.strictEqual(result.code, 1, result.stderr);
+        assert.deepStrictEqual(blockingRules(json(result.stdout)).sort(), [
+            'Visible.astro:1 allyproof/button-name',
+            'Visible.astro:1 astro/jsx-a11y/alt-text',
+            'Visible.astro:1 astro/jsx-a11y/anchor-has-content',
+            'Visible.tsx:1 allyproof/button-name',
+            'Visible.vue:1 vuejs-accessibility/iframe-has-title'
+        ]);
+    });
+
+    it('keeps explicit button labels within their render scope', () => {
+        const dir = repository({
+            'Separate.tsx': 'const Unrelated = () => <label htmlFor="save">Save</label>; export const Main = () => <button id="save" />;',
+            'Associated.tsx': 'export const Main = () => [<label htmlFor="save">Save</label>, <button id="save" />];'
+        });
+        const result = run(dir, ['check', '--format', 'json']);
+
+        assert.strictEqual(result.code, 1, result.stderr);
+        assert.deepStrictEqual(blockingRules(json(result.stdout)), ['Separate.tsx:1 allyproof/button-name']);
+    });
+
     it('fails on a Finding with its file, line, rule, criterion and documentation link, and passes clean code', () => {
         const failing = run(repository({ 'src/Chart.vue': FAILING }), ['check']);
         const clean = run(repository({ 'src/Chart.vue': CLEAN }), ['check']);

@@ -588,18 +588,6 @@
     "licenceHash": "fcf74052c5c431d6723ba911719c49360242d10481fb8149815ee14036fd9a3e"
   },
   {
-    "repo": "ubugeeei-prod/vize",
-    "commit": "3839299d0988c1b415ae6023d6599c0d70b13ade",
-    "file": "npm/builder/vite-musea/gallery/components/A11yPanel.vue",
-    "licencePath": "LICENSE",
-    "line": 99,
-    "titleLine": 105,
-    "titleColumn": 6,
-    "title": "title=\"Accessibility test preview\"",
-    "sourceHash": "98b45eb6fd63ea3b54ff07531103223978622ea2219f3375ad87a5cc3edf6e45",
-    "licenceHash": "4e599bb8d73f48717952dab7ac683101cb21cb0584ab7bb3b851d80be82d726f"
-  },
-  {
     "repo": "unovue/shadcn-vue",
     "commit": "d1bf1b3a2d1a824b19f32d7253a28a43797b8253",
     "file": "apps/v4/components/Preview.vue",

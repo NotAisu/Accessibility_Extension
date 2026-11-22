@@ -8,6 +8,8 @@ import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 import { addText, styleBlocksSetColors, type RenderedContent, type SourceElement } from '../needs-review';
 import { withOwnRules } from '../own-rules';
 import { mappedElement, writtenNames, type ComponentMapping } from '../components';
+import { inlineDisplayNone, inlineVisibilityHidden } from '../inline-visibility';
+import { styleObjectCss } from '../jsx/jsx-ast';
 
 // The Vue engine as one chunk, loaded on the first Vue document.
 
@@ -212,10 +214,19 @@ function hasUncertainIframeMarkup(node: VueNode): boolean {
             const argument = key.argument as VueNode | null;
             if (name === 'bind' && argument?.type !== 'VIdentifier') return true;
             const expression = (attribute.value as VueNode | null)?.expression as VueNode | null;
-            if ((name === 'show' || name === 'if') && expression?.type === 'Literal' && !expression.value) return true;
+            if ((name === 'show' || name === 'if') && literalCondition(expression) === false) return true;
         }
     }
     return false;
+}
+
+function literalCondition(expression: VueNode | null | undefined): boolean | undefined {
+    if (expression?.type === 'Literal') return Boolean(expression.value);
+    if (expression?.type === 'UnaryExpression' && expression.operator === '!') {
+        const value = literalCondition(expression.argument as VueNode);
+        if (value !== undefined) return !value;
+    }
+    return undefined;
 }
 
 function needsIframeName(element: SourceElement): boolean {
@@ -230,18 +241,20 @@ function needsIframeName(element: SourceElement): boolean {
     if (tabIndex === true || typeof tabIndex === 'string' && /^-\d+$/.test(tabIndex.trim()) && Number(tabIndex) < 0
         || role === true || typeof role === 'string' && /^(?:none|presentation)$/i.test(role.trim())) return false;
 
+    let visibilityHidden: boolean | undefined;
     for (let ancestor: SourceElement | undefined = element; ancestor; ancestor = ancestor.parent) {
         const attributes = ancestor.attributes;
         const ariaHidden = attributes.get('aria-hidden');
         const style = attributes.get('style');
         if (attributes.has('hidden') || attributes.has('inert') || ariaHidden === true
             || typeof ariaHidden === 'string' && ariaHidden.trim().toLowerCase() === 'true'
-            || typeof style === 'string' && /(?:^|;)\s*(?:display\s*:\s*none|visibility\s*:\s*hidden)\s*(?:!important\s*)?(?:;|$)/i.test(style)) return false;
+            || inlineDisplayNone(style)) return false;
+        visibilityHidden ??= inlineVisibilityHidden(style);
     }
-    return true;
+    return !visibilityHidden;
 }
 
-// A value only for a static attribute; a binding (:href, v-bind:role) counts as present
+// A dynamic binding counts as present. Resolve literal bindings needed to tell whether an iframe is exposed.
 function attributesOf(element: VueNode): Map<string, string | true> {
     const attributes = new Map<string, string | true>();
     for (const attribute of (element.startTag as { attributes: VueNode[] }).attributes) {
@@ -253,7 +266,19 @@ function attributesOf(element: VueNode): Map<string, string | true> {
         }
         const argument = key.argument as VueNode | null;
         if ((key.name as VueNode).name === 'bind' && argument?.type === 'VIdentifier') {
-            attributes.set((argument.name as string).toLowerCase(), true);
+            const name = (argument.name as string).toLowerCase();
+            const expression = (attribute.value as VueNode | null)?.expression as VueNode | undefined;
+            if (name === 'style' && expression) {
+                const css = expression.type === 'Literal' && typeof expression.value === 'string' ? expression.value : styleObjectCss(expression);
+                attributes.set(name, css ?? true);
+            } else if (['src', 'srcdoc', 'aria-hidden'].includes(name) && expression?.type === 'Literal') {
+                const value = expression.value;
+                if (value === null) attributes.delete(name);
+                else if (typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number') attributes.set(name, String(value));
+                else attributes.set(name, true);
+            } else {
+                attributes.set(name, true);
+            }
         }
     }
     return attributes;
