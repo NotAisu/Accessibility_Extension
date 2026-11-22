@@ -25,6 +25,7 @@ const USAGE = `Usage:
   allyproof baseline [paths…] [--baseline <file>]
   allyproof explain <rule id> [--language <language id>]
   allyproof rules [--format text|json]
+  allyproof --version
 
 Exit codes: 0 no blocking Findings, 1 blocking Findings, 2 usage or configuration error, 3 a file could not be checked.
 `;
@@ -50,10 +51,15 @@ async function main(argv: string[]): Promise<number> {
             'fail-on': { type: 'string', default: 'warning' },
             baseline: { type: 'string' },
             language: { type: 'string', default: 'html' },
-            help: { type: 'boolean', short: 'h' }
+            help: { type: 'boolean', short: 'h' },
+            version: { type: 'boolean', short: 'v' }
         }
     });
     const [command, ...args] = positionals;
+    if (values.version) {
+        process.stdout.write(`${VERSION}\n`);
+        return EXIT.clean;
+    }
     if (values.help || !command) {
         process.stdout.write(USAGE);
         return values.help ? EXIT.clean : EXIT.usage;
