@@ -5,6 +5,8 @@ import * as os from 'os';
 import * as path from 'path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { ListRootsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { pathToFileURL } from 'url';
 import type { CheckOutput } from '../../src/cli/output';
 
 // The packaged MCP server as an MCP client runs it: `allyproof mcp` of the bundle ALLYPROOF_CLI names, over stdio
@@ -26,8 +28,12 @@ function cli(cwd: string, args: string[]) {
     return spawnSync(process.execPath, [CLI, ...args], { cwd, encoding: 'utf-8' });
 }
 
-async function connect(cwd: string): Promise<Client> {
-    const client = new Client({ name: 'allyproof-test', version: '1.0.0' });
+// A client that declares `roots` answers the server's roots/list with them; `roots.dirs` can change while connected
+async function connect(cwd: string, roots?: { dirs: string[] }): Promise<Client> {
+    const client = new Client({ name: 'allyproof-test', version: '1.0.0' }, roots ? { capabilities: { roots: { listChanged: true } } } : undefined);
+    if (roots) {
+        client.setRequestHandler(ListRootsRequestSchema, () => ({ roots: roots.dirs.map(dir => ({ uri: pathToFileURL(dir).href, name: path.basename(dir) })) }));
+    }
     await client.connect(new StdioClientTransport({ command: process.execPath, args: [CLI, 'mcp'], cwd, stderr: 'ignore' }));
     return client;
 }
@@ -99,6 +105,46 @@ describe('allyproof mcp', function () {
             assert.strictEqual(result.isError, true, JSON.stringify(args));
             assert.match(result.content[0].text, /outside the project/);
         }
+    });
+
+    it('checks only files inside the roots the client declares, not the working directory', async () => {
+        const outside = project({ 'Secret.vue': FAILING });
+        const root = project({ 'src/Chart.vue': FAILING });
+        fs.symlinkSync(path.join(outside, 'Secret.vue'), path.join(root, 'src', 'Link.vue'));
+        client = await connect(outside, { dirs: [root] });
+
+        assert.strictEqual(output(await check(client, { paths: ['src/Chart.vue'] })).files[0].file, 'src/Chart.vue');
+        assert.strictEqual(output(await check(client, { paths: [path.join(root, 'src', 'Chart.vue')] })).summary.findings, 1);
+        for (const args of [{ paths: ['../' + path.basename(outside) + '/Secret.vue'] }, { paths: [path.join(outside, 'Secret.vue')] }, { paths: ['src/Link.vue'] }]) {
+            const result = await check(client, args);
+            assert.strictEqual(result.isError, true, JSON.stringify(args));
+            assert.match(result.content[0].text, /outside the project/);
+        }
+    });
+
+    it('follows the client\'s root list changes', async () => {
+        const first = project({ 'src/Chart.vue': FAILING });
+        const second = project({ 'src/Map.vue': FAILING });
+        const roots = { dirs: [first] };
+        client = await connect(first, roots);
+        assert.strictEqual((await check(client, { paths: [path.join(second, 'src', 'Map.vue')] })).isError, true);
+
+        roots.dirs = [second];
+        await client.sendRootsListChanged();
+
+        assert.strictEqual(output(await check(client, { paths: ['src/Map.vue'] })).summary.findings, 1);
+        assert.strictEqual((await check(client, { paths: [path.join(first, 'src', 'Chart.vue')] })).isError, true);
+    });
+
+    it('without roots checks the project allyproof check would, from a subfolder too', async () => {
+        const settings = '{ "allyproof.rules": { "vuejs-accessibility/alt-text": "off" } }\n';
+        const dir = project({ 'src/Chart.vue': FAILING, '.vscode/settings.json': settings });
+        spawnSync('git', ['init', '-q'], { cwd: dir });
+        const expected = JSON.parse(cli(path.join(dir, 'src'), ['check', 'Chart.vue', '--format', 'json']).stdout) as CheckOutput;
+        client = await connect(path.join(dir, 'src'));
+
+        assert.deepStrictEqual(expected.files.map(file => file.file), ['src/Chart.vue']);
+        assert.deepStrictEqual(output(await check(client, { paths: ['src/Chart.vue'] })), expected);
     });
 
     it('honours ignore comments and the rule settings of .vscode/settings.json', async () => {
