@@ -6,6 +6,8 @@ Allyproof checks your HTML, React, Vue, Svelte, Angular and Astro code against W
 
 > Pre-release. The coverage section below says exactly what is checked, what is listed as Needs Review and what is left to AI Review or to you.
 
+Allyproof helps you find accessibility barriers early. It is not a WCAG conformance audit or certification: a static check of source code finds only some barriers, so test the rendered page with people and assistive technology before you claim conformance.
+
 ## Features
 
 - **Check while you type**: Findings appear in the Problems panel for HTML, Vue, Svelte, JSX, TSX and Astro files and Angular component templates (`*.component.html` or an inline `template`). Each language runs its own accessibility linter. Only Proven rules report Findings: rules whose precision on labelled real code is at least 95 % at 95 % confidence; the others list their matches as likely failures under Needs Review. Every Finding names its WCAG 2.2 success criterion, and a hover explains why it is a problem and how to fix it, with links to the criterion. Your file is parsed, never executed, and your workspace's own lint config is never loaded.

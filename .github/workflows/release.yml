@@ -33,6 +33,8 @@ jobs:
       - run: xvfb-run -a npm run test:extension-host
       # One universal VSIX (ADR 0003): no --target
       - run: npx vsce package ${{ steps.version.outputs.pre-release == 'true' && '--pre-release' || '' }} --out allyproof.vsix
+      # The command line's npm package (#79), bundled again from the same commit
+      - run: npm run package:npm && npm pack ./out/npm && mv allyproof-*.tgz allyproof-cli.tgz
       - uses: ./.github/actions/sbom
         with:
           path: allyproof.cdx.json
@@ -41,6 +43,7 @@ jobs:
           name: release
           path: |
             allyproof.vsix
+            allyproof-cli.tgz
             allyproof.cdx.json
           if-no-files-found: error
 
@@ -78,10 +81,17 @@ jobs:
           else
             npx ovsx publish allyproof.vsix --skip-duplicate --trusted-publishing ${PRE_RELEASE:+--pre-release}
           fi
+      # Trusted publishing (this workflow and environment, set on npmjs.com); skipped when the version is already there.
+      # A pre-release goes to the next tag, so npx allyproof keeps installing the latest stable release
+      - run: |
+          version=${GITHUB_REF_NAME#v}
+          if [ "$(npm view "allyproof@$version" version 2>/dev/null)" != "$version" ]; then
+            npm publish allyproof-cli.tgz --provenance --access public --tag "$([ -n "$PRE_RELEASE" ] && echo next || echo latest)"
+          fi
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |
           version=${GITHUB_REF_NAME#v}
           awk -v h="## $version" 'index($0, h) == 1 { on = 1; next } on && /^## / { exit } on' CHANGELOG.md > notes.md
-          gh release create "$GITHUB_REF_NAME" allyproof.vsix allyproof.cdx.json --title "$GITHUB_REF_NAME" \
+          gh release create "$GITHUB_REF_NAME" allyproof.vsix allyproof-cli.tgz allyproof.cdx.json --title "$GITHUB_REF_NAME" \
             --notes-file notes.md ${{ needs.build.outputs.pre-release == 'true' && '--prerelease' || '' }}
