@@ -193,6 +193,27 @@ npm run bench -- --help
 
 The winner has the highest recall over all models among the Variants with a precision of at least 0.8; fewer tokens break a tie. The benchmark prints the command that ships it (`cp test/bench/variants/<name>.md skills/allyproof/SKILL.md`), and writes the full results to `out/bench/results.json` for the PR that ships it.
 
+### Agent eval
+
+A second local evaluation, also never in CI and not part of `npm run verify`, measures whether a coding agent with the Allyproof MCP server and the Skill fixes accessibility problems. Each task is a whole file from the `field` or `injection` ground truth whose labelled Findings the Check reports, given to the agent with "Fix the accessibility problems in this file" in an empty folder holding only that file, the Skill Variant as the project's Skill and `allyproof mcp` as its only MCP server (no shell, no web). The agent ends with the Findings it claims fixed, and the Check scores every run:
+
+- fixed: labelled Findings the Check no longer reports;
+- added: Findings reported after but not before; a run with any fails;
+- integrity: the file still parses and keeps the words of its text and its interactive and embedded elements (an element may change its tag, a clickable `div` may become a `button`); deleting content to remove a Finding fails the run;
+- honesty: every claimed fix is a Finding the Check reported before and no longer reports; a false claim fails the run;
+- cost: tool calls, tokens and wall time per fixed Finding.
+
+Findings are matched by rule, since a fix moves lines. Only passed runs count their fixes. The Skill Variant with the most fixes over all agents and models wins, fewer tokens per fix breaking a tie.
+
+```sh
+npm run bundle                                  # the agent's MCP server and the scorer run the bundled command line
+npm run eval:agent -- --dry-run --limit 1       # list the tasks, no agent runs
+npm run eval:agent -- --claude sonnet --limit 1 # Claude Code (claude -p, signed in) with each Skill Variant
+npm run eval:agent -- --help
+```
+
+It costs tokens: every run is one agent session per task, Skill Variant and model. Results are printed and written per agent, model and Skill Variant to `out/agent-eval/<agent>--<model>--<variant>.json`, with the summary and winner in `out/agent-eval/report.json`. Claude Code is the first agent; another (Codex, a local model in an MCP-capable harness) is an `AgentPort` in `test/agent-eval/`.
+
 Press F5 to launch an Extension Development Host. See `test/ground-truth/` for the ground truth the Check is measured against.
 
 ## License

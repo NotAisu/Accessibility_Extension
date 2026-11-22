@@ -370,6 +370,7 @@
     "test:cli": "mocha --no-config -r ts-node/register -r test/esm-only-packages.ts --extension ts --timeout 20000 'test/cli/**/*.test.ts'",
     "test:extension-host": "ts-node test/extension-host/run.ts",
     "bench": "ts-node test/bench/run.ts",
+    "eval:agent": "ts-node test/agent-eval/run.ts",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
     "audit": "ts-node scripts/audit.ts",
