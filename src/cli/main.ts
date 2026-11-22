@@ -2,13 +2,13 @@ import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { parseArgs } from 'util';
-import { proofOf, type Severity } from '../core/analysis';
-import { documentedRules, frameworkOf, ruleDoc } from '../core/rule-docs';
+import { type Severity } from '../core/analysis';
 import { workspaceLanguageId } from '../workspace-check';
 import { baselineOf, parseBaseline, type Baseline } from './baseline';
-import { checkAll, diskSource, elementAt, LANGUAGES, posix, settingsOf, SEVERITY_RANK, type Source } from './check';
+import { checkAll, diskSource, elementAt, posix, settingsOf, SEVERITY_RANK, type Source } from './check';
 import { serve } from './mcp';
-import { SCHEMA_VERSION, sarif, text } from './output';
+import { explanation, ruleList } from './rules';
+import { sarif, text } from './output';
 import { ConfigError } from './settings';
 import manifest from '../../package.json';
 
@@ -25,7 +25,8 @@ const USAGE = `Usage:
   allyproof baseline [paths…] [--baseline <file>]
   allyproof explain <rule id> [--language <language id>]
   allyproof rules [--format text|json]
-  allyproof mcp     an MCP server over stdio with the check tool, for coding agents
+  allyproof mcp     an MCP server over stdio for coding agents: the check, explain_rule and list_rules tools,
+                    every rule's docs as a resource and the Allyproof Skill as a prompt
 
 Exit codes: 0 no blocking Findings, 1 blocking Findings, 2 usage or configuration error, 3 a file could not be checked.
 `;
@@ -155,56 +156,18 @@ function stdinSource(root: string, filename: string): Source {
 
 function explain(ruleId: string | undefined, languageId: string): number {
     if (!ruleId) throw new UsageError('explain needs a rule id; `allyproof rules` lists them');
-    const doc = ruleDoc(ruleId);
-    if (!doc) throw new UsageError(`No rule ${ruleId}; \`allyproof rules\` lists them`);
-    const example = doc.examples[frameworkOf(languageId)];
-    process.stdout.write([
-        `${ruleId}: ${doc.message}`,
-        '',
-        `WCAG: ${doc.wcag.map(link => `${link.title} (${link.url})`).join('; ')}`,
-        '',
-        `Why: ${doc.why}`,
-        '',
-        `How to fix: ${doc.fix}`,
-        '',
-        `Fails${example.file ? `, in ${example.file}` : ''}:`,
-        indent(example.bad),
-        '',
-        'Passes:',
-        indent(example.good),
-        '',
-        `Proof: ${proofLine(ruleId)}`,
-        ''
-    ].join('\n'));
+    const text = explanation(ruleId, languageId);
+    if (text === undefined) throw new UsageError(`No rule ${ruleId}; \`allyproof rules\` lists them`);
+    process.stdout.write(text);
     return EXIT.clean;
 }
 
-const indent = (code: string) => code.split('\n').map(line => `    ${line}`).join('\n');
-
-function proofLine(ruleId: string): string {
-    const languages = proofsOf(ruleId);
-    if (languages.length === 0) return 'no evidence yet, so its matches are listed as Needs Review';
-    return languages.map(({ languageId, proof }) => `${languageId} ${proof.proven ? 'Proven' : 'Unproven'} (${proof.correct} of ${proof.correct + proof.wrong} correct, precision at least ${(proof.lowerBound * 100).toFixed(1)} %)`).join('; ');
-}
-
-function proofsOf(ruleId: string) {
-    return LANGUAGES.flatMap(languageId => {
-        const proof = proofOf(ruleId, languageId);
-        return proof ? [{ languageId, proof }] : [];
-    });
-}
-
 function rules(format: string): number {
-    const list = documentedRules().map(ruleId => ({
-        ruleId,
-        criteria: ruleDoc(ruleId)!.wcag.map(link => link.criterion),
-        layer: 'check' as const,
-        proof: Object.fromEntries(proofsOf(ruleId).map(({ languageId, proof }) => [languageId, proof]))
-    }));
+    const list = ruleList();
     if (format === 'json') {
-        process.stdout.write(JSON.stringify({ schemaVersion: SCHEMA_VERSION, rules: list }, null, 2) + '\n');
+        process.stdout.write(JSON.stringify(list, null, 2) + '\n');
     } else if (format === 'text') {
-        for (const rule of list) {
+        for (const rule of list.rules) {
             const proven = Object.entries(rule.proof).filter(([, proof]) => proof.proven).map(([languageId]) => languageId);
             process.stdout.write(`${rule.ruleId}  WCAG ${rule.criteria.join(', ')}  ${proven.length ? `Proven in ${proven.join(', ')}` : 'Unproven'}\n`);
         }
