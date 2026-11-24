@@ -119,3 +119,28 @@ export function chooseWinner(results: BenchResult[]): VariantScore | undefined {
         .filter(s => s.precision !== null && s.precision >= MIN_PRECISION)
         .sort((a, b) => (b.recall ?? 0) - (a.recall ?? 0) || a.tokens - b.tokens)[0];
 }
+
+/** Deterministic round-robin sample across (criteria, failing) buckets so --limit covers every case kind. */
+export function sampleCases(cases: BenchCase[], limit: number): BenchCase[] {
+    if (limit >= cases.length) return cases;
+    const buckets = new Map<string, BenchCase[]>();
+    for (const testCase of cases) {
+        const key = `${testCase.criteria.join(',')}\0${testCase.failing ? 'fail' : 'pass'}`;
+        const bucket = buckets.get(key) ?? [];
+        bucket.push(testCase);
+        buckets.set(key, bucket);
+    }
+    const sampled: BenchCase[] = [];
+    const queues = [...buckets.values()];
+    for (let i = 0; sampled.length < limit; i++) {
+        let added = false;
+        for (const queue of queues) {
+            if (i < queue.length && sampled.length < limit) {
+                sampled.push(queue[i]);
+                added = true;
+            }
+        }
+        if (!added) break;
+    }
+    return sampled;
+}

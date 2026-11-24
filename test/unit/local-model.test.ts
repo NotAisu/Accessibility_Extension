@@ -196,4 +196,69 @@ describe('local model', () => {
         await assert.rejects(selectLocalModel({ endpoint: server.endpoint, model: '' }, { signal: controller.signal }),
             (error: ModelError) => error.code === 'Cancelled');
     });
+
+    it('falls back to tool calling when the server reports structured output is unavailable', async () => {
+        server = await localServer(['gemma4:e2b'], (received, response) => {
+            if (received.body.response_format) {
+                return json(response, 500, { error: { message: 'structured output is unavailable' } });
+            }
+            return json(response, 200, {
+                choices: [{
+                    message: {
+                        role: 'assistant',
+                        content: '',
+                        tool_calls: [{
+                            id: 'call_1',
+                            type: 'function',
+                            function: { name: 'report_findings', arguments: JSON.stringify({ findings: [entry] }) }
+                        }]
+                    }
+                }]
+            });
+        });
+        const model = await selectLocalModel({ endpoint: server.endpoint, model: 'gemma4:e2b' });
+
+        const first = await review({ document, checkFindings: [] }, { model, skill, cache: memoryCache() });
+        const second = await review({ document, checkFindings: [] }, { model, skill, cache: memoryCache() });
+
+        assert.deepStrictEqual(first.findings.map(f => [f.message, f.criteria]), [['Bold text is used as a heading.', ['1.3.1']]]);
+        assert.deepStrictEqual(second.findings.map(f => [f.message, f.criteria]), [['Bold text is used as a heading.', ['1.3.1']]]);
+        const chats = server.received.filter(r => r.url === '/v1/chat/completions');
+        // First review tries response_format then falls back to tools; second review uses tools directly
+        assert.strictEqual(chats.length, 3);
+        assert.ok(chats[0].body.response_format);
+        assert.strictEqual(chats[1].body.response_format, undefined);
+        const tools = chats[1].body.tools as { type: string; function: { name: string; parameters: { required: string[] } } }[];
+        assert.strictEqual(tools[0].type, 'function');
+        assert.strictEqual(tools[0].function.name, 'report_findings');
+        assert.deepStrictEqual(tools[0].function.parameters.required, ['findings']);
+        assert.deepStrictEqual(chats[1].body.tool_choice, { type: 'function', function: { name: 'report_findings' } });
+        assert.strictEqual(chats[2].body.response_format, undefined);
+    });
+
+    it('asks for a repair when a tool-calling reply has no valid JSON arguments', async () => {
+        let calls = 0;
+        server = await localServer(['gemma4:e2b'], (received, response) => {
+            if (received.body.response_format) {
+                return json(response, 500, { error: { message: 'structured output is unavailable' } });
+            }
+            calls++;
+            const args = calls === 1 ? 'not json' : JSON.stringify({ findings: [entry] });
+            return json(response, 200, {
+                choices: [{
+                    message: {
+                        role: 'assistant',
+                        content: '',
+                        tool_calls: [{ id: `call_${calls}`, type: 'function', function: { name: 'report_findings', arguments: args } }]
+                    }
+                }]
+            });
+        });
+        const model = await selectLocalModel({ endpoint: server.endpoint, model: 'gemma4:e2b' });
+
+        const { findings } = await review({ document, checkFindings: [] }, { model, skill, cache: memoryCache() });
+
+        assert.strictEqual(findings.length, 1);
+        assert.strictEqual(calls, 2);
+    });
 });

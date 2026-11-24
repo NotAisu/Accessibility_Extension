@@ -1,14 +1,17 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
+import { buildNpmManifest } from '../../scripts/npm-package';
 
 const root = path.join(__dirname, '..', '..');
 interface Manifest {
     publisher: string;
     name: string;
+    version: string;
     displayName: string;
     license: string;
     pricing: string;
+    homepage?: string;
     repository?: { url?: string };
     extensionKind?: string[];
     capabilities?: { untrustedWorkspaces?: { supported: boolean | string; restrictedConfigurations?: string[] } };
@@ -130,5 +133,73 @@ describe('manifest', () => {
         const trust = manifest.capabilities?.untrustedWorkspaces;
         assert.strictEqual(trust?.supported, 'limited');
         assert.deepStrictEqual(trust.restrictedConfigurations, restricted);
+    });
+
+    it('generates an npm CLI manifest with discovery keywords and homepage', () => {
+        const npmManifest = buildNpmManifest(manifest);
+        const requiredKeywords = [
+            'accessibility', 'a11y', 'wcag', 'wcag-2-2',
+            'mcp', 'mcp-server', 'agent-skills', 'linter',
+            'html', 'react', 'vue', 'svelte', 'angular', 'astro'
+        ];
+        for (const keyword of requiredKeywords) {
+            assert.ok(npmManifest.keywords.includes(keyword), `missing npm keyword: ${keyword}`);
+        }
+        assert.match(npmManifest.homepage, /^https:\/\/github\.com\/NotAisu\/Accessibility_Extension/);
+    });
+
+    it('gives the GitHub Action valid Marketplace branding', () => {
+        const action = fs.readFileSync(path.join(root, 'action.yml'), 'utf-8');
+        const branding = /^branding:\n((?: {2}.+\n)+)/m.exec(action)?.[1] ?? '';
+        const icon = /^ {2}icon:\s*([a-z0-9-]+)\s*$/m.exec(branding)?.[1];
+        const color = /^ {2}color:\s*([a-z-]+)\s*$/m.exec(branding)?.[1];
+        const allowedColors = ['white', 'yellow', 'blue', 'green', 'orange', 'red', 'purple', 'gray-dark'];
+        assert.ok(icon, 'action.yml branding.icon must be set');
+        assert.ok(color && allowedColors.includes(color), `action.yml branding.color must be a Marketplace color, got ${String(color)}`);
+    });
+
+    it('enforces zero-leak packaging for npm, VSIX, manifests and scripts', () => {
+        const sensitive = [/^\.env(?:\.|$)/i, /^AGENTS\.md$/i, /^CLAUDE\.md$/i, /^GLOSSARY\.md$/i, /^docs(?:\/|$)/i, /(?:^|\/)(?:\.npmrc|credentials|secret|.*\.(?:pem|key))(?:\.|$|\/)/i];
+        const broad = /^(?:\*\*?|\.?\/?)$/;
+
+        const npmManifest = buildNpmManifest(manifest);
+        assert.ok(npmManifest.files.length > 0, 'npm package must declare an explicit files allowlist');
+        for (const entry of npmManifest.files) {
+            assert.doesNotMatch(entry, broad, `npm files entry too broad: ${entry}`);
+            for (const pattern of sensitive) {
+                assert.doesNotMatch(entry, pattern, `npm files entry must not ship sensitive file: ${entry}`);
+            }
+        }
+
+        const vscodeignore = fs.readFileSync(path.join(root, '.vscodeignore'), 'utf-8')
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(line => line.length > 0 && !line.startsWith('#'));
+        assert.strictEqual(vscodeignore[0], '**', '.vscodeignore must start with default-deny **');
+        const vsixAllowed = vscodeignore.filter(line => line.startsWith('!')).map(line => line.slice(1));
+        assert.ok(vsixAllowed.length > 0, '.vscodeignore must explicitly allowlist shipped files');
+        for (const entry of vsixAllowed) {
+            assert.doesNotMatch(entry, broad, `.vscodeignore allowlist entry too broad: ${entry}`);
+            for (const pattern of sensitive) {
+                assert.doesNotMatch(entry, pattern, `.vscodeignore must not allow sensitive file: ${entry}`);
+            }
+        }
+
+        const localPathPattern = /(?:\/Users\/|\/home\/|C:\\Users\\)/i;
+        const scriptFiles = fs.readdirSync(path.join(root, 'scripts')).map(file => path.join('scripts', file));
+        const publishedFiles = [
+            'package.json',
+            '.claude-plugin/plugin.json',
+            '.mcp.json',
+            'action.yml',
+            'skills/allyproof/SKILL.md',
+            'README.md',
+            ...scriptFiles
+        ];
+        for (const rel of publishedFiles) {
+            const content = fs.readFileSync(path.join(root, rel), 'utf-8');
+            assert.doesNotMatch(content, localPathPattern, `hardcoded local user path in ${rel}`);
+        }
+        assert.doesNotMatch(JSON.stringify(npmManifest), localPathPattern, 'hardcoded local user path in generated npm manifest');
     });
 });

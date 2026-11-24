@@ -1,6 +1,6 @@
 ---
 description: Run the Allyproof WCAG 2.2 AA deterministic Check before and after editing frontend markup.
-globs: "**/*.html, **/*.jsx, **/*.tsx, **/*.vue, **/*.svelte, **/*.astro"
+globs: "**/*.html, **/*.jsx, **/*.tsx, **/*.vue, **/*.svelte, **/*.astro, **/*.component.ts"
 alwaysApply: false
 ---
 
