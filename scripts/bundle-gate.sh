@@ -30,4 +30,8 @@ npx ts-node scripts/npm-package.ts
 npm pack ./out/npm --pack-destination "$dir" --silent > "$dir/tarball"
 mkdir "$dir/npm"
 tar -xzf "$dir/$(cat "$dir/tarball")" -C "$dir/npm"
-npm run test:gate -- --mcp "$dir/npm/package/cli.mjs"
+mcp_args=(--mcp "$dir/npm/package/cli.mjs")
+if [ -n "${1:-}" ]; then
+    mcp_args+=(--against "$1")
+fi
+npm run test:gate -- "${mcp_args[@]}"

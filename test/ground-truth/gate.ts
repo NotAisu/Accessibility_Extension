@@ -3,9 +3,11 @@
  * WCAG criterion drops below the stored baseline of its language.
  *   npm run test:gate                 compare with baseline/<languageId>.json
  *   npm run test:gate -- --update     store the current scores as the new baselines
+ *   npm run test:gate -- --save <file>   also write the measured source scores and proof status to <file>
  *   npm run test:gate -- --bundle <dir>  measure the analysis bundle in <dir>/dist instead of the source
- *   npm run test:gate -- --mcp <cli.mjs>  measure every case through `allyproof mcp` of that command line, with the
- *                                         check tool's `code`, and fail when any score differs from the source's
+ *   npm run test:gate -- --mcp <cli.mjs> [--against <file>]  measure every case through `allyproof mcp` of that
+ *                                         command line, with the check tool's `code`, and fail when any score differs
+ *                                         from the source's (or from <file> written by --save)
  *
  * It also computes which rules are Proven rules from the evidence sets and fails when that differs from the
  * committed proof status (src/core/proof-status.json), which --update rewrites with the baselines.
@@ -152,9 +154,9 @@ function regressions(scores: Scores, baseline: Scores): string[] {
 
 // The bundle is measured through the analysis worker, exactly as the extension runs it
 function loadAnalyse(): Analyse {
-    const index = process.argv.indexOf('--bundle');
-    if (index === -1) return source.analyse;
-    const script = path.resolve(process.argv[index + 1], 'dist', 'worker.mjs');
+    const bundle = argValue('--bundle');
+    if (!bundle) return source.analyse;
+    const script = path.resolve(bundle, 'dist', 'worker.mjs');
     console.log(`Measuring the bundle ${script}`);
     // The gate measures what the Check finds, not how fast; a slow CI machine must not fail it
     const worker = new AnalysisWorker(script, { deadlineMs: 30_000 });
@@ -194,8 +196,29 @@ async function connectServer(cli: string): Promise<{ analyse: Analyse; close: ()
     };
 }
 
+function argValue(flag: string): string | undefined {
+    const index = process.argv.indexOf(flag);
+    if (index === -1) return undefined;
+    const value = process.argv[index + 1];
+    if (!value || value.startsWith('--')) throw new Error(`Missing value after ${flag}`);
+    return value;
+}
+
+function writeMeasured(file: string, measured: Measured): void {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, JSON.stringify({
+        scores: Object.fromEntries(measured.scoresByLanguage),
+        proof: measured.proof
+    }) + '\n');
+}
+
+function readMeasured(file: string): Measured {
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf-8')) as { scores: Record<string, Scores>; proof: ProofStatus };
+    return { scoresByLanguage: new Map(Object.entries(parsed.scores)), proof: parsed.proof };
+}
+
 // Every score and the proof status through the server, which must equal the source's exactly
-async function mainServer(cli: string): Promise<void> {
+async function mainServer(cli: string, against?: string): Promise<void> {
     const server = await connectServer(path.resolve(cli));
     let viaServer: Measured;
     try {
@@ -203,7 +226,7 @@ async function mainServer(cli: string): Promise<void> {
     } finally {
         await server.close();
     }
-    const fromSource = await measure(source.analyse, new Set());
+    const fromSource = against ? readMeasured(path.resolve(against)) : await measure(source.analyse, new Set());
     const problems: string[] = [];
     const languages = new Set([...fromSource.scoresByLanguage.keys(), ...viaServer.scoresByLanguage.keys()]);
     for (const languageId of [...languages].sort()) {
@@ -229,10 +252,12 @@ async function mainServer(cli: string): Promise<void> {
 }
 
 async function main() {
-    const mcp = process.argv.indexOf('--mcp');
-    if (mcp !== -1) return mainServer(process.argv[mcp + 1]);
+    const mcp = argValue('--mcp');
+    if (mcp) return mainServer(mcp, argValue('--against'));
+    const save = argValue('--save');
     const silent = new Set<string>();
-    const { scoresByLanguage, proof } = await measure(loadAnalyse(), silent);
+    const measured = await measure(loadAnalyse(), silent);
+    const { scoresByLanguage, proof } = measured;
     const update = process.argv.includes('--update');
     const problems = [...silent].map(languageId => `${languageId}: no Findings on the cases that expect one`);
     if (update && problems.length > 0) {
@@ -278,6 +303,7 @@ async function main() {
         console.error(`\nCheck quality dropped below the baseline:\n  ${problems.join('\n  ')}`);
         process.exit(1);
     }
+    if (save) writeMeasured(path.resolve(save), measured);
     console.log('\nNo criterion below the baseline.');
 }
 
