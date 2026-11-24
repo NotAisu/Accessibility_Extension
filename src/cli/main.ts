@@ -7,7 +7,7 @@ import { baselineOf, parseBaseline, type Baseline } from './baseline';
 import { checkAll, diskSource, elementAt, git, isRepository, posix, settingsOf, SEVERITY_RANK, treeFiles, type Source } from './check';
 import { serve } from './mcp';
 import { explanation, ruleList } from './rules';
-import { sarif, text } from './output';
+import { helpBanner, sarif, supportsColor, text } from './output';
 import { ConfigError } from './settings';
 import manifest from '../../package.json';
 
@@ -56,7 +56,7 @@ async function main(argv: string[]): Promise<number> {
         return EXIT.clean;
     }
     if (values.help || !command) {
-        process.stdout.write(USAGE);
+        process.stdout.write(`${helpBanner(VERSION, { color: supportsColor() })}\n${USAGE}`);
         return values.help ? EXIT.clean : EXIT.usage;
     }
     if (command === 'explain') return explain(args[0], values.language);
@@ -86,7 +86,7 @@ async function main(argv: string[]): Promise<number> {
     }
     process.stdout.write(values.format === 'json' ? JSON.stringify(output, null, 2) + '\n'
         : values.format === 'sarif' ? JSON.stringify(sarif(output, VERSION), null, 2) + '\n'
-            : text(output));
+            : text(output, { color: supportsColor() }));
     return output.summary.failedFiles ? EXIT.unchecked : output.summary.blocking ? EXIT.blocking : EXIT.clean;
 }
 
