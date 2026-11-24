@@ -778,7 +778,7 @@
     <div class="container header-inner">
       <a class="brand" href="#main">
         <span>Allyproof</span>
-        <span class="version-pill">v0.2.0</span>
+        <span class="version-pill">v0.2.1</span>
       </a>
       <nav aria-label="Primary">
         <ul class="nav-list">
@@ -914,14 +914,14 @@
           <div class="tile tile-dark span-6">
             <h3>Local stdio MCP for Coding Agents</h3>
             <p>Offline, read-only MCP server with <code>check</code> (files, folders, or proposed code before writing), <code>explain_rule</code>, <code>list_rules</code>, and the <code>allyproof_review</code> prompt.</p>
-            <pre><code>npx -y allyproof@0.2.0 mcp</code></pre>
+            <pre><code>npx -y allyproof@0.2.1 mcp</code></pre>
             <p>Works with Claude Code, Cursor, Codex, VS Code, Windsurf, Cline, Roo Code, Zed, and Gemini CLI.</p>
           </div>
 
           <div class="tile span-6">
             <h3>GitHub Action</h3>
             <p>Checks pull request diffs automatically, blocks on verified Findings, and uploads SARIF alerts directly to GitHub Code Scanning.</p>
-            <pre><code>uses: NotAisu/Accessibility_Extension@v0.2.0</code></pre>
+            <pre><code>uses: NotAisu/Accessibility_Extension@v0.2.1</code></pre>
             <p>Inputs: <code>base</code>, <code>paths</code>, <code>baseline</code>, <code>fail-on</code>, <code>upload-sarif</code></p>
           </div>
         </div>
@@ -930,19 +930,19 @@
           <details>
             <summary>Claude Code plugin &amp; Agent Skills</summary>
             <div class="details-body">
-              <p>Bundles <code>.claude-plugin/plugin.json</code>, <code>.mcp.json</code> (pinned <code>npx -y allyproof@0.2.0 mcp</code>), the core check-first Skill (<code>skills/allyproof/SKILL.md</code>), and the optional rendered browser audit Skill (<code>skills/allyproof-browser-audit/SKILL.md</code>).</p>
+              <p>Bundles <code>.claude-plugin/plugin.json</code>, <code>.mcp.json</code> (pinned <code>npx -y allyproof@0.2.1 mcp</code>), the core check-first Skill (<code>skills/allyproof/SKILL.md</code>), and the optional rendered browser audit Skill (<code>skills/allyproof-browser-audit/SKILL.md</code>).</p>
             </div>
           </details>
           <details>
             <summary>Cursor plugin &amp; check-first rule</summary>
             <div class="details-body">
-              <p>Bundles <code>.cursor-plugin/plugin.json</code>, <code>.cursor/rules/allyproof.mdc</code>, <code>skills/allyproof/SKILL.md</code>, and <code>npx -y allyproof@0.2.0 mcp</code> so Cursor checks markup before and after every edit.</p>
+              <p>Bundles <code>.cursor-plugin/plugin.json</code>, <code>.cursor/rules/allyproof.mdc</code>, <code>skills/allyproof/SKILL.md</code>, and <code>npx -y allyproof@0.2.1 mcp</code> so Cursor checks markup before and after every edit.</p>
             </div>
           </details>
           <details>
             <summary>Codex, Zed, Windsurf, Cline, Roo Code &amp; Gemini CLI</summary>
             <div class="details-body">
-              <p>Register <code>npx -y allyproof@0.2.0 mcp</code> as a local stdio MCP server and add <code>skills/allyproof/SKILL.md</code> to your agent's skills directory. See <a href="./llms.txt">llms.txt</a> or the <a href="https://github.com/NotAisu/Accessibility_Extension#readme">README</a> for ready-to-paste configs.</p>
+              <p>Register <code>npx -y allyproof@0.2.1 mcp</code> as a local stdio MCP server and add <code>skills/allyproof/SKILL.md</code> to your agent's skills directory. See <a href="./llms.txt">llms.txt</a> or the <a href="https://github.com/NotAisu/Accessibility_Extension#readme">README</a> for ready-to-paste configs.</p>
             </div>
           </details>
         </div>
@@ -975,7 +975,7 @@
                 <td>HTML, JSX, TSX, Vue, Svelte, Angular, Astro</td>
                 <td>Yes (no browser or build needed)</td>
                 <td>73 Proven rules (100% measured precision); uncertain &rarr; Needs Review</td>
-                <td>Yes (<code>npx -y allyproof@0.2.0 mcp</code> + Skills)</td>
+                <td>Yes (<code>npx -y allyproof@0.2.1 mcp</code> + Skills)</td>
                 <td>MIT, free</td>
               </tr>
               <tr>
@@ -1026,7 +1026,7 @@ npm run eval:agent -- --claude sonnet --limit 1</code></pre>
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <p>Allyproof <code>v0.2.0</code> · MIT License · Local, offline WCAG 2.2 AA checking</p>
+      <p>Allyproof <code>v0.2.1</code> · MIT License · Local, offline WCAG 2.2 AA checking</p>
       <ul class="footer-links">
         <li><a href="./llms.txt">llms.txt</a></li>
         <li><a href="https://github.com/NotAisu/Accessibility_Extension">GitHub</a></li>

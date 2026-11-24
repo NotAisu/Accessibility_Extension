@@ -1,8 +1,8 @@
 # Allyproof – WCAG 2.2 Accessibility Checker
 
 [![Install in VS Code](https://img.shields.io/visual-studio-marketplace/v/aisu.allyproof?label=VS%20Code%20Marketplace&logo=visualstudiocode&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=aisu.allyproof)
-[![Install MCP in VS Code](https://img.shields.io/badge/VS_Code-Install_MCP-0098FF?logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=allyproof&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22allyproof%400.2.0%22%2C%22mcp%22%5D%7D)
-[![Install MCP in Cursor](https://img.shields.io/badge/Cursor-Install_MCP-000000?logo=cursor&logoColor=white)](https://cursor.com/en/install-mcp?name=allyproof&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsImFsbHlwcm9vZkAwLjIuMCIsIm1jcCJdfQ==)
+[![Install MCP in VS Code](https://img.shields.io/badge/VS_Code-Install_MCP-0098FF?logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=allyproof&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22allyproof%400.2.1%22%2C%22mcp%22%5D%7D)
+[![Install MCP in Cursor](https://img.shields.io/badge/Cursor-Install_MCP-000000?logo=cursor&logoColor=white)](https://cursor.com/en/install-mcp?name=allyproof&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsImFsbHlwcm9vZkAwLjIuMSIsIm1jcCJdfQ==)
 
 Allyproof checks your HTML, React, Vue, Svelte, Angular and Astro code against WCAG 2.2 A/AA while you write it, and can ask an AI model to review what a static Check cannot decide.
 
@@ -187,7 +187,7 @@ For coding agents with browser automation tools (Playwright, preview tools or De
   ```toml
   [mcp_servers.allyproof]
   command = "npx"
-  args = ["-y", "allyproof@0.2.0", "mcp"]
+  args = ["-y", "allyproof@0.2.1", "mcp"]
   ```
 - **Cursor**: this repository is a Cursor plugin (`.cursor-plugin/plugin.json`, `.cursor/rules/allyproof.mdc` and `skills/allyproof/SKILL.md`) that bundles the pinned MCP server, the Skill and the check-first rule. Or use the one-click **Install MCP in Cursor** badge above, or add to `.cursor/mcp.json`:
   ```json
@@ -195,7 +195,7 @@ For coding agents with browser automation tools (Playwright, preview tools or De
     "mcpServers": {
       "allyproof": {
         "command": "npx",
-        "args": ["-y", "allyproof@0.2.0", "mcp"]
+        "args": ["-y", "allyproof@0.2.1", "mcp"]
       }
     }
   }
@@ -206,7 +206,7 @@ For coding agents with browser automation tools (Playwright, preview tools or De
     "mcpServers": {
       "allyproof": {
         "command": "npx",
-        "args": ["-y", "allyproof@0.2.0", "mcp"]
+        "args": ["-y", "allyproof@0.2.1", "mcp"]
       }
     }
   }
@@ -217,7 +217,7 @@ For coding agents with browser automation tools (Playwright, preview tools or De
     "mcpServers": {
       "allyproof": {
         "command": "npx",
-        "args": ["-y", "allyproof@0.2.0", "mcp"]
+        "args": ["-y", "allyproof@0.2.1", "mcp"]
       }
     }
   }
@@ -228,7 +228,7 @@ For coding agents with browser automation tools (Playwright, preview tools or De
     "context_servers": {
       "allyproof": {
         "command": "npx",
-        "args": ["-y", "allyproof@0.2.0", "mcp"]
+        "args": ["-y", "allyproof@0.2.1", "mcp"]
       }
     }
   }
@@ -240,7 +240,7 @@ For coding agents with browser automation tools (Playwright, preview tools or De
       "allyproof": {
         "type": "stdio",
         "command": "npx",
-        "args": ["-y", "allyproof@0.2.0", "mcp"]
+        "args": ["-y", "allyproof@0.2.1", "mcp"]
       }
     }
   }
@@ -251,7 +251,7 @@ For coding agents with browser automation tools (Playwright, preview tools or De
     "mcpServers": {
       "allyproof": {
         "command": "npx",
-        "args": ["-y", "allyproof@0.2.0", "mcp"]
+        "args": ["-y", "allyproof@0.2.1", "mcp"]
       }
     }
   }
