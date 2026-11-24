@@ -17,6 +17,7 @@ export function buildNpmManifest(manifest: RootManifest) {
     return {
         name: manifest.name,
         version: manifest.version,
+        mcpName: 'io.github.notaisu/allyproof',
         description: 'Check HTML, React, Vue, Svelte, Angular and Astro code against WCAG 2.2 AA from the command line',
         license: manifest.license,
         homepage: manifest.homepage ?? 'https://github.com/NotAisu/Accessibility_Extension#readme',

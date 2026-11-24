@@ -54,7 +54,7 @@ jobs:
     environment: release
     permissions:
       contents: write # the GitHub release
-      id-token: write # OIDC for both registries
+      id-token: write # OIDC for registries
     env:
       # Set only for a pre-release
       PRE_RELEASE: ${{ needs.build.outputs.pre-release == 'true' && 'yes' || '' }}
@@ -88,6 +88,25 @@ jobs:
           if [ "$(npm view "allyproof@$version" version 2>/dev/null)" != "$version" ]; then
             npm publish allyproof-cli.tgz --provenance --access public --tag "$([ -n "$PRE_RELEASE" ] && echo next || echo latest)"
           fi
+      # Official MCP Registry (#110) via GitHub OIDC; skipped when this version is already published
+      - run: |
+          version=${GITHUB_REF_NAME#v}
+          if curl -fsS -o /dev/null "https://registry.modelcontextprotocol.io/v0.1/servers/io.github.notaisu%2Fallyproof/versions/$version"; then
+            echo "io.github.notaisu/allyproof@$version is already published to the MCP Registry"
+            exit 0
+          fi
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/v1.8.16/mcp-publisher_linux_amd64.tar.gz" \
+            | tar -xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          output=$(./mcp-publisher publish 2>&1) || {
+            echo "$output"
+            if echo "$output" | grep -qiE 'already exists|409|duplicate'; then
+              echo "Version already published; skipping"
+              exit 0
+            fi
+            exit 1
+          }
+          echo "$output"
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |
