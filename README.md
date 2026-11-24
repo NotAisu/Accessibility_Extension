@@ -1,5 +1,9 @@
 # Allyproof – WCAG 2.2 Accessibility Checker
 
+[![Install in VS Code](https://img.shields.io/visual-studio-marketplace/v/aisu.allyproof?label=VS%20Code%20Marketplace&logo=visualstudiocode&color=007ACC)](https://marketplace.visualstudio.com/items?itemName=aisu.allyproof)
+[![Install MCP in VS Code](https://img.shields.io/badge/VS_Code-Install_MCP-0098FF?logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=allyproof&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22allyproof%400.1.3%22%2C%22mcp%22%5D%7D)
+[![Install MCP in Cursor](https://img.shields.io/badge/Cursor-Install_MCP-000000?logo=cursor&logoColor=white)](https://cursor.com/en/install-mcp?name=allyproof&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsImFsbHlwcm9vZkAwLjEuMyIsIm1jcCJdfQ==)
+
 Allyproof checks your HTML, React, Vue, Svelte, Angular and Astro code against WCAG 2.2 A/AA while you write it, and can ask an AI model to review what a static Check cannot decide.
 
 **No telemetry, no account.** The Check runs offline and free. Your code leaves your machine only when you start an AI Review, and only to the provider you chose.
@@ -133,7 +137,29 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
   command = "npx"
   args = ["-y", "allyproof@0.1.3", "mcp"]
   ```
-- **Cursor**: add to `.cursor/mcp.json`:
+- **Cursor**: this repository is a Cursor plugin (`.cursor-plugin/plugin.json`, `.cursor/rules/allyproof.mdc` and `skills/allyproof/SKILL.md`) that bundles the pinned MCP server, the Skill and the check-first rule. Or use the one-click **Install MCP in Cursor** badge above, or add to `.cursor/mcp.json`:
+  ```json
+  {
+    "mcpServers": {
+      "allyproof": {
+        "command": "npx",
+        "args": ["-y", "allyproof@0.1.3", "mcp"]
+      }
+    }
+  }
+  ```
+- **Windsurf**: add to `~/.codeium/windsurf/mcp_config.json` and copy `skills/allyproof` into `.windsurf/skills/allyproof/`:
+  ```json
+  {
+    "mcpServers": {
+      "allyproof": {
+        "command": "npx",
+        "args": ["-y", "allyproof@0.1.3", "mcp"]
+      }
+    }
+  }
+  ```
+- **Cline / Roo Code**: add to Cline's `cline_mcp_settings.json` or Roo Code's `.roo/mcp.json`, and copy `skills/allyproof/SKILL.md` into `.clinerules/` or `.roo/rules/`:
   ```json
   {
     "mcpServers": {
@@ -155,12 +181,23 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
     }
   }
   ```
-- **VS Code**: the extension contributes the Skill and `a11y_check` automatically for Copilot chat and agent mode. To connect the MCP server directly (for any agent in VS Code), add to `.vscode/mcp.json`:
+- **VS Code**: the extension contributes the Skill and `a11y_check` automatically for Copilot chat and agent mode. To connect the MCP server directly (for any agent in VS Code), use the **Install MCP in VS Code** badge above or add to `.vscode/mcp.json`:
   ```json
   {
     "servers": {
       "allyproof": {
         "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "allyproof@0.1.3", "mcp"]
+      }
+    }
+  }
+  ```
+- **Gemini CLI**: add to `~/.gemini/settings.json` (or `.gemini/settings.json`) and copy `skills/allyproof` into `.gemini/skills/allyproof/`:
+  ```json
+  {
+    "mcpServers": {
+      "allyproof": {
         "command": "npx",
         "args": ["-y", "allyproof@0.1.3", "mcp"]
       }

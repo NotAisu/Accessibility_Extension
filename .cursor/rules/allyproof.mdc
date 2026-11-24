@@ -1,0 +1,12 @@
+---
+description: Run the Allyproof WCAG 2.2 AA deterministic Check before and after editing frontend markup.
+globs: "**/*.html, **/*.jsx, **/*.tsx, **/*.vue, **/*.svelte, **/*.astro"
+alwaysApply: false
+---
+
+Before and after editing HTML, JSX/TSX, Vue, Svelte, Angular or Astro markup, run the deterministic Allyproof Check (`check` through the `allyproof` MCP server, or `npx allyproof check <file> --format json`):
+
+- Treat only Proven rule Findings as facts, and call `explain_rule` before fixing a Finding so you fix the cause rather than silencing the rule.
+- Apply deterministic `fix` edits when provided and re-run the Check after every edit to confirm the Finding is gone and no new Finding was added.
+- Never add an `allyproof-ignore` comment unless explicitly asked.
+- Report Needs Review entries as needing human or browser verification, never as fixed or passing.
