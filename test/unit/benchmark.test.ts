@@ -1,6 +1,7 @@
 import * as assert from 'assert';
-import { BenchCase, BenchResult, chooseWinner, runBenchmark } from '../bench/benchmark';
-import type { ModelPort, ModelRequest } from '../../src/review/ai-review';
+import { BenchCase, BenchResult, chooseWinner, runBenchmark, sampleCases } from '../bench/benchmark';
+import { actWrapperCases, parseAccessGuruCsv } from '../bench/data';
+import { ModelError, ModelPort, ModelRequest } from '../../src/review/ai-review';
 
 const failing = (id: string, text: string, criteria: string[]): BenchCase =>
     ({ id, source: 'test', synthetic: false, languageId: 'html', text, criteria, failing: true });
@@ -99,5 +100,94 @@ describe('AI benchmark', () => {
         it('is none when no Variant reaches the precision', () => {
             assert.strictEqual(chooseWinner([result('a', 'm1', 5, 5, 0, 100), result('b', 'm1', 0, 0, 10, 100)]), undefined);
         });
+    });
+
+    describe('benchmark data', () => {
+        it('parses AccessGuru CSV rows, strips the violation marker and marks them non-synthetic', () => {
+            const csv = [
+                '#,Violation Type,Affected HTML',
+                '1,link-text-mismatch,"<div>\n<! –– Accessibility Violation starts here ––><a href=""/p"">click here</a>\n</div>"',
+                '2,image-alt-not-descriptive,<img src="a.png" alt="image">'
+            ].join('\r\n');
+
+            const cases = parseAccessGuruCsv(csv);
+
+            assert.strictEqual(cases.length, 2);
+            assert.deepStrictEqual(cases[0], {
+                id: 'accessguru-1',
+                source: 'AccessGuru link-text-mismatch',
+                synthetic: false,
+                languageId: 'html',
+                text: '<div>\n<a href="/p">click here</a>\n</div>',
+                criteria: ['2.4.4'],
+                failing: true
+            });
+            assert.deepStrictEqual(cases[1].criteria, ['1.1.1']);
+            assert.strictEqual(cases[1].synthetic, false);
+        });
+
+        it('rejects an AccessGuru row with an unmapped violation type', () => {
+            const csv = '#,Violation Type,Affected HTML\n1,unknown-type,<div>hi</div>';
+            assert.throws(() => parseAccessGuruCsv(csv), /without criteria: unknown-type/);
+        });
+
+        it('wraps vendored ACT judgment cases into Vue and Svelte components marked synthetic', () => {
+            const cases = actWrapperCases();
+
+            assert.ok(cases.length > 0);
+            assert.ok(cases.every(c => c.synthetic === true));
+            assert.ok(cases.every(c => c.criteria.length > 0));
+            assert.ok(cases.some(c => c.languageId === 'vue' && c.text.includes('<template>')));
+            assert.ok(cases.some(c => c.languageId === 'svelte'));
+            assert.ok(cases.some(c => c.failing) && cases.some(c => !c.failing));
+        });
+
+        it('stratifies sampled cases across criteria and failing/passing outcomes', () => {
+            const cases: BenchCase[] = [
+                { ...failing('a1', '<img alt="x">', ['1.1.1']), source: 'A' },
+                { ...failing('a2', '<img alt="y">', ['1.1.1']), source: 'A' },
+                { ...failing('b1', '<a href="/">more</a>', ['2.4.4']), source: 'B' },
+                { ...passing('b2', '<a href="/">Docs</a>', ['2.4.4']), source: 'B' }
+            ];
+
+            const sampled = sampleCases(cases, 3);
+
+            assert.strictEqual(sampled.length, 3);
+            assert.deepStrictEqual(sampled.map(c => c.id), ['a1', 'b1', 'b2']);
+            assert.strictEqual(sampleCases(cases, Infinity).length, 4);
+        });
+    });
+
+    it('counts non-cancelled model errors and keeps scoring the remaining cases', async () => {
+        let calls = 0;
+        const flaky: ModelPort = {
+            ...fakeModel(),
+            request(request, signal) {
+                calls++;
+                if (calls === 1) return Promise.reject(new ModelError('Timeout', 'Timed out.'));
+                return fakeModel().request(request, signal);
+            }
+        };
+        const cases = [
+            failing('first', '<a href="/p">click here</a> report:2.4.4', ['2.4.4']),
+            failing('second', '<a href="/p">click here</a> report:2.4.4', ['2.4.4'])
+        ];
+
+        const [result] = await runBenchmark(cases, [{ name: 'shipped', text: 'Review it.' }], [flaky]);
+
+        assert.strictEqual(result.errors, 1);
+        assert.deepStrictEqual({ tp: result.tp, fp: result.fp, fn: result.fn }, { tp: 1, fp: 0, fn: 1 });
+    });
+
+    it('rethrows cancellation instead of counting it as a case error', async () => {
+        const cancelled: ModelPort = {
+            ...fakeModel(),
+            request: () => Promise.reject(new ModelError('Cancelled', 'Cancelled.'))
+        };
+
+        await assert.rejects(
+            runBenchmark([failing('one', '<a href="/p">click</a>', ['2.4.4'])], [{ name: 'shipped', text: 'Review it.' }], [cancelled]),
+            (error: ModelError) => error.code === 'Cancelled'
+        );
     });
 });

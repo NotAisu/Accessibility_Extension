@@ -33,7 +33,11 @@ const ACT_DIR = path.join(__dirname, '..', 'ground-truth', 'act');
 export async function accessGuruCases(): Promise<BenchCase[]> {
     const response = await fetch(ACCESSGURU_URL);
     if (!response.ok) throw new Error(`Fetching AccessGuru failed: HTTP ${response.status}`);
-    const [header, ...rows] = parseCsv(await response.text());
+    return parseAccessGuruCsv(await response.text());
+}
+
+export function parseAccessGuruCsv(csv: string): BenchCase[] {
+    const [header, ...rows] = parseCsv(csv);
     const column = (name: string) => header.indexOf(name);
     const [id, type, html] = [column('#'), column('Violation Type'), column('Affected HTML')];
     return rows.filter(row => row.length === header.length).map(row => {
