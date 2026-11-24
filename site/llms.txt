@@ -1,6 +1,6 @@
 # Allyproof
 
-> Local, offline WCAG 2.2 A/AA static accessibility checker for HTML, React (JSX/TSX), Vue, Svelte, Angular, and Astro. Version 0.1.3, MIT-licensed, zero telemetry, zero accounts, and zero workspace code execution.
+> Local, offline WCAG 2.2 A/AA static accessibility checker for HTML, React (JSX/TSX), Vue, Svelte, Angular, and Astro. Version 0.2.0, MIT-licensed, zero telemetry, zero accounts, and zero workspace code execution.
 
 Allyproof checks source code statically while you write, in CI, or inside coding agents. Only Proven rules (73 Proven rules across 7 formats; 6,092 of 6,092 correct = 100% measured precision, >= 95% Wilson lower bound at 95% confidence) report blocking Findings. Unproven rules and runtime-only criteria (contrast, target size) are listed under Needs Review instead of silent passes.
 
@@ -31,7 +31,7 @@ Allyproof checks source code statically while you write, in CI, or inside coding
 - List rules and proof status: `npx allyproof rules --format json`
 
 ### Local stdio MCP Server
-- Command: `npx -y allyproof@0.1.3 mcp`
+- Command: `npx -y allyproof@0.2.0 mcp`
 - Official MCP Registry: `io.github.notaisu/allyproof`
 - Transport: stdio, offline, read-only (no network requests, no AI, no file writes).
 - Tools & resources: `check` (files, folders, or proposed code), `explain_rule`, `list_rules`, `allyproof://rules/<ruleId>`, and the `allyproof_review` prompt.
@@ -43,14 +43,14 @@ Allyproof checks source code statically while you write, in CI, or inside coding
 
 ### Claude Code Plugin
 - Manifest: `.claude-plugin/plugin.json` and `.mcp.json` in `NotAisu/Accessibility_Extension`
-- Bundles the pinned stdio MCP server (`npx -y allyproof@0.1.3 mcp`), `skills/allyproof/SKILL.md`, and `skills/allyproof-browser-audit/SKILL.md`.
+- Bundles the pinned stdio MCP server (`npx -y allyproof@0.2.0 mcp`), `skills/allyproof/SKILL.md`, and `skills/allyproof-browser-audit/SKILL.md`.
 
 ### Cursor Plugin
 - Manifest: `.cursor-plugin/plugin.json` and `.cursor/rules/allyproof.mdc` in `NotAisu/Accessibility_Extension`
-- Bundles the pinned stdio MCP server (`npx -y allyproof@0.1.3 mcp`), `skills/allyproof/SKILL.md`, and the check-first Cursor rule.
+- Bundles the pinned stdio MCP server (`npx -y allyproof@0.2.0 mcp`), `skills/allyproof/SKILL.md`, and the check-first Cursor rule.
 
 ### GitHub Action
-- Action: `NotAisu/Accessibility_Extension` (e.g. `uses: NotAisu/Accessibility_Extension@v0.1.3`)
+- Action: `NotAisu/Accessibility_Extension` (e.g. `uses: NotAisu/Accessibility_Extension@v0.2.0`)
 - Checks pull request diffs, fails on blocking Findings, and uploads SARIF code scanning alerts.
 - Inputs: `base`, `paths`, `baseline`, `fail-on`, `upload-sarif`.
 

@@ -1,7 +1,7 @@
 {
   "name": "allyproof",
   "displayName": "Allyproof – WCAG 2.2 Accessibility Checker",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Check HTML, React, Vue, Svelte, Angular and Astro code against WCAG 2.2 AA with the deterministic Check and a verified fix loop.",
   "author": {
     "name": "NotAisu"
@@ -21,7 +21,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "allyproof@0.1.3",
+        "allyproof@0.2.0",
         "mcp"
       ]
     }

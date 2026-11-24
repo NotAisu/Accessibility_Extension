@@ -1,6 +1,6 @@
 ---
 name: allyproof
-description: Review frontend code (HTML, JSX/TSX, Vue, Svelte, Angular, Astro) for WCAG 2.2 AA problems that static linters cannot detect, and report each one with its line and success criterion.
+description: Check and review frontend code (HTML, React JSX/TSX, Vue, Svelte, Angular, Astro) for WCAG 2.2 AA accessibility issues—run Allyproof's deterministic Check before and after markup edits, fix Proven Findings, and review semantic accessibility problems that static linters cannot detect.
 ---
 
 # WCAG 2.2 AA semantic review

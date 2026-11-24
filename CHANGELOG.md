@@ -2,6 +2,28 @@
 
 Pre-releases use odd minor versions, stable releases even ones.
 
+## 0.2.0
+
+First stable release of Allyproof – WCAG 2.2 Accessibility Checker.
+
+### Expanded Proven rules coverage
+
+- Expanded Proven rules from 23 to **73** across HTML, JSX, TSX, Vue, Svelte, Angular and Astro (6,092/6,092 = 100% measured precision, >= 95% Wilson lower bound at 95% confidence per ADR 0005).
+- Fixed Astro `<label><slot /></label>` false positive.
+- Added automatic API key redaction in ground-truth injection generation (`test/ground-truth/generate-injection.ts`).
+
+### Agent ecosystem and discoverability
+
+- Added Official MCP Registry descriptor (`server.json`, `io.github.notaisu/allyproof`), npm `mcpName` ownership metadata, and automated GitHub OIDC publishing in the release workflow.
+- Added Cursor plugin bundle (`.cursor-plugin/plugin.json` and `.cursor/rules/allyproof.mdc`), one-click VS Code & Cursor MCP install badges, and local stdio MCP setup docs for Claude Code, Codex, Cursor, Windsurf, Cline, Roo Code, Zed, VS Code and Gemini CLI.
+- Added optional rendered browser WCAG 2.2 AA audit Skill (`skills/allyproof-browser-audit/SKILL.md`) for agents with Playwright, DevTools or preview tools, and sharpened the core Skill trigger description in `skills/allyproof/SKILL.md`.
+- Added static zero-JS, zero-tracker GitHub Pages documentation (`site/index.html`), machine-readable `site/llms.txt`, and `.github/workflows/pages.yml`.
+- Added npm discovery metadata (`homepage`, `keywords`) and strict zero-leak packaging contract tests for VSIX and npm tarballs.
+
+### Local AI Review reliability
+
+- Added local model tool-calling fallback (`src/review/local-model.ts`) for OpenAI-compatible servers (LM Studio / Ollama) that do not support tool calls, plus stratified benchmark sampling.
+
 ## 0.1.3 (pre-release)
 
 ### MCP server and agent plugin
