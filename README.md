@@ -6,6 +6,8 @@ Allyproof checks your HTML, React, Vue, Svelte, Angular and Astro code against W
 
 > Pre-release. The coverage section below says exactly what is checked, what is listed as Needs Review and what is left to AI Review or to you.
 
+Allyproof helps you find accessibility barriers early. It is not a WCAG conformance audit or certification: a static check of source code finds only some barriers, so test the rendered page with people and assistive technology before you claim conformance.
+
 ## Features
 
 - **Check while you type**: Findings appear in the Problems panel for HTML, Vue, Svelte, JSX, TSX and Astro files and Angular component templates (`*.component.html` or an inline `template`). Each language runs its own accessibility linter. Only Proven rules report Findings: rules whose precision on labelled real code is at least 95 % at 95 % confidence; the others list their matches as likely failures under Needs Review. Every Finding names its WCAG 2.2 success criterion, and a hover explains why it is a problem and how to fix it, with links to the criterion. Your file is parsed, never executed, and your workspace's own lint config is never loaded.
@@ -57,7 +59,7 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | Language | Rule | Criteria | Correct | Precision at least |
 | --- | --- | --- | --- | --- |
 | Angular | `@angular-eslint/template/alt-text` | 1.1.1 | 84 of 84 | 96.4 % |
-| Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 160 of 160 | 98.1 % |
+| Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 159 of 159 | 98.1 % |
 | Astro | `allyproof/button-name` | 4.1.2 | 80 of 80 | 96.3 % |
 | Astro | `astro/jsx-a11y/alt-text` | 1.1.1 | 60 of 60 | 95.1 % |
 | Astro | `astro/jsx-a11y/anchor-has-content` | 2.4.4, 4.1.2 | 79 of 79 | 96.2 % |

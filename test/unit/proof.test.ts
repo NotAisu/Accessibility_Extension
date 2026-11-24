@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { analyse } from '../../src/core/analysis';
-import { judgeMatches, lowerBound, proofStatus } from '../ground-truth/proof';
+import { judgeMatches, lowerBound, proofStatus, repeatedEvidence } from '../ground-truth/proof';
 
 describe('proof of a rule\'s precision', () => {
     describe('the 95 % lower bound clears 0.95', () => {
@@ -23,6 +23,23 @@ describe('proof of a rule\'s precision', () => {
             assert.strictEqual(lowerBound(0, 0), 0);
             assert.strictEqual(lowerBound(0, 5), 0);
         });
+    });
+
+    it('counts a case whose text repeats an earlier one in the same language once, wherever it was checked in', () => {
+        const repeated = repeatedEvidence();
+        const fails = [{ ruleId: 'image-alt', line: 1 }];
+
+        assert.strictEqual(repeated('vue', 'act/a.vue', '<img>', fails), undefined);
+        assert.strictEqual(repeated('html', 'act/a.html', '<img>', fails), undefined);
+        assert.strictEqual(repeated('vue', 'field/b.vue', '<img>', fails), 'act/a.vue');
+        assert.strictEqual(repeated('vue', 'field/c.vue', '<img alt="">', []), undefined);
+    });
+
+    it('fails on a repeated case whose labels disagree with the earlier one', () => {
+        const repeated = repeatedEvidence();
+        repeated('vue', 'act/a.vue', '<img>', [{ ruleId: 'image-alt', line: 1 }]);
+
+        assert.throws(() => repeated('vue', 'field/b.vue', '<img>', []), /field\/b\.vue and act\/a\.vue have the same text but different labels/);
     });
 
     describe('judging a rule\'s matches against a case', () => {

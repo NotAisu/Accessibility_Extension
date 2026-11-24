@@ -58,6 +58,23 @@ function verdict(testCase: { expect: Expectation[]; complete?: boolean }, criter
     return testCase.complete ? 'wrong' : undefined;
 }
 
+/**
+ * Tells whether a case's text repeats an earlier evidence case in the same language, and names that case. A file
+ * copied twice, or an upstream set that lists the same test twice, would otherwise count as two pieces of evidence.
+ * A repeat labelled differently throws: one of the two labels is wrong, and dropping either would hide which.
+ */
+export function repeatedEvidence(): (languageId: string, file: string, text: string, expect: unknown) => string | undefined {
+    const first = new Map<string, { file: string; labels: string }>();
+    return (languageId, file, text, expect) => {
+        const key = `${languageId}\0${text}`;
+        const labels = JSON.stringify(expect);
+        const earlier = first.get(key);
+        if (earlier === undefined) first.set(key, { file, labels });
+        else if (earlier.labels !== labels) throw new Error(`${file} and ${earlier.file} have the same text but different labels`);
+        return earlier?.file;
+    };
+}
+
 export function addJudged(into: Map<string, Judged>, from: Map<string, Judged>): void {
     for (const [ruleId, j] of from) {
         const sum = into.get(ruleId) ?? { correct: 0, wrong: 0 };

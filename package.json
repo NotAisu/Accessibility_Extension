@@ -425,5 +425,8 @@
     "typescript": "5.4.5",
     "vue-eslint-parser": "10.4.2",
     "zod": "4.6.7"
+  },
+  "overrides": {
+    "minimatch": "11.0.8"
   }
 }

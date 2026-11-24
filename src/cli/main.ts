@@ -27,6 +27,7 @@ const USAGE = `Usage:
   allyproof rules [--format text|json]
   allyproof mcp     an MCP server over stdio for coding agents: the check, explain_rule and list_rules tools,
                     every rule's docs as a resource and the Allyproof Skill as a prompt
+  allyproof --version
 
 Exit codes: 0 no blocking Findings, 1 blocking Findings, 2 usage or configuration error, 3 a file could not be checked.
 `;
@@ -46,10 +47,15 @@ async function main(argv: string[]): Promise<number> {
             'fail-on': { type: 'string', default: 'warning' },
             baseline: { type: 'string' },
             language: { type: 'string', default: 'html' },
-            help: { type: 'boolean', short: 'h' }
+            help: { type: 'boolean', short: 'h' },
+            version: { type: 'boolean', short: 'v' }
         }
     });
     const [command, ...args] = positionals;
+    if (values.version) {
+        process.stdout.write(`${VERSION}\n`);
+        return EXIT.clean;
+    }
     if (values.help || !command) {
         process.stdout.write(USAGE);
         return values.help ? EXIT.clean : EXIT.usage;
