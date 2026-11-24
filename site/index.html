@@ -8,366 +8,1183 @@
   <style>
     :root {
       color-scheme: light dark;
-      --bg: #ffffff;
-      --surface: #f4f6f9;
-      --border: #cfd7e3;
-      --text: #111827;
-      --muted: #4b5563;
-      --accent: #0f4c81;
-      --accent-hover: #0a365c;
-      --code-bg: #eef2f7;
-      --focus: #b45309;
+      --bg: #fafbfc;
+      --bg-elevated: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-code: #0f172a;
+      --text-code: #e2e8f0;
+      --text-code-muted: #94a3b8;
+      --border: #d8e0ea;
+      --border-strong: #b8c4d4;
+      --text: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #475569;
+      --brand: #1b2a4a;
+      --accent: #1d4ed8;
+      --accent-hover: #1e40af;
+      --accent-soft: #eff6ff;
+      --proven: #047857;
+      --proven-soft: #ecfdf5;
+      --proven-border: #a7f3d0;
+      --review: #92400e;
+      --review-soft: #fffbeb;
+      --review-border: #fde68a;
+      --danger: #b91c1c;
+      --focus: #d97706;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 10px 30px -12px rgba(15, 23, 42, 0.14);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+      --max-w: 72rem;
     }
+
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #0d1117;
-        --surface: #161b22;
-        --border: #30363d;
-        --text: #f0f6fc;
-        --muted: #9da7b3;
-        --accent: #79c0ff;
-        --accent-hover: #a5d6ff;
-        --code-bg: #1f2630;
-        --focus: #f2cc60;
+        --bg: #0b1120;
+        --bg-elevated: #111a2e;
+        --bg-subtle: #162238;
+        --bg-code: #070c17;
+        --text-code: #e2e8f0;
+        --text-code-muted: #94a3b8;
+        --border: #23324d;
+        --border-strong: #33486b;
+        --text: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --brand: #93c5fd;
+        --accent: #60a5fa;
+        --accent-hover: #93c5fd;
+        --accent-soft: rgba(96, 165, 250, 0.12);
+        --proven: #34d399;
+        --proven-soft: rgba(52, 211, 153, 0.12);
+        --proven-border: rgba(52, 211, 153, 0.32);
+        --review: #fbbf24;
+        --review-soft: rgba(251, 191, 36, 0.12);
+        --review-border: rgba(251, 191, 36, 0.34);
+        --danger: #f87171;
+        --focus: #fbbf24;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+        --shadow-md: 0 16px 38px -12px rgba(0, 0, 0, 0.55);
       }
     }
-    * { box-sizing: border-box; }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.6;
-      background: var(--bg);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      line-height: 1.65;
       color: var(--text);
+      background: var(--bg);
+      text-rendering: optimizeLegibility;
     }
+
     a {
       color: var(--accent);
-      text-underline-offset: 0.18em;
+      text-underline-offset: 0.2em;
+      text-decoration-thickness: 1.5px;
     }
+
     a:hover { color: var(--accent-hover); }
-    a:focus-visible, summary:focus-visible {
+
+    a:focus-visible, summary:focus-visible, button:focus-visible {
       outline: 3px solid var(--focus);
       outline-offset: 2px;
-      border-radius: 3px;
+      border-radius: 4px;
     }
+
     .skip-link {
       position: absolute;
       left: -9999px;
       top: 0;
-      padding: 0.6rem 1rem;
+      padding: 0.75rem 1.25rem;
       background: var(--accent);
-      color: var(--bg);
+      color: #ffffff;
       font-weight: 600;
       text-decoration: none;
+      border-radius: var(--radius-sm);
     }
+
     .skip-link:focus {
-      left: 0.75rem;
-      top: 0.75rem;
-      z-index: 100;
+      left: 1rem;
+      top: 1rem;
+      z-index: 200;
     }
-    header, main, footer {
-      max-width: 58rem;
+
+    .container {
+      width: 100%;
+      max-width: var(--max-w);
       margin: 0 auto;
       padding: 0 1.25rem;
     }
-    header {
-      padding-top: 2rem;
-      padding-bottom: 1.5rem;
+
+    @media (min-width: 48rem) {
+      .container { padding: 0 2rem; }
+    }
+
+    /* Top bar */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+      backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
     }
-    nav ul {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 1.25rem;
+
+    .header-inner {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem 1.25rem;
-      font-size: 0.95rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem 1.5rem;
+      min-height: 4rem;
+      padding-top: 0.6rem;
+      padding-bottom: 0.6rem;
     }
-    h1 {
-      font-size: clamp(1.8rem, 3.5vw, 2.4rem);
-      line-height: 1.2;
-      margin: 0 0 0.75rem;
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+      min-height: 2.75rem;
     }
-    h2 {
-      font-size: 1.45rem;
-      line-height: 1.3;
-      margin: 2.5rem 0 0.75rem;
-      padding-bottom: 0.35rem;
+
+    .brand:hover { color: var(--text); }
+
+    .brand-mark {
+      width: 1.75rem;
+      height: 1.75rem;
+      flex-shrink: 0;
+    }
+
+    .version-tag {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border);
+      padding: 0.1rem 0.45rem;
+      border-radius: 999px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 0.25rem 0.4rem;
+    }
+
+    .nav-list a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.5rem;
+      padding: 0.35rem 0.65rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      border-radius: var(--radius-sm);
+    }
+
+    .nav-list a:hover {
+      color: var(--text);
+      background: var(--bg-subtle);
+    }
+
+    .nav-list a.nav-llms {
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      color: var(--accent);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 3.5rem 0 3rem;
       border-bottom: 1px solid var(--border);
     }
-    h3 {
-      font-size: 1.1rem;
-      margin: 1.5rem 0 0.4rem;
+
+    @media (min-width: 60rem) {
+      .hero { padding: 5rem 0 4.25rem; }
     }
-    .lead {
-      font-size: 1.1rem;
-      color: var(--muted);
-      margin: 0 0 1rem;
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      align-items: center;
     }
-    .meta {
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin: 0;
+
+    @media (min-width: 60rem) {
+      .hero-grid {
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        gap: 3.25rem;
+      }
     }
-    code, pre {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.9rem;
+
+    .hero h1 {
+      font-size: clamp(2.1rem, 4.4vw, 3.35rem);
+      font-weight: 750;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      margin: 0 0 1.25rem;
+      color: var(--text);
     }
-    code {
-      background: var(--code-bg);
-      padding: 0.12rem 0.35rem;
-      border-radius: 4px;
+
+    .hero-lead {
+      font-size: clamp(1.05rem, 1.6vw, 1.18rem);
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 54ch;
+      margin: 0 0 1.75rem;
     }
-    pre {
-      background: var(--code-bg);
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .btn-primary, .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 2.85rem;
+      padding: 0.65rem 1.2rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: #1b2a4a;
+      color: #ffffff;
+      border: 1px solid #1b2a4a;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      background: #243963;
+      color: #ffffff;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .btn-primary {
+        background: #60a5fa;
+        color: #0b1120;
+        border-color: #60a5fa;
+      }
+      .btn-primary:hover {
+        background: #93c5fd;
+        color: #0b1120;
+      }
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text);
+      border: 1px solid var(--border-strong);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-subtle);
+      color: var(--text);
+    }
+
+    .hero-cmd {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem 0.75rem;
+      background: var(--bg-elevated);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.85rem 1rem;
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.86rem;
+      color: var(--text);
+      max-width: 100%;
       overflow-x: auto;
-      margin: 0.5rem 0 1rem;
     }
-    pre code {
+
+    .hero-cmd-prompt {
+      color: var(--text-muted);
+      user-select: none;
+    }
+
+    .hero-cmd code {
       background: transparent;
+      border: 0;
       padding: 0;
     }
-    .grid {
+
+    /* Hero Diagnostic Showcase */
+    .showcase {
+      min-width: 0;
+      background: var(--bg-code);
+      color: var(--text-code);
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    .showcase-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.7rem 1rem;
+      background: #131c31;
+      border-bottom: 1px solid #1e293b;
+      color: var(--text-code-muted);
+      font-size: 0.78rem;
+    }
+
+    .showcase-file {
+      color: #f1f5f9;
+      font-weight: 600;
+    }
+
+    .showcase-code {
+      margin: 0;
+      padding: 1rem 1.1rem;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      overflow-x: auto;
+      font-size: 0.83rem;
+      line-height: 1.65;
+    }
+
+    .ln {
+      display: inline-block;
+      width: 1.75rem;
+      color: #64748b;
+      user-select: none;
+    }
+
+    .squiggle {
+      text-decoration: wavy underline #f87171;
+      text-underline-offset: 3px;
+    }
+
+    .showcase-results {
+      border-top: 1px solid #1e293b;
+      padding: 0.9rem 1.1rem 1.05rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-      gap: 1rem;
-      margin: 1rem 0;
+      gap: 0.75rem;
+      background: #0c1324;
     }
-    .card {
-      background: var(--surface);
+
+    .diag-item {
+      padding: 0.7rem 0.85rem;
+      border-radius: var(--radius-sm);
+      border-left: 3px solid #34d399;
+      background: rgba(52, 211, 153, 0.08);
+    }
+
+    .diag-item.is-review {
+      border-left-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    .diag-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.78rem;
+    }
+
+    .diag-tag-proven {
+      color: #6ee7b7;
+      font-weight: 700;
+    }
+
+    .diag-tag-review {
+      color: #fcd34d;
+      font-weight: 700;
+    }
+
+    .diag-meta {
+      color: #94a3b8;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .diag-msg {
+      color: #f1f5f9;
+      font-family: var(--font-sans);
+      font-size: 0.86rem;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    /* Proof Strip */
+    .proof-strip {
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-elevated);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    @media (min-width: 48rem) {
+      .metrics-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    .metric {
+      padding: 1.35rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+
+    .metric:nth-child(2n) { border-right: 0; }
+    .metric:nth-last-child(-n+2) { border-bottom: 0; }
+
+    @media (min-width: 48rem) {
+      .metric {
+        padding: 1.6rem 1.25rem;
+        border-bottom: 0;
+        border-right: 1px solid var(--border);
+      }
+      .metric:nth-child(2n) { border-right: 1px solid var(--border); }
+      .metric:last-child { border-right: 0; }
+    }
+
+    .metric-value {
+      display: block;
+      font-size: clamp(1.5rem, 2.6vw, 2rem);
+      font-weight: 750;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      line-height: 1.15;
+    }
+
+    .metric-label {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    /* Sections */
+    .section {
+      padding: 3.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (min-width: 48rem) {
+      .section { padding: 4.5rem 0; }
+    }
+
+    .section-alt {
+      background: var(--bg-elevated);
+    }
+
+    .section-head {
+      max-width: 64ch;
+      margin-bottom: 2.25rem;
+    }
+
+    .section h2 {
+      font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+      font-weight: 750;
+      letter-spacing: -0.03em;
+      line-height: 1.18;
+      margin: 0 0 0.75rem;
+      color: var(--text);
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 1.03rem;
+    }
+
+    h3 {
+      font-size: 1.12rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      margin: 0 0 0.45rem;
+      color: var(--text);
+    }
+
+    p { max-width: 68ch; }
+
+    code, pre {
+      font-family: var(--font-mono);
+    }
+
+    :not(pre) > code {
+      font-size: 0.875em;
+      background: var(--bg-subtle);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    pre {
+      background: var(--bg-code);
+      color: var(--text-code);
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-md);
       padding: 1rem 1.15rem;
+      overflow-x: auto;
+      font-size: 0.86rem;
+      line-height: 1.6;
+      margin: 0.75rem 0 1rem;
     }
-    .card h3 {
-      margin-top: 0;
+
+    pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
     }
+
+    /* Install surfaces */
+    .install-primary {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 48rem) {
+      .install-primary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .install-panel {
+      min-width: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .install-panel p {
+      margin: 0;
+      font-size: 0.94rem;
+      color: var(--text-secondary);
+    }
+
+    .install-panel pre {
+      margin: 0.35rem 0 0;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.83rem;
+    }
+
+    .install-meta {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    .details-stack {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    details {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.15rem 1.15rem;
+    }
+
+    summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 3.1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    summary::after {
+      content: "+";
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    details[open] summary::after { content: "−"; }
+
+    .details-body {
+      padding: 0 0 1.1rem;
+      border-top: 1px solid var(--border);
+      margin-top: 0.15rem;
+      padding-top: 0.9rem;
+      font-size: 0.94rem;
+      color: var(--text-secondary);
+    }
+
+    .details-body p { margin: 0 0 0.6rem; }
+
+    /* Proven vs Needs Review split */
+    .split-two {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 52rem) {
+      .split-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .pillar {
+      padding: 1.4rem 1.5rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .pillar-proven {
+      border-color: var(--proven-border);
+      background: var(--proven-soft);
+    }
+
+    .pillar-review {
+      border-color: var(--review-border);
+      background: var(--review-soft);
+    }
+
+    .status-pill {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      margin-bottom: 0.65rem;
+    }
+
+    .status-pill.proven {
+      color: var(--proven);
+      background: var(--bg-elevated);
+      border: 1px solid var(--proven-border);
+    }
+
+    .status-pill.review {
+      color: var(--review);
+      background: var(--bg-elevated);
+      border: 1px solid var(--review-border);
+    }
+
+    .pillar p {
+      margin: 0 0 0.75rem;
+      color: var(--text-secondary);
+      font-size: 0.96rem;
+    }
+
+    .pillar p:last-child { margin-bottom: 0; }
+
+    /* Guarantees hairline grid */
+    .guarantees-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (min-width: 48rem) {
+      .guarantees-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .guarantee {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (min-width: 48rem) {
+      .guarantee { padding: 1.65rem 1.75rem 1.65rem 0; }
+      .guarantee:nth-child(2n) {
+        padding-left: 1.75rem;
+        padding-right: 0;
+        border-left: 1px solid var(--border);
+      }
+    }
+
+    .guarantee p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* Tables */
     .table-wrap {
       overflow-x: auto;
-      margin: 1rem 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.92rem;
+      min-width: 40rem;
     }
+
     caption {
       text-align: left;
+      font-size: 0.88rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: var(--muted);
+      color: var(--text-muted);
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
     }
+
     th, td {
       text-align: left;
       vertical-align: top;
-      padding: 0.65rem 0.75rem;
-      border: 1px solid var(--border);
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
     }
+
+    tbody tr:last-child th,
+    tbody tr:last-child td { border-bottom: 0; }
+
     thead th {
-      background: var(--surface);
+      font-weight: 700;
+      color: var(--text);
+      background: var(--bg-subtle);
     }
-    footer {
-      margin-top: 3rem;
-      padding-top: 1.25rem;
-      padding-bottom: 2.5rem;
-      border-top: 1px solid var(--border);
+
+    tbody tr.highlight-row {
+      background: var(--accent-soft);
+    }
+
+    tbody th {
+      font-weight: 650;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    /* Eval list */
+    .criteria-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+      list-style: none;
+      padding: 0;
+      margin: 1.25rem 0;
+    }
+
+    @media (min-width: 48rem) {
+      .criteria-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .criteria-list li {
+      padding: 1rem 1.1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.93rem;
+      color: var(--text-secondary);
+    }
+
+    .criteria-list strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    /* Footer */
+    .site-footer {
+      padding: 2.5rem 0 3.5rem;
       font-size: 0.9rem;
-      color: var(--muted);
+      color: var(--text-muted);
+    }
+
+    .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem 2rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.25rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .footer-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.5rem;
     }
   </style>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to main content</a>
 
-  <header>
-    <nav aria-label="Primary">
-      <ul>
-        <li><a href="#install">Install</a></li>
-        <li><a href="#proven-rules">Proven rules</a></li>
-        <li><a href="#privacy">Privacy</a></li>
-        <li><a href="#comparison">Comparison</a></li>
-        <li><a href="#agent-eval">Agent eval</a></li>
-        <li><a href="./llms.txt">llms.txt</a></li>
-        <li><a href="https://github.com/NotAisu/Accessibility_Extension">GitHub</a></li>
-      </ul>
-    </nav>
-    <h1>Allyproof</h1>
-    <p class="lead">Local, offline WCAG 2.2 A/AA static accessibility checker for HTML, React (JSX/TSX), Vue, Svelte, Angular, and Astro — for editors, CI, and coding agents.</p>
-    <p class="meta">Current release: <code>v0.2.0</code> · MIT license · Zero telemetry · Zero workspace code execution · <a href="./llms.txt">Machine-readable summary (llms.txt)</a></p>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#main">
+        <svg class="brand-mark" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="6" fill="#1b2a4a"/>
+          <path d="M8.5 14.5L12.2 18.2L19.8 10.2" stroke="#60a5fa" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Allyproof</span>
+        <span class="version-tag">v0.2.0</span>
+      </a>
+      <nav aria-label="Primary">
+        <ul class="nav-list">
+          <li><a href="#install">Install</a></li>
+          <li><a href="#proven-rules">Proven rules</a></li>
+          <li><a href="#privacy">Privacy</a></li>
+          <li><a href="#comparison">Comparison</a></li>
+          <li><a href="#agent-eval">Verification</a></li>
+          <li><a class="nav-llms" href="./llms.txt">llms.txt</a></li>
+          <li><a href="https://github.com/NotAisu/Accessibility_Extension">GitHub</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
 
   <main id="main">
-    <section id="install" aria-labelledby="install-heading">
-      <h2 id="install-heading">1-Line Install</h2>
-      <p>Every surface runs the same deterministic Check engine with the same 73 Proven rules, rule settings, and Component Mapping.</p>
+    <section class="hero" aria-labelledby="hero-heading">
+      <div class="container hero-grid">
+        <div>
+          <h1 id="hero-heading">WCAG 2.2 AA accessibility checking, proven before it blocks.</h1>
+          <p class="hero-lead">Allyproof checks HTML, React (JSX/TSX), Vue, Svelte, Angular, and Astro statically on your machine — across VS Code, CLI, GitHub Actions, and local stdio MCP for coding agents. Zero telemetry, zero accounts, zero workspace code execution.</p>
+          <div class="hero-actions">
+            <a class="btn-primary" href="https://marketplace.visualstudio.com/items?itemName=aisu.allyproof">Install in VS Code</a>
+            <a class="btn-secondary" href="#install">Set up CLI &amp; MCP</a>
+          </div>
+          <div class="hero-cmd" aria-label="Run Allyproof from the command line">
+            <span class="hero-cmd-prompt" aria-hidden="true">$</span>
+            <code>npx allyproof check .</code>
+          </div>
+        </div>
 
-      <div class="table-wrap">
-        <table>
-          <caption>Install commands and links across editors, CLI, MCP clients, and CI</caption>
-          <thead>
-            <tr>
-              <th scope="col">Surface</th>
-              <th scope="col">Install or run</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row"><a href="https://marketplace.visualstudio.com/items?itemName=aisu.allyproof">VS Code Marketplace</a></th>
-              <td><code>code --install-extension aisu.allyproof</code></td>
-            </tr>
-            <tr>
-              <th scope="row"><a href="https://open-vsx.org/extension/aisu/allyproof">Open VSX</a> (Cursor, Windsurf, VSCodium)</th>
-              <td><code>codium --install-extension aisu.allyproof</code></td>
-            </tr>
-            <tr>
-              <th scope="row">npm CLI (Node 24.15+)</th>
-              <td><code>npx allyproof check .</code></td>
-            </tr>
-            <tr>
-              <th scope="row">Local stdio MCP server</th>
-              <td><code>npx -y allyproof@0.2.0 mcp</code> (Official MCP Registry: <code>io.github.notaisu/allyproof</code>)</td>
-            </tr>
-            <tr>
-              <th scope="row">Claude Code plugin</th>
-              <td>Install from this repository (<code>.claude-plugin/plugin.json</code> + <code>.mcp.json</code> + <code>skills/allyproof/SKILL.md</code>)</td>
-            </tr>
-            <tr>
-              <th scope="row">Cursor plugin</th>
-              <td>Install from this repository (<code>.cursor-plugin/plugin.json</code> + <code>.cursor/rules/allyproof.mdc</code> + <code>skills/allyproof/SKILL.md</code>)</td>
-            </tr>
-            <tr>
-              <th scope="row">Codex, Zed, Windsurf, Cline, Roo Code, Gemini CLI</th>
-              <td>Register stdio MCP <code>npx -y allyproof@0.2.0 mcp</code> and copy <code>skills/allyproof/SKILL.md</code> into your agent's skills directory</td>
-            </tr>
-            <tr>
-              <th scope="row">Agent Skills</th>
-              <td>Static check-first Skill: <code>skills/allyproof/SKILL.md</code> · Optional rendered browser audit Skill: <code>skills/allyproof-browser-audit/SKILL.md</code></td>
-            </tr>
-            <tr>
-              <th scope="row">GitHub Action</th>
-              <td><code>uses: NotAisu/Accessibility_Extension@v0.2.0</code> (checks PR diff, fails on blocking Findings, uploads SARIF)</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="showcase" aria-label="Example Allyproof check output distinguishing Proven Findings from Needs Review">
+          <div class="showcase-bar">
+            <span class="showcase-file">CheckoutButton.tsx</span>
+            <span>allyproof check · offline</span>
+          </div>
+          <pre class="showcase-code"><code><span class="ln">11</span>export function CheckoutButton() {
+<span class="ln">12</span>  return (
+<span class="ln">13</span>    &lt;button className="btn-pay"&gt;
+<span class="ln">14</span>      <span class="squiggle">&lt;img src="/lock.svg" /&gt;</span>
+<span class="ln">15</span>    &lt;/button&gt;
+<span class="ln">16</span>  );
+<span class="ln">17</span>}</code></pre>
+          <div class="showcase-results">
+            <div class="diag-item">
+              <div class="diag-head">
+                <span class="diag-tag-proven">Proven Finding · WCAG 1.1.1</span>
+                <span class="diag-meta">line 14 · jsx-a11y-x/alt-text · 95.1% LB</span>
+              </div>
+              <p class="diag-msg">img elements must have an alt prop, either with meaningful text or an empty string for decorative images.</p>
+            </div>
+            <div class="diag-item is-review">
+              <div class="diag-head">
+                <span class="diag-tag-review">Needs Review · WCAG 1.4.3, 2.5.8</span>
+                <span class="diag-meta">rendered browser check</span>
+              </div>
+              <p class="diag-msg">Text contrast and 24×24 CSS px target size depend on rendered styles — never guessed from class names.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="proof-strip" aria-label="Verified evidence metrics">
+      <div class="container">
+        <ul class="metrics-grid">
+          <li class="metric">
+            <span class="metric-value">73</span>
+            <span class="metric-label">Proven rules across 7 formats</span>
+          </li>
+          <li class="metric">
+            <span class="metric-value">6,092 / 6,092</span>
+            <span class="metric-label">Labelled cases correct (100% precision)</span>
+          </li>
+          <li class="metric">
+            <span class="metric-value">&ge; 95%</span>
+            <span class="metric-label">Wilson lower bound at 95% confidence</span>
+          </li>
+          <li class="metric">
+            <span class="metric-value">0 bytes</span>
+            <span class="metric-label">Telemetry, accounts, or network calls</span>
+          </li>
+        </ul>
       </div>
     </section>
 
-    <section id="proven-rules" aria-labelledby="proven-heading">
-      <h2 id="proven-heading">Proven Rules Policy (ADR 0005)</h2>
-      <p>A static accessibility rule reports blocking <strong>Findings</strong> only after it proves its precision on independently labelled code (W3C ACT Rules test cases, real open-source pages and components, and single-failure injections).</p>
-
-      <div class="grid">
-        <div class="card">
-          <h3>73 Proven rules</h3>
-          <p>Verified per language across HTML, JSX, TSX, Vue, Svelte, Angular, and Astro.</p>
+    <section id="install" class="section" aria-labelledby="install-heading">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="install-heading">One engine across every editor, CI pipeline, and agent</h2>
+          <p>Every surface runs the same deterministic Check engine with the same 73 Proven rules, <code>.vscode/settings.json</code> rule settings, Component Mapping, and ignore comments.</p>
         </div>
-        <div class="card">
-          <h3>100% measured precision</h3>
-          <p>6,092 of 6,092 labelled cases correct (0 false positives) across all Proven rules in <code>src/core/proof-status.json</code>.</p>
+
+        <div class="install-primary">
+          <div class="install-panel">
+            <h3>VS Code &amp; Open VSX</h3>
+            <p>Live diagnostics as you type, quick fixes, Findings tree, built-in Copilot <code>a11y_check</code> tool, and optional AI Review.</p>
+            <pre><code>code --install-extension aisu.allyproof</code></pre>
+            <span class="install-meta">
+              <a href="https://marketplace.visualstudio.com/items?itemName=aisu.allyproof">VS Code Marketplace</a> ·
+              <a href="https://open-vsx.org/extension/aisu/allyproof">Open VSX (Cursor, Windsurf, VSCodium)</a>
+            </span>
+          </div>
+
+          <div class="install-panel">
+            <h3>Command Line (Node 24.15+)</h3>
+            <p>Check a repository, staged Git changes, or a PR diff with text, JSON, or SARIF 2.1.0 output and baselining.</p>
+            <pre><code>npx allyproof check .</code></pre>
+            <span class="install-meta">Also: <code>--staged</code>, <code>--changed origin/main --format sarif</code>, <code>baseline</code>, <code>explain</code></span>
+          </div>
+
+          <div class="install-panel">
+            <h3>Local stdio MCP Server</h3>
+            <p>Read-only, offline MCP server exposing <code>check</code> (files, folders, or proposed code), <code>explain_rule</code>, <code>list_rules</code>, and <code>allyproof_review</code>.</p>
+            <pre><code>npx -y allyproof@0.2.0 mcp</code></pre>
+            <span class="install-meta">Official MCP Registry: <code>io.github.notaisu/allyproof</code></span>
+          </div>
+
+          <div class="install-panel">
+            <h3>GitHub Action</h3>
+            <p>Checks only changed files in pull requests, fails on blocking Findings, and uploads SARIF directly to GitHub Code Scanning.</p>
+            <pre><code>uses: NotAisu/Accessibility_Extension@v0.2.0</code></pre>
+            <span class="install-meta">Inputs: <code>base</code>, <code>paths</code>, <code>baseline</code>, <code>fail-on</code>, <code>upload-sarif</code></span>
+          </div>
         </div>
-        <div class="card">
-          <h3>&gt;= 95% Wilson lower bound</h3>
-          <p>Every Proven rule meets a 95% Wilson lower confidence bound at 95% confidence before reporting Findings.</p>
+
+        <div class="details-stack">
+          <details>
+            <summary>Claude Code plugin &amp; Agent Skills</summary>
+            <div class="details-body">
+              <p>Install the plugin manifest from this repository (<code>.claude-plugin/plugin.json</code> + <code>.mcp.json</code>), which bundles the pinned stdio MCP server (<code>npx -y allyproof@0.2.0 mcp</code>), the core check-first Skill (<code>skills/allyproof/SKILL.md</code>), and the optional rendered browser audit Skill (<code>skills/allyproof-browser-audit/SKILL.md</code>).</p>
+            </div>
+          </details>
+
+          <details>
+            <summary>Cursor plugin &amp; check-first rule</summary>
+            <div class="details-body">
+              <p>Bundles <code>.cursor-plugin/plugin.json</code>, <code>.cursor/rules/allyproof.mdc</code>, <code>skills/allyproof/SKILL.md</code>, and <code>npx -y allyproof@0.2.0 mcp</code> so Cursor runs the deterministic Check before and after markup edits.</p>
+            </div>
+          </details>
+
+          <details>
+            <summary>Codex, Zed, Windsurf, Cline, Roo Code, and Gemini CLI</summary>
+            <div class="details-body">
+              <p>Register the local stdio MCP command <code>npx -y allyproof@0.2.0 mcp</code> in your client's MCP configuration and copy <code>skills/allyproof/SKILL.md</code> into its skills directory. See <a href="./llms.txt">llms.txt</a> or the <a href="https://github.com/NotAisu/Accessibility_Extension#readme">README</a> for exact client snippets.</p>
+            </div>
+          </details>
         </div>
-      </div>
-
-      <p>Rules that have not yet cleared that threshold, and criteria source code alone cannot decide (such as runtime contrast or 2.5.8 target size), are reported under <strong>Needs Review</strong> instead of silent passes or noisy false positives.</p>
-    </section>
-
-    <section id="privacy" aria-labelledby="privacy-heading">
-      <h2 id="privacy-heading">100% Local, Offline, and Zero-Execution Guarantees</h2>
-      <ul>
-        <li><strong>No telemetry, no account, no tracking:</strong> Allyproof collects nothing and sends nothing about you or your usage. This documentation site loads zero JavaScript, zero analytics, and zero external resources.</li>
-        <li><strong>Offline deterministic Check:</strong> The VS Code extension Check, npm CLI, GitHub Action, and local stdio MCP server make zero network requests and run no AI.</li>
-        <li><strong>Zero workspace code execution:</strong> Your files are parsed statically and never executed. Your repository's own ESLint, TypeScript, or framework configs are never loaded or run.</li>
-        <li><strong>Optional AI Review stays explicit:</strong> In VS Code, AI Review runs only when you start it (auto-on-save is off by default) and sends code only to GitHub Copilot or a local OpenAI-compatible model (LM Studio or Ollama). Untrusted workspaces lock down local endpoint settings.</li>
-      </ul>
-    </section>
-
-    <section id="comparison" aria-labelledby="comparison-heading">
-      <h2 id="comparison-heading">Comparison with Alternatives</h2>
-      <p>Allyproof complements rendered browser testing by catching high-precision WCAG 2.2 source defects offline across seven frontend formats.</p>
-
-      <div class="table-wrap">
-        <table>
-          <caption>Factual comparison of Allyproof and common accessibility tools</caption>
-          <thead>
-            <tr>
-              <th scope="col">Tool</th>
-              <th scope="col">Target &amp; frameworks</th>
-              <th scope="col">Offline source check</th>
-              <th scope="col">Precision gate</th>
-              <th scope="col">Local MCP &amp; Skill</th>
-              <th scope="col">License / pricing</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">Allyproof</th>
-              <td>HTML, JSX, TSX, Vue, Svelte, Angular, Astro</td>
-              <td>Yes (no browser or app build needed)</td>
-              <td>73 Proven rules (&gt;= 95% Wilson LB, 95% CI); unproven &rarr; Needs Review</td>
-              <td>Yes (<code>npx -y allyproof@0.2.0 mcp</code> + Agent Skills)</td>
-              <td>MIT, free</td>
-            </tr>
-            <tr>
-              <th scope="row">axe DevTools (Extension / Linter)</th>
-              <td>Rendered DOM (browser extension); HTML/JSX/Vue/Angular (commercial Linter)</td>
-              <td>Linter requires commercial plan; browser extension checks rendered pages</td>
-              <td>Curated axe-core rule set</td>
-              <td>No local open-source stdio MCP bundle</td>
-              <td>Freemium / commercial</td>
-            </tr>
-            <tr>
-              <th scope="row">eslint-plugin-jsx-a11y</th>
-              <td>JSX / TSX (via project ESLint config)</td>
-              <td>Yes, within an ESLint setup</td>
-              <td>Per-rule manual config in project ESLint</td>
-              <td>No built-in MCP server or Skill</td>
-              <td>MIT, free</td>
-            </tr>
-            <tr>
-              <th scope="row">Lighthouse / Pa11y</th>
-              <td>Rendered web pages in headless Chromium</td>
-              <td>No (requires running app + browser)</td>
-              <td>axe-core / HTML_CodeSniffer audits on live DOM</td>
-              <td>No built-in MCP server or Skill</td>
-              <td>Apache-2.0 / LGPL-3.0, free</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </section>
 
-    <section id="agent-eval" aria-labelledby="eval-heading">
-      <h2 id="eval-heading">Reproducible Proof &amp; Agent Eval</h2>
-      <p>Allyproof separates deterministic ground-truth verification (which runs on every commit in CI) from local LLM agent evaluations (which require model tokens and run on demand).</p>
+    <section id="proven-rules" class="section section-alt" aria-labelledby="proven-heading">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="proven-heading">Only Proven rules block your build</h2>
+          <p>Static accessibility linters lose developer trust when they cry wolf. Allyproof enforces ADR 0005: a rule earns blocking status per language only after clearing an independent statistical precision gate.</p>
+        </div>
 
-      <h3>Verified deterministic ground truth</h3>
-      <p>Every commit runs <code>npm run verify</code>, including the ground-truth gate on both source and the unpacked VSIX/npm bundles against labelled files in <code>test/ground-truth/</code>. Current verified evidence in <code>src/core/proof-status.json</code>: <strong>73 Proven rules</strong>, <strong>6,092 of 6,092</strong> correct (<strong>100% measured precision</strong>, <strong>&gt;= 95% Wilson lower bound</strong> at 95% confidence).</p>
+        <div class="split-two">
+          <div class="pillar pillar-proven">
+            <span class="status-pill proven">Proven Finding</span>
+            <h3>73 Proven rules at 100% measured precision</h3>
+            <p>Verified independently per language across HTML, JSX, TSX, Vue, Svelte, Angular, and Astro using W3C ACT Rules test cases, labelled real open-source components, and single-failure injections.</p>
+            <p>Every Proven rule meets a <strong>&ge; 95% Wilson lower confidence bound</strong> at 95% confidence (6,092 of 6,092 cases correct, 0 false positives in <code>src/core/proof-status.json</code>).</p>
+          </div>
 
-      <h3>Measuring agent fixes with <code>npm run eval:agent</code></h3>
-      <p>To reproduce how a coding agent performs without vs. with Allyproof's local stdio MCP server and Skill on real ground-truth files, run the local harness:</p>
-      <pre><code>npm run bundle
+          <div class="pillar pillar-review">
+            <span class="status-pill review">Needs Review</span>
+            <h3>Honest visibility instead of silent passes</h3>
+            <p>Unproven rules and runtime-only criteria — such as rendered text contrast (1.4.3), non-text contrast (1.4.11), and 24×24 CSS px target size (2.5.8) — are never fabricated from class names or silently marked passing.</p>
+            <p>They appear under <strong>Needs Review</strong> for a human or an agent with a browser tool using the optional <code>skills/allyproof-browser-audit/SKILL.md</code> workflow.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="privacy" class="section" aria-labelledby="privacy-heading">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="privacy-heading">100% local, offline, and zero workspace code execution</h2>
+          <p>Built so you can run Allyproof on proprietary codebases and untrusted pull requests without leaking source code or executing repository configs.</p>
+        </div>
+
+        <div class="guarantees-grid">
+          <div class="guarantee">
+            <h3>Zero telemetry, zero accounts</h3>
+            <p>Allyproof collects nothing and phones home never. This documentation site itself loads zero JavaScript, zero analytics, and zero external subresources.</p>
+          </div>
+          <div class="guarantee">
+            <h3>Offline deterministic Check</h3>
+            <p>The VS Code extension Check, npm CLI, GitHub Action, and local stdio MCP server make zero network requests and run no AI.</p>
+          </div>
+          <div class="guarantee">
+            <h3>Static parsing only</h3>
+            <p>Your source files are parsed as data and never executed. Your repository's ESLint, TypeScript, or framework configs are never loaded or run (ADR 0002).</p>
+          </div>
+          <div class="guarantee">
+            <h3>Explicit, bounded AI Review</h3>
+            <p>In VS Code, AI Review is opt-in and runs only on demand with GitHub Copilot or a local OpenAI-compatible server (LM Studio / Ollama). Untrusted workspaces lock down local endpoint settings.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="comparison" class="section section-alt" aria-labelledby="comparison-heading">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="comparison-heading">How Allyproof compares</h2>
+          <p>Allyproof complements rendered browser audits by catching high-precision WCAG 2.2 source defects offline across seven frontend formats under an MIT license.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <caption>Factual comparison of Allyproof and common accessibility tools</caption>
+            <thead>
+              <tr>
+                <th scope="col">Tool</th>
+                <th scope="col">Target &amp; frameworks</th>
+                <th scope="col">Offline source check</th>
+                <th scope="col">Precision gate</th>
+                <th scope="col">Local MCP &amp; Skills</th>
+                <th scope="col">License</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight-row">
+                <th scope="row">Allyproof</th>
+                <td>HTML, JSX, TSX, Vue, Svelte, Angular, Astro</td>
+                <td>Yes (no browser or app build required)</td>
+                <td>73 Proven rules (&ge; 95% Wilson LB); unproven &rarr; Needs Review</td>
+                <td>Yes (<code>npx -y allyproof@0.2.0 mcp</code> + Skills)</td>
+                <td>MIT, free</td>
+              </tr>
+              <tr>
+                <th scope="row">axe DevTools</th>
+                <td>Rendered DOM (extension); HTML/JSX/Vue/Angular (commercial Linter)</td>
+                <td>Source linter requires commercial plan</td>
+                <td>Curated axe-core rule set</td>
+                <td>No open-source local stdio MCP bundle</td>
+                <td>Freemium / commercial</td>
+              </tr>
+              <tr>
+                <th scope="row">eslint-plugin-jsx-a11y</th>
+                <td>JSX / TSX via project ESLint config</td>
+                <td>Yes, within project ESLint setup</td>
+                <td>Manual per-rule ESLint config</td>
+                <td>No built-in MCP server or Skill</td>
+                <td>MIT, free</td>
+              </tr>
+              <tr>
+                <th scope="row">Lighthouse / Pa11y</th>
+                <td>Rendered pages in headless Chromium</td>
+                <td>No (requires running app + browser)</td>
+                <td>axe-core / HTML_CodeSniffer on live DOM</td>
+                <td>No built-in MCP server or Skill</td>
+                <td>Apache-2.0 / LGPL-3.0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="agent-eval" class="section" aria-labelledby="eval-heading">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="eval-heading">Reproducible ground truth and agent evaluation</h2>
+          <p>Allyproof separates deterministic CI verification (which runs on every commit against source, VSIX, and npm bundles) from local LLM agent evaluations (which run on demand with your chosen model).</p>
+        </div>
+
+        <pre><code>npm run bundle
 npm run eval:agent -- --dry-run --limit 1
 npm run eval:agent -- --claude sonnet --limit 1</code></pre>
-      <p>Each task places one ground-truth file in an isolated directory with <code>allyproof mcp</code> as its only MCP server (no shell, no web) and scores every run deterministically:</p>
-      <ul>
-        <li><strong>Fixed:</strong> labelled Findings the Check no longer reports.</li>
-        <li><strong>Added:</strong> any new Finding introduced by the edit fails the run.</li>
-        <li><strong>Integrity:</strong> the file must still parse and preserve its text and interactive/embedded elements (deleting content to silence a Finding fails).</li>
-        <li><strong>Honesty:</strong> every claimed fix must match a Finding the Check reported before and no longer reports.</li>
-        <li><strong>Cost:</strong> tool calls, tokens, and wall time per fixed Finding, written to <code>out/agent-eval/report.json</code>.</li>
-      </ul>
-      <p>Because <code>eval:agent</code> depends on your chosen model and API/session tokens, it is never run in CI and this page publishes no synthetic or unverified LLM benchmark scores.</p>
+
+        <ul class="criteria-list">
+          <li><strong>Fixed Findings</strong>Counts labelled ground-truth Findings the Check no longer reports after the edit.</li>
+          <li><strong>Zero regressions</strong>Any new Finding introduced by the agent's edit fails the run immediately.</li>
+          <li><strong>File integrity</strong>The file must still parse and preserve visible text and interactive elements (deleting markup to silence a rule fails).</li>
+          <li><strong>Claim honesty &amp; cost</strong>Every claimed fix must match a real before/after Check delta; tool calls, tokens, and wall time are recorded in <code>out/agent-eval/report.json</code>.</li>
+        </ul>
+
+        <p>Because <code>eval:agent</code> depends on your chosen model and tokens, it is never run in CI and this page publishes no synthetic or unverified LLM benchmark numbers. Machine-readable agent metadata is available at <a href="./llms.txt">llms.txt</a>.</p>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <p>Allyproof <code>v0.2.0</code> · MIT License · <a href="./llms.txt">llms.txt</a> · <a href="https://github.com/NotAisu/Accessibility_Extension">Source on GitHub</a> · <a href="https://github.com/NotAisu/Accessibility_Extension/issues">Report Issue</a></p>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>Allyproof <code>v0.2.0</code> · MIT License · Local, offline WCAG 2.2 AA checking</p>
+      <ul class="footer-links">
+        <li><a href="./llms.txt">llms.txt</a></li>
+        <li><a href="https://github.com/NotAisu/Accessibility_Extension">GitHub</a></li>
+        <li><a href="https://marketplace.visualstudio.com/items?itemName=aisu.allyproof">VS Code Marketplace</a></li>
+        <li><a href="https://open-vsx.org/extension/aisu/allyproof">Open VSX</a></li>
+        <li><a href="https://github.com/NotAisu/Accessibility_Extension/issues">Issues</a></li>
+      </ul>
+    </div>
   </footer>
 </body>
 </html>
