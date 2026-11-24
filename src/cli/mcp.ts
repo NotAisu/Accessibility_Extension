@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { documentedRules, ruleDoc } from '../core/rule-docs';
 import { workspaceLanguageId } from '../workspace-check';
 import SKILL from '../../skills/allyproof/SKILL.md';
-import { checkAll, diskSource, LANGUAGES, posix, settingsOf, SEVERITY_RANK, treeFiles, type Source } from './check';
+import { analysisWorker, checkAll, diskSource, LANGUAGES, posix, settingsOf, SEVERITY_RANK, treeFiles, type Source } from './check';
 import type { CheckOutput } from './output';
 import { explanation, ruleList } from './rules';
 import { ConfigError } from './settings';
@@ -48,6 +48,8 @@ export async function serve(fallback: string, version: string): Promise<number> 
         asked.catch(() => { if (roots === asked) roots = undefined; });
         return asked;
     };
+    // One worker for the server's lifetime: its engines load once, not on every call
+    const worker = analysisWorker();
     server.registerTool('check', {
         title: 'Allyproof Check',
         description: CHECK_DESCRIPTION,
@@ -62,7 +64,7 @@ export async function serve(fallback: string, version: string): Promise<number> 
     }, async input => {
         try {
             const { root, sources, folder } = sourcesOf(await currentRoots(), input);
-            const checked = await checkAll(sources, settingsIn(root), undefined, SEVERITY_RANK.warning);
+            const checked = await checkAll(sources, settingsIn(root), undefined, SEVERITY_RANK.warning, worker);
             const output = folder ? limited(checked, input.limit ?? DEFAULT_LIMIT) : checked;
             const json = { type: 'text' as const, text: JSON.stringify(output, null, 2) };
             const failed = checked.files.filter(file => file.status === 'failed');
@@ -111,6 +113,7 @@ export async function serve(fallback: string, version: string): Promise<number> 
     await server.connect(transport);
     process.stdin.once('end', () => void server.close());
     await closed;
+    worker.dispose();
     return 0;
 }
 

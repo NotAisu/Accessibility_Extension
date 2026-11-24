@@ -23,3 +23,11 @@ npm run test:gate -- --bundle "$dir/vsix/extension"
 
 # The command line in the VSIX, run as a user or CI runs it
 ALLYPROOF_CLI="$dir/vsix/extension/dist/cli.mjs" npm run test:cli
+
+# The npm package of the command line, packed and unpacked without node_modules: every case through its MCP server
+# must score exactly as the source does
+npx ts-node scripts/npm-package.ts
+npm pack ./out/npm --pack-destination "$dir" --silent > "$dir/tarball"
+mkdir "$dir/npm"
+tar -xzf "$dir/$(cat "$dir/tarball")" -C "$dir/npm"
+npm run test:gate -- --mcp "$dir/npm/package/cli.mjs"

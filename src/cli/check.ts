@@ -63,9 +63,18 @@ export function diskSource(root: string, file: string): Source {
     return { file, read: () => content ??= fs.readFileSync(path.join(root, file), 'utf-8') };
 }
 
-export async function checkAll(sources: Source[], options: AnalysisOptions, baseline: Baseline | undefined, failOn: number): Promise<CheckOutput> {
-    // The worker next to this script; it holds the engines, so a crash or a runaway engine never takes the run with it
-    const worker = new AnalysisWorker(path.join(path.dirname(fs.realpathSync(process.argv[1])), 'worker.mjs'));
+/** The analysis worker next to this script; it holds the engines, so a crash or a runaway engine never takes the run with it. */
+export function analysisWorker(): AnalysisWorker {
+    return new AnalysisWorker(path.join(path.dirname(fs.realpathSync(process.argv[1])), 'worker.mjs'));
+}
+
+// Each run's own request keys, so runs sharing a worker never drop each other's requests for the same file
+let runs = 0;
+
+/** Checks the sources in `shared`, which stays running, or in a worker of their own. */
+export async function checkAll(sources: Source[], options: AnalysisOptions, baseline: Baseline | undefined, failOn: number, shared?: AnalysisWorker): Promise<CheckOutput> {
+    const worker = shared ?? analysisWorker();
+    const run = runs++;
     const files: FileOutput[] = [];
     try {
         for (const source of sources) {
@@ -73,7 +82,7 @@ export async function checkAll(sources: Source[], options: AnalysisOptions, base
             const content = source.read();
             const document = { languageId, text: content };
             if (!isChecked(document)) continue;
-            const outcome = await worker.check(source.file, document, options, { background: true });
+            const outcome = await worker.check(`${run}\0${source.file}`, document, options, { background: true });
             if (outcome.status !== 'done') {
                 files.push({ file: source.file, languageId, status: 'failed', error: outcome.status === 'paused' ? outcome.reason : 'dropped', findings: [], needsReview: [] });
                 continue;
@@ -83,7 +92,7 @@ export async function checkAll(sources: Source[], options: AnalysisOptions, base
             files.push(fileOutput(source.file, languageId, content, outcome.result, baselined));
         }
     } finally {
-        worker.dispose();
+        if (!shared) worker.dispose();
     }
     const findings = files.flatMap(file => file.findings);
     const elements = files.flatMap(file => file.findings.map(f => ({ ruleId: f.ruleId, file: file.file, element: elementAt(sources, file.file, f.range.start.offset) })));
