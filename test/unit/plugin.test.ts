@@ -1,9 +1,10 @@
 import * as assert from 'assert';
 import * as fs from 'fs';
 import * as path from 'path';
+import { buildNpmManifest, type RootManifest } from '../../scripts/npm-package';
 
 const root = path.join(__dirname, '..', '..');
-const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8')) as { version: string; publisher: string; name: string };
+const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8')) as RootManifest & { publisher: string };
 const plugin = JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin', 'plugin.json'), 'utf-8')) as { name: string; version: string };
 const mcp = JSON.parse(fs.readFileSync(path.join(root, '.mcp.json'), 'utf-8')) as {
     mcpServers: Record<string, { command: string; args: string[] }>;
@@ -122,5 +123,54 @@ describe('Cursor plugin bundle, install badges and multi-agent matrix (#111)', (
             assert.doesNotMatch(content, /\/Users\/|\/home\/|[A-Z]:\\/);
             assert.doesNotMatch(content, /ghp_|sk-|AIza|AKIA|-----BEGIN/);
         }
+    });
+});
+
+describe('Official MCP Registry descriptor (#110)', () => {
+    it('keeps server.json in step with package.json, valid for the Official MCP Registry, and free of secrets or local paths', () => {
+        const serverPath = path.join(root, 'server.json');
+        assert.ok(fs.existsSync(serverPath), 'server.json should exist at repo root');
+        const raw = fs.readFileSync(serverPath, 'utf-8');
+        const server = JSON.parse(raw) as {
+            $schema: string;
+            name: string;
+            description: string;
+            version: string;
+            websiteUrl: string;
+            repository: { url: string; source: string };
+            packages: {
+                registryType: string;
+                registryBaseUrl: string;
+                identifier: string;
+                version: string;
+                transport: { type: string };
+                packageArguments: { type: string; value: string }[];
+            }[];
+        };
+
+        assert.match(server.$schema, /^https:\/\/static\.modelcontextprotocol\.io\/schemas\/\d{4}-\d{2}-\d{2}\/server\.schema\.json$/);
+        assert.strictEqual(server.name, 'io.github.notaisu/allyproof');
+        assert.strictEqual(server.version, manifest.version);
+        assert.ok(server.description.length > 0 && server.description.length <= 100, 'description must be 1-100 chars');
+        assert.deepStrictEqual(server.repository, {
+            url: 'https://github.com/NotAisu/Accessibility_Extension',
+            source: 'github'
+        });
+        assert.match(server.websiteUrl, /^https:\/\/github\.com\/NotAisu\/Accessibility_Extension/);
+
+        assert.strictEqual(server.packages.length, 1);
+        const [pkg] = server.packages;
+        assert.strictEqual(pkg.registryType, 'npm');
+        assert.strictEqual(pkg.registryBaseUrl, 'https://registry.npmjs.org');
+        assert.strictEqual(pkg.identifier, 'allyproof');
+        assert.strictEqual(pkg.version, manifest.version);
+        assert.deepStrictEqual(pkg.transport, { type: 'stdio' });
+        assert.deepStrictEqual(pkg.packageArguments, [{ type: 'positional', value: 'mcp' }]);
+
+        const npmManifest = buildNpmManifest(manifest);
+        assert.strictEqual(npmManifest.mcpName, server.name, 'generated npm package.json mcpName must match server.json name');
+
+        assert.doesNotMatch(raw, /\/Users\/|\/home\/|[A-Z]:\\/);
+        assert.doesNotMatch(raw, /ghp_|sk-|AIza|AKIA|-----BEGIN/);
     });
 });

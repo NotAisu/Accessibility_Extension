@@ -189,6 +189,7 @@ describe('manifest', () => {
         const scriptFiles = fs.readdirSync(path.join(root, 'scripts')).map(file => path.join('scripts', file));
         const publishedFiles = [
             'package.json',
+            'server.json',
             '.claude-plugin/plugin.json',
             '.mcp.json',
             'action.yml',
