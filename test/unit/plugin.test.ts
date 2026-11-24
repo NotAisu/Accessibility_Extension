@@ -31,6 +31,26 @@ describe('Claude Code plugin and Skill (#101)', () => {
         assert.match(skill, /paused or failed Check.*is an error, not a clean pass/);
     });
 
+    it('validates the Skill YAML frontmatter against the Agent Skills specification', () => {
+        const match = /^---\n([\s\S]+?)\n---\n/.exec(skill);
+        assert.ok(match, 'SKILL.md must start with YAML frontmatter delimited by ---');
+        const allowedKeys = new Set(['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools']);
+        const fields = new Map<string, string>();
+        for (const line of match[1].split('\n')) {
+            if (/^\s+/.test(line) || line.trim() === '') continue;
+            const field = /^([a-z][a-z0-9-]*):(?:\s*(.*))?$/.exec(line);
+            assert.ok(field, `invalid YAML frontmatter line: ${line}`);
+            assert.ok(allowedKeys.has(field[1]), `unsupported Agent Skills frontmatter key: ${field[1]}`);
+            fields.set(field[1], (field[2] ?? '').trim());
+        }
+        const name = fields.get('name') ?? '';
+        assert.strictEqual(name, 'allyproof', 'Skill name must match its directory');
+        assert.match(name, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+        assert.ok(name.length >= 1 && name.length <= 64);
+        const description = fields.get('description') ?? '';
+        assert.ok(description.length > 0 && description.length <= 1024, 'Skill description must be concise (1-1024 chars)');
+    });
+
     it('documents MCP setup for Claude Code, Codex, Cursor, Zed and VS Code in README', () => {
         for (const client of ['Claude Code', 'Codex', 'Cursor', 'Zed', 'VS Code']) {
             assert.ok(readme.includes(client), `README does not mention ${client}`);
