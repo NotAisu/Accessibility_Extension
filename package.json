@@ -370,6 +370,7 @@
     "test:cli": "mocha --no-config -r ts-node/register -r test/esm-only-packages.ts --extension ts --timeout 20000 'test/cli/**/*.test.ts'",
     "test:extension-host": "ts-node test/extension-host/run.ts",
     "bench": "ts-node test/bench/run.ts",
+    "eval:agent": "ts-node test/agent-eval/run.ts",
     "prepare": "husky",
     "typecheck": "tsc -p ./ --noEmit",
     "audit": "ts-node scripts/audit.ts",
@@ -407,6 +408,7 @@
     "@emnapi/runtime": "1.11.3",
     "@html-eslint/eslint-plugin": "0.68.0",
     "@html-eslint/parser": "0.68.0",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "@napi-rs/wasm-runtime": "1.2.7",
     "@typescript-eslint/parser": "8.72.2",
     "aria-query": "5.3.2",
@@ -422,7 +424,8 @@
     "svelte": "5.57.3",
     "tailwindcss": "4.3.5",
     "typescript": "5.4.5",
-    "vue-eslint-parser": "10.4.2"
+    "vue-eslint-parser": "10.4.2",
+    "zod": "4.6.7"
   },
   "overrides": {
     "minimatch": "11.0.8"

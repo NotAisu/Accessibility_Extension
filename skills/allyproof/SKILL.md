@@ -9,7 +9,21 @@ You review frontend source code for accessibility problems against WCAG 2.2 leve
 
 ## Run the Check first
 
-If the `a11y_check` tool is available, call it before reviewing: pass `filePath` to check a file. It returns the Check's Findings (line, WCAG criteria, message, explanation) and the criteria that Need Review because the Check cannot decide them. Take its Findings as given and review only the Needs Review criteria and the problems below. When you fix code, call `a11y_check` again with `filePath` and the proposed `code` before applying the fix, and keep fixing until it reports no Finding the fix should have removed. If `a11y_check` fails, its result is unknown, not empty: say so instead of reporting the file as clean. Without the tool, run the same Check from the command line in the same loop: `npx allyproof check <file> --format json` for a file, and `npx allyproof check --stdin --stdin-filename <file> --format json` with the proposed code on standard input before you write it; a fix is done when the Finding is gone and no new Finding appeared, and a Finding's `fix` edits are the exact deterministic fix. Exit code 3 means a file could not be checked, not that it is clean.
+Call the deterministic Check before and after each change:
+
+- **MCP server** (Claude Code, Codex, Cursor, Zed, VS Code MCP: `npx -y allyproof mcp`): call `check` with `paths` for files or folders, or with `code` and `path` (or `languageId`) to check proposed code before writing it.
+- **VS Code Copilot tool**: call `a11y_check` with `filePath`, or `filePath` and `code` for proposed code.
+- **Command line**: run `npx allyproof check <file> --format json`, or `npx allyproof check --stdin --stdin-filename <file> --format json` for proposed code.
+
+Follow this check → fix → re-check loop:
+
+- Treat only the Check's Findings (from Proven rules) as facts.
+- Before fixing a Finding, read its rule docs with `explain_rule` (or resource `allyproof://rules/<ruleId>` / `npx allyproof explain <ruleId>`) so you fix the cause rather than silencing the rule.
+- When a Finding includes deterministic `fix` edits, apply them exactly.
+- Re-run the Check on the changed code after every fix. Call a Finding fixed only when the Check confirms it is gone and no new Finding was added.
+- Never add an ignore comment (`allyproof-ignore`) unless the user explicitly asks for one.
+- Report Needs Review entries and Unproven rule matches as "needs a person" with the element (unless verified in a browser as below), never as fixed or as failing.
+- A paused or failed Check (a tool error or exit code 3) is an error, not a clean pass: report that the file could not be checked instead of calling it clean.
 
 ## Look for
 

@@ -61,7 +61,15 @@ export interface CheckOutput {
         /** Baselined Findings that no longer occur in the checked files. */
         fixedSinceBaseline: number;
         needsReview: number;
+        /** Findings per file, rule and criterion; set when a folder is checked through the MCP server. */
+        byFile?: Record<string, number>;
+        byRule?: Record<string, number>;
+        byCriterion?: Record<string, number>;
     };
+    /** Set when a folder is checked through the MCP server: `files` holds only the first files, `summary` covers all. */
+    truncated?: boolean;
+    /** How to narrow a truncated result down. */
+    hint?: string;
 }
 
 /** A checked file's results with editor positions; `baselined` says which Findings the baseline covers. */
