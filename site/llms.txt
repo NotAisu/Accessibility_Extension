@@ -1,0 +1,71 @@
+# Allyproof
+
+> Local, offline WCAG 2.2 A/AA static accessibility checker for HTML, React (JSX/TSX), Vue, Svelte, Angular, and Astro. Version 0.1.3, MIT-licensed, zero telemetry, zero accounts, and zero workspace code execution.
+
+Allyproof checks source code statically while you write, in CI, or inside coding agents. Only Proven rules (73 Proven rules across 7 formats; 6,092 of 6,092 correct = 100% measured precision, >= 95% Wilson lower bound at 95% confidence) report blocking Findings. Unproven rules and runtime-only criteria (contrast, target size) are listed under Needs Review instead of silent passes.
+
+## Guarantees
+
+- **100% local and offline Check:** The VS Code extension Check, npm CLI, GitHub Action, and local stdio MCP server make zero network requests and run no AI.
+- **No telemetry, no account:** Allyproof collects nothing and sends nothing about users or usage.
+- **Zero workspace code execution:** Source files are parsed statically, never executed; repository lint configs are never loaded.
+- **Explicit optional AI Review:** In VS Code, AI Review runs only when explicitly invoked, using GitHub Copilot or a local OpenAI-compatible server (LM Studio / Ollama).
+
+## Install & Configure
+
+### VS Code Extension
+- VS Code Marketplace: https://marketplace.visualstudio.com/items?itemName=aisu.allyproof
+- Command: `code --install-extension aisu.allyproof`
+- Requires VS Code 1.123+. Contributes the built-in `a11y_check` language model tool and `skills/allyproof/SKILL.md`.
+
+### Open VSX (Cursor, Windsurf, VSCodium)
+- Open VSX Registry: https://open-vsx.org/extension/aisu/allyproof
+- Command: `codium --install-extension aisu.allyproof`
+
+### npm CLI (Node 24.15+)
+- Check repository: `npx allyproof check .`
+- Check staged Git changes: `npx allyproof check --staged`
+- Check diff against base branch (SARIF): `npx allyproof check --changed origin/main --format sarif > allyproof.sarif`
+- Baseline existing Findings: `npx allyproof baseline`
+- Explain a rule: `npx allyproof explain image-alt`
+- List rules and proof status: `npx allyproof rules --format json`
+
+### Local stdio MCP Server
+- Command: `npx -y allyproof@0.1.3 mcp`
+- Official MCP Registry: `io.github.notaisu/allyproof`
+- Transport: stdio, offline, read-only (no network requests, no AI, no file writes).
+- Tools & resources: `check` (files, folders, or proposed code), `explain_rule`, `list_rules`, `allyproof://rules/<ruleId>`, and the `allyproof_review` prompt.
+- Works with VS Code, Claude Code, Cursor, Codex, Windsurf, Cline, Roo Code, Zed, and Gemini CLI.
+
+### Agent Skills
+- Core static check-first Skill: `skills/allyproof/SKILL.md` (https://github.com/NotAisu/Accessibility_Extension/blob/main/skills/allyproof/SKILL.md)
+- Optional Rendered Browser Audit Skill (for agents with Playwright/preview/DevTools): `skills/allyproof-browser-audit/SKILL.md` (https://github.com/NotAisu/Accessibility_Extension/blob/main/skills/allyproof-browser-audit/SKILL.md)
+
+### Claude Code Plugin
+- Manifest: `.claude-plugin/plugin.json` and `.mcp.json` in `NotAisu/Accessibility_Extension`
+- Bundles the pinned stdio MCP server (`npx -y allyproof@0.1.3 mcp`), `skills/allyproof/SKILL.md`, and `skills/allyproof-browser-audit/SKILL.md`.
+
+### Cursor Plugin
+- Manifest: `.cursor-plugin/plugin.json` and `.cursor/rules/allyproof.mdc` in `NotAisu/Accessibility_Extension`
+- Bundles the pinned stdio MCP server (`npx -y allyproof@0.1.3 mcp`), `skills/allyproof/SKILL.md`, and the check-first Cursor rule.
+
+### GitHub Action
+- Action: `NotAisu/Accessibility_Extension` (e.g. `uses: NotAisu/Accessibility_Extension@v0.1.3`)
+- Checks pull request diffs, fails on blocking Findings, and uploads SARIF code scanning alerts.
+- Inputs: `base`, `paths`, `baseline`, `fail-on`, `upload-sarif`.
+
+## Proof & Reproducible Agent Eval
+
+- Ground-truth evidence: `src/core/proof-status.json` and `test/ground-truth/` (73 Proven rules, 6,092/6,092 correct, 100% measured precision, >= 95% Wilson lower bound at 95% confidence).
+- Local agent evaluation harness (without vs. with Allyproof MCP + Skill):
+  - `npm run bundle`
+  - `npm run eval:agent -- --dry-run --limit 1`
+  - `npm run eval:agent -- --claude sonnet --limit 1`
+- Scores fixed Findings, added Findings (fails on any), file integrity, claim honesty, and cost per fixed Finding into `out/agent-eval/report.json`.
+
+## Links
+
+- Repository: https://github.com/NotAisu/Accessibility_Extension
+- Documentation site: ./index.html
+- JSON output schema: https://github.com/NotAisu/Accessibility_Extension/blob/main/schema/check-result.v1.json
+- Issues: https://github.com/NotAisu/Accessibility_Extension/issues
