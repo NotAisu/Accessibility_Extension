@@ -149,7 +149,7 @@ describe('Official MCP Registry descriptor (#110)', () => {
         };
 
         assert.match(server.$schema, /^https:\/\/static\.modelcontextprotocol\.io\/schemas\/\d{4}-\d{2}-\d{2}\/server\.schema\.json$/);
-        assert.strictEqual(server.name, 'io.github.notaisu/allyproof');
+        assert.strictEqual(server.name, 'io.github.NotAisu/allyproof');
         assert.strictEqual(server.version, manifest.version);
         assert.ok(server.description.length > 0 && server.description.length <= 100, 'description must be 1-100 chars');
         assert.deepStrictEqual(server.repository, {

@@ -91,8 +91,8 @@ jobs:
       # Official MCP Registry (#110) via GitHub OIDC; skipped when this version is already published
       - run: |
           version=${GITHUB_REF_NAME#v}
-          if curl -fsS -o /dev/null "https://registry.modelcontextprotocol.io/v0.1/servers/io.github.notaisu%2Fallyproof/versions/$version"; then
-            echo "io.github.notaisu/allyproof@$version is already published to the MCP Registry"
+          if curl -fsS -o /dev/null "https://registry.modelcontextprotocol.io/v0.1/servers/io.github.NotAisu%2Fallyproof/versions/$version"; then
+            echo "io.github.NotAisu/allyproof@$version is already published to the MCP Registry"
             exit 0
           fi
           curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/v1.8.16/mcp-publisher_linux_amd64.tar.gz" \

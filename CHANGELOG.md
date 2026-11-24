@@ -2,6 +2,12 @@
 
 Pre-releases use odd minor versions, stable releases even ones.
 
+## 0.2.1
+
+- Fixed Official MCP Registry namespace casing (`io.github.NotAisu/allyproof`) for GitHub OIDC publishing.
+- Added ASCII crest banner to `allyproof --help` and TTY-aware framing/color to `allyproof check` (preserving ANSI-free output for CI, pipes, `--format json`/`sarif`, and `NO_COLOR`).
+- Redesigned the static GitHub Pages documentation site (`site/index.html`).
+
 ## 0.2.0
 
 First stable release of Allyproof – WCAG 2.2 Accessibility Checker.

@@ -66,7 +66,7 @@ describe('Static documentation site, llms.txt and Pages workflow (#112)', () => 
             'site/llms.txt must include pinned stdio MCP command'
         );
         assert.ok(
-            llms.includes('io.github.notaisu/allyproof'),
+            llms.includes('io.github.NotAisu/allyproof'),
             'site/llms.txt must include Official MCP Registry identifier'
         );
         // 5. Agent Skill + optional Browser Audit Skill
