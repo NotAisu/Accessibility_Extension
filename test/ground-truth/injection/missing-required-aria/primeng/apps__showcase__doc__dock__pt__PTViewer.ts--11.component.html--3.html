@@ -1,0 +1,11 @@
+
+        <app-docptviewer [docs]="docs">
+            <div role="checkbox" class="relative w-full">
+                <p-dock [model]="items">
+                    <ng-template #item let-item>
+                        <img [pTooltip]="item.label" tooltipPosition="top" [alt]="item.label" [src]="item.icon" style="width: 100%" />
+                    </ng-template>
+                </p-dock>
+            </div>
+        </app-docptviewer>
+    

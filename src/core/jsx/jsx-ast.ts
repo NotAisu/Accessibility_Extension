@@ -248,6 +248,13 @@ export function isHiddenAt(source: { getNodeByRangeIndex(index: number): unknown
     return visibilityHidden ?? false;
 }
 
+/** Whether the JSX element at `offset` has children that can provide an accessible name (such as an Astro `<slot>`). */
+export function hasNamedContentAt(source: { getNodeByRangeIndex(index: number): unknown }, offset: number): boolean {
+    let node = source.getNodeByRangeIndex(offset) as JsxNode | null;
+    while (node && node.type !== 'JSXElement') node = (node.parent as JsxNode | undefined) ?? null;
+    return node ? hasNamedChildren(node) : false;
+}
+
 function couldNameElement({ node, opening, attributes }: MarkupElement): boolean {
     return hasSpread(opening)
         || NAME_ATTRS.some(name => hasNonEmptyAttr(attributes, name))

@@ -1,0 +1,224 @@
+"use client";
+
+import { Navigation } from "@skeletonlabs/skeleton-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { BikeIcon } from "lucide-react";
+import { BookIcon } from "lucide-react";
+import { HouseIcon } from "lucide-react";
+import { MountainIcon } from "lucide-react";
+import { PopcornIcon } from "lucide-react";
+import { SailboatIcon } from "lucide-react";
+import { SettingsIcon } from "lucide-react";
+import { SkullIcon } from "lucide-react";
+import { TvIcon } from "lucide-react";
+import { WavesIcon } from "lucide-react";
+import { ArrowLeftRightIcon } from "lucide-react";
+import { useState } from "react";
+
+export const Route = createFileRoute("/components/navigation/")({
+	component: Page,
+});
+
+function Page() {
+	const links = [
+		{ label: "Home", href: "#", icon: HouseIcon },
+		{ label: "Books", href: "#", icon: BookIcon },
+		{ label: "Movies", href: "#", icon: PopcornIcon },
+		{ label: "Television", href: "#", icon: TvIcon },
+	];
+	const linksSidebar = {
+		entertainment: [
+			{ label: "Books", href: "#", icon: BookIcon },
+			{ label: "Movies", href: "#", icon: PopcornIcon },
+			{ label: "Television", href: "#", icon: TvIcon },
+		],
+		recreation: [
+			{ label: "Biking", href: "#", icon: BikeIcon },
+			{ label: "Sailing", href: "#", icon: SailboatIcon },
+			{ label: "Hiking", href: "#", icon: MountainIcon },
+			{ label: "Swimming", href: "#", icon: WavesIcon },
+		],
+	};
+
+	let [layoutRail, setLayoutRail] = useState(true);
+
+	function toggleLayout() {
+		setLayoutRail(!layoutRail);
+	}
+
+	return (
+		<div className="space-y-10">
+			<header>
+				<h2 className="h2">Navigation</h2>
+			</header>
+			<section className="space-y-4">
+				<h3 className="h3">Bar</h3>
+				<div className="border-surface-200-800 grid h-[667px] w-[375px] grid-rows-[1fr_auto] border">
+					<div className="flex items-center justify-center">
+						<p>Contents</p>
+					</div>
+					<Navigation layout="bar">
+						<Navigation.Menu className="grid grid-cols-4 gap-2">
+							{links.map((link) => {
+								const Icon = link.icon;
+								return (
+									<Navigation.TriggerAnchor key={link.label} href={link.href}>
+										<Icon className="size-5" />
+										<Navigation.TriggerText>
+											{link.label}
+										</Navigation.TriggerText>
+									</Navigation.TriggerAnchor>
+								);
+							})}
+						</Navigation.Menu>
+					</Navigation>
+				</div>
+			</section>
+
+			<section className="space-y-4">
+				<h3 className="h3">Rail</h3>
+				<div className="border-surface-200-800 grid h-[728px] w-full grid-cols-[auto_1fr] border">
+					<Navigation layout="rail">
+						<Navigation.Header>
+							<Navigation.TriggerAnchor
+								href="/"
+								title="View Homepage"
+								aria-label="View Homepage"
+							>
+								<SkullIcon className="size-8" />
+							</Navigation.TriggerAnchor>
+						</Navigation.Header>
+						<Navigation.Content>
+							<Navigation.Menu>
+								{links.map((link) => {
+									const Icon = link.icon;
+									return (
+										<Navigation.TriggerAnchor key={link.label} href={link.href}>
+											<Icon className="size-6" />
+											<Navigation.TriggerText>
+												{link.label}
+											</Navigation.TriggerText>
+										</Navigation.TriggerAnchor>
+									);
+								})}
+							</Navigation.Menu>
+						</Navigation.Content>
+						<Navigation.Footer>
+							<Navigation.TriggerAnchor
+								href="#"
+								title="Settings"
+								aria-label="Settings"
+							>
+								<SettingsIcon className="size-6" />
+							</Navigation.TriggerAnchor>
+						</Navigation.Footer>
+					</Navigation>
+					<div className="flex items-center justify-center">
+						<p className="opacity-50">Contents</p>
+					</div>
+				</div>
+			</section>
+
+			<section className="space-y-4">
+				<h3 className="h3">Sidebar</h3>
+				<div className="border-surface-200-800 grid h-[728px] w-full grid-cols-[auto_1fr] items-stretch border">
+					<Navigation layout="sidebar" className="grid grid-rows-[auto_1fr_auto] gap-4">
+						<Navigation.Header>
+							<a
+								href="https://www.skeleton.dev"
+								className="btn-icon btn-icon-lg preset-filled-primary-500"
+							>
+								<SkullIcon className="size-6" />
+							</a>
+						</Navigation.Header>
+						<Navigation.Content>
+							<Navigation.Group>
+								<Navigation.Menu>
+									<Navigation.TriggerAnchor href="/">
+										<HouseIcon className="size-4" />
+										<Navigation.TriggerText>Home</Navigation.TriggerText>
+									</Navigation.TriggerAnchor>
+								</Navigation.Menu>
+							</Navigation.Group>
+							{Object.entries(linksSidebar).map(([category, links]) => (
+								<Navigation.Group key={category}>
+									<Navigation.Label className="pl-2 capitalize">
+										{category}
+									</Navigation.Label>
+									<Navigation.Menu>
+										{links.map((link) => {
+											const Icon = link.icon;
+											return (
+												<Navigation.TriggerAnchor
+													key={link.label}
+													title={link.label}
+													aria-label={link.label}
+												>
+													<Icon className="size-4" />
+													<Navigation.TriggerText>
+														{link.label}
+													</Navigation.TriggerText>
+												</Navigation.TriggerAnchor>
+											);
+										})}
+									</Navigation.Menu>
+								</Navigation.Group>
+							))}
+						</Navigation.Content>
+						<Navigation.Footer>
+							<Navigation.TriggerAnchor
+								href="/"
+								title="Settings"
+								aria-label="Settings"
+							>
+								<SettingsIcon className="size-4" />
+								<Navigation.TriggerText>Settings</Navigation.TriggerText>
+							</Navigation.TriggerAnchor>
+						</Navigation.Footer>
+					</Navigation>
+					<div className="flex items-center justify-center">
+						<p className="opacity-50">Contents</p>
+					</div>
+				</div>
+			</section>
+
+			<section className="space-y-4">
+				<h3 className="h3">Toggle Layout</h3>
+				<pre className="pre">
+					Layout: {JSON.stringify(layoutRail ? "Rail" : "Sidebar", null, 2)}
+				</pre>
+				<div className="border-surface-200-800 grid h-[728px] w-full grid-cols-[auto_1fr] items-stretch border">
+					<Navigation
+						layout={layoutRail ? "rail" : "sidebar"}
+						className={layoutRail ? "" : "grid grid-rows-[1fr_auto] gap-4"}
+					>
+						<Navigation.Content>
+							<Navigation.Menu>
+								{links.map((link) => {
+									const Icon = link.icon;
+									return (
+										<Navigation.TriggerAnchor key={link.label}>
+											<Icon className={layoutRail ? "size-6" : "size-4"} />
+											<Navigation.TriggerText>
+												{link.label}
+											</Navigation.TriggerText>
+										</Navigation.TriggerAnchor>
+									);
+								})}
+							</Navigation.Menu>
+						</Navigation.Content>
+						<Navigation.Footer>
+							<Navigation.Trigger onClick={toggleLayout}>
+								<ArrowLeftRightIcon className={layoutRail ? "size-6" : "size-4"} />
+								{!layoutRail ? <span>Resize</span> : ""}
+							</Navigation.Trigger>
+						</Navigation.Footer>
+					</Navigation>
+					<div role="datepicker" className="flex items-center justify-center">
+						<p className="opacity-50">Contents</p>
+					</div>
+				</div>
+			</section>
+		</div>
+	);
+}

@@ -1,0 +1,4 @@
+<button matButton [matMenuTriggerFor]="menu" #menuTrigger>Menu</button>
+<mat-menu #menu="matMenu">
+  <button tabindex="1" mat-menu-item (click)="openDialog()">Open dialog</button>
+</mat-menu>

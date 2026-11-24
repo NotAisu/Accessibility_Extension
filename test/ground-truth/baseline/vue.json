@@ -14,18 +14,18 @@
     "fn": 0
   },
   "1.3.1": {
-    "precision": 0.882,
+    "precision": 0.989,
     "recall": 1,
-    "tp": 15,
+    "tp": 174,
     "fp": 2,
     "fn": 0
   },
   "1.3.5": {
     "precision": 1,
-    "recall": 1,
-    "tp": 2,
+    "recall": 0.909,
+    "tp": 10,
     "fp": 0,
-    "fn": 0
+    "fn": 1
   },
   "1.4.3": {
     "precision": 1,
@@ -51,7 +51,7 @@
   "2.4.3": {
     "precision": 1,
     "recall": 1,
-    "tp": 3,
+    "tp": 83,
     "fp": 0,
     "fn": 0
   },
@@ -65,7 +65,7 @@
   "2.4.6": {
     "precision": 1,
     "recall": 1,
-    "tp": 4,
+    "tp": 83,
     "fp": 0,
     "fn": 0
   },
@@ -84,9 +84,9 @@
     "fn": 0
   },
   "4.1.2": {
-    "precision": 0.973,
-    "recall": 0.977,
-    "tp": 214,
+    "precision": 0.99,
+    "recall": 0.992,
+    "tp": 614,
     "fp": 6,
     "fn": 5
   }

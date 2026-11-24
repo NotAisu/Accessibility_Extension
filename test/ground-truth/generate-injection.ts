@@ -94,7 +94,7 @@ interface Mutation {
     criteria: string[];
     languages?: string[];
     /** Returns a single-line edit preserving line count, or undefined when the mutation does not apply. */
-    apply(lines: string[], index: number, markup: boolean[]): MutationResult | undefined;
+    apply(lines: string[], index: number, markup: boolean[], languageId: string): MutationResult | undefined;
 }
 
 const MUTATIONS: Mutation[] = [
@@ -214,8 +214,170 @@ const MUTATIONS: Mutation[] = [
             if (!match || /aria-hidden/i.test(match[1])) return undefined;
             return { editLine: i, mutated: lines[i].replace(match[0], `<body aria-hidden="true"${match[1]}>`) };
         }
+    },
+    {
+        // A heading without discernible text (2.4.6 / 1.3.1)
+        kind: 'empty-heading',
+        criteria: ['2.4.6', '1.3.1'],
+        languages: ['javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro'],
+        apply: (lines, i, markup) => {
+            for (const level of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) {
+                const result = emptied(lines, i, markup, level);
+                if (result) return result;
+            }
+            return undefined;
+        }
+    },
+    {
+        // A non-existent ARIA attribute name (4.1.2)
+        kind: 'invalid-aria-prop',
+        criteria: ['4.1.2'],
+        languages: ['html', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro'],
+        apply: (lines, i, _markup, languageId) => insertAttr(lines, i, languageId, 'div|section|p|span', 'aria-labeledby="title"', tag => !/\baria-|\brole\b/i.test(tag))
+    },
+    {
+        // A role attribute whose value is not a valid WAI-ARIA role (4.1.2)
+        kind: 'invalid-aria-role',
+        criteria: ['4.1.2'],
+        languages: ['javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro'],
+        apply: (lines, i, _markup, languageId) => insertAttr(lines, i, languageId, 'div|section', 'role="datepicker"', tag => !/\baria-|\brole\b|\bon[A-Z]|@|\(/i.test(tag))
+    },
+    {
+        // An ARIA attribute with an invalid token value (4.1.2)
+        kind: 'invalid-aria-value',
+        criteria: ['4.1.2'],
+        languages: ['javascriptreact', 'typescriptreact', 'svelte', 'astro'],
+        apply: (lines, i, _markup, languageId) => insertAttr(lines, i, languageId, 'div|section|p|span', 'aria-live="loud"', tag => !/\baria-|\brole\b/i.test(tag))
+    },
+    {
+        // An explicit checkbox role without its required aria-checked state (4.1.2)
+        kind: 'missing-required-aria',
+        criteria: ['4.1.2'],
+        languages: ['javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro', 'angular'],
+        apply: (lines, i, _markup, languageId) => insertAttr(lines, i, languageId, 'div|section|span', 'role="checkbox"',
+            tag => !/\baria-|\brole\b|\btabindex\b|\bon[A-Z]|@|\(/i.test(tag))
+    },
+    {
+        // An ARIA state that the element's implicit role does not support (4.1.2)
+        kind: 'unsupported-aria-prop',
+        criteria: ['4.1.2'],
+        languages: ['html', 'javascriptreact', 'typescriptreact', 'svelte', 'astro'],
+        apply: (lines, i, _markup, languageId) => insertAttr(lines, i, languageId, 'a', 'aria-checked="true"',
+            tag => /\s(?::|v-bind:)?href=/.test(tag) && !/\baria-|\brole\b/i.test(tag))
+    },
+    {
+        // A positive tabindex disrupts the focus order (2.4.3)
+        kind: 'positive-tabindex',
+        criteria: ['2.4.3'],
+        languages: ['javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro', 'angular'],
+        apply: (lines, i, _markup, languageId) => {
+            const attr = languageId === 'javascriptreact' || languageId === 'typescriptreact' ? 'tabIndex={1}' : 'tabindex="1"';
+            return insertAttr(lines, i, languageId, 'button|a', attr,
+                tag => !/\btabindex\b|\bdisabled\b/i.test(tag) && (!/^<a\b/.test(tag) || /\s(?::|v-bind:)?href=/.test(tag)));
+        }
+    },
+    {
+        // aria-hidden="true" on a focusable control hides a tab stop from assistive technology (ACT 6cfa84, 4.1.2)
+        kind: 'aria-hidden-focusable',
+        criteria: ['4.1.2'],
+        languages: ['javascriptreact', 'typescriptreact', 'vue', 'astro'],
+        apply: (lines, i, _markup, languageId) => insertAttr(lines, i, languageId, 'button|a', 'aria-hidden="true"',
+            tag => !/\btabindex\b|\bdisabled\b|\baria-hidden\b/i.test(tag) && (!/^<a\b/.test(tag) || /\s(?::|v-bind:)?href=/.test(tag)))
+    },
+    {
+        // An invalid HTML autofill token on a text input (ACT 73f2c2, 1.3.5)
+        kind: 'invalid-autocomplete',
+        criteria: ['1.3.5'],
+        languages: ['html', 'javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro', 'angular'],
+        apply: (lines, i, _markup, languageId) => {
+            const attr = languageId === 'javascriptreact' || languageId === 'typescriptreact' ? 'autoComplete="emal"' : 'autocomplete="emal"';
+            return insertAttr(lines, i, languageId, 'input', attr, tag =>
+                !/\bautocomplete\b|\bdisabled\b|\breadonly\b/i.test(tag)
+                && (!/\stype\s*=/i.test(tag) || /\stype\s*=\s*(["'])(?:text|email|search|tel|url|password)\1/i.test(tag)));
+        }
+    },
+    {
+        // A full HTML page whose lang attribute is not a valid BCP 47 language tag (ACT bf051a, 3.1.1)
+        kind: 'invalid-html-lang',
+        criteria: ['3.1.1'],
+        languages: ['html'],
+        apply: (lines, i) => {
+            const html = /^\s*<html\b[^<>]*>/i.exec(lines[i])?.[0];
+            if (!html || /\bxml:lang\s*=|\{\{|%\w/.test(html)) return undefined;
+            if (!lines.some(line => /^\s*<!doctype\s+html\b/i.test(line))
+                || !lines.some(line => /<head\b/i.test(line)) || !lines.some(line => /<body\b/i.test(line))) return undefined;
+            const replaced = html.replace(/(\slang\s*=\s*)(?:"[a-zA-Z-]+"|'[a-zA-Z-]+'|[a-zA-Z-]+(?=[\s>]))/i, '$1"invalid-lang-xyz"');
+            return replaced === html ? undefined : { editLine: i, mutated: lines[i].replace(html, replaced) };
+        }
+    },
+    {
+        // An element with an invalid BCP 47 lang attribute (ACT de46e4, 3.1.2)
+        kind: 'invalid-lang-attr',
+        criteria: ['3.1.2'],
+        languages: ['html'],
+        apply: (lines, i, _markup, languageId) => insertAttr(lines, i, languageId, 'p|span', 'lang="invalid-lang-xyz"',
+            tag => !/\blang\s*=|\bxml:lang\s*=/i.test(tag))
+    },
+    {
+        // A label with text whose for/htmlFor association was removed and that wraps no control (1.3.1 / 4.1.2)
+        kind: 'unassociated-label',
+        criteria: ['1.3.1', '4.1.2'],
+        languages: ['javascriptreact', 'typescriptreact', 'vue', 'svelte', 'astro', 'angular'],
+        apply: (lines, i, _markup, languageId) => {
+            const line = lines[i];
+            const tag = /<label\b(?:[^<>{}]|\{[^{}]*\})*>/.exec(line)?.[0];
+            if (!tag || !canMutateName(tag)) return undefined;
+            const prefix = line.slice(0, line.indexOf(tag));
+            if (inQuotes(prefix)) return undefined;
+            const forAttr = /\s(?::|v-bind:)?(?:htmlFor|for)=(?:"([^"]+)"|'([^']+)'|\{([^{}]+)\})/.exec(tag);
+            if (!forAttr) return undefined;
+            const closeIdx = lines.slice(i, Math.min(lines.length, i + 6)).findIndex(l => /<\/label>/.test(l));
+            if (closeIdx === -1) return undefined;
+            const block = lines.slice(i, i + closeIdx + 1).join('\n');
+            const body = block.slice(block.indexOf(tag) + tag.length, block.indexOf('</label>'));
+            if (!/\w/.test(body) || /<(?:input|select|textarea|button|meter|output|progress|[A-Z][\w.]*)\b/.test(body)) return undefined;
+            const id = forAttr[1] ?? forAttr[2];
+            if (languageId === 'vue' && id && new RegExp(`<(?:input|select|textarea)\\b[^<>]*\\sid=(["'])${id}\\1`, 'i').test(lines.join('\n'))) return undefined;
+            const stripped = tag.replace(forAttr[0], '');
+            return stripped === tag ? undefined : { editLine: i, mutated: line.replace(tag, stripped) };
+        }
     }
 ];
+
+function inQuotes(prefix: string): boolean {
+    return ((prefix.match(/"/g)?.length ?? 0) % 2 !== 0) || ((prefix.match(/'/g)?.length ?? 0) % 2 !== 0);
+}
+
+function insertAttr(
+    lines: string[],
+    i: number,
+    languageId: string,
+    elements: string,
+    attr: string,
+    allowed: (tag: string) => boolean
+): MutationResult | undefined {
+    const line = lines[i];
+    if (languageId === 'html') {
+        if (lines.some(l => /%sveltekit\.|\{\{/.test(l))) return undefined;
+        const bodyLine = lines.findIndex(l => /<body\b/i.test(l));
+        if (bodyLine === -1 || i <= bodyLine) return undefined;
+    }
+    const single = new RegExp(`(<(?:${elements}))(\\b[^<>]*>)`).exec(line);
+    if (single) {
+        if (inQuotes(line.slice(0, single.index))) return undefined;
+        const tag = single[0];
+        if (!canMutateName(tag) || !allowed(tag) || /\{\{/.test(tag)) return undefined;
+        return { editLine: i, mutated: line.replace(tag, `${single[1]} ${attr}${single[2]}`) };
+    }
+    const open = new RegExp(`(<(?:${elements}))(\\b[^<>]*)$`).exec(line);
+    if (!open || inQuotes(line.slice(0, open.index))) return undefined;
+    const end = findTagEnd(lines, i);
+    if (end === undefined) return undefined;
+    const full = lines.slice(i, end + 1).join('\n');
+    const tag = new RegExp(`<(?:${elements})\\b[^<>]*>`).exec(full)?.[0];
+    if (!tag || !canMutateName(tag) || !allowed(tag) || /\{\{/.test(tag)) return undefined;
+    return { editLine: i, mutated: line.replace(open[0], `${open[1]} ${attr}${open[2]}`) };
+}
 
 function findTagEnd(lines: string[], start: number): number | undefined {
     const limit = Math.min(lines.length - 1, start + 24);
@@ -278,7 +440,7 @@ async function main(sourcesDir: string) {
             const applicable = MUTATIONS.flatMap(mutation => {
                 if (mutation.languages && !mutation.languages.includes(languageId)) return [];
                 return lines.flatMap((_, i) => {
-                    const result = markup[i] ? mutation.apply(lines, i, markup) : undefined;
+                    const result = markup[i] ? mutation.apply(lines, i, markup, languageId) : undefined;
                     return result === undefined ? [] : [{ mutation, editLine: result.editLine, reportLine: result.reportLine ?? i, mutated: result.mutated }];
                 });
             });
@@ -307,7 +469,7 @@ async function main(sourcesDir: string) {
         for (const { source, file, origin, text, editLine, reportLine, mutated } of evenly(selected, PER_KIND)) {
             const lines = text.split('\n');
             lines[editLine] = mutated;
-            const mutatedText = lines.join('\n');
+            const mutatedText = lines.join('\n').replace(/AIza[0-9A-Za-z_-]{35}/g, 'REDACTED_API_KEY');
             if (written.has(mutatedText)) continue;
             written.add(mutatedText);
             const ext = languageId === 'javascriptreact' ? '.jsx' : path.extname(file);

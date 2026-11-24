@@ -10,9 +10,9 @@ import type { CheckOutput } from '../../src/cli/output';
 const CLI = path.resolve(process.env.ALLYPROOF_CLI ?? path.join(__dirname, '..', '..', 'dist', 'cli.mjs'));
 const SCHEMA = path.join(__dirname, '..', '..', 'schema', 'check-result.v1.json');
 
-// vuejs-accessibility/alt-text is a Proven rule in Vue, aria-role is Unproven.
+// vuejs-accessibility/alt-text is a Proven rule in Vue, no-distracting-elements is Unproven.
 const FAILING = '<template>\n  <img :src="chart">\n</template>\n';
-const UNPROVEN_ONLY = '<template>\n  <div role="bogus">Text</div>\n</template>\n';
+const UNPROVEN_ONLY = '<template>\n  <marquee>Text</marquee>\n</template>\n';
 const CLEAN = '<template>\n  <img :src="chart" alt="Sales by month">\n</template>\n';
 
 function repository(files: Record<string, string>): string {
@@ -96,7 +96,7 @@ describe('allyproof check', function () {
         assert.strictEqual(result.code, 0, result.stderr);
         const [file] = json(result.stdout).files;
         assert.deepStrictEqual(file.findings, []);
-        assert.ok(file.needsReview.some(e => e.ruleId === 'vuejs-accessibility/aria-role' && e.proof === 'unproven' && e.range?.start.line === 2));
+        assert.ok(file.needsReview.some(e => e.ruleId === 'vuejs-accessibility/no-distracting-elements' && e.proof === 'unproven' && e.range?.start.line === 2));
     });
 
     it('writes JSON that validates against the published schema, every Finding of a Proven rule', () => {
@@ -183,7 +183,7 @@ describe('allyproof check', function () {
         assert.strictEqual(sarif.version, '2.1.0');
         const levels = sarif.runs[0].results.map(r => `${r.ruleId} ${r.level}`);
         assert.ok(levels.includes('vuejs-accessibility/alt-text warning'), levels.join('\n'));
-        assert.ok(levels.includes('vuejs-accessibility/aria-role note'), levels.join('\n'));
+        assert.ok(levels.includes('vuejs-accessibility/no-distracting-elements note'), levels.join('\n'));
     });
 });
 
