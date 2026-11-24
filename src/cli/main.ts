@@ -62,7 +62,7 @@ async function main(argv: string[]): Promise<number> {
     }
     if (command === 'explain') return explain(args[0], values.language);
     if (command === 'rules') return rules(values.format);
-    if (command === 'mcp') return serve(process.cwd(), VERSION);
+    if (command === 'mcp') return serve(repositoryRoot(), VERSION);
     if (command !== 'check' && command !== 'baseline') throw new UsageError(`Unknown command ${command}`);
     if (!['text', 'json', 'sarif'].includes(values.format)) throw new UsageError(`--format is text, json or sarif, not ${values.format}`);
     if (!(values['fail-on'] in SEVERITY_RANK)) throw new UsageError(`--fail-on is error, warning or information, not ${values['fail-on']}`);
