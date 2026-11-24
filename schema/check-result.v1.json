@@ -18,11 +18,17 @@
         "blocking": { "type": "integer", "minimum": 0 },
         "baselined": { "type": "integer", "minimum": 0 },
         "fixedSinceBaseline": { "type": "integer", "minimum": 0 },
-        "needsReview": { "type": "integer", "minimum": 0 }
+        "needsReview": { "type": "integer", "minimum": 0 },
+        "byFile": { "$ref": "#/definitions/counts", "description": "Findings per file; set when a folder is checked through the MCP server" },
+        "byRule": { "$ref": "#/definitions/counts", "description": "Findings per rule; set when a folder is checked through the MCP server" },
+        "byCriterion": { "$ref": "#/definitions/counts", "description": "Findings per WCAG criterion; set when a folder is checked through the MCP server" }
       }
-    }
+    },
+    "truncated": { "type": "boolean", "description": "Set when a folder is checked through the MCP server: files holds only the first files, summary covers all" },
+    "hint": { "type": "string", "description": "How to narrow a truncated result down" }
   },
   "definitions": {
+    "counts": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
     "position": {
       "type": "object",
       "required": ["line", "column", "offset"],

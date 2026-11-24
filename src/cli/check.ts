@@ -1,3 +1,4 @@
+import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { AnalysisWorker } from '../analysis-worker';
@@ -28,6 +29,32 @@ export const posix = (file: string) => file.split(path.sep).join('/');
 export function settingsOf(root: string): AnalysisOptions {
     const file = path.join(root, '.vscode', 'settings.json');
     return fs.existsSync(file) ? optionsFromSettings(fs.readFileSync(file, 'utf-8'), posix(path.relative(process.cwd(), file)) || file) : {};
+}
+
+export function git(root: string, args: string[]): string {
+    return execFileSync('git', ['-C', root, ...args], { encoding: 'utf-8', maxBuffer: 256 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] });
+}
+
+export const isRepository = (root: string) => fs.existsSync(path.join(root, '.git'));
+
+/**
+ * The files the Check analyses under the root-relative `prefixes` ('' is the whole root), sorted: the files Git does
+ * not ignore, or every file outside node_modules and dot folders in a folder that is not a repository.
+ */
+export function treeFiles(root: string, prefixes: string[]): string[] {
+    const inside = (file: string) => prefixes.some(prefix => prefix === '' || file === prefix || file.startsWith(`${prefix}/`));
+    const files = isRepository(root)
+        ? git(root, ['ls-files', '--cached', '--others', '--exclude-standard', '-z']).split('\0').filter(Boolean)
+        : walk(root, '');
+    return files.filter(file => inside(file) && workspaceLanguageId(file) && fs.existsSync(path.join(root, file))).sort();
+}
+
+function walk(root: string, dir: string): string[] {
+    return fs.readdirSync(path.join(root, dir), { withFileTypes: true }).flatMap(entry => {
+        const file = dir ? `${dir}/${entry.name}` : entry.name;
+        if (entry.name === 'node_modules' || entry.name.startsWith('.')) return [];
+        return entry.isDirectory() ? walk(root, file) : [file];
+    });
 }
 
 // Read lazily and once: a file is read when it is checked

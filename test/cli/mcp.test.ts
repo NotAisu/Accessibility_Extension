@@ -3,6 +3,7 @@ import { spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import Ajv from 'ajv';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { ListRootsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
@@ -11,6 +12,7 @@ import type { CheckOutput } from '../../src/cli/output';
 
 // The packaged MCP server as an MCP client runs it: `allyproof mcp` of the bundle ALLYPROOF_CLI names, over stdio
 const CLI = path.resolve(process.env.ALLYPROOF_CLI ?? path.join(__dirname, '..', '..', 'dist', 'cli.mjs'));
+const SCHEMA = path.join(__dirname, '..', '..', 'schema', 'check-result.v1.json');
 
 // vuejs-accessibility/alt-text is a Proven rule in Vue
 const FAILING = '<template>\n  <img :src="chart">\n</template>\n';
@@ -224,6 +226,47 @@ describe('allyproof mcp', function () {
         const args = { paths: ['src/Chart.vue', 'src/Map.vue'] };
 
         assert.deepStrictEqual(await check(client, args), await check(client, args));
+    });
+
+    it('checks a folder under the limit with every Finding, the counts and truncated false', async () => {
+        const dir = project({ 'src/Chart.vue': FAILING, 'src/maps/Map.vue': FAILING, 'src/notes.txt': 'not checked', 'other/Skip.vue': FAILING });
+        const expected = JSON.parse(cli(dir, ['check', 'src', '--format', 'json']).stdout) as CheckOutput;
+        client = await connect(dir);
+
+        const result = output(await check(client, { paths: ['src'] }));
+        assert.deepStrictEqual(result.files, expected.files);
+        assert.deepStrictEqual(result.files.map(file => file.file), ['src/Chart.vue', 'src/maps/Map.vue']);
+        assert.strictEqual(result.truncated, false);
+        assert.deepStrictEqual(result.summary.byFile, { 'src/Chart.vue': 1, 'src/maps/Map.vue': 1 });
+        assert.deepStrictEqual(result.summary.byRule, { 'vuejs-accessibility/alt-text': 2 });
+        assert.deepStrictEqual(result.summary.byCriterion, { '1.1.1': 2 });
+        const validate = new Ajv({ allErrors: true }).compile(JSON.parse(fs.readFileSync(SCHEMA, 'utf-8')) as object);
+        assert.ok(validate(result), JSON.stringify(validate.errors));
+    });
+
+    it('checks a folder over the limit with the full summary, the first files only, truncated true and a hint', async () => {
+        const dir = project({ 'src/A.vue': FAILING, 'src/B.vue': FAILING, 'src/c/C.vue': FAILING, 'src/D.vue': '<template>\n  <p>Clean</p>\n</template>\n' });
+        client = await connect(dir);
+        const args = { paths: ['src'], limit: 2 };
+
+        const result = output(await check(client, args));
+        assert.deepStrictEqual(result.files.map(file => file.file), ['src/A.vue', 'src/B.vue']);
+        assert.strictEqual(result.truncated, true);
+        assert.strictEqual(result.summary.files, 4);
+        assert.strictEqual(result.summary.findings, 3);
+        assert.deepStrictEqual(result.summary.byFile, { 'src/A.vue': 1, 'src/B.vue': 1, 'src/c/C.vue': 1 });
+        assert.deepStrictEqual(result.summary.byRule, { 'vuejs-accessibility/alt-text': 3 });
+        assert.match(result.hint ?? '', /first 2 of 4 files.*paths/);
+        assert.deepStrictEqual(await check(client, args), await check(client, args));
+    });
+
+    it('leaves out a symlink in a folder that points outside the project', async () => {
+        const outside = project({ 'Secret.vue': FAILING });
+        const dir = project({ 'src/Chart.vue': FAILING });
+        fs.symlinkSync(path.join(outside, 'Secret.vue'), path.join(dir, 'src', 'Link.vue'));
+        client = await connect(dir);
+
+        assert.deepStrictEqual(output(await check(client, { paths: ['.'] })).files.map(file => file.file), ['src/Chart.vue']);
     });
 
     it('is listed in allyproof --help', () => {
