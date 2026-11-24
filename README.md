@@ -131,7 +131,7 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
   ```toml
   [mcp_servers.allyproof]
   command = "npx"
-  args = ["-y", "allyproof@0.1.1", "mcp"]
+  args = ["-y", "allyproof@0.1.3", "mcp"]
   ```
 - **Cursor**: add to `.cursor/mcp.json`:
   ```json
@@ -139,7 +139,7 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
     "mcpServers": {
       "allyproof": {
         "command": "npx",
-        "args": ["-y", "allyproof@0.1.1", "mcp"]
+        "args": ["-y", "allyproof@0.1.3", "mcp"]
       }
     }
   }
@@ -150,7 +150,7 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
     "context_servers": {
       "allyproof": {
         "command": "npx",
-        "args": ["-y", "allyproof@0.1.1", "mcp"]
+        "args": ["-y", "allyproof@0.1.3", "mcp"]
       }
     }
   }
@@ -162,7 +162,7 @@ The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md
       "allyproof": {
         "type": "stdio",
         "command": "npx",
-        "args": ["-y", "allyproof@0.1.1", "mcp"]
+        "args": ["-y", "allyproof@0.1.3", "mcp"]
       }
     }
   }

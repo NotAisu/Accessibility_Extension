@@ -2,6 +2,20 @@
 
 Pre-releases use odd minor versions, stable releases even ones.
 
+## 0.1.3 (pre-release)
+
+### MCP server and agent plugin
+
+- `allyproof mcp` starts a local, read-only stdio MCP server for coding agents: `check` (files, folders with per-file/rule/criterion summary and `limit`, or proposed `code`), `explain_rule`, `list_rules`, every rule's docs as `allyproof://rules/<ruleId>`, and the Allyproof Skill as the `allyproof_review` prompt.
+- Paths stay inside the client's MCP roots (with `roots/list_changed` support) or the project root when none are declared; symlinks leaving a root are rejected, including `.vscode/settings.json`.
+- Claude Code plugin (`.claude-plugin/plugin.json`, `.mcp.json` and `skills/allyproof/SKILL.md`), updated Skill for the verified check → fix → re-check loop, and README setup for Claude Code, Codex, Cursor, Zed and VS Code MCP.
+
+### Command line, GitHub Action and reliability
+
+- `allyproof --version` prints the package version; pre-releases publish the command line to npm under the `next` tag and attach the CLI tarball to the GitHub release.
+- The GitHub Action installs the command line from npm instead of building from source.
+- Security dependency update (`minimatch` 11.0.8 override) and stricter ground-truth gate validation against conflicting duplicate evidence labels.
+
 ## 0.1.1 (pre-release)
 
 First pre-release of Allyproof – WCAG 2.2 Accessibility Checker. (0.1.0 was tagged but never published.)
