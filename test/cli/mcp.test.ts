@@ -198,6 +198,23 @@ describe('allyproof mcp', function () {
         assert.strictEqual((await check(client, { paths: [path.join(first, 'src', 'Chart.vue')] })).isError, true);
     });
 
+    it('rejects a symlinked .vscode/settings.json outside the root and paths spanning different roots', async () => {
+        const outside = project({ 'evil.json': '{ "allyproof.rules": { "vuejs-accessibility/alt-text": "off" } }\n' });
+        const first = project({ 'src/Chart.vue': FAILING });
+        const second = project({ 'src/Map.vue': FAILING });
+        fs.mkdirSync(path.join(first, '.vscode'), { recursive: true });
+        fs.symlinkSync(path.join(outside, 'evil.json'), path.join(first, '.vscode', 'settings.json'));
+        client = await connect(first, { dirs: [first, second] });
+
+        const escaped = await check(client, { paths: [path.join(first, 'src', 'Chart.vue')] });
+        assert.strictEqual(escaped.isError, true);
+        assert.match(escaped.content[0].text, /outside the project/);
+
+        const mixed = await check(client, { paths: [path.join(first, 'src', 'Chart.vue'), path.join(second, 'src', 'Map.vue')] });
+        assert.strictEqual(mixed.isError, true);
+        assert.match(mixed.content[0].text, /different roots/);
+    });
+
     it('without roots checks the project allyproof check would, from a subfolder too', async () => {
         const settings = '{ "allyproof.rules": { "vuejs-accessibility/alt-text": "off" } }\n';
         const dir = project({ 'src/Chart.vue': FAILING, '.vscode/settings.json': settings });

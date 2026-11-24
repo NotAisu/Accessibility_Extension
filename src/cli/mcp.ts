@@ -110,10 +110,13 @@ export async function serve(fallback: string, version: string): Promise<number> 
     }, () => ({ messages: [{ role: 'user', content: { type: 'text', text: SKILL } }] }));
     const transport = new StdioServerTransport();
     const closed = new Promise<void>(resolve => { transport.onclose = resolve; });
-    await server.connect(transport);
-    process.stdin.once('end', () => void server.close());
-    await closed;
-    worker.dispose();
+    try {
+        await server.connect(transport);
+        process.stdin.once('end', () => void server.close());
+        await closed;
+    } finally {
+        worker.dispose();
+    }
     return 0;
 }
 
