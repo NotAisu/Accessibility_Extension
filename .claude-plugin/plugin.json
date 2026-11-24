@@ -1,0 +1,16 @@
+{
+  "name": "allyproof",
+  "version": "0.1.1",
+  "description": "Check HTML, React, Vue, Svelte, Angular and Astro code against WCAG 2.2 AA with the deterministic Check and a verified fix loop.",
+  "author": {
+    "name": "NotAisu"
+  },
+  "repository": "https://github.com/NotAisu/Accessibility_Extension",
+  "license": "MIT",
+  "keywords": [
+    "accessibility",
+    "a11y",
+    "wcag",
+    "mcp"
+  ]
+}

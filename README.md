@@ -121,15 +121,55 @@ AI Review sees only source code. It looks for semantic problems the Check cannot
 - In an untrusted workspace AI Review uses only GitHub Copilot, so a repository cannot redirect your code to another endpoint through workspace settings.
 - **Allyproof: Report Issue** opens a prefilled issue with your environment and no code.
 
-## Use the Skill in your own agent
+## Use the Skill and MCP server in your own agent
 
-The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md`](skills/allyproof/SKILL.md).
+The AI Review and your own agent use the same Skill, [`skills/allyproof/SKILL.md`](skills/allyproof/SKILL.md), and the same deterministic Check.
 
-- **GitHub Copilot in VS Code**: the extension contributes the Skill and the `a11y_check` tool, so chat and agent mode can use them without any setup. Ask for example "make this component accessible" or reference the tool with `#a11y_check`.
-- **Claude Code, Cursor and other agents**: copy the `skills/allyproof` folder into your project's skills folder, for example `.claude/skills/allyproof/` (Claude Code) or `.agents/skills/allyproof/`, or your user-level skills folder. These agents use your own subscription.
-- **Your repository**: **Allyproof: Add Skill to Repository** writes the Skill to `.github/skills/allyproof/SKILL.md`, so Copilot code review reviews pull requests for accessibility without any CI setup. It also offers `.claude/skills` and `.agents/skills`. The written Skill carries the extension version in its `metadata`, and an existing Skill file is only replaced after you confirm. If the agent can open the rendered page in a browser, the Skill has it verify the Needs Review criteria there.
+- **MCP server (`npx allyproof mcp`)**: runs over stdio with no network requests, no AI and no file writes. It exposes `check` (files, folders with summary + `limit`, or proposed `code`), `explain_rule`, `list_rules`, each rule's docs as `allyproof://rules/<ruleId>` and the Skill as the `allyproof_review` prompt. Paths stay inside the client's MCP roots (or the project root when the client sends none); symlinks leaving a root are rejected.
+- **Claude Code**: this repository is a Claude Code plugin (`.claude-plugin/plugin.json`, `.mcp.json` and `skills/allyproof/SKILL.md`) that installs the pinned MCP server and the Skill together. Or copy `skills/allyproof` into `.claude/skills/allyproof/`.
+- **Codex**: add the MCP server in `~/.codex/config.toml` (or `.codex/config.toml`) and copy `skills/allyproof` into `.agents/skills/allyproof/`:
+  ```toml
+  [mcp_servers.allyproof]
+  command = "npx"
+  args = ["-y", "allyproof@0.1.1", "mcp"]
+  ```
+- **Cursor**: add to `.cursor/mcp.json`:
+  ```json
+  {
+    "mcpServers": {
+      "allyproof": {
+        "command": "npx",
+        "args": ["-y", "allyproof@0.1.1", "mcp"]
+      }
+    }
+  }
+  ```
+- **Zed**: add to `settings.json`:
+  ```json
+  {
+    "context_servers": {
+      "allyproof": {
+        "command": "npx",
+        "args": ["-y", "allyproof@0.1.1", "mcp"]
+      }
+    }
+  }
+  ```
+- **VS Code**: the extension contributes the Skill and `a11y_check` automatically for Copilot chat and agent mode. To connect the MCP server directly (for any agent in VS Code), add to `.vscode/mcp.json`:
+  ```json
+  {
+    "servers": {
+      "allyproof": {
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "allyproof@0.1.1", "mcp"]
+      }
+    }
+  }
+  ```
+- **Your repository**: **Allyproof: Add Skill to Repository** writes the Skill to `.github/skills/allyproof/SKILL.md` (and optionally `.claude/skills` and `.agents/skills`), carrying the extension version in its `metadata`; an existing Skill file is only replaced after you confirm.
 
-`a11y_check` runs the Check on a file (`filePath`), on proposed code (`code` and `languageId`), or on proposed code for a file (`filePath` and `code`), so an agent can verify its fix before applying it. It returns the Findings with their line and the criteria that Need Review; the Skill calls it first and reviews only what the Check cannot decide. Outside VS Code the agent runs the same Check from the command line instead (below): `allyproof check <file> --format json`, or `--stdin --stdin-filename <file>` for code it has not written yet.
+`a11y_check` (in VS Code) and `check` (over MCP) run the Check on files or proposed code so an agent can verify its fix before writing it. Outside MCP and VS Code, the agent runs the same Check from the command line (`allyproof check <file> --format json`, or `--stdin --stdin-filename <file>`).
 
 ## Block inaccessible commits
 

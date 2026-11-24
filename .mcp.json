@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "allyproof": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "allyproof@0.1.1",
+        "mcp"
+      ]
+    }
+  }
+}
