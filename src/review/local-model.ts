@@ -84,6 +84,7 @@ class LocalModel implements ModelPort {
     readonly id: string;
     readonly name: string;
     readonly maxInputTokens = LOCAL_INPUT_TOKENS;
+    private useTools = false;
 
     constructor(private readonly endpoint: string, private readonly model: string) {
         this.id = `local/${endpoint}/${model}`;
@@ -95,6 +96,17 @@ class LocalModel implements ModelPort {
     }
 
     async request(request: ModelRequest, signal: AbortSignal): Promise<unknown> {
+        if (this.useTools) return this.requestWithTools(request, signal);
+        try {
+            return await this.requestWithSchema(request, signal);
+        } catch (error) {
+            if (!isStructuredOutputUnavailable(error)) throw error;
+            this.useTools = true;
+            return this.requestWithTools(request, signal);
+        }
+    }
+
+    private async requestWithSchema(request: ModelRequest, signal: AbortSignal): Promise<unknown> {
         const body = await call(this.endpoint, '/chat/completions', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
@@ -107,13 +119,55 @@ class LocalModel implements ModelPort {
                     json_schema: { name: request.tool.name, schema: request.tool.inputSchema }
                 }
             })
-        }) as { choices?: { message?: { content?: string } }[] };
-        const content = body.choices?.[0]?.message?.content;
-        try {
-            return content === undefined ? undefined : JSON.parse(content) as unknown;
-        } catch {
-            // Not JSON despite response_format: the AI Review asks for a repair
-            return undefined;
-        }
+        }) as ChatCompletion;
+        return parseJson(body.choices?.[0]?.message?.content);
+    }
+
+    private async requestWithTools(request: ModelRequest, signal: AbortSignal): Promise<unknown> {
+        const body = await call(this.endpoint, '/chat/completions', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            signal,
+            body: JSON.stringify({
+                model: this.model,
+                messages: request.messages.map(content => ({ role: 'user', content })),
+                tools: [{
+                    type: 'function',
+                    function: {
+                        name: request.tool.name,
+                        description: request.tool.description,
+                        parameters: request.tool.inputSchema
+                    }
+                }],
+                tool_choice: { type: 'function', function: { name: request.tool.name } }
+            })
+        }) as ChatCompletion;
+        const message = body.choices?.[0]?.message;
+        const toolCall = message?.tool_calls?.find(c => c.function?.name === request.tool.name);
+        return parseJson(toolCall?.function?.arguments ?? message?.content);
+    }
+}
+
+interface ChatCompletion {
+    choices?: {
+        message?: {
+            content?: string;
+            tool_calls?: { function?: { name?: string; arguments?: string } }[];
+        };
+    }[];
+}
+
+function isStructuredOutputUnavailable(error: unknown): boolean {
+    return error instanceof ModelError && error.code === 'Unknown'
+        && /structured output|response_format/i.test(error.message);
+}
+
+function parseJson(text: string | undefined): unknown {
+    if (text === undefined) return undefined;
+    try {
+        return JSON.parse(text) as unknown;
+    } catch {
+        // Not JSON despite response_format or tool_choice: the AI Review asks for a repair
+        return undefined;
     }
 }

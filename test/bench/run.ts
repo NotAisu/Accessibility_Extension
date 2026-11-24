@@ -10,7 +10,7 @@ import { parseArgs } from 'util';
 import { downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from '@vscode/test-electron';
 import * as esbuild from 'esbuild';
 import { selectLocalModel } from '../../src/review/local-model';
-import { BenchCase, BenchResult, MIN_PRECISION, Variant, chooseWinner, runBenchmark, totals } from './benchmark';
+import { BenchCase, BenchResult, MIN_PRECISION, Variant, chooseWinner, runBenchmark, sampleCases, totals } from './benchmark';
 import { accessGuruCases, actWrapperCases } from './data';
 
 const HELP = `Usage: npm run bench -- [--local <model>[@<endpoint>]]... [--copilot] [--deadline <s>] [--limit <n>]
@@ -50,7 +50,7 @@ async function main(): Promise<void> {
     }
     const deadlineMs = Number(values.deadline) * 1000;
     const limit = values.limit === undefined ? Infinity : Number(values.limit);
-    const cases = [...(await accessGuruCases()).slice(0, limit), ...actWrapperCases().slice(0, limit)];
+    const cases = [...sampleCases(await accessGuruCases(), limit), ...sampleCases(actWrapperCases(), limit)];
     const variants: Variant[] = [
         { name: 'shipped', text: fs.readFileSync(SHIPPED, 'utf-8') },
         ...fs.readdirSync(VARIANTS).filter(f => f.endsWith('.md')).sort()
@@ -70,7 +70,12 @@ async function main(): Promise<void> {
     report(results);
     const out = path.join(root, 'out', 'bench');
     fs.mkdirSync(out, { recursive: true });
-    fs.writeFileSync(path.join(out, 'results.json'), JSON.stringify({ date: new Date().toISOString(), results, totals: totals(results) }, null, 2) + '\n');
+    fs.writeFileSync(path.join(out, 'results.json'), JSON.stringify({
+        date: new Date().toISOString(),
+        winner: chooseWinner(results) ?? null,
+        results,
+        totals: totals(results)
+    }, null, 2) + '\n');
 }
 
 function report(results: BenchResult[]): void {
