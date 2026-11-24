@@ -106,21 +106,66 @@ export function fileOutput(file: string, languageId: string, text: string, resul
     };
 }
 
-export function text(output: CheckOutput): string {
+export interface FormatOptions {
+    /** Enable ANSI color and box-drawing polish for interactive terminals (false for piped/CI/NO_COLOR). */
+    color?: boolean;
+}
+
+const ANSI = {
+    reset: '\x1b[0m',
+    bold: '\x1b[1m',
+    dim: '\x1b[2m',
+    underline: '\x1b[4m',
+    red: '\x1b[31m',
+    green: '\x1b[32m',
+    yellow: '\x1b[33m',
+    cyan: '\x1b[36m'
+} as const;
+
+export function supportsColor(stream: { isTTY?: boolean } = process.stdout, env: NodeJS.ProcessEnv = process.env): boolean {
+    if (env.NO_COLOR !== undefined && env.NO_COLOR !== '') return false;
+    if (env.FORCE_COLOR !== undefined && env.FORCE_COLOR !== '0') return true;
+    return Boolean(stream.isTTY);
+}
+
+export function helpBanner(version: string, options: FormatOptions = {}): string {
+    const c = Boolean(options.color);
+    const paint = (code: string, value: string) => (c ? `${code}${value}${ANSI.reset}` : value);
+    const lines = [
+        `  ${paint(ANSI.dim, '╭─────────╮')}  ${paint(ANSI.bold + ANSI.cyan, 'allyproof')} ${paint(ANSI.dim, `v${version}`)}`,
+        `  ${paint(ANSI.dim, '│')} ${paint(ANSI.green, '▓▓▓▓▓▓▓')} ${paint(ANSI.dim, '│')}  Local WCAG 2.2 AA accessibility checker`,
+        `  ${paint(ANSI.dim, '│')} ${paint(ANSI.green, '▓  ✔  ▓')} ${paint(ANSI.dim, '│')}  ${paint(ANSI.dim, 'HTML · React · Vue · Svelte · Angular · Astro')}`,
+        `  ${paint(ANSI.dim, '╰─────────╯')}  ${paint(ANSI.dim, 'Offline · Zero telemetry · Zero workspace code execution')}`,
+        ''
+    ];
+    return lines.join('\n');
+}
+
+export function text(output: CheckOutput, options: FormatOptions = {}): string {
+    const c = Boolean(options.color);
+    const paint = (code: string, value: string) => (c ? `${code}${value}${ANSI.reset}` : value);
     const lines: string[] = [];
+    if (c) lines.push(paint(ANSI.dim, '╭─ ') + paint(ANSI.bold + ANSI.cyan, 'allyproof') + paint(ANSI.dim, ' ───────────────────────────────────────'));
     for (const file of output.files) {
         if (file.status === 'failed') {
-            lines.push(`${file.file}`, `  could not be checked: ${file.error}`, '');
+            lines.push(paint(ANSI.bold + ANSI.underline, file.file), `  ${paint(ANSI.red, 'could not be checked:')} ${file.error}`, '');
             continue;
         }
         const findings = file.findings.filter(f => !f.baselined);
         const likely = file.needsReview.filter(e => e.range);
         if (findings.length === 0 && likely.length === 0) continue;
-        lines.push(file.file);
+        lines.push(paint(ANSI.bold + ANSI.underline, file.file));
         for (const f of findings) {
-            lines.push(`  ${f.range.start.line}:${f.range.start.column}  ${f.severity.padEnd(11)} ${f.message}  WCAG ${f.criteria[0]}  ${f.ruleId}`, `      ${f.helpUrl}`);
+            const loc = paint(ANSI.dim, `${f.range.start.line}:${f.range.start.column}`);
+            const sevColor = f.severity === 'error' ? ANSI.red : f.severity === 'warning' ? ANSI.yellow : ANSI.cyan;
+            const sev = paint(sevColor, f.severity.padEnd(11));
+            const meta = paint(ANSI.dim, `WCAG ${f.criteria[0]}  ${f.ruleId}`);
+            lines.push(`  ${loc}  ${sev} ${f.message}  ${meta}`, `      ${paint(ANSI.dim, f.helpUrl)}`);
         }
-        for (const e of likely) lines.push(`  ${e.range!.start.line}:${e.range!.start.column}  needs review WCAG ${e.criterion}: ${e.reason}`);
+        for (const e of likely) {
+            const loc = paint(ANSI.dim, `${e.range!.start.line}:${e.range!.start.column}`);
+            lines.push(`  ${loc}  ${paint(ANSI.yellow, 'needs review')} WCAG ${e.criterion}: ${e.reason}`);
+        }
         lines.push('');
     }
     const s = output.summary;
@@ -132,7 +177,14 @@ export function text(output: CheckOutput): string {
         `${s.needsReview} Needs Review`,
         ...s.failedFiles ? [`${s.failedFiles} could not be checked`] : []
     ];
-    lines.push(parts.join(', '));
+    if (c) {
+        const ok = s.blocking === 0 && s.failedFiles === 0;
+        const badge = ok ? paint(ANSI.bold + ANSI.green, '✔') : paint(ANSI.bold + ANSI.red, '✖');
+        lines.push(paint(ANSI.dim, '╰────────────────────────────────────────────────────'));
+        lines.push(`${badge} ${parts.join(', ')}`);
+    } else {
+        lines.push(parts.join(', '));
+    }
     return lines.join('\n') + '\n';
 }
 
