@@ -142,7 +142,7 @@ describe('AI benchmark', () => {
             assert.ok(cases.some(c => c.failing) && cases.some(c => !c.failing));
         });
 
-        it('stratifies sampled cases across sources and failing/passing outcomes', () => {
+        it('stratifies sampled cases across criteria and failing/passing outcomes', () => {
             const cases: BenchCase[] = [
                 { ...failing('a1', '<img alt="x">', ['1.1.1']), source: 'A' },
                 { ...failing('a2', '<img alt="y">', ['1.1.1']), source: 'A' },

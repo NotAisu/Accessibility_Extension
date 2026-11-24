@@ -43,8 +43,8 @@ Only if you have a tool that opens the rendered page, verify Needs Review criter
 - Color contrast and target size, unless a browser tool measured the failure.
 - Clean, descriptive labels, headings, links, buttons or `alt` texts: if the text clearly states the purpose, do not report it.
 - Problems caused only by missing surrounding page context (for example a component snippet without `<html>`, `<title>` or `<main>`).
-- Static linter issues (missing `alt`, invalid ARIA syntax), style preferences, or best practices outside WCAG 2.2 A/AA.
-- Uncertain or speculative findings. When in doubt, omit it.
+- Problems the Check reports anyway (missing `alt`, invalid ARIA syntax), style preferences, or best practices outside WCAG 2.2 A/AA.
+- Uncertain or speculative Findings. When in doubt, omit it.
 
 ## Report
 

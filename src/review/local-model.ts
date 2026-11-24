@@ -107,44 +107,43 @@ class LocalModel implements ModelPort {
     }
 
     private async requestWithSchema(request: ModelRequest, signal: AbortSignal): Promise<unknown> {
-        const body = await call(this.endpoint, '/chat/completions', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            signal,
-            body: JSON.stringify({
-                model: this.model,
-                messages: request.messages.map(content => ({ role: 'user', content })),
-                response_format: {
-                    type: 'json_schema',
-                    json_schema: { name: request.tool.name, schema: request.tool.inputSchema }
-                }
-            })
-        }) as ChatCompletion;
+        const body = await this.chatCompletion(request, signal, {
+            response_format: {
+                type: 'json_schema',
+                json_schema: { name: request.tool.name, schema: request.tool.inputSchema }
+            }
+        });
         return parseJson(body.choices?.[0]?.message?.content);
     }
 
     private async requestWithTools(request: ModelRequest, signal: AbortSignal): Promise<unknown> {
-        const body = await call(this.endpoint, '/chat/completions', {
+        const body = await this.chatCompletion(request, signal, {
+            tools: [{
+                type: 'function',
+                function: {
+                    name: request.tool.name,
+                    description: request.tool.description,
+                    parameters: request.tool.inputSchema
+                }
+            }],
+            tool_choice: { type: 'function', function: { name: request.tool.name } }
+        });
+        const message = body.choices?.[0]?.message;
+        const toolCall = message?.tool_calls?.find(c => c.function?.name === request.tool.name);
+        return parseJson(toolCall?.function?.arguments ?? message?.content);
+    }
+
+    private chatCompletion(request: ModelRequest, signal: AbortSignal, extra: Record<string, unknown>): Promise<ChatCompletion> {
+        return call(this.endpoint, '/chat/completions', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
             signal,
             body: JSON.stringify({
                 model: this.model,
                 messages: request.messages.map(content => ({ role: 'user', content })),
-                tools: [{
-                    type: 'function',
-                    function: {
-                        name: request.tool.name,
-                        description: request.tool.description,
-                        parameters: request.tool.inputSchema
-                    }
-                }],
-                tool_choice: { type: 'function', function: { name: request.tool.name } }
+                ...extra
             })
-        }) as ChatCompletion;
-        const message = body.choices?.[0]?.message;
-        const toolCall = message?.tool_calls?.find(c => c.function?.name === request.tool.name);
-        return parseJson(toolCall?.function?.arguments ?? message?.content);
+        }) as Promise<ChatCompletion>;
     }
 }
 

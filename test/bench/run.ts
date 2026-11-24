@@ -21,7 +21,7 @@ const HELP = `Usage: npm run bench -- [--local <model>[@<endpoint>]]... [--copil
                                 .vscode-test/b that gets Copilot Chat installed. On the first run sign in to GitHub
                                 Copilot there and allow Allyproof to use the model.
   --deadline <s>                per model request, default 300
-  --limit <n>                   only the first n cases of each set, to try a setup
+  --limit <n>                   at most n stratified cases from each set, to try a setup
 
 Skill Variants: the shipped skills/allyproof/SKILL.md and every test/bench/variants/*.md.
 Results: printed, and written to out/bench/results.json.

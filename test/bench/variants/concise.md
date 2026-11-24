@@ -34,8 +34,8 @@ Only if you have a tool that opens the rendered page, measure text contrast (1.4
 ## Do not report
 
 - Color contrast and target size, unless a browser tool measured the failure.
-- Static linter issues, style preferences, or anything not required by WCAG 2.2 A/AA.
-- Speculative issues when context is missing; prefer an empty list over false positives.
+- Problems the Check reports anyway, style preferences, or anything not required by WCAG 2.2 A/AA.
+- Speculative Findings when context is missing; prefer an empty list over false positives.
 
 ## Report
 
