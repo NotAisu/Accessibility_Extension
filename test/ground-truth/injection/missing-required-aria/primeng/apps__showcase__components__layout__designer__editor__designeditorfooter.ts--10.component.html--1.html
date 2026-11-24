@@ -1,0 +1,4 @@
+<div role="checkbox" class="flex justify-end gap-2">
+        <button type="button" (click)="download()" class="btn-design-outlined">Download</button>
+        <button type="button" (click)="apply()" class="btn-design" [disabled]="designerService.isThemeViewOnly()">Apply</button>
+    </div>

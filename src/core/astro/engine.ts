@@ -5,7 +5,7 @@ import * as tsParser from '@typescript-eslint/parser';
 import { AnalysisResult, Finding, ParseError } from '../analysis';
 import { eslintOffsetAt, lintSkippingCrashedRules } from '../eslint';
 import { styleBlocksSetColors } from '../needs-review';
-import { hasSpread, isHiddenAt, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
+import { hasNamedContentAt, hasSpread, isHiddenAt, renderedJsxContent, type JsxNode } from '../jsx/jsx-ast';
 import { withOwnRules } from '../own-rules';
 import { addMarkupFindings, jsxA11ySettings, RULE_CRITERIA, RULE_OPTIONS } from '../jsx/engine';
 import type { ComponentMapping } from '../components';
@@ -52,6 +52,8 @@ export function checkAstro(text: string, components?: ComponentMapping): Analysi
         if (!rule || !RULE_CRITERIA[rule]) continue;
         const start = toOffset(message.line, message.column);
         if ((rule === 'alt-text' || rule === 'anchor-has-content') && isHiddenAt(linter.getSourceCode(), start)) continue;
+        if (rule === 'label-has-associated-control' && message.message === 'A form label must have accessible text.'
+            && hasNamedContentAt(linter.getSourceCode(), start)) continue;
         const end = message.endLine && message.endColumn ? toOffset(message.endLine, message.endColumn) : start;
         const docs = plugin.rules[`jsx-a11y/${rule}`]?.meta?.docs;
         findings.push({

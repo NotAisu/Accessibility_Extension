@@ -566,6 +566,14 @@ describe('analyse (Astro)', () => {
 
         assert.deepStrictEqual(needsReview, []);
     });
+
+    it('accepts a label whose accessible text comes from a <slot />', async () => {
+        const text = '<label class="spoiler"><input type="checkbox" /><span><slot /></span></label>\n';
+
+        const { findings } = await analyse({ languageId: 'astro', text });
+
+        assert.deepStrictEqual(findings.filter(f => f.ruleId === 'astro/jsx-a11y/label-has-associated-control'), []);
+    });
 });
 
 

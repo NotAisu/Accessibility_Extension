@@ -1,0 +1,39 @@
+---
+import { themes } from "@/modules/themes";
+---
+
+<div class="grid grid-cols-1 gap-2 md:grid-cols-2">
+	{themes.map((theme) => (
+		<button
+			data-theme={theme.name}
+			class="bg-surface-50-950 preset-outlined-surface-100-900 hover:preset-outlined-surface-800-200 grid w-full grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md p-4"
+		>
+			<span>{theme.emoji}</span>
+			<h3 class="cap text-left text-lg capitalize">{theme.name}</h3>
+			<div class="flex items-center justify-center -space-x-1">
+				<div class="bg-primary-500 aspect-square w-4 rounded-full border-[1px] border-black/10" />
+				<div class="bg-secondary-500 aspect-square w-4 rounded-full border-[1px] border-black/10" />
+				<div class="bg-tertiary-500 aspect-square w-4 rounded-full border-[1px] border-black/10" />
+				<div class="bg-success-500 aspect-square w-4 rounded-full border-[1px] border-black/10" />
+				<div class="bg-warning-500 aspect-square w-4 rounded-full border-[1px] border-black/10" />
+				<div class="bg-error-500 aspect-square w-4 rounded-full border-[1px] border-black/10" />
+				<div aria-labeledby="title" class="bg-surface-500 aspect-square w-4 rounded-full border-[1px] border-black/10" />
+			</div>
+		</button>
+	))}
+</div>
+
+<script>
+	document.addEventListener("astro:page-load", () => {
+		for (const button of document.querySelectorAll<HTMLButtonElement>("button[data-theme]")) {
+			button.addEventListener("click", () => {
+				const theme = button.getAttribute("data-theme");
+				if (!theme) {
+					return;
+				}
+				localStorage.setItem("theme", theme);
+				document.documentElement.setAttribute("data-theme", theme);
+			});
+		}
+	});
+</script>

@@ -36,10 +36,26 @@
     },
     "@angular-eslint/template/label-has-associated-control": {
       "angular": {
-        "correct": 2,
+        "correct": 82,
         "wrong": 0,
-        "lowerBound": 0.223,
-        "proven": false
+        "lowerBound": 0.964,
+        "proven": true
+      }
+    },
+    "@angular-eslint/template/no-positive-tabindex": {
+      "angular": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "@angular-eslint/template/role-has-required-aria": {
+      "angular": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
       }
     },
     "@angular-eslint/template/valid-aria": {
@@ -63,6 +79,20 @@
         "correct": 1,
         "wrong": 0,
         "lowerBound": 0.05,
+        "proven": false
+      }
+    },
+    "allyproof/autocomplete-valid": {
+      "angular": {
+        "correct": 78,
+        "wrong": 0,
+        "lowerBound": 0.962,
+        "proven": true
+      },
+      "vue": {
+        "correct": 8,
+        "wrong": 0,
+        "lowerBound": 0.687,
         "proven": false
       }
     },
@@ -112,6 +142,14 @@
         "wrong": 0,
         "lowerBound": 0.05,
         "proven": false
+      }
+    },
+    "aria-allowed-attr": {
+      "html": {
+        "correct": 78,
+        "wrong": 0,
+        "lowerBound": 0.962,
+        "proven": true
       }
     },
     "aria-command-name": {
@@ -170,6 +208,14 @@
         "proven": false
       }
     },
+    "aria-valid-attr": {
+      "html": {
+        "correct": 77,
+        "wrong": 0,
+        "lowerBound": 0.961,
+        "proven": true
+      }
+    },
     "aria-valid-attr-value": {
       "html": {
         "correct": 0,
@@ -202,6 +248,30 @@
         "proven": true
       }
     },
+    "astro/jsx-a11y/aria-props": {
+      "astro": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "astro/jsx-a11y/aria-proptypes": {
+      "astro": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "astro/jsx-a11y/aria-role": {
+      "astro": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
     "astro/jsx-a11y/aria-unsupported-elements": {
       "astro": {
         "correct": 0,
@@ -210,20 +280,68 @@
         "proven": false
       }
     },
+    "astro/jsx-a11y/autocomplete-valid": {
+      "astro": {
+        "correct": 47,
+        "wrong": 0,
+        "lowerBound": 0.938,
+        "proven": false
+      }
+    },
+    "astro/jsx-a11y/heading-has-content": {
+      "astro": {
+        "correct": 78,
+        "wrong": 0,
+        "lowerBound": 0.962,
+        "proven": true
+      }
+    },
     "astro/jsx-a11y/label-has-associated-control": {
       "astro": {
-        "correct": 0,
-        "wrong": 1,
-        "lowerBound": 0,
+        "correct": 41,
+        "wrong": 0,
+        "lowerBound": 0.929,
         "proven": false
+      }
+    },
+    "astro/jsx-a11y/no-aria-hidden-on-focusable": {
+      "astro": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "astro/jsx-a11y/role-has-required-aria-props": {
+      "astro": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "astro/jsx-a11y/role-supports-aria-props": {
+      "astro": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "astro/jsx-a11y/tabindex-no-positive": {
+      "astro": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
       }
     },
     "autocomplete-valid": {
       "html": {
-        "correct": 10,
+        "correct": 85,
         "wrong": 0,
-        "lowerBound": 0.741,
-        "proven": false
+        "lowerBound": 0.965,
+        "proven": true
       }
     },
     "button-name": {
@@ -268,10 +386,10 @@
     },
     "html-lang-valid": {
       "html": {
-        "correct": 5,
+        "correct": 85,
         "wrong": 0,
-        "lowerBound": 0.549,
-        "proven": false
+        "lowerBound": 0.965,
+        "proven": true
       }
     },
     "image-alt": {
@@ -318,12 +436,82 @@
         "proven": true
       }
     },
+    "jsx-a11y-x/aria-props": {
+      "javascriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "jsx-a11y-x/aria-proptypes": {
+      "javascriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "jsx-a11y-x/aria-role": {
+      "javascriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "jsx-a11y-x/autocomplete-valid": {
+      "javascriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 65,
+        "wrong": 0,
+        "lowerBound": 0.954,
+        "proven": true
+      }
+    },
     "jsx-a11y-x/click-events-have-key-events": {
       "typescriptreact": {
         "correct": 1,
         "wrong": 5,
         "lowerBound": 0.008,
         "proven": false
+      }
+    },
+    "jsx-a11y-x/heading-has-content": {
+      "javascriptreact": {
+        "correct": 76,
+        "wrong": 0,
+        "lowerBound": 0.961,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 62,
+        "wrong": 0,
+        "lowerBound": 0.952,
+        "proven": true
       }
     },
     "jsx-a11y-x/iframe-has-title": {
@@ -340,6 +528,34 @@
         "proven": false
       }
     },
+    "jsx-a11y-x/label-has-associated-control": {
+      "javascriptreact": {
+        "correct": 76,
+        "wrong": 0,
+        "lowerBound": 0.961,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 24,
+        "wrong": 0,
+        "lowerBound": 0.882,
+        "proven": false
+      }
+    },
+    "jsx-a11y-x/no-aria-hidden-on-focusable": {
+      "javascriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 79,
+        "wrong": 0,
+        "lowerBound": 0.962,
+        "proven": true
+      }
+    },
     "jsx-a11y-x/no-noninteractive-element-interactions": {
       "typescriptreact": {
         "correct": 0,
@@ -354,6 +570,48 @@
         "wrong": 3,
         "lowerBound": 0.153,
         "proven": false
+      }
+    },
+    "jsx-a11y-x/role-has-required-aria-props": {
+      "javascriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "jsx-a11y-x/role-supports-aria-props": {
+      "javascriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "jsx-a11y-x/tabindex-no-positive": {
+      "javascriptreact": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      },
+      "typescriptreact": {
+        "correct": 79,
+        "wrong": 0,
+        "lowerBound": 0.962,
+        "proven": true
       }
     },
     "label": {
@@ -436,6 +694,14 @@
         "proven": false
       }
     },
+    "svelte/a11y_autocomplete_valid": {
+      "svelte": {
+        "correct": 13,
+        "wrong": 0,
+        "lowerBound": 0.794,
+        "proven": false
+      }
+    },
     "svelte/a11y_consider_explicit_label": {
       "svelte": {
         "correct": 119,
@@ -452,9 +718,73 @@
         "proven": false
       }
     },
+    "svelte/a11y_incorrect_aria_attribute_type_token": {
+      "svelte": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "svelte/a11y_label_has_associated_control": {
+      "svelte": {
+        "correct": 3,
+        "wrong": 0,
+        "lowerBound": 0.368,
+        "proven": false
+      }
+    },
     "svelte/a11y_missing_attribute": {
       "svelte": {
         "correct": 81,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "svelte/a11y_missing_content": {
+      "svelte": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "svelte/a11y_positive_tabindex": {
+      "svelte": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "svelte/a11y_role_has_required_aria_props": {
+      "svelte": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "svelte/a11y_role_supports_aria_props_implicit": {
+      "svelte": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "svelte/a11y_unknown_aria_attribute": {
+      "svelte": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "svelte/a11y_unknown_role": {
+      "svelte": {
+        "correct": 80,
         "wrong": 0,
         "lowerBound": 0.963,
         "proven": true
@@ -478,10 +808,10 @@
     },
     "valid-lang": {
       "html": {
-        "correct": 9,
+        "correct": 80,
         "wrong": 0,
-        "lowerBound": 0.716,
-        "proven": false
+        "lowerBound": 0.963,
+        "proven": true
       }
     },
     "vuejs-accessibility/alt-text": {
@@ -495,6 +825,22 @@
     "vuejs-accessibility/anchor-has-content": {
       "vue": {
         "correct": 81,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "vuejs-accessibility/aria-props": {
+      "vue": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "vuejs-accessibility/aria-role": {
+      "vue": {
+        "correct": 80,
         "wrong": 0,
         "lowerBound": 0.963,
         "proven": true
@@ -516,6 +862,14 @@
         "proven": false
       }
     },
+    "vuejs-accessibility/heading-has-content": {
+      "vue": {
+        "correct": 79,
+        "wrong": 0,
+        "lowerBound": 0.962,
+        "proven": true
+      }
+    },
     "vuejs-accessibility/iframe-has-title": {
       "vue": {
         "correct": 65,
@@ -526,10 +880,10 @@
     },
     "vuejs-accessibility/label-has-for": {
       "vue": {
-        "correct": 4,
+        "correct": 84,
         "wrong": 0,
-        "lowerBound": 0.472,
-        "proven": false
+        "lowerBound": 0.964,
+        "proven": true
       }
     },
     "vuejs-accessibility/mouse-events-have-key-events": {
@@ -542,10 +896,10 @@
     },
     "vuejs-accessibility/no-aria-hidden-on-focusable": {
       "vue": {
-        "correct": 2,
+        "correct": 82,
         "wrong": 0,
-        "lowerBound": 0.223,
-        "proven": false
+        "lowerBound": 0.964,
+        "proven": true
       }
     },
     "vuejs-accessibility/no-role-presentation-on-focusable": {
@@ -562,6 +916,22 @@
         "wrong": 3,
         "lowerBound": 0.435,
         "proven": false
+      }
+    },
+    "vuejs-accessibility/role-has-required-aria-props": {
+      "vue": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
+      }
+    },
+    "vuejs-accessibility/tabindex-no-positive": {
+      "vue": {
+        "correct": 80,
+        "wrong": 0,
+        "lowerBound": 0.963,
+        "proven": true
       }
     }
   }

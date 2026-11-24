@@ -1,0 +1,9 @@
+---
+interface Props {
+	count?: number;
+}
+
+let { count = 0 } = Astro.props;
+---
+
+<p aria-labeledby="title" id="counter">{count}</p>
