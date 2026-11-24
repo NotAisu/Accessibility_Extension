@@ -3,7 +3,7 @@
   "name": "io.github.notaisu/allyproof",
   "title": "Allyproof",
   "description": "WCAG 2.2 AA accessibility checker for HTML, React, Vue, Svelte, Angular and Astro code.",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "repository": {
     "url": "https://github.com/NotAisu/Accessibility_Extension",
     "source": "github"
@@ -14,7 +14,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "allyproof",
-      "version": "0.1.3",
+      "version": "0.2.0",
       "transport": {
         "type": "stdio"
       },
