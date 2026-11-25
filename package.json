@@ -380,7 +380,8 @@
     "package:npm": "npm run bundle && ts-node scripts/npm-package.ts",
     "package": "vsce package",
     "test:unit": "mocha",
-    "verify": "npm run lint -- --max-warnings=0 && npm run typecheck && npm run test:unit && npm run test:gate -- --save out/gate-source.json && npm run test:bundle-gate -- out/gate-source.json"
+    "verify": "npm run lint -- --max-warnings=0 && npm run typecheck && npm run test:unit && npm run test:gate -- --save out/gate-source.json && npm run test:bundle-gate -- out/gate-source.json",
+    "bump": "ts-node scripts/bump-version.ts"
   },
   "devDependencies": {
     "@resvg/resvg-js": "2.6.2",
