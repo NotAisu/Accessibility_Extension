@@ -98,15 +98,24 @@ jobs:
           curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/v1.8.16/mcp-publisher_linux_amd64.tar.gz" \
             | tar -xz mcp-publisher
           ./mcp-publisher login github-oidc
-          output=$(./mcp-publisher publish 2>&1) || {
+          # The registry validates against npm, which can take minutes to show the version npm publish just pushed
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if output=$(./mcp-publisher publish 2>&1); then
+              echo "$output"
+              exit 0
+            fi
             echo "$output"
             if echo "$output" | grep -qiE 'already exists|409|duplicate'; then
               echo "Version already published; skipping"
               exit 0
             fi
-            exit 1
-          }
-          echo "$output"
+            if ! echo "$output" | grep -qi 'was not found'; then
+              exit 1
+            fi
+            echo "npm does not show allyproof@$version to the registry yet (attempt $attempt of 10); retrying in 30s"
+            sleep 30
+          done
+          exit 1
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |

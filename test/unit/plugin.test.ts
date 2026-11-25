@@ -12,6 +12,9 @@ const mcp = JSON.parse(fs.readFileSync(path.join(root, '.mcp.json'), 'utf-8')) a
 const skill = fs.readFileSync(path.join(root, 'skills', 'allyproof', 'SKILL.md'), 'utf-8');
 const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf-8');
 
+const owner = /github\.com\/([^/]+)\//.exec((manifest.repository as { url: string }).url)?.[1];
+const mcpName = `io.github.${owner}/allyproof`;
+
 const expectedMcpServer = {
     command: 'npx',
     args: ['-y', `allyproof@${manifest.version}`, 'mcp']
@@ -149,7 +152,7 @@ describe('Official MCP Registry descriptor (#110)', () => {
         };
 
         assert.match(server.$schema, /^https:\/\/static\.modelcontextprotocol\.io\/schemas\/\d{4}-\d{2}-\d{2}\/server\.schema\.json$/);
-        assert.strictEqual(server.name, 'io.github.NotAisu/allyproof');
+        assert.strictEqual(server.name, mcpName);
         assert.strictEqual(server.version, manifest.version);
         assert.ok(server.description.length > 0 && server.description.length <= 100, 'description must be 1-100 chars');
         assert.deepStrictEqual(server.repository, {
@@ -172,5 +175,17 @@ describe('Official MCP Registry descriptor (#110)', () => {
 
         assert.doesNotMatch(raw, /\/Users\/|\/home\/|[A-Z]:\\/);
         assert.doesNotMatch(raw, /ghp_|sk-|AIza|AKIA|-----BEGIN/);
+    });
+
+    it('spells the MCP Registry name with the exact casing of the GitHub owner wherever it appears', () => {
+        // The registry's GitHub OIDC login is case-sensitive: io.github.notaisu failed the 0.2.0 publish
+        for (const file of ['server.json', '.github/workflows/release.yml', 'scripts/npm-package.ts', 'site/llms.txt']) {
+            const text = fs.readFileSync(path.join(root, file), 'utf-8');
+            const spellings = [...text.matchAll(/io\.github\.([\w-]+)/gi)].map((m) => `io.github.${m[1]}`);
+            assert.ok(spellings.length > 0, `${file} should name the registry server`);
+            for (const spelling of spellings) {
+                assert.strictEqual(spelling, mcpName.split('/')[0], `${file} spells the registry namespace as ${spelling}`);
+            }
+        }
     });
 });
