@@ -58,6 +58,9 @@ const CRITERIA: Record<string, { name: string; slug: string }> = {
     '4.1.3': { name: 'Status Messages', slug: 'status-messages' }
 };
 
+/** All 55 WCAG 2.2 level A and AA success criterion numbers (obsolete 4.1.1 excluded). */
+export const TARGET_CRITERIA: readonly string[] = Object.keys(CRITERIA);
+
 /** True for a WCAG 2.2 level A or AA success criterion number such as "1.4.3". */
 export function isTargetCriterion(criterion: string): boolean {
     return Object.prototype.hasOwnProperty.call(CRITERIA, criterion);

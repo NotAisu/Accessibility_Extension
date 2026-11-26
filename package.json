@@ -377,6 +377,7 @@
     "typecheck": "tsc -p ./ --noEmit",
     "audit": "ts-node scripts/audit.ts",
     "icon": "ts-node scripts/icon.ts",
+    "generate:coverage": "ts-node scripts/generate-coverage-map.ts",
     "bundle": "node esbuild.js --production && ts-node scripts/third-party-notices.ts",
     "package:npm": "npm run bundle && ts-node scripts/npm-package.ts",
     "package": "vsce package",
