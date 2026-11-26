@@ -65,7 +65,6 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | Angular | `@angular-eslint/template/alt-text` | 1.1.1 | 84 of 84 | 96.4 % |
 | Angular | `@angular-eslint/template/elements-content` | 2.4.4, 4.1.2, 2.4.6, 1.3.1 | 159 of 159 | 98.1 % |
 | Angular | `@angular-eslint/template/label-has-associated-control` | 1.3.1, 4.1.2 | 82 of 82 | 96.4 % |
-| Angular | `@angular-eslint/template/no-positive-tabindex` | 2.4.3 | 80 of 80 | 96.3 % |
 | Angular | `@angular-eslint/template/role-has-required-aria` | 4.1.2 | 80 of 80 | 96.3 % |
 | Angular | `allyproof/autocomplete-valid` | 1.3.5 | 78 of 78 | 96.2 % |
 | Astro | `allyproof/button-name` | 4.1.2 | 80 of 80 | 96.3 % |
@@ -78,7 +77,6 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | Astro | `astro/jsx-a11y/no-aria-hidden-on-focusable` | 4.1.2 | 80 of 80 | 96.3 % |
 | Astro | `astro/jsx-a11y/role-has-required-aria-props` | 4.1.2 | 80 of 80 | 96.3 % |
 | Astro | `astro/jsx-a11y/role-supports-aria-props` | 4.1.2 | 80 of 80 | 96.3 % |
-| Astro | `astro/jsx-a11y/tabindex-no-positive` | 2.4.3 | 80 of 80 | 96.3 % |
 | HTML | `aria-allowed-attr` | 4.1.2 | 78 of 78 | 96.2 % |
 | HTML | `aria-hidden-body` | 1.3.1, 4.1.2 | 80 of 80 | 96.3 % |
 | HTML | `aria-valid-attr` | 4.1.2 | 77 of 77 | 96.1 % |
@@ -103,12 +101,10 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | JSX | `jsx-a11y-x/no-aria-hidden-on-focusable` | 4.1.2 | 80 of 80 | 96.3 % |
 | JSX | `jsx-a11y-x/role-has-required-aria-props` | 4.1.2 | 80 of 80 | 96.3 % |
 | JSX | `jsx-a11y-x/role-supports-aria-props` | 4.1.2 | 80 of 80 | 96.3 % |
-| JSX | `jsx-a11y-x/tabindex-no-positive` | 2.4.3 | 80 of 80 | 96.3 % |
 | Svelte | `svelte/a11y_consider_explicit_label` | 4.1.2, 2.4.4 | 119 of 119 | 97.5 % |
 | Svelte | `svelte/a11y_incorrect_aria_attribute_type_token` | 4.1.2 | 80 of 80 | 96.3 % |
 | Svelte | `svelte/a11y_missing_attribute` | 1.1.1, 2.1.1, 3.1.1, 4.1.2 | 81 of 81 | 96.3 % |
 | Svelte | `svelte/a11y_missing_content` | 2.4.6, 1.3.1 | 80 of 80 | 96.3 % |
-| Svelte | `svelte/a11y_positive_tabindex` | 2.4.3 | 80 of 80 | 96.3 % |
 | Svelte | `svelte/a11y_role_has_required_aria_props` | 4.1.2 | 80 of 80 | 96.3 % |
 | Svelte | `svelte/a11y_role_supports_aria_props_implicit` | 4.1.2 | 80 of 80 | 96.3 % |
 | Svelte | `svelte/a11y_unknown_aria_attribute` | 4.1.2 | 80 of 80 | 96.3 % |
@@ -124,7 +120,6 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | TSX | `jsx-a11y-x/no-aria-hidden-on-focusable` | 4.1.2 | 79 of 79 | 96.2 % |
 | TSX | `jsx-a11y-x/role-has-required-aria-props` | 4.1.2 | 80 of 80 | 96.3 % |
 | TSX | `jsx-a11y-x/role-supports-aria-props` | 4.1.2 | 80 of 80 | 96.3 % |
-| TSX | `jsx-a11y-x/tabindex-no-positive` | 2.4.3 | 79 of 79 | 96.2 % |
 | Vue | `vuejs-accessibility/alt-text` | 1.1.1 | 123 of 123 | 97.5 % |
 | Vue | `vuejs-accessibility/anchor-has-content` | 2.4.4, 4.1.2 | 81 of 81 | 96.3 % |
 | Vue | `vuejs-accessibility/aria-props` | 4.1.2 | 80 of 80 | 96.3 % |
@@ -134,7 +129,6 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | Vue | `vuejs-accessibility/label-has-for` | 1.3.1, 4.1.2 | 84 of 84 | 96.4 % |
 | Vue | `vuejs-accessibility/no-aria-hidden-on-focusable` | 4.1.2 | 82 of 82 | 96.4 % |
 | Vue | `vuejs-accessibility/role-has-required-aria-props` | 4.1.2 | 80 of 80 | 96.3 % |
-| Vue | `vuejs-accessibility/tabindex-no-positive` | 2.4.3 | 80 of 80 | 96.3 % |
 
 The evidence of every rule, proven or not, is in [`src/core/proof-status.json`](src/core/proof-status.json), and the labelled files are in [`test/ground-truth`](test/ground-truth).
 
