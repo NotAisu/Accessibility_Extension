@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { analyse } from '../../src/core/analysis';
-import { judgeMatches, lowerBound, proofStatus, repeatedEvidence } from '../ground-truth/proof';
+import { caseChanges, judgeCase, judgeMatches, lowerBound, proofStatus, repeatedEvidence } from '../ground-truth/proof';
 
 describe('proof of a rule\'s precision', () => {
     describe('the 95 % lower bound clears 0.95', () => {
@@ -63,6 +63,45 @@ describe('proof of a rule\'s precision', () => {
         it('counts every unlabelled match on a completely labelled case as wrong', () => {
             const judged = judgeMatches({ complete: true, expect: [] }, [match('lang', 1, ['3.1.1'])]);
             assert.deepStrictEqual(judged.get('lang'), { correct: 0, wrong: 1 });
+        });
+    });
+
+    describe('the per-case difference against the baseline', () => {
+        const testCase = { expect: [{ criterion: '1.1.1', line: 3 }, { criterion: '4.1.2', line: 7 }] };
+        const match = (ruleId: string, line: number, criteria: string[]) => ({ ruleId, line, criteria });
+
+        it('reports a case whose judgement changed, with rule, language, file and line', () => {
+            const before = { html: { 'field/a.html': judgeCase(testCase, [match('image-alt', 3, ['1.1.1']), match('label', 9, ['4.1.2'])]) } };
+            const after = { html: { 'field/a.html': judgeCase(testCase, [match('label', 7, ['4.1.2']), match('image-alt', 5, ['1.1.1'])]) } };
+
+            assert.deepStrictEqual(caseChanges(before, after), [
+                'html field/a.html:7 label: newly correct',
+                'html field/a.html:5 image-alt: newly wrong',
+                'html field/a.html:3 1.1.1: newly missed',
+                'html field/a.html:3 image-alt: no longer correct',
+                'html field/a.html:9 label: no longer wrong',
+                'html field/a.html:7 4.1.2: no longer missed'
+            ]);
+        });
+
+        it('reports a case new to the baseline and one gone from it', () => {
+            const judged = judgeCase(testCase, [match('image-alt', 3, ['1.1.1'])]);
+
+            assert.deepStrictEqual(caseChanges({}, { vue: { 'act/b.vue': judged } }), [
+                'vue act/b.vue:3 image-alt: newly correct',
+                'vue act/b.vue:7 4.1.2: newly missed'
+            ]);
+            assert.deepStrictEqual(caseChanges({ vue: { 'act/b.vue': judged } }, {}), ['vue act/b.vue: no longer measured']);
+        });
+
+        it('reports nothing when no judgement changed', () => {
+            const judged = () => ({ html: { 'field/a.html': judgeCase(testCase, [match('image-alt', 3, ['1.1.1']), match('label', 9, ['4.1.2'])]) } });
+            assert.deepStrictEqual(caseChanges(judged(), judged()), []);
+        });
+
+        it('names a missed failure without a line by its criterion', () => {
+            const judged = judgeCase({ expect: [{ criterion: '3.1.1', present: true }] }, []);
+            assert.deepStrictEqual(caseChanges({}, { html: { 'act/c.html': judged } }), ['html act/c.html 3.1.1: newly missed']);
         });
     });
 
