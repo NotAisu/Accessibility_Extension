@@ -54,6 +54,7 @@ export function checkAstro(text: string, components?: ComponentMapping): Analysi
         if ((rule === 'alt-text' || rule === 'anchor-has-content') && isHiddenAt(linter.getSourceCode(), start)) continue;
         if (rule === 'label-has-associated-control' && message.message === 'A form label must have accessible text.'
             && hasNamedContentAt(linter.getSourceCode(), start)) continue;
+        if (rule === 'aria-unsupported-elements' && isAriaHiddenOnScript(linter.getSourceCode(), start, message.message)) continue;
         const end = message.endLine && message.endColumn ? toOffset(message.endLine, message.endColumn) : start;
         const docs = plugin.rules[`jsx-a11y/${rule}`]?.meta?.docs;
         findings.push({
@@ -77,4 +78,19 @@ export function checkAstro(text: string, components?: ComponentMapping): Analysi
     });
     content.stylesheetColors = styleBlocksSetColors(text);
     return withOwnRules(findings, content);
+}
+
+// Starlight adds aria-hidden="true" to inline <script> inside display:contents containers to work around
+// Safari/VoiceOver reading script text (https://bugs.webkit.org/show_bug.cgi?id=283645,
+// https://github.com/withastro/starlight/pull/2633). eslint-plugin-astro's aria-unsupported-elements
+// (https://github.com/ota-meshi/eslint-plugin-astro) flags it; no upstream issue filed yet.
+function isAriaHiddenOnScript(source: { getNodeByRangeIndex(index: number): unknown }, offset: number, message: string): boolean {
+    if (!message.includes("'aria-hidden'")) return false;
+    let node = source.getNodeByRangeIndex(offset) as JsxNode | null;
+    while (node && node.type !== 'JSXOpeningElement' && node.type !== 'JSXElement') {
+        node = (node.parent as JsxNode | undefined) ?? null;
+    }
+    const opening = node?.type === 'JSXElement' ? node.openingElement as JsxNode : node;
+    const name = opening?.name as JsxNode | undefined;
+    return name?.type === 'JSXIdentifier' && name.name === 'script';
 }
