@@ -75,6 +75,10 @@ export function checkSvelte(text: string, components?: ComponentMapping): Analys
     for (const warning of warnings) {
         const criteria = criteriaOf(warning.code, warning.message);
         if (!criteria || !warning.position) continue;
+        // Valueless `aria-hidden` (e.g. `<span aria-hidden>`) harms no user; Svelte added this warning in
+        // https://github.com/sveltejs/svelte/issues/11323
+        if (warning.code === 'a11y_incorrect_aria_attribute_type_boolean'
+            && /^aria-hidden$/i.test(text.slice(warning.position[0], warning.position[1]).trim())) continue;
         // The message ends in a link to the warning's documentation
         const [message, helpUrl] = splitLink(warning.message);
         findings.push({

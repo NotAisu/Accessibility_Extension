@@ -1,7 +1,5 @@
 {
   "field/skeletonlabs_skeleton/playgrounds/skeleton-svelte/src/routes/+layout.svelte": {"correct":["allyproof/text-contrast@27"]},
-  "field/skeletonlabs_skeleton/sites/skeleton.dev/src/components/examples/guides/cookbook/breadcrumbs/svelte/default.svelte": {"wrong":["svelte/a11y_incorrect_aria_attribute_type_boolean@3","svelte/a11y_incorrect_aria_attribute_type_boolean@5"]},
-  "field/skeletonlabs_skeleton/sites/skeleton.dev/src/components/examples/guides/cookbook/breadcrumbs/svelte/icons.svelte": {"wrong":["svelte/a11y_incorrect_aria_attribute_type_boolean@13","svelte/a11y_incorrect_aria_attribute_type_boolean@21"]},
   "injection/empty-button/hoppscotch/packages__hoppscotch-desktop__plugin-workspace__tauri-plugin-appload__examples__tauri-app__src__App.svelte--40.svelte": {"correct":["svelte/a11y_consider_explicit_label@40"]},
   "injection/empty-button/hoppscotch/packages__hoppscotch-desktop__plugin-workspace__tauri-plugin-appload__examples__tauri-app__src__lib__Greet.svelte--16.svelte": {"correct":["svelte/a11y_consider_explicit_label@16"]},
   "injection/empty-button/shadcn-svelte/sv-addons__registry__template__src__lib__registry__blocks__example-with-css__example-card.svelte--19.svelte": {"correct":["svelte/a11y_consider_explicit_label@19"]},

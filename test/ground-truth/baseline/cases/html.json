@@ -153,7 +153,6 @@
   "act/cases/e086e5-failed-7.html": {"correct":["aria-input-field-name@7"]},
   "act/cases/e086e5-failed-8.html": {"correct":["label@9","label@10"]},
   "act/cases/e086e5-failed-9.html": {"correct":["label@7"]},
-  "act/cases/e086e5-passed-6.html": {"wrong":["aria-required-attr@8"]},
   "act/cases/e086e5-passed-7.html": {"wrong":["aria-required-attr@7"]},
   "act/cases/e88epe-failed-1.html": {"missed":["1.1.1"]},
   "act/cases/e88epe-failed-2.html": {"missed":["1.1.1"]},

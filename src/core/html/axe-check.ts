@@ -88,6 +88,7 @@ function toFindings(text: string, dom: JSDOM, violations: axe.Result[]): Finding
         const criteria = criteriaOf(violation);
         if (criteria.length === 0) continue;
         for (const node of violation.nodes) {
+            if (isUnexpandedComboboxRequiredAttr(violation, node)) continue;
             findings.push({
                 range: locate(text, dom, node),
                 criteria,
@@ -101,6 +102,16 @@ function toFindings(text: string, dom: JSDOM, violations: axe.Result[]): Finding
         }
     }
     return findings;
+}
+
+// axe-core's aria-required-attr flags a combobox without aria-expanded="false" as missing
+// aria-expanded and aria-controls even when it is not expanded (e.g. ACT e086e5 passed-6);
+// ARIA 1.2 requires aria-controls only while expanded.
+// Upstream: https://github.com/dequelabs/axe-core/issues/3090
+function isUnexpandedComboboxRequiredAttr(violation: axe.Result, node: axe.NodeResult): boolean {
+    if (violation.id !== 'aria-required-attr' || !node.element) return false;
+    const role = node.element.getAttribute('role')?.trim().toLowerCase().split(/\s+/)[0];
+    return role === 'combobox' && node.element.getAttribute('aria-expanded')?.trim().toLowerCase() !== 'true';
 }
 
 // axe tags criteria as "wcag111" or "wcag1410"; the rule-id table picks the primary one
