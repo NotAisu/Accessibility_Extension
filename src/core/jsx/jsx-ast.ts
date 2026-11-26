@@ -49,6 +49,7 @@ export function renderedJsxContent(source: JsxSource, options: JsxContentOptions
             element = { tag: mapped ?? written, attributes, range: { start, end }, parent: element };
             if (mapped) element.component = written;
             if (options.bindsStyle(opening)) element.boundStyle = true;
+            if (hasSpread(opening)) element.open = true;
             content.elements.push(element);
         }
         for (const key of source.visitorKeys[node.type] ?? []) {
@@ -183,7 +184,7 @@ export function unnamedMarkup(source: JsxSource, components?: ComponentMapping):
     const links: TextRange[] = [];
     for (const element of elements) {
         const { opening, tag, attributes, hidden, inAttribute, parentLabel } = element;
-        if (hidden || inAttribute && opening.selfClosing || couldNameElement(element)) continue;
+        if (hidden || inAttribute && opening.selfClosing || hasKnownName(element)) continue;
         const [start, end] = opening.range as [number, number];
         if (tag === 'label') {
             labels.push({ start, end });
@@ -255,10 +256,13 @@ export function hasNamedContentAt(source: { getNodeByRangeIndex(index: number): 
     return node ? hasNamedChildren(node) : false;
 }
 
-function couldNameElement({ node, opening, attributes }: MarkupElement): boolean {
-    return hasSpread(opening)
-        || NAME_ATTRS.some(name => hasNonEmptyAttr(attributes, name))
+function hasKnownName({ node, opening, attributes }: MarkupElement): boolean {
+    return NAME_ATTRS.some(name => hasNonEmptyAttr(attributes, name))
         || hasSetContentDirective(opening) || hasNamedChildren(node);
+}
+
+function couldNameElement(element: MarkupElement): boolean {
+    return hasSpread(element.opening) || hasKnownName(element);
 }
 
 function isEmptyExpression(expression: JsxNode): boolean {
