@@ -1,5 +1,10 @@
 {
+  "field/saadeghi_daisyui/packages/docs/src/components/ColorPicker.svelte": {"wrong":["svelte/a11y_click_events_have_key_events@94","svelte/a11y_no_static_element_interactions@94"],"correct":["svelte/a11y_no_static_element_interactions@96"],"missed":["2.1.1@96","4.1.2@130"]},
+  "field/saadeghi_daisyui/packages/docs/src/components/themegenerator/ThemeCSSModal.svelte": {"wrong":["svelte/a11y_click_events_have_key_events@122","svelte/a11y_no_static_element_interactions@122"],"missed":["4.1.2@115"]},
   "field/skeletonlabs_skeleton/playgrounds/skeleton-svelte/src/routes/+layout.svelte": {"correct":["allyproof/text-contrast@27"]},
+  "field/themesberg_flowbite-svelte/src/routes/admin-dashboard/(sidebar)/components/productdrawer/examples/Example1.svelte": {"correct":["allyproof/text-contrast@229","allyproof/text-contrast@230"]},
+  "field/themesberg_flowbite-svelte/src/routes/docs-examples/components/modal/Crypto.svelte": {"correct":["allyproof/text-contrast@21"]},
+  "field/themesberg_flowbite-svelte/src/routes/docs-examples/extend/split-pane/+page.svelte": {"correct":["allyproof/text-contrast@625"],"missed":["1.4.3@195","1.4.3@241","1.4.3@309","1.4.3@355","1.4.3@416","1.4.3@462","1.4.3@514","1.4.3@569"]},
   "injection/empty-button/hoppscotch/packages__hoppscotch-desktop__plugin-workspace__tauri-plugin-appload__examples__tauri-app__src__App.svelte--40.svelte": {"correct":["svelte/a11y_consider_explicit_label@40"]},
   "injection/empty-button/hoppscotch/packages__hoppscotch-desktop__plugin-workspace__tauri-plugin-appload__examples__tauri-app__src__lib__Greet.svelte--16.svelte": {"correct":["svelte/a11y_consider_explicit_label@16"]},
   "injection/empty-button/shadcn-svelte/sv-addons__registry__template__src__lib__registry__blocks__example-with-css__example-card.svelte--19.svelte": {"correct":["svelte/a11y_consider_explicit_label@19"]},

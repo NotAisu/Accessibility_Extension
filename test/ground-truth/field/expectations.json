@@ -5141,6 +5141,150 @@
           "line": 10
         }
       ]
+    },
+    {
+      "file": "themesberg_flowbite-svelte/src/routes/docs-examples/components/modal/Crypto.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/themesberg/flowbite-svelte/blob/85f20a048ec51598e2be099bd57b5f555fe7a5b4/src/routes/docs-examples/components/modal/Crypto.svelte (licence in themesberg_flowbite-svelte/LICENSE, MIT). The Check reported line 21 allyproof/text-contrast. Labels agreed by two independent labellers: 1.4.3 fails at line 21: text-xs 'Popular' badge: gray-500 #6B7280 on gray-200 #E5E7EB = 3.90:1 (light) and gray-400 #9CA3AF on gray-700 #374151 = 4.06:1 (dark), both below 4.5:1, F24 / ACT afw4f7; lines 15 and 50 (gray-500 on white 4.83:1, gray-400 on gray-800 5.78:1) pass.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "file": "themesberg_flowbite-svelte/src/routes/admin-dashboard/(sidebar)/components/productdrawer/examples/Example1.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/themesberg/flowbite-svelte/blob/85f20a048ec51598e2be099bd57b5f555fe7a5b4/src/routes/admin-dashboard/(sidebar)/components/productdrawer/examples/Example1.svelte (licence in themesberg_flowbite-svelte/LICENSE, MIT). The Check reported line 229 allyproof/text-contrast, line 230 allyproof/text-contrast. Labels agreed by two independent labellers: 1.4.3 fails at line 229, 230: text-sm button text, F24 / ACT afw4f7: line 229 dark green-600 on gray-600 #4B5563 = 2.29:1 (Tailwind #16A34A; light 2.99:1 on gray-100); line 230 red-600 #DC2626 on gray-100 #F3F4F6 = 4.39:1 (light) and 1.56:1 on gray-600 (dark); line 228 passes (blue-600 4.7:1, dark blue-200 5.32:1).",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "line": 229
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 230
+        }
+      ]
+    },
+    {
+      "file": "themesberg_flowbite-svelte/src/routes/docs-examples/extend/split-pane/+page.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/themesberg/flowbite-svelte/blob/85f20a048ec51598e2be099bd57b5f555fe7a5b4/src/routes/docs-examples/extend/split-pane/+page.svelte (licence in themesberg_flowbite-svelte/LICENSE, MIT). The Check reported line 625 allyproof/text-contrast. Labels agreed by two independent labellers: 1.4.3 fails at line 195, 241, 309, 355, 416, 462, 514, 569, 625: F24 / ACT afw4f7: line 625 text-xs gray-500 #6B7280 on bg-black #000000 (line 620) = 4.34:1 < 4.5:1; lines 195-569 descriptive <p> set dark:text-white while the enclosing bg-white card has no dark: background, giving white on white 1:1 in the dark state.",
+      "expect": [
+        {
+          "criterion": "1.4.3",
+          "line": 195
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 241
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 309
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 355
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 416
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 462
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 514
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 569
+        },
+        {
+          "criterion": "1.4.3",
+          "line": 625
+        }
+      ]
+    },
+    {
+      "file": "react-bootstrap_react-bootstrap/src/Modal.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/react-bootstrap/react-bootstrap/blob/d5ebc9cf46b55f9383368c494d7902e707026e20/src/Modal.tsx (licence in react-bootstrap_react-bootstrap/LICENSE, MIT). The Check reported line 318 jsx-a11y-x/click-events-have-key-events, line 318 jsx-a11y-x/no-noninteractive-element-interactions. Labels agreed by two independent labellers: 2.1.1 passes: onClick on the role=dialog wrapper is backdrop-click dismissal, a mouse convenience; the same close function is keyboard-operable via Escape (BaseModal keyboard handling, handleEscapeKeyDown), so no F54 failure; 4.1.2 passes: element has an explicit role=dialog, so it is not a non-interactive element with an unexposed handler; accessible name comes from aria-label/aria-labelledby props at runtime (ACT 4e8ab6 not decidable here) and the click handler adds no separate control needing a role.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "saadeghi_daisyui/packages/docs/src/components/ColorPicker.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/saadeghi/daisyui/blob/42c76795161d81b723988e5b7848c07697abbce0/packages/docs/src/components/ColorPicker.svelte (licence in saadeghi_daisyui/LICENSE, MIT). The Check reported line 94 svelte/a11y_click_events_have_key_events, line 94 svelte/a11y_no_static_element_interactions, line 96 svelte/a11y_no_static_element_interactions. Labels agreed by two independent labellers: 2.1.1 fails at line 96: lightness/chroma 2D picker area is operable only via mousedown/mousemove with no keyboard equivalent (F54 mouse-only handlers); the line 94 backdrop is a redundant mouse shortcut since Apply and the toggle button close the picker by keyboard; 4.1.2 fails at line 96, 130: custom 2D slider div has no role, name or value (ACT 4e8ab6 / F59); hue range input has no accessible name (F68, ACT e086e5); line 94 backdrop is a presentational overlay and needs no role.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "line": 96
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 96
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 130
+        }
+      ]
+    },
+    {
+      "file": "saadeghi_daisyui/packages/docs/src/components/themegenerator/ThemeCSSModal.svelte",
+      "languageId": "svelte",
+      "note": "https://github.com/saadeghi/daisyui/blob/42c76795161d81b723988e5b7848c07697abbce0/packages/docs/src/components/themegenerator/ThemeCSSModal.svelte (licence in saadeghi_daisyui/LICENSE, MIT). The Check reported line 122 svelte/a11y_click_events_have_key_events, line 122 svelte/a11y_no_static_element_interactions. Labels agreed by two independent labellers: 2.1.1 passes: backdrop click is a redundant mouse shortcut; the native modal <dialog> closes with Escape, so no F54 failure; 4.1.2 fails at line 115: line 122 backdrop is non-semantic overlay and needs no role, but the textarea has no label or aria-label, so no accessible name (F68, ACT e086e5).",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "line": 115
+        }
+      ]
+    },
+    {
+      "file": "facebook_docusaurus/packages/docusaurus-theme-common/src/components/Details/index.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/facebook/docusaurus/blob/343097822317fa1454e1d24e8c3429ae4b22a88c/packages/docusaurus-theme-common/src/components/Details/index.tsx (licence in facebook_docusaurus/LICENSE, MIT). The Check reported line 72 jsx-a11y-x/click-events-have-key-events, line 72 jsx-a11y-x/no-noninteractive-element-interactions. Labels agreed by two independent labellers: 2.1.1 passes: click handler on native <details> only intercepts clicks from <summary>, which is natively focusable and fires click on Enter/Space, so keyboard toggling works; no F54; 4.1.2 passes: native details/summary disclosure keeps its role and expanded state; the handler is event delegation from the interactive summary, not a fake control.",
+      "expect": [
+        {
+          "criterion": "2.1.1",
+          "present": false
+        },
+        {
+          "criterion": "4.1.2",
+          "present": false
+        }
+      ]
+    },
+    {
+      "file": "facebook_docusaurus/packages/docusaurus/src/client/hasHydratedDataAttribute.tsx",
+      "languageId": "typescriptreact",
+      "note": "https://github.com/facebook/docusaurus/blob/343097822317fa1454e1d24e8c3429ae4b22a88c/packages/docusaurus/src/client/hasHydratedDataAttribute.tsx (licence in facebook_docusaurus/LICENSE, MIT). The Check reported line 18 jsx-a11y-x/html-has-lang. Labels agreed by two independent labellers: 3.1.1 passes: this <html> inside Head (react-helmet) only merges a data attribute onto the real document root; the lang attribute is set elsewhere by Docusaurus, so ACT b5c3f8 is not failed by this file.",
+      "expect": [
+        {
+          "criterion": "3.1.1",
+          "present": false
+        }
+      ]
     }
   ]
 }

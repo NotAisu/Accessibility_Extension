@@ -2,6 +2,7 @@
  * Which Check rules are Proven rules: the one-sided Clopper-Pearson lower bound of a rule's precision on the
  * evidence sets, per language, against the threshold of the proof policy (#78).
  */
+import type { Finding, NeedsReview, TextRange } from '../../src/core/analysis';
 import type { Expectation } from './ground-truth';
 import bestPracticeRules from '../../src/core/best-practice-rules.json';
 
@@ -16,6 +17,32 @@ export interface RuleMatch {
     ruleId: string;
     line: number;
     criteria: string[];
+}
+
+/**
+ * Every rule match of a result at its line: the Findings and the Unproven rules' matches, which the Check lists as
+ * Needs Review entries. An Unproven rule's match is judged like a Finding, so the proof never depends on the proof status.
+ */
+export function ruleMatches(text: string, result: { findings: Pick<Finding, 'ruleId' | 'range' | 'criteria'>[]; needsReview: NeedsReview[] }): RuleMatch[] {
+    return [...result.findings, ...demoted(result.needsReview)].map(f => ({ ruleId: f.ruleId, line: lineAt(text, f.range.start), criteria: f.criteria }));
+}
+
+// The Needs Review entries of one Unproven rule's match, one per criterion, joined back into the match
+function demoted(needsReview: NeedsReview[]): { ruleId: string; range: TextRange; criteria: string[] }[] {
+    const byMatch = new Map<string, { ruleId: string; range: TextRange; criteria: string[] }>();
+    for (const entry of needsReview) {
+        if (!entry.ruleId || !entry.range) continue;
+        const key = `${entry.ruleId} ${entry.range.start} ${entry.range.end}`;
+        if (!byMatch.has(key)) byMatch.set(key, { ruleId: entry.ruleId, range: entry.range, criteria: [] });
+        byMatch.get(key)!.criteria.push(entry.criterion);
+    }
+    return [...byMatch.values()];
+}
+
+export function lineAt(text: string, offset: number): number {
+    let line = 1;
+    for (let i = 0; i < offset; i++) if (text[i] === '\n') line++;
+    return line;
 }
 
 export interface Judged {
