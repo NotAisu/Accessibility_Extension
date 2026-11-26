@@ -1,0 +1,11 @@
+[
+  {"repo": "themesberg/flowbite-svelte", "commit": "85f20a048ec51598e2be099bd57b5f555fe7a5b4", "file": "src/routes/docs-examples/components/modal/Crypto.svelte"},
+  {"repo": "themesberg/flowbite-svelte", "commit": "85f20a048ec51598e2be099bd57b5f555fe7a5b4", "file": "src/routes/admin-dashboard/(sidebar)/components/productdrawer/examples/Example1.svelte"},
+  {"repo": "themesberg/flowbite-svelte", "commit": "85f20a048ec51598e2be099bd57b5f555fe7a5b4", "file": "src/routes/docs-examples/extend/split-pane/+page.svelte"},
+  {"repo": "react-bootstrap/react-bootstrap", "commit": "d5ebc9cf46b55f9383368c494d7902e707026e20", "file": "src/Image.tsx"},
+  {"repo": "react-bootstrap/react-bootstrap", "commit": "d5ebc9cf46b55f9383368c494d7902e707026e20", "file": "src/Modal.tsx"},
+  {"repo": "saadeghi/daisyui", "commit": "42c76795161d81b723988e5b7848c07697abbce0", "file": "packages/docs/src/components/ColorPicker.svelte"},
+  {"repo": "saadeghi/daisyui", "commit": "42c76795161d81b723988e5b7848c07697abbce0", "file": "packages/docs/src/components/themegenerator/ThemeCSSModal.svelte"},
+  {"repo": "facebook/docusaurus", "commit": "343097822317fa1454e1d24e8c3429ae4b22a88c", "file": "packages/docusaurus-theme-common/src/components/Details/index.tsx"},
+  {"repo": "facebook/docusaurus", "commit": "343097822317fa1454e1d24e8c3429ae4b22a88c", "file": "packages/docusaurus/src/client/hasHydratedDataAttribute.tsx"}
+]

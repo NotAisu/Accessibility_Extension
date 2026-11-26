@@ -367,6 +367,7 @@
     "watch": "tsc -watch -p ./",
     "lint": "eslint src test scripts",
     "test:gate": "ts-node test/ground-truth/gate.ts",
+    "label:field": "ts-node test/ground-truth/label-field.ts",
     "test:bundle-gate": "scripts/bundle-gate.sh",
     "test:cli": "mocha --no-config -r ts-node/register -r test/esm-only-packages.ts --extension ts --timeout 20000 'test/cli/**/*.test.ts'",
     "test:extension-host": "ts-node test/extension-host/run.ts",
