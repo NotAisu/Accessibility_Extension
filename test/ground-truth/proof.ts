@@ -43,14 +43,87 @@ export interface ProofStatus {
 export function judgeMatches(testCase: { expect: Expectation[]; complete?: boolean }, matches: RuleMatch[]): Map<string, Judged> {
     const judged = new Map<string, Judged>();
     for (const match of matches) {
-        const verdicts = match.criteria.map(criterion => verdict(testCase, criterion, match.line));
-        const outcome = verdicts.includes('correct') ? 'correct' : verdicts.includes('wrong') ? 'wrong' : undefined;
+        const outcome = judgeMatch(testCase, match);
         if (!outcome) continue;
         const sum = judged.get(match.ruleId) ?? { correct: 0, wrong: 0 };
         sum[outcome]++;
         judged.set(match.ruleId, sum);
     }
     return judged;
+}
+
+function judgeMatch(testCase: { expect: Expectation[]; complete?: boolean }, match: RuleMatch): 'correct' | 'wrong' | undefined {
+    const verdicts = match.criteria.map(criterion => verdict(testCase, criterion, match.line));
+    return verdicts.includes('correct') ? 'correct' : verdicts.includes('wrong') ? 'wrong' : undefined;
+}
+
+/**
+ * The judgement of one evidence case, as the gate stores it with the baselines: its matches judged correct and
+ * wrong (`rule@line`), and its labelled failures no correct match points at (`criterion@line`, or the criterion
+ * of a failure labelled without a line). Empty lists are left out.
+ */
+export interface CaseJudgement {
+    correct?: string[];
+    wrong?: string[];
+    missed?: string[];
+}
+
+/** Per language id, per case (`set/file`): the judgement of every evidence case. */
+export type CaseJudgements = Record<string, Record<string, CaseJudgement>>;
+
+export function judgeCase(testCase: { expect: Expectation[]; complete?: boolean }, matches: RuleMatch[]): CaseJudgement {
+    const judgement: CaseJudgement = {};
+    const add = (kind: keyof CaseJudgement, entry: string) => {
+        const list = judgement[kind] ??= [];
+        if (!list.includes(entry)) list.push(entry);
+    };
+    for (const match of matches) {
+        const outcome = judgeMatch(testCase, match);
+        if (outcome) add(outcome, `${match.ruleId}@${match.line}`);
+    }
+    const correct = matches.filter(match => judgeMatch(testCase, match) === 'correct');
+    for (const label of testCase.expect) {
+        if ('line' in label) {
+            if (!correct.some(m => m.line === label.line && m.criteria.includes(label.criterion))) add('missed', `${label.criterion}@${label.line}`);
+        } else if (label.present && !correct.some(m => m.criteria.includes(label.criterion))) {
+            add('missed', label.criterion);
+        }
+    }
+    for (const list of Object.values(judgement) as string[][]) list.sort(byLine);
+    return judgement;
+}
+
+function byLine(a: string, b: string): number {
+    const line = (entry: string) => Number(entry.split('@')[1] ?? 0);
+    return line(a) - line(b) || a.localeCompare(b);
+}
+
+/**
+ * Every case whose judgement changed between the baseline and now, with language, file, line and rule (or the
+ * criterion of a missed failure): first what is newly correct, wrong or missed, then what no longer is.
+ */
+export function caseChanges(baseline: CaseJudgements, current: CaseJudgements): string[] {
+    const changes: string[] = [];
+    const kinds = ['correct', 'wrong', 'missed'] as const;
+    for (const languageId of [...new Set([...Object.keys(baseline), ...Object.keys(current)])].sort()) {
+        const was = baseline[languageId] ?? {};
+        const is = current[languageId] ?? {};
+        for (const file of [...new Set([...Object.keys(was), ...Object.keys(is)])].sort()) {
+            if (!is[file]) {
+                changes.push(`${languageId} ${file}: no longer measured`);
+                continue;
+            }
+            const before = was[file] ?? {};
+            const after = is[file];
+            const show = (entry: string, change: string) => {
+                const at = entry.lastIndexOf('@');
+                return at === -1 ? `${languageId} ${file} ${entry}: ${change}` : `${languageId} ${file}:${entry.slice(at + 1)} ${entry.slice(0, at)}: ${change}`;
+            };
+            for (const kind of kinds) for (const entry of after[kind] ?? []) if (!before[kind]?.includes(entry)) changes.push(show(entry, `newly ${kind}`));
+            for (const kind of kinds) for (const entry of before[kind] ?? []) if (!after[kind]?.includes(entry)) changes.push(show(entry, `no longer ${kind}`));
+        }
+    }
+    return changes;
 }
 
 function verdict(testCase: { expect: Expectation[]; complete?: boolean }, criterion: string, line: number): 'correct' | 'wrong' | undefined {
