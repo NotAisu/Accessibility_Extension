@@ -3,6 +3,10 @@
  * evidence sets, per language, against the threshold of the proof policy (#78).
  */
 import type { Expectation } from './ground-truth';
+import bestPracticeRules from '../../src/core/best-practice-rules.json';
+
+/** Best-practice rules per language, bundled beside the proof status: never Proven, whatever their evidence. */
+export const BEST_PRACTICE_RULES: Record<string, string[]> = bestPracticeRules;
 
 export const CONFIDENCE = 0.95;
 export const THRESHOLD = 0.95;
@@ -112,13 +116,13 @@ function upperTail(k: number, n: number, p: number): number {
     return sum;
 }
 
-/** The proof status of every rule with evidence, from its judged matches per language. */
-export function proofStatus(judgedByLanguage: Map<string, Map<string, Judged>>): ProofStatus {
+/** The proof status of every rule with evidence, from its judged matches per language; a Best-practice rule is never proven. */
+export function proofStatus(judgedByLanguage: Map<string, Map<string, Judged>>, bestPractice: Record<string, string[]> = BEST_PRACTICE_RULES): ProofStatus {
     const rules: ProofStatus['rules'] = {};
     for (const languageId of [...judgedByLanguage.keys()].sort()) {
         for (const [ruleId, j] of [...judgedByLanguage.get(languageId)!].sort(([a], [b]) => a.localeCompare(b))) {
             const bound = lowerBound(j.correct, j.correct + j.wrong);
-            (rules[ruleId] ??= {})[languageId] = { ...j, lowerBound: Math.floor(bound * 1000) / 1000, proven: bound >= THRESHOLD };
+            (rules[ruleId] ??= {})[languageId] = { ...j, lowerBound: Math.floor(bound * 1000) / 1000, proven: bound >= THRESHOLD && !bestPractice[languageId]?.includes(ruleId) };
         }
     }
     return { confidence: CONFIDENCE, threshold: THRESHOLD, rules: Object.fromEntries(Object.entries(rules).sort(([a], [b]) => a.localeCompare(b))) };

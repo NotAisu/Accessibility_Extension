@@ -47,7 +47,7 @@
         "correct": 80,
         "wrong": 0,
         "lowerBound": 0.963,
-        "proven": true
+        "proven": false
       }
     },
     "@angular-eslint/template/role-has-required-aria": {
@@ -333,7 +333,7 @@
         "correct": 80,
         "wrong": 0,
         "lowerBound": 0.963,
-        "proven": true
+        "proven": false
       }
     },
     "autocomplete-valid": {
@@ -605,13 +605,13 @@
         "correct": 80,
         "wrong": 0,
         "lowerBound": 0.963,
-        "proven": true
+        "proven": false
       },
       "typescriptreact": {
         "correct": 79,
         "wrong": 0,
         "lowerBound": 0.962,
-        "proven": true
+        "proven": false
       }
     },
     "label": {
@@ -755,7 +755,7 @@
         "correct": 80,
         "wrong": 0,
         "lowerBound": 0.963,
-        "proven": true
+        "proven": false
       }
     },
     "svelte/a11y_role_has_required_aria_props": {
@@ -931,7 +931,7 @@
         "correct": 80,
         "wrong": 0,
         "lowerBound": 0.963,
-        "proven": true
+        "proven": false
       }
     }
   }

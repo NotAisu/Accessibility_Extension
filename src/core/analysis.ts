@@ -2,6 +2,7 @@ import { withoutIgnored } from './ignore';
 import { withFixes } from './fixes';
 import type { ComponentMapping } from './components';
 import proofStatus from './proof-status.json';
+import bestPracticeRules from './best-practice-rules.json';
 
 /** Character offsets into the analysed text, end exclusive. */
 export interface TextRange {
@@ -116,9 +117,21 @@ export function proofOf(ruleId: string, languageId: string): RuleProof | undefin
     return PROOF[ruleId]?.[languageId];
 }
 
-/** Whether a rule is a Proven rule in a language. */
+/**
+ * Best-practice rules per language: they flag a coding convention, not a WCAG failure. A positive tabindex fails
+ * 2.4.3 only when the order it makes loses meaning (F44), and link text like "click here" passes 2.4.4 in its
+ * context; a redundant "image of" in alt text is still a text alternative (1.1.1).
+ */
+const BEST_PRACTICE = bestPracticeRules as Record<string, string[] | undefined>;
+
+/** Whether a rule is a Best-practice rule in a language: never a Proven rule, its matches stay Needs Review. */
+export function isBestPractice(ruleId: string, languageId: string): boolean {
+    return BEST_PRACTICE[languageId]?.includes(ruleId) === true;
+}
+
+/** Whether a rule is a Proven rule in a language; a Best-practice rule never is, whatever its evidence. */
 export function isProven(ruleId: string, languageId: string): boolean {
-    return proofOf(ruleId, languageId)?.proven === true;
+    return !isBestPractice(ruleId, languageId) && proofOf(ruleId, languageId)?.proven === true;
 }
 
 /**
@@ -141,7 +154,9 @@ export async function analyse(document: AnalysisDocument, options: AnalysisOptio
             ...needsReview,
             ...unproven.flatMap(finding => finding.criteria.map(criterion => ({
                 criterion,
-                reason: `Likely failure, verify: ${finding.message} (${finding.ruleId} is not yet a Proven rule)`,
+                reason: isBestPractice(finding.ruleId, document.languageId)
+                    ? `Convention, verify: ${finding.message} (${finding.ruleId} is a Best-practice rule: it flags a coding convention, not a WCAG failure)`
+                    : `Likely failure, verify: ${finding.message} (${finding.ruleId} is not yet a Proven rule)`,
                 range: finding.range,
                 ruleId: finding.ruleId
             })))
