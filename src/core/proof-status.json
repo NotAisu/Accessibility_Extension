@@ -487,8 +487,8 @@
     "jsx-a11y-x/click-events-have-key-events": {
       "typescriptreact": {
         "correct": 1,
-        "wrong": 7,
-        "lowerBound": 0.006,
+        "wrong": 5,
+        "lowerBound": 0.008,
         "proven": false
       }
     },
@@ -559,7 +559,7 @@
     "jsx-a11y-x/no-noninteractive-element-interactions": {
       "typescriptreact": {
         "correct": 0,
-        "wrong": 3,
+        "wrong": 1,
         "lowerBound": 0,
         "proven": false
       }
