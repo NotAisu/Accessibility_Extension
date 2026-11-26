@@ -44,6 +44,8 @@ Editors without the language model API (some VS Code forks) run the Check and hi
 
 ## Coverage
 
+See the full **[WCAG 2.2 A & AA Coverage Map](https://notaisu.github.io/Accessibility_Extension/#coverage)** (and machine-readable [`site/llms.txt`](site/llms.txt)) for all 55 WCAG 2.2 Level A and AA criteria assigned to their primary layer (`Check`, `AI Review`, `Browser audit`, or `Person`), with Proven rule evidence per language and Best-practice rules marked clearly.
+
 The Check reports only what the source decides. Each language runs its own static accessibility linter; these are the WCAG 2.2 A/AA criteria they check:
 
 | Language | Engine | Criteria |
