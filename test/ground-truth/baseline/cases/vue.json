@@ -37,7 +37,7 @@
   "field/primefaces_primevue/apps/showcase/doc/designer/ci/OverviewDoc.vue": {"correct":["vuejs-accessibility/alt-text@13"]},
   "field/primefaces_primevue/apps/showcase/doc/designer/ci/VideoTutorialDoc.vue": {"missed":["4.1.2@5"]},
   "field/primefaces_primevue/apps/showcase/doc/drawer/pt/PTViewer.vue": {"correct":["vuejs-accessibility/no-aria-hidden-on-focusable@5","vuejs-accessibility/no-role-presentation-on-focusable@5","vuejs-accessibility/no-aria-hidden-on-focusable@29","vuejs-accessibility/no-role-presentation-on-focusable@29"]},
-  "field/primefaces_primevue/apps/showcase/doc/forms/formfield/NonPrimeVueDoc.vue": {"wrong":["vuejs-accessibility/form-control-has-label@8","vuejs-accessibility/form-control-has-label@12"]},
+  "field/primefaces_primevue/apps/showcase/doc/forms/formfield/NonPrimeVueDoc.vue": {"wrong":["vuejs-accessibility/form-control-has-label@12"]},
   "field/primefaces_primevue/apps/showcase/doc/galleria/fullscreen/CustomContentDoc.vue": {"correct":["vuejs-accessibility/click-events-have-key-events@29","vuejs-accessibility/no-static-element-interactions@29"]},
   "field/primefaces_primevue/apps/showcase/doc/imagecompare/BasicDoc.vue": {"correct":["vuejs-accessibility/alt-text@8","vuejs-accessibility/alt-text@11"]},
   "field/primefaces_primevue/apps/showcase/doc/imagecompare/ResponsiveDoc.vue": {"correct":["vuejs-accessibility/alt-text@8","vuejs-accessibility/alt-text@11"]},

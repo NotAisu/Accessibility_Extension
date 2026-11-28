@@ -15,11 +15,18 @@ describe('Open element', () => {
         assert.ok(OPEN_ELEMENT_RULES.has('svelte/a11y_missing_attribute'));
         assert.ok(OPEN_ELEMENT_RULES.has('svelte/a11y_role_supports_aria_props'));
         assert.ok(OPEN_ELEMENT_RULES.has('svelte/a11y_role_supports_aria_props_implicit'));
+        assert.ok(OPEN_ELEMENT_RULES.has('vuejs-accessibility/form-control-has-label'));
+        assert.ok(OPEN_ELEMENT_RULES.has('vuejs-accessibility/alt-text'));
+        assert.ok(OPEN_ELEMENT_RULES.has('vuejs-accessibility/click-events-have-key-events'));
+        assert.ok(OPEN_ELEMENT_RULES.has('vuejs-accessibility/iframe-has-title'));
         assert.ok(OPEN_ELEMENT_RULES.has('allyproof/button-name'));
         assert.ok(!OPEN_ELEMENT_RULES.has('jsx-a11y-x/aria-role'));
         assert.ok(!OPEN_ELEMENT_RULES.has('jsx-a11y-x/no-distracting-elements'));
         assert.ok(!OPEN_ELEMENT_RULES.has('svelte/a11y_unknown_role'));
         assert.ok(!OPEN_ELEMENT_RULES.has('svelte/a11y_distracting_elements'));
+        assert.ok(!OPEN_ELEMENT_RULES.has('vuejs-accessibility/aria-role'));
+        assert.ok(!OPEN_ELEMENT_RULES.has('vuejs-accessibility/no-distracting-elements'));
+        assert.ok(!OPEN_ELEMENT_RULES.has('vuejs-accessibility/tabindex-no-positive'));
     });
 
     for (const languageId of ['javascriptreact', 'typescriptreact'] as const) {
@@ -223,6 +230,82 @@ describe('Open element', () => {
             [
                 ['@angular-eslint/template/alt-text', '<img [src]="photo" [ngClass]="cls">'],
                 ['@angular-eslint/template/elements-content', '<button [class.active]="active"></button>']
+            ]
+        );
+    });
+
+    it('demotes affected rules on an element with object v-bind to Needs Review in Vue, while keeping Findings without it', async () => {
+        const withVBind = [
+            '<template>',
+            '    <input type="text" v-bind="obj" />',
+            '    <img v-bind="props" src="a.png" />',
+            '    <div v-bind="props" @click="open">Open</div>',
+            '    <iframe v-bind="props" src="/a"></iframe>',
+            '</template>'
+        ].join('\n');
+        const withoutVBind = [
+            '<template>',
+            '    <input type="text" />',
+            '    <input type="text" :placeholder="hint" />',
+            '    <img src="a.png" />',
+            '    <iframe src="/a"></iframe>',
+            '</template>'
+        ].join('\n');
+
+        const boundResult = await analyse({ languageId: 'vue', text: withVBind });
+        assert.deepStrictEqual(boundResult.findings, []);
+
+        const boundAll = await analyseEveryRule({ languageId: 'vue', text: withVBind });
+        assert.deepStrictEqual(boundAll.findings, []);
+        const openEntries = boundAll.needsReview.filter(e => e.range && /open element/i.test(e.reason));
+        assert.deepStrictEqual(
+            openEntries.map(e => [e.criterion, slice(withVBind, e.range!)]),
+            [
+                ['4.1.2', '<input type="text" v-bind="obj" />'],
+                ['1.3.1', '<input type="text" v-bind="obj" />'],
+                ['1.1.1', '<img v-bind="props" src="a.png" />'],
+                ['2.1.1', '<div v-bind="props" @click="open">'],
+                ['4.1.2', '<div v-bind="props" @click="open">'],
+                ['4.1.2', '<iframe v-bind="props" src="/a">']
+            ]
+        );
+        assert.ok(openEntries.every(e => e.ruleId === undefined), 'Open element Needs Review entries must not be tagged as Unproven rule matches');
+
+        const plainAll = await analyseEveryRule({ languageId: 'vue', text: withoutVBind });
+        assert.deepStrictEqual(
+            plainAll.findings.map(f => [f.ruleId, slice(withoutVBind, f.range)]),
+            [
+                ['vuejs-accessibility/form-control-has-label', '<input type="text" />'],
+                ['vuejs-accessibility/form-control-has-label', '<input type="text" :placeholder="hint" />'],
+                ['vuejs-accessibility/alt-text', '<img src="a.png" />'],
+                ['vuejs-accessibility/iframe-has-title', '<iframe src="/a">']
+            ]
+        );
+
+        const plainProven = await analyse({ languageId: 'vue', text: withoutVBind });
+        assert.deepStrictEqual(
+            plainProven.findings.map(f => [f.ruleId, slice(withoutVBind, f.range)]),
+            [
+                ['vuejs-accessibility/alt-text', '<img src="a.png" />'],
+                ['vuejs-accessibility/iframe-has-title', '<iframe src="/a">']
+            ]
+        );
+    });
+
+    it('keeps Findings for unaffected rules on an element with object v-bind and for non-open children in Vue', async () => {
+        const text = [
+            '<template>',
+            '    <div role="bogus" v-bind="props">x</div>',
+            '    <div v-bind="props"><img src="nested.png" /></div>',
+            '</template>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'vue', text });
+        assert.deepStrictEqual(
+            findings.map(f => [f.ruleId, slice(text, f.range)]),
+            [
+                ['vuejs-accessibility/aria-role', 'role="bogus"'],
+                ['vuejs-accessibility/alt-text', '<img src="nested.png" />']
             ]
         );
     });
