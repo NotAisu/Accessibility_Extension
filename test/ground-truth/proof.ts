@@ -2,7 +2,12 @@
  * Which Check rules are Proven rules: the one-sided Clopper-Pearson lower bound of a rule's precision on the
  * evidence sets, per language, against the threshold of the proof policy (#78).
  */
+import type { Finding, NeedsReview, TextRange } from '../../src/core/analysis';
 import type { Expectation } from './ground-truth';
+import bestPracticeRules from '../../src/core/best-practice-rules.json';
+
+/** Best-practice rules per language, bundled beside the proof status: never Proven, whatever their evidence. */
+export const BEST_PRACTICE_RULES: Record<string, string[]> = bestPracticeRules;
 
 export const CONFIDENCE = 0.95;
 export const THRESHOLD = 0.95;
@@ -12,6 +17,32 @@ export interface RuleMatch {
     ruleId: string;
     line: number;
     criteria: string[];
+}
+
+/**
+ * Every rule match of a result at its line: the Findings and the Unproven rules' matches, which the Check lists as
+ * Needs Review entries. An Unproven rule's match is judged like a Finding, so the proof never depends on the proof status.
+ */
+export function ruleMatches(text: string, result: { findings: Pick<Finding, 'ruleId' | 'range' | 'criteria'>[]; needsReview: NeedsReview[] }): RuleMatch[] {
+    return [...result.findings, ...demoted(result.needsReview)].map(f => ({ ruleId: f.ruleId, line: lineAt(text, f.range.start), criteria: f.criteria }));
+}
+
+// The Needs Review entries of one Unproven rule's match, one per criterion, joined back into the match
+function demoted(needsReview: NeedsReview[]): { ruleId: string; range: TextRange; criteria: string[] }[] {
+    const byMatch = new Map<string, { ruleId: string; range: TextRange; criteria: string[] }>();
+    for (const entry of needsReview) {
+        if (!entry.ruleId || !entry.range) continue;
+        const key = `${entry.ruleId} ${entry.range.start} ${entry.range.end}`;
+        if (!byMatch.has(key)) byMatch.set(key, { ruleId: entry.ruleId, range: entry.range, criteria: [] });
+        byMatch.get(key)!.criteria.push(entry.criterion);
+    }
+    return [...byMatch.values()];
+}
+
+export function lineAt(text: string, offset: number): number {
+    let line = 1;
+    for (let i = 0; i < offset; i++) if (text[i] === '\n') line++;
+    return line;
 }
 
 export interface Judged {
@@ -39,14 +70,87 @@ export interface ProofStatus {
 export function judgeMatches(testCase: { expect: Expectation[]; complete?: boolean }, matches: RuleMatch[]): Map<string, Judged> {
     const judged = new Map<string, Judged>();
     for (const match of matches) {
-        const verdicts = match.criteria.map(criterion => verdict(testCase, criterion, match.line));
-        const outcome = verdicts.includes('correct') ? 'correct' : verdicts.includes('wrong') ? 'wrong' : undefined;
+        const outcome = judgeMatch(testCase, match);
         if (!outcome) continue;
         const sum = judged.get(match.ruleId) ?? { correct: 0, wrong: 0 };
         sum[outcome]++;
         judged.set(match.ruleId, sum);
     }
     return judged;
+}
+
+function judgeMatch(testCase: { expect: Expectation[]; complete?: boolean }, match: RuleMatch): 'correct' | 'wrong' | undefined {
+    const verdicts = match.criteria.map(criterion => verdict(testCase, criterion, match.line));
+    return verdicts.includes('correct') ? 'correct' : verdicts.includes('wrong') ? 'wrong' : undefined;
+}
+
+/**
+ * The judgement of one evidence case, as the gate stores it with the baselines: its matches judged correct and
+ * wrong (`rule@line`), and its labelled failures no correct match points at (`criterion@line`, or the criterion
+ * of a failure labelled without a line). Empty lists are left out.
+ */
+export interface CaseJudgement {
+    correct?: string[];
+    wrong?: string[];
+    missed?: string[];
+}
+
+/** Per language id, per case (`set/file`): the judgement of every evidence case. */
+export type CaseJudgements = Record<string, Record<string, CaseJudgement>>;
+
+export function judgeCase(testCase: { expect: Expectation[]; complete?: boolean }, matches: RuleMatch[]): CaseJudgement {
+    const judgement: CaseJudgement = {};
+    const add = (kind: keyof CaseJudgement, entry: string) => {
+        const list = judgement[kind] ??= [];
+        if (!list.includes(entry)) list.push(entry);
+    };
+    for (const match of matches) {
+        const outcome = judgeMatch(testCase, match);
+        if (outcome) add(outcome, `${match.ruleId}@${match.line}`);
+    }
+    const correct = matches.filter(match => judgeMatch(testCase, match) === 'correct');
+    for (const label of testCase.expect) {
+        if ('line' in label) {
+            if (!correct.some(m => m.line === label.line && m.criteria.includes(label.criterion))) add('missed', `${label.criterion}@${label.line}`);
+        } else if (label.present && !correct.some(m => m.criteria.includes(label.criterion))) {
+            add('missed', label.criterion);
+        }
+    }
+    for (const list of Object.values(judgement) as string[][]) list.sort(byLine);
+    return judgement;
+}
+
+function byLine(a: string, b: string): number {
+    const line = (entry: string) => Number(entry.split('@')[1] ?? 0);
+    return line(a) - line(b) || a.localeCompare(b);
+}
+
+/**
+ * Every case whose judgement changed between the baseline and now, with language, file, line and rule (or the
+ * criterion of a missed failure): first what is newly correct, wrong or missed, then what no longer is.
+ */
+export function caseChanges(baseline: CaseJudgements, current: CaseJudgements): string[] {
+    const changes: string[] = [];
+    const kinds = ['correct', 'wrong', 'missed'] as const;
+    for (const languageId of [...new Set([...Object.keys(baseline), ...Object.keys(current)])].sort()) {
+        const was = baseline[languageId] ?? {};
+        const is = current[languageId] ?? {};
+        for (const file of [...new Set([...Object.keys(was), ...Object.keys(is)])].sort()) {
+            if (!is[file]) {
+                changes.push(`${languageId} ${file}: no longer measured`);
+                continue;
+            }
+            const before = was[file] ?? {};
+            const after = is[file];
+            const show = (entry: string, change: string) => {
+                const at = entry.lastIndexOf('@');
+                return at === -1 ? `${languageId} ${file} ${entry}: ${change}` : `${languageId} ${file}:${entry.slice(at + 1)} ${entry.slice(0, at)}: ${change}`;
+            };
+            for (const kind of kinds) for (const entry of after[kind] ?? []) if (!before[kind]?.includes(entry)) changes.push(show(entry, `newly ${kind}`));
+            for (const kind of kinds) for (const entry of before[kind] ?? []) if (!after[kind]?.includes(entry)) changes.push(show(entry, `no longer ${kind}`));
+        }
+    }
+    return changes;
 }
 
 function verdict(testCase: { expect: Expectation[]; complete?: boolean }, criterion: string, line: number): 'correct' | 'wrong' | undefined {
@@ -112,13 +216,13 @@ function upperTail(k: number, n: number, p: number): number {
     return sum;
 }
 
-/** The proof status of every rule with evidence, from its judged matches per language. */
-export function proofStatus(judgedByLanguage: Map<string, Map<string, Judged>>): ProofStatus {
+/** The proof status of every rule with evidence, from its judged matches per language; a Best-practice rule is never proven. */
+export function proofStatus(judgedByLanguage: Map<string, Map<string, Judged>>, bestPractice: Record<string, string[]> = BEST_PRACTICE_RULES): ProofStatus {
     const rules: ProofStatus['rules'] = {};
     for (const languageId of [...judgedByLanguage.keys()].sort()) {
         for (const [ruleId, j] of [...judgedByLanguage.get(languageId)!].sort(([a], [b]) => a.localeCompare(b))) {
             const bound = lowerBound(j.correct, j.correct + j.wrong);
-            (rules[ruleId] ??= {})[languageId] = { ...j, lowerBound: Math.floor(bound * 1000) / 1000, proven: bound >= THRESHOLD };
+            (rules[ruleId] ??= {})[languageId] = { ...j, lowerBound: Math.floor(bound * 1000) / 1000, proven: bound >= THRESHOLD && !bestPractice[languageId]?.includes(ruleId) };
         }
     }
     return { confidence: CONFIDENCE, threshold: THRESHOLD, rules: Object.fromEntries(Object.entries(rules).sort(([a], [b]) => a.localeCompare(b))) };

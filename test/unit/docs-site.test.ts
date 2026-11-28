@@ -3,7 +3,20 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { analyse } from '../../src/core/analysis';
 import proofStatus from '../../src/core/proof-status.json';
+import wcagCoverage from '../../src/core/wcag-coverage.json';
+import { TARGET_CRITERIA } from '../../src/core/wcag';
 import { buildNpmManifest } from '../../scripts/npm-package';
+import {
+    COVERAGE_LAYERS,
+    HTML_END_MARKER,
+    HTML_START_MARKER,
+    LLMS_COVERAGE_HEADING,
+    buildCoverageMap,
+    extractHtmlCoverageSection,
+    extractLlmsCoverageSection,
+    renderCoverageHtml,
+    renderCoverageLlms
+} from '../../scripts/generate-coverage-map';
 
 const root = path.join(__dirname, '..', '..');
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf-8')) as {
@@ -157,5 +170,72 @@ describe('Static documentation site, llms.txt and Pages workflow (#112)', () => 
         assert.match(workflow, /actions\/upload-pages-artifact@/);
         assert.match(workflow, /actions\/deploy-pages@/);
         assert.match(workflow, /path:\s*['"]?\.\/site['"]?/);
+    });
+});
+
+describe('WCAG 2.2 A/AA Coverage map (#139)', () => {
+    it('assigns all 55 WCAG 2.2 A and AA criteria (excluding 4.1.1) to exactly one valid primary layer', () => {
+        const entries = Object.entries(wcagCoverage as Record<string, { level: string; layer: string }>);
+        const ids = entries.map(([id]) => id);
+
+        assert.strictEqual(ids.length, 55, 'WCAG 2.2 A and AA has 55 criteria excluding obsolete 4.1.1');
+        assert.ok(!ids.includes('4.1.1'), 'Obsolete 4.1.1 Parsing must be excluded');
+        assert.deepStrictEqual([...ids].sort(), [...TARGET_CRITERIA].sort(), 'Coverage criteria must match src/core/wcag.ts');
+
+        const validLayers = new Set<string>(COVERAGE_LAYERS);
+        for (const [id, entry] of entries) {
+            assert.ok(entry.level === 'A' || entry.level === 'AA', `${id} must have level A or AA`);
+            assert.ok(validLayers.has(entry.layer), `${id} has invalid primary layer "${entry.layer}"`);
+        }
+
+        const rows = buildCoverageMap();
+        assert.strictEqual(rows.length, 55);
+        assert.strictEqual(new Set(rows.map(row => row.criterion)).size, 55);
+
+        const totalProvenRendered = rows.reduce((sum, row) => sum + row.provenRules.length, 0);
+        assert.ok(totalProvenRendered >= provenRuleCount(), 'All Proven rules must be represented in Check criteria');
+
+        for (const row of rows) {
+            if (row.layer === 'Check') {
+                for (const rule of row.provenRules) {
+                    assert.strictEqual(typeof rule.correct, 'number');
+                    assert.strictEqual(typeof rule.wrong, 'number');
+                    assert.strictEqual(typeof rule.lowerBound, 'number');
+                }
+            } else {
+                assert.deepStrictEqual(row.provenRules, [], `${row.criterion} (${row.layer}) must not list Check Proven rules`);
+            }
+        }
+    });
+
+    it('keeps site/index.html Coverage map in sync with generated output', () => {
+        const html = fs.readFileSync(indexHtmlPath, 'utf-8');
+        assert.ok(html.includes('id="coverage"'), 'site/index.html must expose #coverage section anchor');
+        assert.ok(html.includes(HTML_START_MARKER) && html.includes(HTML_END_MARKER), 'site/index.html must contain coverage generator markers');
+
+        const actual = extractHtmlCoverageSection(html);
+        const expected = renderCoverageHtml(buildCoverageMap());
+        assert.strictEqual(actual, expected, 'site/index.html Coverage map drifted from generated output; run npm run generate:coverage');
+    });
+
+    it('keeps site/llms.txt Coverage map in sync with generated output', () => {
+        const llms = fs.readFileSync(llmsTxtPath, 'utf-8');
+        assert.ok(llms.includes(LLMS_COVERAGE_HEADING), 'site/llms.txt must include the Coverage Map section');
+
+        const actual = extractLlmsCoverageSection(llms);
+        const expected = renderCoverageLlms(buildCoverageMap());
+        assert.strictEqual(actual, expected, 'site/llms.txt Coverage map drifted from generated output; run npm run generate:coverage');
+    });
+
+    it('points to the Coverage map from README.md', () => {
+        const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf-8');
+        assert.ok(
+            readme.includes('https://notaisu.github.io/Accessibility_Extension/#coverage'),
+            'README.md must link to https://notaisu.github.io/Accessibility_Extension/#coverage'
+        );
+        assert.ok(
+            readme.includes('site/llms.txt'),
+            'README.md must point to site/llms.txt'
+        );
     });
 });

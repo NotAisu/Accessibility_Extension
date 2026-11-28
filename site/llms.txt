@@ -2,7 +2,7 @@
 
 > Local, offline WCAG 2.2 A/AA static accessibility checker for HTML, React (JSX/TSX), Vue, Svelte, Angular, and Astro. Version 0.2.1, MIT-licensed, zero telemetry, zero accounts, and zero workspace code execution.
 
-Allyproof checks source code statically while you write, in CI, or inside coding agents. Only Proven rules (73 Proven rules across 7 formats; 6,092 of 6,092 correct = 100% measured precision, >= 95% Wilson lower bound at 95% confidence) report blocking Findings. Unproven rules and runtime-only criteria (contrast, target size) are listed under Needs Review instead of silent passes.
+Allyproof checks source code statically while you write, in CI, or inside coding agents. Only Proven rules (67 Proven rules across 7 formats; 5,613 of 5,613 correct = 100% measured precision, >= 95% Wilson lower bound at 95% confidence) report blocking Findings. Unproven rules and runtime-only criteria (contrast, target size) are listed under Needs Review instead of silent passes.
 
 ## Guarantees
 
@@ -56,12 +56,72 @@ Allyproof checks source code statically while you write, in CI, or inside coding
 
 ## Proof & Reproducible Agent Eval
 
-- Ground-truth evidence: `src/core/proof-status.json` and `test/ground-truth/` (73 Proven rules, 6,092/6,092 correct, 100% measured precision, >= 95% Wilson lower bound at 95% confidence).
+- Ground-truth evidence: `src/core/proof-status.json` and `test/ground-truth/` (67 Proven rules, 5,613/5,613 correct, 100% measured precision, >= 95% Wilson lower bound at 95% confidence).
 - Local agent evaluation harness (without vs. with Allyproof MCP + Skill):
   - `npm run bundle`
   - `npm run eval:agent -- --dry-run --limit 1`
   - `npm run eval:agent -- --claude sonnet --limit 1`
 - Scores fixed Findings, added Findings (fails on any), file integrity, claim honesty, and cost per fixed Finding into `out/agent-eval/report.json`.
+
+## Coverage Map (WCAG 2.2 A & AA)
+
+All 55 WCAG 2.2 Level A and AA criteria (excluding obsolete 4.1.1 Parsing), each assigned to one primary layer (11 Check, 10 AI Review, 15 Browser audit, 19 Person). Non-Check layers report `evidence pending`; Best-practice rules stay Needs Review and are never Proven.
+
+- **1.1.1 Non-text Content** (Level A) — Primary layer: Check — Proven: Angular: `@angular-eslint/template/alt-text` (correct: 84, wrong: 0, lowerBound: 0.964); Astro: `astro/jsx-a11y/alt-text` (correct: 60, wrong: 0, lowerBound: 0.951); HTML: `image-alt` (correct: 205, wrong: 0, lowerBound: 0.985); JSX: `jsx-a11y-x/alt-text` (correct: 74, wrong: 0, lowerBound: 0.96); Svelte: `svelte/a11y_missing_attribute` (correct: 81, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/alt-text` (correct: 80, wrong: 0, lowerBound: 0.963); Vue: `vuejs-accessibility/alt-text` (correct: 123, wrong: 0, lowerBound: 0.975) | Best-practice (Needs Review): Astro: `astro/jsx-a11y/img-redundant-alt`; JSX: `jsx-a11y-x/img-redundant-alt`; Svelte: `svelte/a11y_img_redundant_alt`; TSX: `jsx-a11y-x/img-redundant-alt`
+- **1.2.1 Audio-only and Video-only (Prerecorded)** (Level A) — Primary layer: Person — evidence pending
+- **1.2.2 Captions (Prerecorded)** (Level A) — Primary layer: Person — evidence pending
+- **1.2.3 Audio Description or Media Alternative (Prerecorded)** (Level A) — Primary layer: Person — evidence pending
+- **1.2.4 Captions (Live)** (Level AA) — Primary layer: Person — evidence pending
+- **1.2.5 Audio Description (Prerecorded)** (Level AA) — Primary layer: Person — evidence pending
+- **1.3.1 Info and Relationships** (Level A) — Primary layer: Check — Proven: Angular: `@angular-eslint/template/elements-content` (correct: 159, wrong: 0, lowerBound: 0.981); Angular: `@angular-eslint/template/label-has-associated-control` (correct: 82, wrong: 0, lowerBound: 0.964); Astro: `astro/jsx-a11y/heading-has-content` (correct: 78, wrong: 0, lowerBound: 0.962); HTML: `aria-hidden-body` (correct: 80, wrong: 0, lowerBound: 0.963); JSX: `jsx-a11y-x/heading-has-content` (correct: 76, wrong: 0, lowerBound: 0.961); JSX: `jsx-a11y-x/label-has-associated-control` (correct: 76, wrong: 0, lowerBound: 0.961); Svelte: `svelte/a11y_missing_content` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/heading-has-content` (correct: 62, wrong: 0, lowerBound: 0.952); Vue: `vuejs-accessibility/heading-has-content` (correct: 79, wrong: 0, lowerBound: 0.962); Vue: `vuejs-accessibility/label-has-for` (correct: 84, wrong: 0, lowerBound: 0.964)
+- **1.3.2 Meaningful Sequence** (Level A) — Primary layer: AI Review — evidence pending
+- **1.3.3 Sensory Characteristics** (Level A) — Primary layer: AI Review — evidence pending
+- **1.3.4 Orientation** (Level AA) — Primary layer: Browser audit — evidence pending
+- **1.3.5 Identify Input Purpose** (Level AA) — Primary layer: Check — Proven: Angular: `allyproof/autocomplete-valid` (correct: 78, wrong: 0, lowerBound: 0.962); HTML: `autocomplete-valid` (correct: 85, wrong: 0, lowerBound: 0.965); JSX: `jsx-a11y-x/autocomplete-valid` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/autocomplete-valid` (correct: 65, wrong: 0, lowerBound: 0.954)
+- **1.4.1 Use of Color** (Level A) — Primary layer: AI Review — evidence pending
+- **1.4.2 Audio Control** (Level A) — Primary layer: Browser audit — evidence pending
+- **1.4.3 Contrast (Minimum)** (Level AA) — Primary layer: Browser audit — evidence pending
+- **1.4.4 Resize Text** (Level AA) — Primary layer: Browser audit — evidence pending
+- **1.4.5 Images of Text** (Level AA) — Primary layer: Person — evidence pending
+- **1.4.10 Reflow** (Level AA) — Primary layer: Browser audit — evidence pending
+- **1.4.11 Non-text Contrast** (Level AA) — Primary layer: Browser audit — evidence pending
+- **1.4.12 Text Spacing** (Level AA) — Primary layer: Browser audit — evidence pending
+- **1.4.13 Content on Hover or Focus** (Level AA) — Primary layer: Browser audit — evidence pending
+- **2.1.1 Keyboard** (Level A) — Primary layer: Check — Proven: Svelte: `svelte/a11y_missing_attribute` (correct: 81, wrong: 0, lowerBound: 0.963)
+- **2.1.2 No Keyboard Trap** (Level A) — Primary layer: Browser audit — evidence pending
+- **2.1.4 Character Key Shortcuts** (Level A) — Primary layer: Person — evidence pending
+- **2.2.1 Timing Adjustable** (Level A) — Primary layer: Person — evidence pending
+- **2.2.2 Pause, Stop, Hide** (Level A) — Primary layer: Browser audit — evidence pending
+- **2.3.1 Three Flashes or Below Threshold** (Level A) — Primary layer: Person — evidence pending
+- **2.4.1 Bypass Blocks** (Level A) — Primary layer: Browser audit — evidence pending
+- **2.4.2 Page Titled** (Level A) — Primary layer: Check — Proven: HTML: `document-title` (correct: 84, wrong: 0, lowerBound: 0.964)
+- **2.4.3 Focus Order** (Level A) — Primary layer: Check — Proven: none | Best-practice (Needs Review): Angular: `@angular-eslint/template/no-positive-tabindex`; Angular (TS): `@angular-eslint/template/no-positive-tabindex`; Astro: `astro/jsx-a11y/tabindex-no-positive`; HTML: `@html-eslint/no-positive-tabindex`; JSX: `jsx-a11y-x/tabindex-no-positive`; Svelte: `svelte/a11y_positive_tabindex`; TSX: `jsx-a11y-x/tabindex-no-positive`; Vue: `vuejs-accessibility/tabindex-no-positive`
+- **2.4.4 Link Purpose (In Context)** (Level A) — Primary layer: Check — Proven: Angular: `@angular-eslint/template/elements-content` (correct: 159, wrong: 0, lowerBound: 0.981); Astro: `astro/jsx-a11y/anchor-has-content` (correct: 79, wrong: 0, lowerBound: 0.962); HTML: `link-name` (correct: 108, wrong: 0, lowerBound: 0.972); JSX: `jsx-a11y-x/anchor-has-content` (correct: 80, wrong: 0, lowerBound: 0.963); Svelte: `svelte/a11y_consider_explicit_label` (correct: 119, wrong: 0, lowerBound: 0.975); TSX: `jsx-a11y-x/anchor-has-content` (correct: 78, wrong: 0, lowerBound: 0.962); Vue: `vuejs-accessibility/anchor-has-content` (correct: 81, wrong: 0, lowerBound: 0.963) | Best-practice (Needs Review): Astro: `astro/jsx-a11y/anchor-ambiguous-text`; JSX: `jsx-a11y-x/anchor-ambiguous-text`; TSX: `jsx-a11y-x/anchor-ambiguous-text`
+- **2.4.5 Multiple Ways** (Level AA) — Primary layer: Person — evidence pending
+- **2.4.6 Headings and Labels** (Level AA) — Primary layer: Check — Proven: Angular: `@angular-eslint/template/elements-content` (correct: 159, wrong: 0, lowerBound: 0.981); Astro: `astro/jsx-a11y/heading-has-content` (correct: 78, wrong: 0, lowerBound: 0.962); JSX: `jsx-a11y-x/heading-has-content` (correct: 76, wrong: 0, lowerBound: 0.961); Svelte: `svelte/a11y_missing_content` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/heading-has-content` (correct: 62, wrong: 0, lowerBound: 0.952); Vue: `vuejs-accessibility/heading-has-content` (correct: 79, wrong: 0, lowerBound: 0.962)
+- **2.4.7 Focus Visible** (Level AA) — Primary layer: Browser audit — evidence pending
+- **2.4.11 Focus Not Obscured (Minimum)** (Level AA) — Primary layer: Browser audit — evidence pending
+- **2.5.1 Pointer Gestures** (Level A) — Primary layer: Person — evidence pending
+- **2.5.2 Pointer Cancellation** (Level A) — Primary layer: Browser audit — evidence pending
+- **2.5.3 Label in Name** (Level A) — Primary layer: AI Review — evidence pending
+- **2.5.4 Motion Actuation** (Level A) — Primary layer: Person — evidence pending
+- **2.5.7 Dragging Movements** (Level AA) — Primary layer: Person — evidence pending
+- **2.5.8 Target Size (Minimum)** (Level AA) — Primary layer: Browser audit — evidence pending
+- **3.1.1 Language of Page** (Level A) — Primary layer: Check — Proven: HTML: `html-has-lang` (correct: 88, wrong: 0, lowerBound: 0.966); HTML: `html-lang-valid` (correct: 85, wrong: 0, lowerBound: 0.965); Svelte: `svelte/a11y_missing_attribute` (correct: 81, wrong: 0, lowerBound: 0.963)
+- **3.1.2 Language of Parts** (Level AA) — Primary layer: Check — Proven: HTML: `valid-lang` (correct: 80, wrong: 0, lowerBound: 0.963)
+- **3.2.1 On Focus** (Level A) — Primary layer: AI Review — evidence pending
+- **3.2.2 On Input** (Level A) — Primary layer: AI Review — evidence pending
+- **3.2.3 Consistent Navigation** (Level AA) — Primary layer: Person — evidence pending
+- **3.2.4 Consistent Identification** (Level AA) — Primary layer: Person — evidence pending
+- **3.2.6 Consistent Help** (Level A) — Primary layer: Person — evidence pending
+- **3.3.1 Error Identification** (Level A) — Primary layer: AI Review — evidence pending
+- **3.3.2 Labels or Instructions** (Level A) — Primary layer: AI Review — evidence pending
+- **3.3.3 Error Suggestion** (Level AA) — Primary layer: AI Review — evidence pending
+- **3.3.4 Error Prevention (Legal, Financial, Data)** (Level AA) — Primary layer: Person — evidence pending
+- **3.3.7 Redundant Entry** (Level A) — Primary layer: Person — evidence pending
+- **3.3.8 Accessible Authentication (Minimum)** (Level AA) — Primary layer: Person — evidence pending
+- **4.1.2 Name, Role, Value** (Level A) — Primary layer: Check — Proven: Angular: `@angular-eslint/template/elements-content` (correct: 159, wrong: 0, lowerBound: 0.981); Angular: `@angular-eslint/template/label-has-associated-control` (correct: 82, wrong: 0, lowerBound: 0.964); Angular: `@angular-eslint/template/role-has-required-aria` (correct: 80, wrong: 0, lowerBound: 0.963); Astro: `allyproof/button-name` (correct: 80, wrong: 0, lowerBound: 0.963); Astro: `astro/jsx-a11y/anchor-has-content` (correct: 79, wrong: 0, lowerBound: 0.962); Astro: `astro/jsx-a11y/aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); Astro: `astro/jsx-a11y/aria-proptypes` (correct: 80, wrong: 0, lowerBound: 0.963); Astro: `astro/jsx-a11y/aria-role` (correct: 80, wrong: 0, lowerBound: 0.963); Astro: `astro/jsx-a11y/no-aria-hidden-on-focusable` (correct: 80, wrong: 0, lowerBound: 0.963); Astro: `astro/jsx-a11y/role-has-required-aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); Astro: `astro/jsx-a11y/role-supports-aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); HTML: `aria-allowed-attr` (correct: 78, wrong: 0, lowerBound: 0.962); HTML: `aria-hidden-body` (correct: 80, wrong: 0, lowerBound: 0.963); HTML: `aria-valid-attr` (correct: 77, wrong: 0, lowerBound: 0.961); HTML: `button-name` (correct: 74, wrong: 0, lowerBound: 0.96); HTML: `label` (correct: 85, wrong: 0, lowerBound: 0.965); HTML: `link-name` (correct: 108, wrong: 0, lowerBound: 0.972); JSX: `allyproof/button-name` (correct: 80, wrong: 0, lowerBound: 0.963); JSX: `jsx-a11y-x/anchor-has-content` (correct: 80, wrong: 0, lowerBound: 0.963); JSX: `jsx-a11y-x/aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); JSX: `jsx-a11y-x/aria-proptypes` (correct: 80, wrong: 0, lowerBound: 0.963); JSX: `jsx-a11y-x/aria-role` (correct: 80, wrong: 0, lowerBound: 0.963); JSX: `jsx-a11y-x/label-has-associated-control` (correct: 76, wrong: 0, lowerBound: 0.961); JSX: `jsx-a11y-x/no-aria-hidden-on-focusable` (correct: 80, wrong: 0, lowerBound: 0.963); JSX: `jsx-a11y-x/role-has-required-aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); JSX: `jsx-a11y-x/role-supports-aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); Svelte: `svelte/a11y_consider_explicit_label` (correct: 119, wrong: 0, lowerBound: 0.975); Svelte: `svelte/a11y_incorrect_aria_attribute_type_token` (correct: 80, wrong: 0, lowerBound: 0.963); Svelte: `svelte/a11y_missing_attribute` (correct: 81, wrong: 0, lowerBound: 0.963); Svelte: `svelte/a11y_role_has_required_aria_props` (correct: 80, wrong: 0, lowerBound: 0.963); Svelte: `svelte/a11y_role_supports_aria_props_implicit` (correct: 79, wrong: 0, lowerBound: 0.962); Svelte: `svelte/a11y_unknown_aria_attribute` (correct: 80, wrong: 0, lowerBound: 0.963); Svelte: `svelte/a11y_unknown_role` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `allyproof/button-name` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/anchor-has-content` (correct: 78, wrong: 0, lowerBound: 0.962); TSX: `jsx-a11y-x/aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/aria-proptypes` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/aria-role` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/no-aria-hidden-on-focusable` (correct: 79, wrong: 0, lowerBound: 0.962); TSX: `jsx-a11y-x/role-has-required-aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); TSX: `jsx-a11y-x/role-supports-aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); Vue: `vuejs-accessibility/anchor-has-content` (correct: 81, wrong: 0, lowerBound: 0.963); Vue: `vuejs-accessibility/aria-props` (correct: 80, wrong: 0, lowerBound: 0.963); Vue: `vuejs-accessibility/aria-role` (correct: 80, wrong: 0, lowerBound: 0.963); Vue: `vuejs-accessibility/iframe-has-title` (correct: 65, wrong: 0, lowerBound: 0.954); Vue: `vuejs-accessibility/label-has-for` (correct: 84, wrong: 0, lowerBound: 0.964); Vue: `vuejs-accessibility/no-aria-hidden-on-focusable` (correct: 82, wrong: 0, lowerBound: 0.964); Vue: `vuejs-accessibility/role-has-required-aria-props` (correct: 80, wrong: 0, lowerBound: 0.963)
+- **4.1.3 Status Messages** (Level AA) — Primary layer: AI Review — evidence pending
 
 ## Links
 

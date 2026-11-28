@@ -2,7 +2,7 @@
  * Runs the Check over every ground-truth set and fails when precision or recall of any
  * WCAG criterion drops below the stored baseline of its language.
  *   npm run test:gate                 compare with baseline/<languageId>.json
- *   npm run test:gate -- --update     store the current scores as the new baselines
+ *   npm run test:gate -- --update     store the current scores and per-case judgements as the new baselines
  *   npm run test:gate -- --save <file>   also write the measured source scores and proof status to <file>
  *   npm run test:gate -- --bundle <dir>  measure the analysis bundle in <dir>/dist instead of the source
  *   npm run test:gate -- --mcp <cli.mjs> [--against <file>]  measure every case through `allyproof mcp` of that
@@ -11,6 +11,11 @@
  *
  * It also computes which rules are Proven rules from the evidence sets and fails when that differs from the
  * committed proof status (src/core/proof-status.json), which --update rewrites with the baselines.
+ *
+ * Per evidence case it keeps the matches judged correct and wrong and the labelled failures missed, stored in
+ * baseline/cases/<languageId>.json, and prints every case whose judgement changed against it, so an engine
+ * update or a filter shows exactly what it newly solved or broke. A stale per-case state fails like a stale
+ * proof status.
  *
  * Evidence sets are labelled independently of the engines: the W3C ACT Rules test cases (act), real pages and
  * component files labelled per Finding (field), and real files with one inserted failure (injection,
@@ -28,7 +33,7 @@ import * as source from '../../src/core/analysis';
 import type { Finding, NeedsReview, TextRange } from '../../src/core/analysis';
 import type { CheckOutput, Location } from '../../src/cli/output';
 import { GroundTruthSet, Tally, addTallies, precision, recall, scoreCase } from './ground-truth';
-import { Judged, ProofStatus, addJudged, judgeMatches, proofChanges, proofStatus, repeatedEvidence } from './proof';
+import { CaseJudgements, Judged, ProofStatus, addJudged, caseChanges, judgeCase, judgeMatches, lineAt, proofChanges, proofStatus, repeatedEvidence, ruleMatches } from './proof';
 
 const SETS = ['act', 'jsx-a11y', 'vuejs-accessibility', 'own', 'svelte', 'astro', 'angular-eslint', 'field', 'injection']
     .filter(name => fs.existsSync(path.join(__dirname, name, 'expectations.json')));
@@ -38,6 +43,7 @@ const EVIDENCE = new Set(['act', 'field', 'injection']);
 const PROOF_STATUS = path.join(__dirname, '..', '..', 'src', 'core', 'proof-status.json');
 // One file per language, so work on different languages never touches the same baseline
 const BASELINES = path.join(__dirname, 'baseline');
+const CASE_BASELINES = path.join(BASELINES, 'cases');
 
 type Scores = Record<string, { precision: number | null; recall: number | null } & Tally>;
 
@@ -50,23 +56,13 @@ type Analyse = (document: { languageId: string; text: string }) => Promise<{
 interface Measured {
     scoresByLanguage: Map<string, Scores>;
     proof: ProofStatus;
-}
-
-// The Needs Review entries of one Unproven rule's match, one per criterion, joined back into the match
-function demoted(needsReview: NeedsReview[]): { ruleId: string; range: TextRange; criteria: string[] }[] {
-    const byMatch = new Map<string, { ruleId: string; range: TextRange; criteria: string[] }>();
-    for (const entry of needsReview) {
-        if (!entry.ruleId || !entry.range) continue;
-        const key = `${entry.ruleId} ${entry.range.start} ${entry.range.end}`;
-        if (!byMatch.has(key)) byMatch.set(key, { ruleId: entry.ruleId, range: entry.range, criteria: [] });
-        byMatch.get(key)!.criteria.push(entry.criterion);
-    }
-    return [...byMatch.values()];
+    cases: CaseJudgements;
 }
 
 async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured> {
     const totals = new Map<string, Map<string, Tally>>();
     const judged = new Map<string, Map<string, Judged>>();
+    const cases: CaseJudgements = {};
     const failingCaseFindings = new Map<string, number>();
     const repeated = repeatedEvidence();
     const repeats: string[] = [];
@@ -79,8 +75,7 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured>
             // A likely failure points at its element, so it is judged like a Finding
             const located = needsReview.flatMap(entry => entry.range ? [{ range: entry.range, criteria: [entry.criterion] }] : []);
             const reported = [...findings, ...located].map(f => ({ line: lineAt(text, f.range.start), criteria: f.criteria }));
-            // An Unproven rule's match is judged like a Finding, so the proof never depends on the proof status
-            const matches = [...findings, ...demoted(needsReview)].map(f => ({ ruleId: f.ruleId, line: lineAt(text, f.range.start), criteria: f.criteria }));
+            const matches = ruleMatches(text, { findings, needsReview });
             if (testCase.expect.some(e => !('present' in e) || e.present)) {
                 failingCaseFindings.set(testCase.languageId, (failingCaseFindings.get(testCase.languageId) ?? 0) + matches.length);
             }
@@ -92,6 +87,8 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured>
                 else {
                     if (!judged.has(testCase.languageId)) judged.set(testCase.languageId, new Map());
                     addJudged(judged.get(testCase.languageId)!, judgeMatches(testCase, matches));
+                    const judgement = judgeCase(testCase, matches);
+                    if (Object.keys(judgement).length > 0) (cases[testCase.languageId] ??= {})[`${name}/${testCase.file}`] = judgement;
                 }
             }
         }
@@ -108,13 +105,7 @@ async function measure(analyse: Analyse, silent: Set<string>): Promise<Measured>
         }
         scoresByLanguage.set(languageId, scores);
     }
-    return { scoresByLanguage, proof: proofStatus(judged) };
-}
-
-function lineAt(text: string, offset: number): number {
-    let line = 1;
-    for (let i = 0; i < offset; i++) if (text[i] === '\n') line++;
-    return line;
+    return { scoresByLanguage, proof: proofStatus(judged), cases };
 }
 
 function round(value: number | null): number | null {
@@ -208,13 +199,14 @@ function writeMeasured(file: string, measured: Measured): void {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, JSON.stringify({
         scores: Object.fromEntries(measured.scoresByLanguage),
-        proof: measured.proof
+        proof: measured.proof,
+        cases: measured.cases
     }) + '\n');
 }
 
 function readMeasured(file: string): Measured {
-    const parsed = JSON.parse(fs.readFileSync(file, 'utf-8')) as { scores: Record<string, Scores>; proof: ProofStatus };
-    return { scoresByLanguage: new Map(Object.entries(parsed.scores)), proof: parsed.proof };
+    const parsed = JSON.parse(fs.readFileSync(file, 'utf-8')) as { scores: Record<string, Scores>; proof: ProofStatus; cases: CaseJudgements };
+    return { scoresByLanguage: new Map(Object.entries(parsed.scores)), proof: parsed.proof, cases: parsed.cases };
 }
 
 // Every score and the proof status through the server, which must equal the source's exactly
@@ -244,6 +236,7 @@ async function mainServer(cli: string, against?: string): Promise<void> {
         problems.push(...proofChanges(fromSource.proof, viaServer.proof).map(change => `proof status through the server: ${change}`));
         if (problems.length === 0) problems.push('proof status through the server differs from source');
     }
+    problems.push(...caseChanges(fromSource.cases, viaServer.cases).map(change => `through the server: ${change}`));
     if (problems.length > 0) {
         console.error(`\nThe MCP server scores differently from the source:\n  ${problems.join('\n  ')}`);
         process.exit(1);
@@ -257,7 +250,7 @@ async function main() {
     const save = argValue('--save');
     const silent = new Set<string>();
     const measured = await measure(loadAnalyse(), silent);
-    const { scoresByLanguage, proof } = measured;
+    const { scoresByLanguage, proof, cases } = measured;
     const update = process.argv.includes('--update');
     const problems = [...silent].map(languageId => `${languageId}: no Findings on the cases that expect one`);
     if (update && problems.length > 0) {
@@ -283,11 +276,17 @@ async function main() {
         }
     }
     printProof(proof);
+    const changes = caseChanges(readCaseBaselines(), cases);
+    if (changes.length > 0) console.log(`\nPer-case changes against the baseline:\n  ${changes.join('\n  ')}`);
+    else console.log('\nNo per-case change against the baseline.');
     if (update) {
         fs.writeFileSync(PROOF_STATUS, JSON.stringify(proof, null, 2) + '\n');
         console.log(`Proof status written to ${path.relative(process.cwd(), PROOF_STATUS)}`);
+        writeCaseBaselines(cases);
+        console.log(`Per-case judgements written to ${path.relative(process.cwd(), CASE_BASELINES)}`);
         return;
     }
+    if (changes.length > 0) problems.push(`per-case judgements out of date (${changes.length} changes above), run npm run test:gate -- --update and commit ${path.relative(process.cwd(), CASE_BASELINES)}`);
     if (!fs.existsSync(PROOF_STATUS)) {
         problems.push(`no proof status, run npm run test:gate -- --update and commit ${path.relative(process.cwd(), PROOF_STATUS)}`);
     } else {
@@ -305,6 +304,25 @@ async function main() {
     }
     if (save) writeMeasured(path.resolve(save), measured);
     console.log('\nNo criterion below the baseline.');
+}
+
+function readCaseBaselines(): CaseJudgements {
+    if (!fs.existsSync(CASE_BASELINES)) return {};
+    const cases: CaseJudgements = {};
+    for (const file of fs.readdirSync(CASE_BASELINES).filter(f => f.endsWith('.json'))) {
+        cases[path.basename(file, '.json')] = JSON.parse(fs.readFileSync(path.join(CASE_BASELINES, file), 'utf-8')) as CaseJudgements[string];
+    }
+    return cases;
+}
+
+// One line per case, so a diff of the file reads case by case
+function writeCaseBaselines(cases: CaseJudgements): void {
+    fs.rmSync(CASE_BASELINES, { recursive: true, force: true });
+    fs.mkdirSync(CASE_BASELINES, { recursive: true });
+    for (const [languageId, byFile] of Object.entries(cases)) {
+        const lines = Object.keys(byFile).sort().map(file => `  ${JSON.stringify(file)}: ${JSON.stringify(byFile[file])}`);
+        fs.writeFileSync(path.join(CASE_BASELINES, `${languageId}.json`), `{\n${lines.join(',\n')}\n}\n`);
+    }
 }
 
 function printProof(proof: ProofStatus): void {

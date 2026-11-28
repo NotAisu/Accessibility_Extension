@@ -17,6 +17,8 @@ export interface SourceElement {
     boundText?: true;
     /** A class or style is bound to an expression, so the element's colors are not known from source. */
     boundStyle?: true;
+    /** Unknown attributes are spread or bound onto the element, so missing-attribute rules cannot decide it from source. */
+    open?: true;
 }
 
 /** What a document renders that only layout can judge; each engine detects it in its own syntax. */

@@ -81,6 +81,28 @@ describe('analyse (HTML)', () => {
 
         assert.deepStrictEqual(result, { findings: [], needsReview: [] });
     });
+
+    it('ignores aria-required-attr on unexpanded comboboxes while still reporting expanded comboboxes missing aria-controls and other missing required ARIA attributes', async () => {
+        const text = page([
+            '<div aria-label="country" role="combobox" aria-disabled="true">England</div>',
+            '<div aria-label="city" role="combobox" aria-expanded="false" aria-controls="cities">London</div>',
+            '<ul id="cities" role="listbox"><li role="option" aria-selected="false">London</li></ul>',
+            '<div aria-label="state" role="combobox" aria-expanded="true">CA</div>',
+            '<div role="slider" aria-label="Volume"></div>'
+        ].join('\n'));
+
+        const { findings, needsReview } = await analyse({ languageId: 'html', text });
+
+        assert.deepStrictEqual(
+            findings.filter(f => f.ruleId === 'aria-required-attr')
+                .map(f => text.slice(f.range.start, f.range.end)),
+            [
+                '<div aria-label="state" role="combobox" aria-expanded="true">',
+                '<div role="slider" aria-label="Volume">'
+            ]
+        );
+        assert.deepStrictEqual(needsReview.filter(entry => entry.ruleId), []);
+    });
 });
 
 describe('analyse (JSX/TSX)', () => {
@@ -472,6 +494,24 @@ describe('analyse (Svelte)', () => {
             ['svelte/a11y_positive_tabindex', ['2.4.3']]
         ]);
     });
+
+    it('ignores Svelte type warnings for valueless aria-hidden while still reporting invalid boolean values', async () => {
+        const text = [
+            '<ol>',
+            '    <li aria-hidden>&rsaquo;</li>',
+            '    <span aria-hidden="yes">Bad</span>',
+            '</ol>'
+        ].join('\n');
+
+        const { findings, needsReview } = await analyse({ languageId: 'svelte', text });
+
+        assert.deepStrictEqual(
+            findings.filter(f => f.ruleId === 'svelte/a11y_incorrect_aria_attribute_type_boolean')
+                .map(f => text.slice(f.range.start, f.range.end)),
+            ['aria-hidden="yes"']
+        );
+        assert.deepStrictEqual(needsReview.filter(entry => entry.ruleId), []);
+    });
 });
 
 
@@ -573,6 +613,23 @@ describe('analyse (Astro)', () => {
         const { findings } = await analyse({ languageId: 'astro', text });
 
         assert.deepStrictEqual(findings.filter(f => f.ruleId === 'astro/jsx-a11y/label-has-associated-control'), []);
+    });
+
+    it('ignores aria-hidden on <script> while still reporting other unsupported ARIA attributes', async () => {
+        const text = [
+            '<script is:inline aria-hidden="true">console.log(1);</script>',
+            '<script role="button">console.log(2);</script>',
+            '<meta aria-hidden="true" />'
+        ].join('\n');
+
+        const { findings, needsReview } = await analyse({ languageId: 'astro', text });
+
+        assert.deepStrictEqual(
+            findings.filter(f => f.ruleId === 'astro/jsx-a11y/aria-unsupported-elements')
+                .map(f => text.slice(f.range.start, f.range.end)),
+            ['<script role="button">', '<meta aria-hidden="true" />']
+        );
+        assert.deepStrictEqual(needsReview.filter(entry => entry.ruleId), []);
     });
 });
 

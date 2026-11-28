@@ -1,0 +1,33 @@
+{
+  "angular": [
+    "@angular-eslint/template/no-positive-tabindex"
+  ],
+  "astro": [
+    "astro/jsx-a11y/anchor-ambiguous-text",
+    "astro/jsx-a11y/img-redundant-alt",
+    "astro/jsx-a11y/tabindex-no-positive"
+  ],
+  "html": [
+    "@html-eslint/no-positive-tabindex"
+  ],
+  "javascriptreact": [
+    "jsx-a11y-x/anchor-ambiguous-text",
+    "jsx-a11y-x/img-redundant-alt",
+    "jsx-a11y-x/tabindex-no-positive"
+  ],
+  "svelte": [
+    "svelte/a11y_img_redundant_alt",
+    "svelte/a11y_positive_tabindex"
+  ],
+  "typescript": [
+    "@angular-eslint/template/no-positive-tabindex"
+  ],
+  "typescriptreact": [
+    "jsx-a11y-x/anchor-ambiguous-text",
+    "jsx-a11y-x/img-redundant-alt",
+    "jsx-a11y-x/tabindex-no-positive"
+  ],
+  "vue": [
+    "vuejs-accessibility/tabindex-no-positive"
+  ]
+}
