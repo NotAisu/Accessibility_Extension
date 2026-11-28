@@ -184,6 +184,7 @@ function renderedContent(template: VueNode | undefined, findings: Finding[]): Re
             const component = writtenNames.get(node);
             if (component) element.component = component;
             if (bindsClassOrStyle(node) || hasVShow(node)) element.boundStyle = true;
+            if (hasObjectVBind(node)) element.open = true;
             content.elements.push(element);
             if (element.tag === 'iframe' && needsIframeName(element) && !hasUncertainIframeMarkup(node)) {
                 findings.push({
@@ -212,7 +213,7 @@ function hasUncertainIframeMarkup(node: VueNode): boolean {
             const key = attribute.key as VueNode;
             const name = (key.name as VueNode).name;
             const argument = key.argument as VueNode | null;
-            if (name === 'bind' && argument?.type !== 'VIdentifier') return true;
+            if (name === 'bind' && (argument ? argument.type !== 'VIdentifier' : current !== node)) return true;
             const expression = (attribute.value as VueNode | null)?.expression as VueNode | null;
             if ((name === 'show' || name === 'if') && literalCondition(expression) === false) return true;
         }
@@ -282,6 +283,11 @@ function attributesOf(element: VueNode): Map<string, string | true> {
         }
     }
     return attributes;
+}
+
+// v-bind="object" (without an argument) binds unknown attributes onto the element, making it an Open element
+function hasObjectVBind(element: VueNode): boolean {
+    return directives(element).some(({ name, argument }) => name === 'bind' && !argument);
 }
 
 // :class, :style and v-bind="object" set the class or style beyond its literal value

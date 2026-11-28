@@ -865,7 +865,7 @@
     "vuejs-accessibility/form-control-has-label": {
       "vue": {
         "correct": 0,
-        "wrong": 2,
+        "wrong": 1,
         "lowerBound": 0,
         "proven": false
       }

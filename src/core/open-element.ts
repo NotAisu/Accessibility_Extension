@@ -21,6 +21,24 @@ const JSX_A11Y_OPEN_ELEMENT_RULES = [
     'role-supports-aria-props'
 ] as const;
 
+// eslint-plugin-vuejs-accessibility rules whose condition unknown attributes from v-bind="obj" could satisfy
+const VUE_A11Y_OPEN_ELEMENT_RULES = [
+    'alt-text',
+    'anchor-has-content',
+    'click-events-have-key-events',
+    'form-control-has-label',
+    'heading-has-content',
+    'iframe-has-title',
+    'interactive-supports-focus',
+    'label-has-for',
+    'media-has-caption',
+    'mouse-events-have-key-events',
+    'no-aria-hidden-on-focusable',
+    'no-role-presentation-on-focusable',
+    'no-static-element-interactions',
+    'role-has-required-aria-props'
+] as const;
+
 /**
  * Rules whose condition unknown attributes on an Open element could satisfy
  * (labels, names, roles, handlers, ARIA attributes).
@@ -29,6 +47,7 @@ const JSX_A11Y_OPEN_ELEMENT_RULES = [
 export const OPEN_ELEMENT_RULES: ReadonlySet<string> = new Set([
     ...JSX_A11Y_OPEN_ELEMENT_RULES.map(rule => `jsx-a11y-x/${rule}`),
     ...JSX_A11Y_OPEN_ELEMENT_RULES.map(rule => `astro/jsx-a11y/${rule}`),
+    ...VUE_A11Y_OPEN_ELEMENT_RULES.map(rule => `vuejs-accessibility/${rule}`),
     'allyproof/button-name'
 ]);
 
