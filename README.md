@@ -108,7 +108,7 @@ A rule reports Findings only once it has proven its precision on real code: on i
 | Svelte | `svelte/a11y_missing_attribute` | 1.1.1, 2.1.1, 3.1.1, 4.1.2 | 81 of 81 | 96.3 % |
 | Svelte | `svelte/a11y_missing_content` | 2.4.6, 1.3.1 | 80 of 80 | 96.3 % |
 | Svelte | `svelte/a11y_role_has_required_aria_props` | 4.1.2 | 80 of 80 | 96.3 % |
-| Svelte | `svelte/a11y_role_supports_aria_props_implicit` | 4.1.2 | 80 of 80 | 96.3 % |
+| Svelte | `svelte/a11y_role_supports_aria_props_implicit` | 4.1.2 | 79 of 79 | 96.2 % |
 | Svelte | `svelte/a11y_unknown_aria_attribute` | 4.1.2 | 80 of 80 | 96.3 % |
 | Svelte | `svelte/a11y_unknown_role` | 4.1.2 | 80 of 80 | 96.3 % |
 | TSX | `allyproof/button-name` | 4.1.2 | 80 of 80 | 96.3 % |

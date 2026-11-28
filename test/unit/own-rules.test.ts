@@ -36,7 +36,7 @@ describe('own rules', () => {
             { languageId: 'javascriptreact', text: 'export const Login = () => <input type="password" autoComplete="off" />;\n', tag: '<input type="password" autoComplete="off" />' },
             { languageId: 'typescriptreact', text: 'export const Login = (): JSX.Element => <input type="password" autoComplete="off" />;\n', tag: '<input type="password" autoComplete="off" />' },
             { languageId: 'vue', text: '<template>\n  <input type="password" autocomplete="off">\n</template>\n', tag: '<input type="password" autocomplete="off">' },
-            { languageId: 'svelte', text: '<input type="password" autocomplete="off" />\n', tag: '<input' },
+            { languageId: 'svelte', text: '<input type="password" autocomplete="off" />\n', tag: '<input type="password" autocomplete="off" />' },
             { languageId: 'astro', text: '---\n---\n<input type="password" autocomplete="off" />\n', tag: '<input type="password" autocomplete="off" />' },
             { languageId: 'angular', text: '<input type="password" autocomplete="off">\n', tag: '<input type="password" autocomplete="off">' },
             {

@@ -5,16 +5,21 @@ import { OPEN_ELEMENT_RULES } from '../../src/core/open-element';
 
 const slice = (text: string, range: { start: number; end: number }) => text.slice(range.start, range.end);
 
-describe('Open element (JSX, TSX and Astro)', () => {
+describe('Open element', () => {
     it('exports the affected rules as explicit data', () => {
         assert.ok(OPEN_ELEMENT_RULES instanceof Set);
         assert.ok(OPEN_ELEMENT_RULES.has('jsx-a11y-x/alt-text'));
         assert.ok(OPEN_ELEMENT_RULES.has('jsx-a11y-x/click-events-have-key-events'));
         assert.ok(OPEN_ELEMENT_RULES.has('jsx-a11y-x/no-static-element-interactions'));
         assert.ok(OPEN_ELEMENT_RULES.has('astro/jsx-a11y/alt-text'));
+        assert.ok(OPEN_ELEMENT_RULES.has('svelte/a11y_missing_attribute'));
+        assert.ok(OPEN_ELEMENT_RULES.has('svelte/a11y_role_supports_aria_props'));
+        assert.ok(OPEN_ELEMENT_RULES.has('svelte/a11y_role_supports_aria_props_implicit'));
         assert.ok(OPEN_ELEMENT_RULES.has('allyproof/button-name'));
         assert.ok(!OPEN_ELEMENT_RULES.has('jsx-a11y-x/aria-role'));
         assert.ok(!OPEN_ELEMENT_RULES.has('jsx-a11y-x/no-distracting-elements'));
+        assert.ok(!OPEN_ELEMENT_RULES.has('svelte/a11y_unknown_role'));
+        assert.ok(!OPEN_ELEMENT_RULES.has('svelte/a11y_distracting_elements'));
     });
 
     for (const languageId of ['javascriptreact', 'typescriptreact'] as const) {
@@ -142,6 +147,82 @@ describe('Open element (JSX, TSX and Astro)', () => {
             [
                 ['astro/jsx-a11y/aria-role', 'role="bogus"'],
                 ['astro/jsx-a11y/alt-text', '<img src="nested.png" />']
+            ]
+        );
+    });
+
+    it('demotes affected rules on a spread element to Needs Review in Svelte, while keeping Findings without spread', async () => {
+        const withProps = [
+            '<script>let props = $props();</script>',
+            '<button {...props} aria-checked="true">Toggle</button>',
+            '<div {...props} role="button" aria-checked="true">Toggle</div>'
+        ].join('\n');
+        const withRestProps = '<button {...$$restProps} aria-checked="true">Toggle</button>';
+        const withoutSpread = [
+            '<button aria-checked="true">Toggle</button>',
+            '<img src="a.png" />'
+        ].join('\n');
+
+        const propsResult = await analyse({ languageId: 'svelte', text: withProps });
+        assert.deepStrictEqual(propsResult.findings, []);
+        const propsOpen = propsResult.needsReview.filter(e => e.range && /open element/i.test(e.reason));
+        assert.deepStrictEqual(
+            propsOpen.map(e => [e.criterion, slice(withProps, e.range!)]),
+            [
+                ['4.1.2', '<button {...props} aria-checked="true">'],
+                ['4.1.2', '<div {...props} role="button" aria-checked="true">']
+            ]
+        );
+        assert.ok(propsOpen.every(e => e.ruleId === undefined));
+
+        const restResult = await analyse({ languageId: 'svelte', text: withRestProps });
+        assert.deepStrictEqual(restResult.findings, []);
+        const restOpen = restResult.needsReview.filter(e => e.range && /open element/i.test(e.reason));
+        assert.deepStrictEqual(
+            restOpen.map(e => [e.criterion, slice(withRestProps, e.range!)]),
+            [['4.1.2', '<button {...$$restProps} aria-checked="true">']]
+        );
+        assert.ok(restOpen.every(e => e.ruleId === undefined));
+
+        const plainResult = await analyse({ languageId: 'svelte', text: withoutSpread });
+        assert.deepStrictEqual(
+            plainResult.findings.map(f => [f.ruleId, slice(withoutSpread, f.range)]),
+            [
+                ['svelte/a11y_role_supports_aria_props_implicit', 'aria-checked="true"'],
+                ['svelte/a11y_missing_attribute', '<img src="a.png" />']
+            ]
+        );
+    });
+
+    it('keeps Findings for unaffected rules on a spread element and for non-open children in Svelte', async () => {
+        const text = [
+            '<script>let props = $props();</script>',
+            '<div role="bogus" {...props}>x</div>',
+            '<div {...props}><img src="nested.png" /></div>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'svelte', text });
+        assert.deepStrictEqual(
+            findings.map(f => [f.ruleId, slice(text, f.range)]),
+            [
+                ['svelte/a11y_unknown_role', 'role="bogus"'],
+                ['svelte/a11y_missing_attribute', '<img src="nested.png" />']
+            ]
+        );
+    });
+
+    it('keeps Findings for plain Angular elements without object attribute spreads', async () => {
+        const text = [
+            '<img [src]="photo" [ngClass]="cls">',
+            '<button [class.active]="active"></button>'
+        ].join('\n');
+
+        const { findings } = await analyse({ languageId: 'angular', text });
+        assert.deepStrictEqual(
+            findings.map(f => [f.ruleId, slice(text, f.range)]),
+            [
+                ['@angular-eslint/template/alt-text', '<img [src]="photo" [ngClass]="cls">'],
+                ['@angular-eslint/template/elements-content', '<button [class.active]="active"></button>']
             ]
         );
     });
