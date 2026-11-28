@@ -776,9 +776,9 @@
     },
     "svelte/a11y_role_supports_aria_props_implicit": {
       "svelte": {
-        "correct": 80,
+        "correct": 79,
         "wrong": 0,
-        "lowerBound": 0.963,
+        "lowerBound": 0.962,
         "proven": true
       }
     },

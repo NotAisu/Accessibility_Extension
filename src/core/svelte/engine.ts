@@ -92,7 +92,7 @@ export function checkSvelte(text: string, components?: ComponentMapping): Analys
             helpUrl: helpUrl ?? `https://svelte.dev/e/${warning.code}`
         });
     }
-    const content = renderedContent(ast, components);
+    const content = renderedContent(ast, text, components);
     content.stylesheetColors = ast.css !== null && cssSetsColors(ast.css.content.styles);
     return withOwnRules(findings, content);
 }
@@ -108,7 +108,7 @@ interface SvelteNode {
 // Text and expression tags in the markup and intrinsic controls; a component counts as the native element it is
 // mapped to and is otherwise opaque.
 // Only fragments are walked, so attribute values, the script and the style never count as rendered text
-function renderedContent(ast: AST.Root, components: ComponentMapping | undefined): RenderedContent {
+function renderedContent(ast: AST.Root, text: string, components: ComponentMapping | undefined): RenderedContent {
     const content: RenderedContent = { text: false, elements: [] };
     const visit = (node: SvelteNode, parent?: SourceElement) => {
         if (node.type === 'Text' && typeof node.data === 'string' && node.data.trim()) {
@@ -120,15 +120,16 @@ function renderedContent(ast: AST.Root, components: ComponentMapping | undefined
             addText(parent, true);
         }
         if (node.type === 'RegularElement' || OPAQUE.includes(node.type)) {
-            // The AST spans the whole element, so its range is the `<name` that opens it
             const start = node.start as number;
             const written = node.name as string;
+            const nodeAttributes = node.attributes as SvelteNode[];
             const attributes = attributesOf(node);
             const mapped = node.type === 'Component' ? mappedElement(written, name => attributes.get(name.toLowerCase()), components) : undefined;
-            const element: SourceElement = { tag: mapped ?? written, attributes, range: { start, end: start + 1 + written.length }, parent };
+            const element: SourceElement = { tag: mapped ?? written, attributes, range: { start, end: openingTagEnd(text, node) }, parent };
             if (mapped) element.component = written;
             // class: and style: directives and spread attributes change the class or style beyond its literal value
-            if ((node.attributes as SvelteNode[]).some(a => ['ClassDirective', 'StyleDirective', 'SpreadAttribute'].includes(a.type))) element.boundStyle = true;
+            if (nodeAttributes.some(a => ['ClassDirective', 'StyleDirective', 'SpreadAttribute'].includes(a.type))) element.boundStyle = true;
+            if (nodeAttributes.some(a => a.type === 'SpreadAttribute')) element.open = true;
             // Unmapped components and dynamic elements are opaque, but their children are known to be inside them
             if (node.type === 'RegularElement' || mapped) content.elements.push(element);
             parent = element;
@@ -141,6 +142,15 @@ function renderedContent(ast: AST.Root, components: ComponentMapping | undefined
     };
     visit(ast.fragment as unknown as SvelteNode);
     return content;
+}
+
+// The Svelte AST spans the whole element; its opening tag ends at the first `>` past its last attribute
+function openingTagEnd(text: string, node: SvelteNode): number {
+    const start = node.start as number;
+    const fallback = start + 1 + (node.name as string).length;
+    const afterAttributes = Math.max(fallback, ...(node.attributes as SvelteNode[]).map(a => typeof a.end === 'number' ? a.end : 0));
+    const close = text.indexOf('>', afterAttributes);
+    return close !== -1 && close < (node.end as number) ? close + 1 : fallback;
 }
 
 // A value only when it is plain text; an expression or a directive counts as present

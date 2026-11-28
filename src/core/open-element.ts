@@ -21,6 +21,23 @@ const JSX_A11Y_OPEN_ELEMENT_RULES = [
     'role-supports-aria-props'
 ] as const;
 
+const SVELTE_OPEN_ELEMENT_RULES = [
+    'a11y_aria_activedescendant_has_tabindex',
+    'a11y_click_events_have_key_events',
+    'a11y_consider_explicit_label',
+    'a11y_interactive_supports_focus',
+    'a11y_label_has_associated_control',
+    'a11y_media_has_caption',
+    'a11y_missing_attribute',
+    'a11y_missing_content',
+    'a11y_mouse_events_have_key_events',
+    'a11y_no_noninteractive_element_interactions',
+    'a11y_no_static_element_interactions',
+    'a11y_role_has_required_aria_props',
+    'a11y_role_supports_aria_props',
+    'a11y_role_supports_aria_props_implicit'
+] as const;
+
 /**
  * Rules whose condition unknown attributes on an Open element could satisfy
  * (labels, names, roles, handlers, ARIA attributes).
@@ -29,6 +46,7 @@ const JSX_A11Y_OPEN_ELEMENT_RULES = [
 export const OPEN_ELEMENT_RULES: ReadonlySet<string> = new Set([
     ...JSX_A11Y_OPEN_ELEMENT_RULES.map(rule => `jsx-a11y-x/${rule}`),
     ...JSX_A11Y_OPEN_ELEMENT_RULES.map(rule => `astro/jsx-a11y/${rule}`),
+    ...SVELTE_OPEN_ELEMENT_RULES.map(rule => `svelte/${rule}`),
     'allyproof/button-name'
 ]);
 

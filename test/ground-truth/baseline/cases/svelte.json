@@ -741,7 +741,7 @@
   "injection/unsupported-aria-prop/shadcn-svelte/docs__src__lib__registry__examples__create__preview-02__cards__index-investing.svelte--12.svelte": {"correct":["svelte/a11y_role_supports_aria_props_implicit@12"]},
   "injection/unsupported-aria-prop/shadcn-svelte/docs__src__lib__registry__examples__create__preview__cards__codespaces-card.svelte--281.svelte": {"correct":["svelte/a11y_role_supports_aria_props_implicit@281"]},
   "injection/unsupported-aria-prop/shadcn-svelte/docs__src__lib__registry__examples__create__preview__cards__contributors.svelte--43.svelte": {"correct":["svelte/a11y_role_supports_aria_props_implicit@43"]},
-  "injection/unsupported-aria-prop/shadcn-svelte/docs__src__lib__registry__examples__create__tooltip__tooltip-on-link.svelte--10.svelte": {"correct":["svelte/a11y_role_supports_aria_props_implicit@10"]},
+  "injection/unsupported-aria-prop/shadcn-svelte/docs__src__lib__registry__examples__create__tooltip__tooltip-on-link.svelte--10.svelte": {"missed":["4.1.2@10"]},
   "injection/unsupported-aria-prop/shadcn-svelte/docs__src__lib__registry__examples__create__trace__trace-rows.svelte--79.svelte": {"correct":["svelte/a11y_role_supports_aria_props_implicit@79"]},
   "injection/unsupported-aria-prop/shadcn-svelte/docs__src__lib__registry__examples__create__trace__trace-task.svelte--71.svelte": {"correct":["svelte/a11y_role_supports_aria_props_implicit@71"]},
   "injection/unsupported-aria-prop/shadcn-svelte/docs__src__lib__registry__examples__create__trace__trace-turn.svelte--119.svelte": {"correct":["svelte/a11y_role_supports_aria_props_implicit@119"]},
